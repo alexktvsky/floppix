@@ -86,13 +86,13 @@ status_t log_msg(int in_level, char *message) {
 }
 
 
-status_t log_error(status_t statcode) {
+status_t log_status(int in_level, status_t statcode) {
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d-%d. %s", 
              SET_ERROR_DOMAIN(statcode),
              statcode,
              set_strerror(statcode));
-	return log_msg(LOG_ERROR, buf);
+	return log_msg(in_level, buf);
 }
 
 
