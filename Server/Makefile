@@ -1,6 +1,7 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
+SRC_FILES += daemon.c
 SRC_FILES += error_proc.c
 SRC_FILES += pools.c
 SRC_FILES += config.c

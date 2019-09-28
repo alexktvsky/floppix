@@ -2,6 +2,7 @@
 
 #include "platform.h"
 #include "error_proc.h"
+#include "daemon.h"
 
 
 
@@ -83,11 +84,18 @@ int main(int argc, char *argv[]) {
      * here we close TTY, fork off the parent process and run daemon.
      */
 
+    if (init_daemon() != SUCCESS) {
+        fprintf(stderr, "%s\n", "Boot failed: Error of initialization daemon process.");
+        abort();
+    }
+
 
     if (init_listen_sockets(config_get_listeners()) != SUCCESS) {
         abort();
     }
    
+    log_msg(LOG_INFO, "Hello from daemon!");
+
 
     if (!config_get_nprocs()) {
         /* Platform depends code sction */
