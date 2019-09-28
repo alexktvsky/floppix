@@ -186,7 +186,7 @@ status_t pool_create(pool_t **newpool, pool_t *parent) {
     }
 
     *newpool = pool;
-    return SUCCESS;
+    return OK;
 }
 
 

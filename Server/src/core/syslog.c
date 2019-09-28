@@ -48,13 +48,13 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) 
     else {
         max_size = in_maxsize;
     }
-    return SUCCESS;
+    return OK;
 }
 
 
 status_t log_msg(int in_level, char *message) {
 	if (in_level > level_boundary) {
-		return SUCCESS;
+		return OK;
 	}
 
     char strtime[MAX_STRLEN_TIME];
@@ -82,7 +82,7 @@ status_t log_msg(int in_level, char *message) {
     }
     fflush(openfile);
     size_counter += msglen + HEADER_MSG_SIZE;
-    return SUCCESS;
+    return OK;
 }
 
 

@@ -36,6 +36,8 @@ static const struct {
     {WRITE_FILE_ERROR,              "Error of writing file."},
 
     /* End of error list */
+    {SUCCESS,                      "SUCCESS"},
+    {OK,                           "OK"},
     {0,                            "Undefined error code."}
 };
 

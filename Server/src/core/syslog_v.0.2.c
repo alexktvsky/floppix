@@ -120,7 +120,7 @@ status_t init_log(char *filename, int level_boundary) {
     }
     pthread_detach(log_tid);
     log_enable = 1;
-    return SUCCESS;
+    return OK;
 }
 
 
@@ -166,7 +166,7 @@ status_t log_message(int level, char *message) {
         temp2->next = node;
     }
     pthread_mutex_unlock(&mutex);
-    return SUCCESS;
+    return OK;
 }
 
 
@@ -177,7 +177,7 @@ status_t log_error(status_t statcode) {
              statcode,
              set_strerror(statcode));
     status_t stat = log_message(LOG_ERROR, buf);
-    if (stat != SUCCESS) {
+    if (stat != OK) {
         return stat;
     }
 }

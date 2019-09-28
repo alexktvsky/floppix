@@ -53,5 +53,5 @@ status_t init_daemon(void) {
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-	return SUCCESS;
+	return OK;
 }

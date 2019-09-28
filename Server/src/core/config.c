@@ -57,11 +57,11 @@ static struct {
 status_t init_config(void) {
     was_init = true;
     pool_t *newpool;
-    if (pool_create(&newpool, NULL) != SUCCESS) {
+    if (pool_create(&newpool, NULL) != OK) {
         return ALLOC_MEM_ERROR;
     }
     config.pool = newpool;
-    return SUCCESS;
+    return OK;
 }
 
 
@@ -86,7 +86,7 @@ status_t set_config_filename(char *in_filename) {
     }
     was_set_filename = true;
     config.config_filename = in_filename;
-    return SUCCESS;
+    return OK;
 }
 
 
@@ -347,5 +347,5 @@ status_t parse_config(void) {
         pcre_free(pcre_array[i]);
     }
     fclose(conf_file);
-    return SUCCESS;
+    return OK;
 }

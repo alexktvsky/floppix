@@ -67,9 +67,9 @@ static void *loger(void *data) {
 
     while (log_enable) {
 #if (SYSTEM_LINUX)
-        if (stat(filename, &statbuf) != SUCCESS)
+        if (stat(filename, &statbuf) != OK)
 #elif (SYSTEM_WIN32) || (SYSTEM_WIN64)
-        if (_stat(filename, &statbuf) != SUCCESS)
+        if (_stat(filename, &statbuf) != OK)
 #endif
         {
             printf("Error!\n");
@@ -131,7 +131,7 @@ status_t init_log(char *in_filename, int in_level_boundary) {
     //pthread_detach(tid);
 
     log_enable = true;
-    return SUCCESS;
+    return OK;
 }
 
 
@@ -164,7 +164,7 @@ status_t log_message(int level, char *message) {
     /* Unlock */
     pthread_mutex_unlock(&mutex_deposit);
     sem_post(&full);
-    return SUCCESS;
+    return OK;
 }
 
 
