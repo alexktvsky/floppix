@@ -31,7 +31,7 @@ static const char *priorities[] = {
 
 status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) {
     if (!in_filename) {
-        return NULL_ADRESS_ERROR; /* Error of null address */
+        return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     openfile = fopen(in_filename, "w+");
     if (!openfile) {

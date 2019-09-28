@@ -26,7 +26,7 @@ static const struct {
     /* MEMORY_ERROR domain */
     {ALLOC_MEM_ERROR,              "Error of allocate memory."},
     {INIT_POOL_ERROR,              "Error of initialization new memory pool."},
-    {NULL_ADRESS_ERROR,            "Error of null address."},
+    {NULL_ADDRESS_ERROR,           "Error of null address."},
 
     /* SYSLOG_ERROR domain */
     {MAX_LOGSIZE_ERROR,             "Size of log file is too small."},

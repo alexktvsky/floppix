@@ -82,7 +82,7 @@ status_t set_config_filename(char *in_filename) {
         return FAILED;
     }
     if (!in_filename) {
-        return NULL_ADRESS_ERROR; /* Error of null address */
+        return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     was_set_filename = true;
     config.config_filename = in_filename;
