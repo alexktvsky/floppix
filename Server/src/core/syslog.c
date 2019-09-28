@@ -31,11 +31,11 @@ static const char *priorities[] = {
 
 status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) {
     if (!in_filename) {
-        return FAILED;
+        return NULL_ADRESS_ERROR; /* Error of null address */
     }
     openfile = fopen(in_filename, "w+");
     if (!openfile) {
-    	return FAILED;
+    	return OPEN_FILE_ERROR; /* Error of opening file */
     }
     level_boundary = in_level_boundary;
     if (in_maxsize == -1) {
@@ -43,7 +43,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) 
     }
     else if (in_maxsize != -1 && 
                 in_maxsize < (HEADER_MSG_SIZE + MAX_STRLEN_MESSAGE)) {
-        return FAILED; /* MAXLOGSIZE_ERROR */
+        return MAX_LOGSIZE_ERROR; /* Size of log file is too small */
     }
     else {
         max_size = in_maxsize;
@@ -78,7 +78,7 @@ status_t log_msg(int in_level, char *message) {
                             strtime,
                             priorities[in_level],
                             message) < 0) {
-    	return FAILED;
+    	return WRITE_FILE_ERROR; /* Error of writing file */
     }
     fflush(openfile);
     size_counter += msglen + HEADER_MSG_SIZE;

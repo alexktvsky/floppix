@@ -18,7 +18,7 @@ static const struct {
 
     /* NETWORK_ERROR domain */
     {INIT_SOCKET_ERROR,            "Error of initialization new socket."},
-    {ADDR_ERROR,                   "Host IP adrress is not correct."},
+    {ADDR_ERROR,                   "Host IP address is not correct."},
     {BIND_ERROR,                   "Error of binding."},
     {SETSOCKOPT_ERROR,             "Error of set options on sockets"},
     {INIT_LISTEN_ERROR,            "Error of initialization listening socket."},
@@ -26,9 +26,14 @@ static const struct {
     /* MEMORY_ERROR domain */
     {ALLOC_MEM_ERROR,              "Error of allocate memory."},
     {INIT_POOL_ERROR,              "Error of initialization new memory pool."},
+    {NULL_ADRESS_ERROR,            "Error of null address."},
 
     /* SYSLOG_ERROR domain */
-    {MAXLOGSIZE_ERROR,             "Size of log file is too small."},
+    {MAX_LOGSIZE_ERROR,             "Size of log file is too small."},
+
+    /* FILESYSTEM_ERROR domain */
+    {OPEN_FILE_ERROR,               "Error of opening file."},
+    {WRITE_FILE_ERROR,              "Error of writing file."},
 
     /* End of error list */
     {0,                            "Undefined error code."}
