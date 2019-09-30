@@ -22,6 +22,7 @@ static size_t size_counter = 0;
 static size_t max_size = 0;
 
 static const char *priorities[] = {
+    "emergency",
     "error",
     "warning",
     "info",
