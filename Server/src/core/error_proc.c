@@ -24,20 +24,16 @@ static const struct {
     {INIT_LISTEN_ERROR,            "Error of initialization listening socket."},
 
     /* MEMORY_ERROR domain */
+    {NULL_ADDRESS_ERROR,           "Error of null address."},
     {ALLOC_MEM_ERROR,              "Error of allocate memory."},
     {INIT_POOL_ERROR,              "Error of initialization new memory pool."},
-    {NULL_ADDRESS_ERROR,           "Error of null address."},
 
     /* SYSLOG_ERROR domain */
-    {MAX_LOGSIZE_ERROR,             "Size of log file is too small."},
-
-    /* FILESYSTEM_ERROR domain */
-    {OPEN_FILE_ERROR,               "Error of opening file."},
-    {WRITE_FILE_ERROR,              "Error of writing file."},
+    {LOG_MAXSIZE_ERROR,            "Size of log file is too small."},
+    {LOG_OPEN_ERROR,               "Error while open log file."},
+    {LOG_WRITE_ERROR,              "Error of writing log file."},
 
     /* End of error list */
-    {SUCCESS,                      "SUCCESS"},
-    {OK,                           "OK"},
     {0,                            "Undefined error code."}
 };
 

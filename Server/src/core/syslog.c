@@ -35,7 +35,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) 
     }
     openfile = fopen(in_filename, "w+");
     if (!openfile) {
-    	return OPEN_FILE_ERROR; /* Error of opening file */
+    	return LOG_OPEN_ERROR; /* Error while open log file */
     }
     level_boundary = in_level_boundary;
     if (in_maxsize == -1) {
@@ -43,7 +43,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) 
     }
     else if (in_maxsize != -1 && 
                 in_maxsize < (HEADER_MSG_SIZE + MAX_STRLEN_MESSAGE)) {
-        return MAX_LOGSIZE_ERROR; /* Size of log file is too small */
+        return LOG_MAXSIZE_ERROR; /* Size of log file is too small */
     }
     else {
         max_size = in_maxsize;
@@ -78,7 +78,7 @@ status_t log_msg(int in_level, char *message) {
                             strtime,
                             priorities[in_level],
                             message) < 0) {
-    	return WRITE_FILE_ERROR; /* Error of writing file */
+    	return LOG_WRITE_ERROR; /* Error of writing log file */
     }
     fflush(openfile);
     size_counter += msglen + HEADER_MSG_SIZE;
@@ -87,6 +87,9 @@ status_t log_msg(int in_level, char *message) {
 
 
 status_t log_status(int in_level, status_t statcode) {
+    if (statcode == OK) {
+        return OK;
+    }
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d-%d. %s", 
              SET_ERROR_DOMAIN(statcode),

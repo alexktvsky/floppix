@@ -46,15 +46,14 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize);
 #define INIT_LISTEN_ERROR          (NETWORK_ERROR+5)
 
 #define MEMORY_ERROR               ERROR_DOMAIN(4)
-#define ALLOC_MEM_ERROR            (MEMORY_ERROR+1)
-#define INIT_POOL_ERROR            (MEMORY_ERROR+2)
-#define NULL_ADDRESS_ERROR         (MEMORY_ERROR+3)
+#define NULL_ADDRESS_ERROR         (MEMORY_ERROR+1)
+#define ALLOC_MEM_ERROR            (MEMORY_ERROR+2)
+#define INIT_POOL_ERROR            (MEMORY_ERROR+3)
+
 
 #define SYSLOG_ERROR               ERROR_DOMAIN(5)
-#define MAX_LOGSIZE_ERROR          (SYSLOG_ERROR+1)
-
-#define FILESYSTEM_ERROR           ERROR_DOMAIN(6)
-#define OPEN_FILE_ERROR            (FILESYSTEM_ERROR+1)
-#define WRITE_FILE_ERROR           (FILESYSTEM_ERROR+2)
+#define LOG_MAXSIZE_ERROR          (SYSLOG_ERROR+1)
+#define LOG_OPEN_ERROR             (SYSLOG_ERROR+2)
+#define LOG_WRITE_ERROR            (SYSLOG_ERROR+3)
 
 #endif /* ERROR_PROC_H */
