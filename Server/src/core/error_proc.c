@@ -33,6 +33,8 @@ static const struct {
     {LOG_OPEN_ERROR,               "Error while open log file."},
     {LOG_WRITE_ERROR,              "Error of writing log file."},
 
+
+    {FAILED,                       "Default system error."},
     /* End of error list */
     {0,                            "Undefined error code."}
 };
