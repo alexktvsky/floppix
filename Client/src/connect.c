@@ -27,5 +27,5 @@ status_t init_connect_tcp(client_connect_unit_s *unit) {
         CloseSocket(unit->socket);
         return INIT_CONNECT_ERROR;
     }
-    return SUCCESS;
+    return OK;
 }

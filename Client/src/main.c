@@ -6,11 +6,11 @@
 #include "connect.h"
 
 
-int main(void) {
-    //InitWinSocketsLib();
+int main(int argc, char *argv[]) {
+    /* init_winsock(); */
 
     client_connect_unit_s ccunit1 = {"0.0.0.0", 2100};
-    if (init_connect_tcp(&ccunit1) != SUCCESS) {
+    if (init_connect_tcp(&ccunit1) != OK) {
         abort();
     }
 
