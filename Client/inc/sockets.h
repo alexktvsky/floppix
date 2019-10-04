@@ -1,7 +1,9 @@
 #ifndef SOCKETS_H
 #define SOCKETS_H
 
-#if (__gnu_linux__)
+#include "platform.h"
+
+#if (SYSTEM_LINUX)
     #include <unistd.h>
     #include <sys/types.h>
     #include <sys/socket.h>
@@ -13,40 +15,37 @@
     #define SHUT_RECEIVE SHUT_RD
     #define SHUT_SEND    SHUT_WR
     #define SHUT_BOTH    SHUT_RDWR
-    #define CloseSocket(_closeme_) close(_closeme_);
+    #define close_socket(_close_me_) close(_close_me_);
     typedef int socket_t;
 
-#elif (__FreeBSD__)
+#elif (SYSTEM_FREEBSD)
     /* Details for FreeBSD */
 
     typedef int socket_t;
 
-#elif (__WIN32__) || (__WIN64__)
+#elif (SYSTEM_SOLARIS)
+    /* Details for Solaris */
+
+    typedef int socket_t;
+
+
+#elif (SYSTEM_WIN32) || (SYSTEM_WIN64)
     #include <winsock2.h>
     #include <ws2ipdef.h>
     #include <windows.h>
     #define SHUT_RECEIVE SD_RECEIVE
     #define SHUT_SEND    SD_SEND
     #define SHUT_BOTH    SD_BOTH
-    #define CloseSocket(_closeme_) closesocket(_closeme_);
+    #define close_socket(_close_me_) closesocket(_close_me_);
     typedef SOCKET socket_t;
 
 #else
-    #error "Unsupported operating system!"
+    #error "Undefined operating system!"
 #endif
 
-/*
-#if defined (__WIN32__) || defined (__WIN64__)
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    wVersionRequested = MAKEWORD(2, 2);
-    if (WSAStartup(wVersionRequested, &wsaData)) {
-        return error;
-    }
-#endif
-*/
 
 int tcp_nopush(socket_t s);
 int tcp_push(socket_t s);
+int init_winsock(void);
 
 #endif /* SOCKETS_H */

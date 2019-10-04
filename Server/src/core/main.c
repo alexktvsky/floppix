@@ -139,8 +139,8 @@ int main(int argc, char *argv[]) {
     fini_config();
     fini_log();
 
-    //CloseSocket((config->listeners)[2].socket);
-    //CloseSocket(scunit1.socket);
+    //close_socket((config->listeners)[2].socket);
+    //close_socket(scunit1.socket);
 
     exit(0);
 }

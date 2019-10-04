@@ -11,7 +11,7 @@ status_t init_connect_tcp(client_connect_unit_s *unit) {
      *                                    SOCK_RAW       IPPROTO_DCCP */
 
     if (unit->socket == -1) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return INIT_SOCKET_ERROR;
     }
 
@@ -19,12 +19,12 @@ status_t init_connect_tcp(client_connect_unit_s *unit) {
     IP4SockAddr.sin_family = AF_INET;
     IP4SockAddr.sin_port = htons(unit->port);
     if ((IP4SockAddr.sin_addr.s_addr = inet_addr(unit->ip)) == INADDR_NONE) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return ADDR_ERROR;
     }
 
     if (connect(unit->socket, (struct sockaddr *) &IP4SockAddr, sizeof(IP4SockAddr)) == -1) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return INIT_CONNECT_ERROR;
     }
     return OK;

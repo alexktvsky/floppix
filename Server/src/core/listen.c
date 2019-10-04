@@ -8,7 +8,7 @@ static status_t init_listen_tcp(listen_unit_t *unit) {
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (unit->socket == -1) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return INIT_SOCKET_ERROR; /* Error of initialization new socket */
     }
 
@@ -16,7 +16,7 @@ static status_t init_listen_tcp(listen_unit_t *unit) {
     IP4SockAddr.sin_family = AF_INET;
     IP4SockAddr.sin_port = htons(unit->port);
     if ((IP4SockAddr.sin_addr.s_addr = inet_addr(unit->ip)) == INADDR_NONE) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return ADDR_ERROR; /* Host IP adrress is not correct */
     }
 
@@ -27,13 +27,13 @@ static status_t init_listen_tcp(listen_unit_t *unit) {
 
     /* Link socket and IP4SockAddr */
     if (bind(unit->socket, (struct sockaddr *) &IP4SockAddr, sizeof(IP4SockAddr))) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return BIND_ERROR; /* Error of binding */
     }
 
     /* Switch to listening state */
     if (listen(unit->socket, MAX_LEN_QUEUE) == -1) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return INIT_LISTEN_ERROR; /* Error of initialization listening socket */
     }
     return OK;
@@ -53,7 +53,7 @@ static status_t init_listen_tcp6(listen_unit_t *unit) {
     IP6SockAddr.sin6_family = AF_INET6;
     IP6SockAddr.sin6_port = htons(unit->port);
     if (!inet_pton(AF_INET6, unit->ip, (void *) &IP6SockAddr.sin6_addr.s6_addr)) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return ADDR_ERROR; /* Host IP adrress is not correct */
     }
 
@@ -64,13 +64,13 @@ static status_t init_listen_tcp6(listen_unit_t *unit) {
     
     /* Link socket and IP6SockAddr */
     if (bind(unit->socket, (struct sockaddr *) &IP6SockAddr, sizeof(IP6SockAddr))) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return BIND_ERROR; /* Error of binding */
     }
 
     /* Switch to listening state */
     if (listen(unit->socket, MAX_LEN_QUEUE) == -1) {
-        CloseSocket(unit->socket);
+        close_socket(unit->socket);
         return INIT_LISTEN_ERROR; /* Error of initialization listening socket */
     }
     return OK;

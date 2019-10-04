@@ -21,6 +21,6 @@ int main(int argc, char *argv[]) {
 
     /* Soft close connect */
     shutdown(ccunit1.socket, SHUT_BOTH);
-    CloseSocket(ccunit1.socket);
+    close_socket(ccunit1.socket);
     return 0;
 }
