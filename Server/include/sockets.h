@@ -42,8 +42,8 @@
 #endif
 
 
-int tcp_nopush(socket_t s);
-int tcp_push(socket_t s);
+int tcp_nopush(socket_t socket);
+int tcp_push(socket_t socket);
 int close_socket(socket_t socket);
 int init_winsock(void);
 
