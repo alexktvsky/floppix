@@ -1,5 +1,6 @@
 SRC_FILES += main.c
 SRC_FILES += connect.c
+SRC_FILES += sockets.c
 
 CFLAGS += -Iinc -Wall -pipe
 build: CFLAGS += -s -O3 -static -static-libgcc
@@ -10,18 +11,20 @@ ifeq ($(CC),gcc)
 	BIN_FILE = client_linux
 	LDFLAGS += 
 	OBJ_FILES := $(patsubst %.c,obj/%.elf.o,$(SRC_FILES))
-obj/%.elf.o: src/%.c
+obj/%.elf.o: %.c
 	$(QUIET_CC) $(CC) -c $< -o $@ $(CFLAGS)
 # Define compilation variables for Win32
 else ifeq ($(CC),x86_64-w64-mingw32-gcc)
 	BIN_FILE = client_win32.exe
 	LDFLAGS += -lws2_32
 	OBJ_FILES := $(patsubst %.c,obj/%.exe.o,$(SRC_FILES))
-obj/%.exe.o: src/%.c
+obj/%.exe.o: %.c
 	$(QUIET_CC) $(CC) -c $< -o $@ $(CFLAGS)
 endif
 
 QUIET_CC = @echo '   ' CC $(notdir $@);
+VPATH := src src/os
+
 
 .ONESHELL:
 .PHONY: build debug test

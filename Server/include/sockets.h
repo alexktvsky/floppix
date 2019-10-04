@@ -15,7 +15,6 @@
     #define SHUT_RECEIVE SHUT_RD
     #define SHUT_SEND    SHUT_WR
     #define SHUT_BOTH    SHUT_RDWR
-    #define close_socket(_close_me_) close(_close_me_);
     typedef int socket_t;
 
 #elif (SYSTEM_FREEBSD)
@@ -36,7 +35,6 @@
     #define SHUT_RECEIVE SD_RECEIVE
     #define SHUT_SEND    SD_SEND
     #define SHUT_BOTH    SD_BOTH
-    #define close_socket(_close_me_) closesocket(_close_me_);
     typedef SOCKET socket_t;
 
 #else
@@ -46,6 +44,7 @@
 
 int tcp_nopush(socket_t s);
 int tcp_push(socket_t s);
+int close_socket(socket_t socket);
 int init_winsock(void);
 
 #endif /* SOCKETS_H */
