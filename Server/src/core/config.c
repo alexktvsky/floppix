@@ -310,6 +310,10 @@ status_t parse_config(void) {
                                 return CONF_SYNTAX_ERROR;
                             }
                             config.nprocs = atoi(stringlist[0]);
+                            /* Logic or syntax error */
+                            if (config.nprocs == 0) {
+                                config.nprocs = 1;
+                            }
                             break;
 
                         /* Item logfile */
