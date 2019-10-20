@@ -72,7 +72,8 @@ struct pool_s {
 };
 
 
-static inline size_t align_allocation(size_t in_size) {
+static inline size_t align_allocation(size_t in_size)
+{
     size_t size = in_size;
     size = ALIGN_DEFAULT(size);
     if (size < in_size) {
@@ -85,7 +86,8 @@ static inline size_t align_allocation(size_t in_size) {
 }
 
 
-static inline size_t get_page_size(void) {
+static inline size_t get_page_size(void)
+{
     size_t page_size;
 #if defined (_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
@@ -100,7 +102,8 @@ static inline size_t get_page_size(void) {
 }
 
 
-static inline size_t get_npages(size_t in_size) {
+static inline size_t get_npages(size_t in_size)
+{
     size_t size = in_size + SIZEOF_MEMNODE_T_ALIGN;
     if (size < PAGE_SIZE) {
         return 1;
@@ -111,7 +114,8 @@ static inline size_t get_npages(size_t in_size) {
 }
 
 
-static memnode_t *memnode_allocate(pool_t *pool, size_t in_size) {
+static memnode_t *memnode_allocate(pool_t *pool, size_t in_size)
+{
     size_t npages = get_npages(in_size);
     size_t full_size = npages * PAGE_SIZE;
     size_t index = npages - 1;
@@ -159,7 +163,8 @@ static memnode_t *memnode_allocate(pool_t *pool, size_t in_size) {
 }
 
 
-status_t pool_create(pool_t **newpool, pool_t *parent) {
+status_t pool_create(pool_t **newpool, pool_t *parent)
+{
     pool_t *pool = malloc(SIZEOF_POOL_T);
     if (!pool) {
         return 1;
@@ -190,7 +195,8 @@ status_t pool_create(pool_t **newpool, pool_t *parent) {
 }
 
 
-void *palloc(pool_t *pool, size_t in_size) {
+void *palloc(pool_t *pool, size_t in_size)
+{
     if (!pool) {
         return NULL;
     }
@@ -235,7 +241,8 @@ void *palloc(pool_t *pool, size_t in_size) {
 }
 
 
-void *pcalloc(pool_t *pool, size_t in_size) {
+void *pcalloc(pool_t *pool, size_t in_size)
+{
     void *mem;
     if ((mem = palloc(pool, in_size)) != NULL) {
         memset(mem, 0, in_size);
@@ -244,7 +251,8 @@ void *pcalloc(pool_t *pool, size_t in_size) {
 }
 
 
-size_t get_pool_size(pool_t *pool) {
+size_t get_pool_size(pool_t *pool)
+{
     size_t size = 0;
     memnode_t *node;
     for (size_t i = 0; i <= MAX_INDEX; i++) {
@@ -258,7 +266,8 @@ size_t get_pool_size(pool_t *pool) {
 }
 
 
-size_t get_pool_free_size(pool_t *pool) {
+size_t get_pool_free_size(pool_t *pool)
+{
     size_t size = 0;
     memnode_t *node;
     for (size_t i = 0; i <= MAX_INDEX; i++) {
@@ -272,7 +281,8 @@ size_t get_pool_free_size(pool_t *pool) {
 }
 
 
-size_t get_pool_total_size(pool_t *pool) {
+size_t get_pool_total_size(pool_t *pool)
+{
     size_t size = 0;
     memnode_t *node;
     for (size_t i = 0; i <= MAX_INDEX; i++) {
@@ -286,7 +296,8 @@ size_t get_pool_total_size(pool_t *pool) {
 }
 
 
-void pool_clear(pool_t *pool) {
+void pool_clear(pool_t *pool)
+{
     if (pool->child) {
         pool_t *temp1 = pool->child;
         pool_t *temp2;
@@ -309,7 +320,8 @@ void pool_clear(pool_t *pool) {
 }
 
 
-void pool_destroy(pool_t *pool) {
+void pool_destroy(pool_t *pool)
+{
     if (pool->child) {
         pool_t *temp1 = pool->child;
         pool_t *temp2;

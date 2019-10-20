@@ -3,7 +3,8 @@
 #include "sockets.h"
 #include "connect.h"
 
-status_t init_connect_tcp(client_connect_unit_s *unit) {
+status_t init_connect_tcp(client_connect_unit_s *unit)
+{
     struct sockaddr_in IP4SockAddr;
     unit->socket = socket(AF_INET, SOCK_STREAM,   IPPROTO_TCP);
     /*                           PF_INET6 SOCK_DGRAM     IPPROTO_SCTP *

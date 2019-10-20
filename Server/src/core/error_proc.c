@@ -40,7 +40,8 @@ static const struct {
 };
 
 
-void cpystrerror(status_t statcode, char *buf, size_t bufsize) {
+void cpystrerror(status_t statcode, char *buf, size_t bufsize)
+{
     size_t len;
     for (int i = 0; ; i++) {           
         if (!ErrorList[i].code || ErrorList[i].code == statcode) {
@@ -57,7 +58,8 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize) {
 }
 
 
-const char *set_strerror(status_t statcode) {
+const char *set_strerror(status_t statcode)
+{
     for (int i = 0; ; i++) {      
         if (!ErrorList[i].code || ErrorList[i].code == statcode) {
             return ErrorList[i].message;

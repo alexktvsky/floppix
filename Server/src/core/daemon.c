@@ -6,10 +6,9 @@
 #include "platform.h"
 #include "error_proc.h"
 
-status_t init_daemon(void) {
-
+status_t init_daemon(void)
+{
 	pid_t pid;
-
 	if ((pid = fork()) < 0) {
 		return FAILED;
 	}

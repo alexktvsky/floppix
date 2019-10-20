@@ -33,7 +33,8 @@ static const char *priorities[] = {
 #define LOG_DEBUG 3
 
 
-int init_log(char *filename, int level) {
+int init_log(char *filename, int level)
+{
     memmove(logname, filename, strlen(filename));
     logname[strlen(filename)] = '\0';
     log_level = level;
@@ -45,7 +46,8 @@ int init_log(char *filename, int level) {
 }
 
 
-int log_message(int level, char *message) {
+int log_message(int level, char *message)
+{
     if (level > log_level) {
         return 0;
     }
@@ -95,7 +97,8 @@ int log_message(int level, char *message) {
 }
 
 
-int fini_log(void) {
+int fini_log(void)
+{
     if (!logfile) {
         return 1;
     }
@@ -105,7 +108,8 @@ int fini_log(void) {
 }
 
 
-int reinit_log(char *filename, int level) {
+int reinit_log(char *filename, int level)
+{
     if (fini_log()) {
         return 1;
     }
@@ -119,8 +123,8 @@ int reinit_log(char *filename, int level) {
 
 
 
-int main(void) {
-
+int main(void)
+{
     init_log("server.log", LOG_INFO);
     log_message(LOG_INFO, "Message 1!");
     log_message(LOG_INFO, "Message 2!");

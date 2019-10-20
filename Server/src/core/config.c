@@ -54,7 +54,8 @@ static struct {
 }
 
 
-status_t init_config(void) {
+status_t init_config(void)
+{
     was_init = true;
     pool_t *newpool;
     if (pool_create(&newpool, NULL) != OK) {
@@ -65,7 +66,8 @@ status_t init_config(void) {
 }
 
 
-void fini_config(void) {
+void fini_config(void)
+{
     if (!was_init) {
         return;
     }
@@ -77,7 +79,8 @@ void fini_config(void) {
     }
 }
 
-status_t set_config_filename(char *in_filename) {
+status_t set_config_filename(char *in_filename)
+{
     if (!was_init) {
         return FAILED;
     }
@@ -90,7 +93,8 @@ status_t set_config_filename(char *in_filename) {
 }
 
 
-listen_unit_t *config_get_listeners(void) {
+listen_unit_t *config_get_listeners(void)
+{
     if (!was_read) {
         return NULL;
     }
@@ -98,7 +102,8 @@ listen_unit_t *config_get_listeners(void) {
 }
 
 
-size_t config_get_nprocs(void) {
+size_t config_get_nprocs(void)
+{
     if (!was_read) {
         return 0;
     }
@@ -106,7 +111,8 @@ size_t config_get_nprocs(void) {
 }
 
 
-char *config_get_logfile(void) {
+char *config_get_logfile(void)
+{
     if (!was_read) {
         return NULL;
     }
@@ -114,7 +120,8 @@ char *config_get_logfile(void) {
 }
 
 
-size_t config_get_maxlog(void) {
+size_t config_get_maxlog(void)
+{
     if (!was_read) {
         return 0;
     }
@@ -122,7 +129,8 @@ size_t config_get_maxlog(void) {
 }
 
 
-status_t parse_config(void) {
+status_t parse_config(void)
+{
     if (!was_init) {
         return FAILED;
     }

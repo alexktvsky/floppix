@@ -6,7 +6,8 @@
 #include "connect_tests.h"
 
 
-int main(void) {
+int main(void)
+{
 	if (CU_initialize_registry() != CUE_SUCCESS) {
 		return CU_get_error();
 	}

@@ -42,7 +42,8 @@ static const char *priorities[] = {
 };
 
 
-static void *logger(void *filename) {
+static void *logger(void *filename)
+{
     filename = (char *) filename;
     FILE *logfile = fopen(filename, "a");
     if (!logfile) {
@@ -101,7 +102,8 @@ static void *logger(void *filename) {
 }
 
 
-status_t init_log(char *filename, int level_boundary) {
+status_t init_log(char *filename, int level_boundary)
+{
     int len_name = strlen(filename);
     if (len_name > MAX_STRLEN_LOGNAME) {
         return 1;
@@ -124,7 +126,8 @@ status_t init_log(char *filename, int level_boundary) {
 }
 
 
-status_t log_message(int level, char *message) {
+status_t log_message(int level, char *message)
+{
     if (!log_enable) {
         return 1;
     }
@@ -170,7 +173,8 @@ status_t log_message(int level, char *message) {
 }
 
 
-status_t log_error(status_t statcode) {
+status_t log_error(status_t statcode)
+{
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d-%d. %s", 
              SET_ERROR_DOMAIN(statcode),
@@ -183,7 +187,8 @@ status_t log_error(status_t statcode) {
 }
 
 
-void fini_log(void) {
+void fini_log(void)
+{
     log_enable = 0;
     usleep(LOGGER_AWAIT_END);
 /*
@@ -200,7 +205,8 @@ void fini_log(void) {
 }
 
 
-int main(void) {
+int main(void)
+{
     init_log("server.log", LOG_INFO);
     usleep(1000000);
 

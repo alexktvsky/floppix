@@ -2,7 +2,8 @@
 #include "sockets.h"
 
 
-int close_socket(socket_t socket) {
+int close_socket(socket_t socket)
+{
 #if (SYSTEM_LINUX)
     return close(socket);
 #elif (SYSTEM_FREEBSD)
@@ -13,7 +14,8 @@ int close_socket(socket_t socket) {
 }
 
 
-int init_winsock(void) {
+int init_winsock(void)
+{
 #if (SYSTEM_WIN32) || (SYSTEM_WIN64)
     WSADATA wsaData;
     return WSAStartup(MAKEWORD(2, 2), &wsaData);

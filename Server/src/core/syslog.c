@@ -30,7 +30,8 @@ static const char *priorities[] = {
 };
 
 
-status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) {
+status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
+{
     if (!in_filename) {
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
@@ -53,7 +54,8 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary) 
 }
 
 
-status_t log_msg(int in_level, char *message) {
+status_t log_msg(int in_level, char *message)
+{
 	if (in_level > level_boundary) {
 		return OK;
 	}
@@ -87,7 +89,8 @@ status_t log_msg(int in_level, char *message) {
 }
 
 
-status_t log_status(int in_level, status_t statcode) {
+status_t log_status(int in_level, status_t statcode)
+{
     if (statcode == OK) {
         return OK;
     }
@@ -100,6 +103,7 @@ status_t log_status(int in_level, status_t statcode) {
 }
 
 
-void fini_log(void) {
+void fini_log(void)
+{
 	fclose(openfile);
 }

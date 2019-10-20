@@ -36,7 +36,8 @@ typedef struct {
 
 
 
-void parse_argv(int argc, char *argv[]) {
+void parse_argv(int argc, char *argv[])
+{
     /* 
      * Parse input parametrs:
      * argv[1] config file
@@ -54,8 +55,8 @@ void parse_argv(int argc, char *argv[]) {
 }
 
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     if (init_config() != OK) {
         fprintf(stderr, "%s\n", "Boot failed: Error of initialization config.");
         abort();

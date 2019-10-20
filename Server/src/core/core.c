@@ -2,7 +2,8 @@
 
 /* PTHREAD_SCOPE_SYSTEM */
 /* использовать мультиплексирование */
-static void *worker(void *data) {
+static void *worker(void *data)
+{
 
     pthread_exit(NULL);
 }
@@ -16,7 +17,8 @@ static void *worker(void *data) {
  * - реконфигурация без прерывания работы сервиса;
  * - повторное открытие лог-файлов;
  */
-static void *master(void) {
+static void *master(void)
+{
     pthread_exit(NULL);
 }
 

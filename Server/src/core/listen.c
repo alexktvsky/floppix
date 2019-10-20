@@ -3,7 +3,8 @@
 #include "listen.h"
 
 
-static status_t init_listen_tcp(listen_unit_t *unit) {
+static status_t init_listen_tcp(listen_unit_t *unit)
+{
     struct sockaddr_in IP4SockAddr;
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -40,7 +41,8 @@ static status_t init_listen_tcp(listen_unit_t *unit) {
 }
 
 
-static status_t init_listen_tcp6(listen_unit_t *unit) {
+static status_t init_listen_tcp6(listen_unit_t *unit)
+{
     struct sockaddr_in6 IP6SockAddr;
     unit->socket = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
@@ -77,7 +79,8 @@ static status_t init_listen_tcp6(listen_unit_t *unit) {
 }
 
 
-status_t init_listen_sockets(listen_unit_t *listeners) {
+status_t init_listen_sockets(listen_unit_t *listeners)
+{
     status_t stat;
     listen_unit_t *temp;
     for (temp = listeners; temp; temp = temp->next) {
