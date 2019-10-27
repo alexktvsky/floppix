@@ -17,7 +17,7 @@ typedef int status_t;
 #endif
 
 /* Error domain provides a unique value for all error codes */
-#define ERROR_DOMAIN_BASE          1000
+#define ERROR_DOMAIN_BASE          100
 #define ERROR_DOMAIN(_domain) (_domain * ERROR_DOMAIN_BASE)
 
 #define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)

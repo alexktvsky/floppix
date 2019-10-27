@@ -57,20 +57,28 @@ void parse_argv(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    if (init_config() != OK) {
-        fprintf(stderr, "%s\n", "Boot failed: Error of initialization config.");
+    status_t err;
+
+    err = init_config();
+    if (err != OK) {
+        fprintf(stderr, "Init config failed with code %d: %s\n",
+                                                err, set_strerror(err));
         abort();
     }
 
     parse_argv(argc, argv);
 
-    if (parse_config() != OK) {
-        fprintf(stderr, "%s\n", "Boot failed: Config file damaged or not available.");
+    err = parse_config();
+    if (err != OK) {
+        fprintf(stderr, "Read config failed with code %d: %s\n",
+                                                err, set_strerror(err));
         abort();
     }
 
-    if (init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO) != OK) {
-        fprintf(stderr, "%s\n", "Boot failed: Error of initialization log file.");
+    err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
+    if (err != OK) {
+        fprintf(stderr, "Init log failed with code %d: %s\n",
+                                                err, set_strerror(err));
         abort();
     }
 
@@ -85,13 +93,15 @@ int main(int argc, char *argv[])
      * here we close TTY, fork off the parent process and run daemon.
      */
 
-    if (init_daemon() != OK) {
-        fprintf(stderr, "%s\n", "Boot failed: Error of initialization daemon process.");
+    err = init_daemon();
+    if (err != OK) {
+        fprintf(stderr, "Init daemon process failed with code %d: %s\n",
+                                                err, set_strerror(err));
         abort();
     }
 
-
-    if (init_listen_sockets(config_get_listeners()) != OK) {
+    err = init_listen_sockets(config_get_listeners());
+    if (err != OK) {
         abort();
     }
    
