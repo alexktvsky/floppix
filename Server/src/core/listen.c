@@ -5,7 +5,7 @@
 
 static status_t init_listen_tcp(listen_unit_t *unit)
 {
-    struct sockaddr_in IP4SockAddr;
+    struct sockaddr_in ip4_sockaddr;
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (unit->socket == -1) {
@@ -14,9 +14,9 @@ static status_t init_listen_tcp(listen_unit_t *unit)
     }
 
     /* Set family of protocol, port and IP adrress */
-    IP4SockAddr.sin_family = AF_INET;
-    IP4SockAddr.sin_port = htons(unit->port);
-    if ((IP4SockAddr.sin_addr.s_addr = inet_addr(unit->ip)) == INADDR_NONE) {
+    ip4_sockaddr.sin_family = AF_INET;
+    ip4_sockaddr.sin_port = htons(unit->port);
+    if ((ip4_sockaddr.sin_addr.s_addr = inet_addr(unit->ip)) == INADDR_NONE) {
         close_socket(unit->socket);
         return ADDR_ERROR; /* Host IP adrress is not correct */
     }
@@ -26,8 +26,8 @@ static status_t init_listen_tcp(listen_unit_t *unit)
         return SETSOCKOPT_ERROR; /* Error of set options on sockets */
     }
 
-    /* Link socket and IP4SockAddr */
-    if (bind(unit->socket, (struct sockaddr *) &IP4SockAddr, sizeof(IP4SockAddr))) {
+    /* Link socket and ip4_sockaddr */
+    if (bind(unit->socket, (struct sockaddr *) &ip4_sockaddr, sizeof(ip4_sockaddr))) {
         close_socket(unit->socket);
         return BIND_ERROR; /* Error of binding */
     }
@@ -43,7 +43,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
 
 static status_t init_listen_tcp6(listen_unit_t *unit)
 {
-    struct sockaddr_in6 IP6SockAddr;
+    struct sockaddr_in6 ip6_sockaddr;
     unit->socket = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 
     if (unit->socket == -1) {
@@ -51,10 +51,10 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
     }
 
     /* Set family of protocol, port and IP adrress */
-    IP6SockAddr.sin6_scope_id = if_nametoindex(unit->interface);
-    IP6SockAddr.sin6_family = AF_INET6;
-    IP6SockAddr.sin6_port = htons(unit->port);
-    if (!inet_pton(AF_INET6, unit->ip, (void *) &IP6SockAddr.sin6_addr.s6_addr)) {
+    ip6_sockaddr.sin6_scope_id = if_nametoindex(unit->interface);
+    ip6_sockaddr.sin6_family = AF_INET6;
+    ip6_sockaddr.sin6_port = htons(unit->port);
+    if (!inet_pton(AF_INET6, unit->ip, (void *) &ip6_sockaddr.sin6_addr.s6_addr)) {
         close_socket(unit->socket);
         return ADDR_ERROR; /* Host IP adrress is not correct */
     }
@@ -64,8 +64,8 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
         return SETSOCKOPT_ERROR; /* Error of set options on sockets */
     }
     
-    /* Link socket and IP6SockAddr */
-    if (bind(unit->socket, (struct sockaddr *) &IP6SockAddr, sizeof(IP6SockAddr))) {
+    /* Link socket and ip6_sockaddr */
+    if (bind(unit->socket, (struct sockaddr *) &ip6_sockaddr, sizeof(ip6_sockaddr))) {
         close_socket(unit->socket);
         return BIND_ERROR; /* Error of binding */
     }
