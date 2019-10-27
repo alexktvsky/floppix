@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-/* Type for specifying an error or status code. */
+/* Type for specifying an error or status code */
 typedef int status_t;
 
 #ifndef SUCCESS
