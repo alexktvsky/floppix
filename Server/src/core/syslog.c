@@ -116,7 +116,8 @@ status_t log_status(int in_level, status_t statcode)
 }
 
 
-void log_and_abort(int level, char *stage_description, status_t statcode) {
+void log_and_abort(int level, char *stage_description, status_t statcode)
+{
     init_log_if_not(DEFAULT_LOG_FILE, -1, level);
     printf("%s\n", stage_description);
     log_msg(level, stage_description);
