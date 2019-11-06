@@ -1,41 +1,24 @@
-LOG_DIR = ../../Logs
-export LOG_DIR
-
-PREFIX = /usr/local/bin
-export PREFIX
-
-
 all: build_all
 build_all: build_client build_server
 debug_all: debug_client debug_server
 
 build_client:
-	cd Client && $(MAKE) \
-		CC=gcc
-	cd Client && $(MAKE) \
-		CC=x86_64-w64-mingw32-gcc
+	cd Client && $(MAKE)
 
 build_server:
-	cd Server && $(MAKE) \
-		CC=gcc
+	cd Server && $(MAKE)
 
 debug_client:
-	cd Client && $(MAKE) debug \
-		CC=gcc
-	cd Client && $(MAKE) debug \
-		CC=x86_64-w64-mingw32-gcc
+	cd Client && $(MAKE) debug
 
 debug_server:
-	cd Server && $(MAKE) debug \
-		CC=gcc
+	cd Server && $(MAKE) debug
 
 test_client:
-	cd Client && $(MAKE) test \
-		CC=gcc
+	cd Client && $(MAKE) test
 
 test_server:
-	cd Server && $(MAKE) test \
-		CC=gcc
+	cd Server && $(MAKE) test
 
 docs_client: 
 	cd Client && $(MAKE) docs
@@ -46,8 +29,3 @@ docs_server:
 clean:
 	cd Client && $(MAKE) clean
 	cd Server && $(MAKE) clean
-
-mkdirs: 
-	@if [ ! -d Logs ] ; then \
-		mkdir Logs ; \
-	fi
