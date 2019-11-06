@@ -12,7 +12,7 @@ typedef struct listen_unit_s listen_unit_t;
 struct listen_unit_s {
     char *ip;
     int port;
-    char *interface;
+    char *netface;
     int protocol;
     socket_t socket;
     listen_unit_t *next;

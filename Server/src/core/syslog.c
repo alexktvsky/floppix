@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
@@ -16,8 +17,9 @@
 #define HEADER_MSG_SIZE MAX_STRLEN_TIME
 #define UNLIMITED 0
 
+
 static int level_boundary;
-static FILE *openfile;
+static FILE *openfile = NULL;
 static size_t size_counter = 0;
 static size_t max_size = 0;
 
@@ -35,6 +37,11 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
     if (!in_filename) {
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
+    /* If log is already has been opened don't change it */ 
+    if (openfile) {
+        return OK;
+    }
+
     openfile = fopen(in_filename, "w+");
     if (!openfile) {
     	return LOG_OPEN_ERROR; /* Error while open log file */
@@ -51,6 +58,12 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
         max_size = in_maxsize;
     }
     return OK;
+}
+
+
+status_t init_log_if_not(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
+{
+    return init_log(in_filename, in_maxsize, in_level_boundary);
 }
 
 
@@ -103,7 +116,18 @@ status_t log_status(int in_level, status_t statcode)
 }
 
 
+void log_and_abort(int level, char *stage_description, status_t statcode) {
+    init_log_if_not(DEFAULT_LOG_FILE, -1, level);
+    printf("%s\n", stage_description);
+    log_msg(level, stage_description);
+    log_status(level, statcode);
+    fini_log();
+    abort();
+}
+
+
 void fini_log(void)
 {
 	fclose(openfile);
+    openfile = NULL;
 }

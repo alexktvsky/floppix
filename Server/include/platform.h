@@ -45,8 +45,4 @@
 #error Unsupported operating system!
 #endif
 
-#if (__WIN32__) || (__WIN64__)
-#error Windows platform now is not supported!
-#endif
-
 #endif /* PLATFORM_H */

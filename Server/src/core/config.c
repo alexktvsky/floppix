@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <pcre.h>
 
 #include "platform.h"
 #include "error_proc.h"
@@ -10,6 +9,11 @@
 #include "listen.h"
 #include "pools.h"
 #include "config.h"
+
+#if SYSTEM_WIN32 || SYSTEM_WIN64
+#define PCRE_STATIC
+#endif
+#include <pcre.h>
 
 
 #define MAX_SIZE_LINE     100
@@ -82,7 +86,7 @@ void fini_config(void)
 status_t set_config_filename(char *in_filename)
 {
     if (!was_init) {
-        return FAILED;
+        return EXIT_FAILURE;
     }
     if (!in_filename) {
         return NULL_ADDRESS_ERROR; /* Error of null address */
@@ -132,11 +136,11 @@ size_t config_get_maxlog(void)
 status_t parse_config(void)
 {
     if (!was_init) {
-        return FAILED;
+        return EXIT_FAILURE;
     }
 
     if (!was_set_filename) {
-        return FAILED;
+        return EXIT_FAILURE;
     }
 
     was_read = true;
@@ -261,12 +265,12 @@ status_t parse_config(void)
 
                             string_len = strlen(last_interface);
 
-                            temp1->interface = palloc(config.pool, string_len + 1);
-                            if (!(temp1->interface)) {
+                            temp1->netface = palloc(config.pool, string_len + 1);
+                            if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
-                            memmove(temp1->interface, last_interface, string_len);
-                            (temp1->interface)[string_len] = '\0';
+                            memmove(temp1->netface, last_interface, string_len);
+                            (temp1->netface)[string_len] = '\0';
                             temp1->port = atoi(stringlist[0]);
                             temp1->protocol = LISTEN_TCP;
                             temp1->socket = 0;
@@ -300,12 +304,12 @@ status_t parse_config(void)
 
                             string_len = strlen(last_interface);
 
-                            temp1->interface = palloc(config.pool, string_len + 1);
-                            if (!(temp1->interface)) {
+                            temp1->netface = palloc(config.pool, string_len + 1);
+                            if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
-                            memmove(temp1->interface, last_interface, string_len);
-                            (temp1->interface)[string_len] = '\0';
+                            memmove(temp1->netface, last_interface, string_len);
+                            (temp1->netface)[string_len] = '\0';
                             temp1->port = atoi(stringlist[0]);
                             temp1->protocol = LISTEN_TCP6;
                             temp1->socket = 0;

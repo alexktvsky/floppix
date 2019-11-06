@@ -10,7 +10,7 @@ static const struct {
 } ErrorList[] = {
     /* CONF_ERROR domain */
     {CONF_INIT_ERROR,              "Error of initialization config."},
-    {CONF_OPEN_ERROR,              "Error while open config file."},
+    {CONF_OPEN_ERROR,              "Error of opening config file."},
     {CONF_OVERFLOW_ERROR,          "Parser section overflow."},
     {CONF_REGEX_ERROR,             "Error of compiling regular expressions."},
     {CONF_SUBSTR_ERROR,            "Error of pcre substring list."},
@@ -22,6 +22,7 @@ static const struct {
     {BIND_ERROR,                   "Error of binding."},
     {SETSOCKOPT_ERROR,             "Error of set options on sockets"},
     {INIT_LISTEN_ERROR,            "Error of initialization listening socket."},
+    {IPV6_NOT_SUPPORTED,           "IPv6 is not supported on this system."},
 
     /* MEMORY_ERROR domain */
     {NULL_ADDRESS_ERROR,           "Error of null address."},
@@ -30,7 +31,7 @@ static const struct {
 
     /* SYSLOG_ERROR domain */
     {LOG_MAXSIZE_ERROR,            "Size of log file is too small."},
-    {LOG_OPEN_ERROR,               "Error while open log file."},
+    {LOG_OPEN_ERROR,               "Error of opening log file."},
     {LOG_WRITE_ERROR,              "Error of writing log file."},
 
 

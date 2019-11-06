@@ -41,6 +41,13 @@ static status_t init_listen_tcp(listen_unit_t *unit)
 }
 
 
+#if SYSTEM_WIN32 || SYSTEM_WIN64
+static status_t init_listen_tcp6(listen_unit_t *unit)
+{
+    return IPV6_NOT_SUPPORTED;
+}
+
+#else
 static status_t init_listen_tcp6(listen_unit_t *unit)
 {
     struct sockaddr_in6 ip6_sockaddr;
@@ -51,7 +58,7 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
     }
 
     /* Set family of protocol, port and IP adrress */
-    ip6_sockaddr.sin6_scope_id = if_nametoindex(unit->interface);
+    ip6_sockaddr.sin6_scope_id = if_nametoindex(unit->netface);
     ip6_sockaddr.sin6_family = AF_INET6;
     ip6_sockaddr.sin6_port = htons(unit->port);
     if (!inet_pton(AF_INET6, unit->ip, (void *) &ip6_sockaddr.sin6_addr.s6_addr)) {
@@ -77,6 +84,7 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
     }
     return OK;
 }
+#endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */
 
 
 status_t init_listen_sockets(listen_unit_t *listeners)

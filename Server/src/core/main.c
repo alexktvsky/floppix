@@ -1,14 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "platform.h"
 #include "error_proc.h"
 #include "daemon.h"
 
 
-
-/* move this to init.c */
-#include <stdlib.h>
-#include <pthread.h>
+//#include <pthread.h>
 
 #include "sockets.h"
 #include "listen.h"
@@ -21,9 +19,8 @@
 #include <sys/sysinfo.h>
 #endif 
 
-#define DEFAULT_CONFIG_FILE "server.conf"
 
-
+#ifdef DEBUG
 typedef struct {
     /* add IPv4 */
     struct sockaddr_in6 IP6SockClient;
@@ -33,6 +30,7 @@ typedef struct {
     int port;
     int host_port;
 } connect_unit_t;
+#endif
 
 
 
@@ -50,8 +48,6 @@ void parse_argv(int argc, char *argv[])
     else {
         set_config_filename(argv[1]);
     }
-
-
 }
 
 
@@ -61,25 +57,19 @@ int main(int argc, char *argv[])
 
     err = init_config();
     if (err != OK) {
-        fprintf(stderr, "Init config failed with code %d: %s\n",
-                                                err, set_strerror(err));
-        abort();
+        log_and_abort(LOG_EMERG, "Load config failed.", err);
     }
 
     parse_argv(argc, argv);
 
     err = parse_config();
     if (err != OK) {
-        fprintf(stderr, "Read config failed with code %d: %s\n",
-                                                err, set_strerror(err));
-        abort();
+        log_and_abort(LOG_EMERG, "Read config failed.", err);
     }
 
     err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
     if (err != OK) {
-        fprintf(stderr, "Init log failed with code %d: %s\n",
-                                                err, set_strerror(err));
-        abort();
+        log_and_abort(LOG_EMERG, "Initialization log failed.", err);
     }
 
     /* 
@@ -95,29 +85,35 @@ int main(int argc, char *argv[])
 
     err = init_daemon();
     if (err != OK) {
-        fprintf(stderr, "Init daemon process failed with code %d: %s\n",
-                                                err, set_strerror(err));
-        abort();
+        log_and_abort(LOG_EMERG, "Initialization daemon process failed.", err);
     }
+
+    log_msg(LOG_INFO, "Hello from server!");
+
+
+#if SYSTEM_WIN32 || SYSTEM_WIN64
+    /* Initialization of Windows sockets library */
+    if (init_winsock() != OK) {
+        log_and_abort(LOG_EMERG, "Initialization winsock failed.", err);
+    }
+#endif
 
     err = init_listen_sockets(config_get_listeners());
     if (err != OK) {
-        abort();
+        log_and_abort(LOG_EMERG, "Listen for connections failed.", err);
     }
    
-    log_msg(LOG_INFO, "Hello from daemon!");
-
-
     if (!config_get_nprocs()) {
         /* Platform depends code sction */
         /* get_nprocs(); */
     }
 
 
+    while(1);
 
 
+#ifdef DEBUG
 
-#ifndef DEBUG
     /* Pull connection requests from the queue */
     listen_unit_t *temp = config_get_listeners();
     connect_unit_t scunit1;

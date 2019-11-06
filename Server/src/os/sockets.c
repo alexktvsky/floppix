@@ -59,9 +59,11 @@ int close_socket(socket_t socket)
 
 int init_winsock(void)
 {
-#if (SYSTEM_WIN32) || (SYSTEM_WIN64)
+#if SYSTEM_WIN32 || SYSTEM_WIN64
+    WORD wVersionRequested;
     WSADATA wsaData;
-    return WSAStartup(MAKEWORD(2, 2), &wsaData);
+    wVersionRequested = MAKEWORD(2, 2);
+    return WSAStartup(wVersionRequested, &wsaData);
 #else
     return 0;
 #endif

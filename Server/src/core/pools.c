@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <string.h>
-#include <pthread.h>
+//#include <pthread.h>
 
 #include "platform.h"
 

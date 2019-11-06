@@ -21,7 +21,6 @@ typedef int status_t;
 #define ERROR_DOMAIN(_domain) (_domain * ERROR_DOMAIN_BASE)
 
 #define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)
-#define IS_ERROR(_error) (_error == SUCCESS)
 #define IS_NOT_ERROR(_error) (_error != SUCCESS)
 
 const char *set_strerror(status_t statcode);
@@ -44,6 +43,7 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize);
 #define SETSOCKOPT_ERROR           (NETWORK_ERROR+3)
 #define BIND_ERROR                 (NETWORK_ERROR+4)
 #define INIT_LISTEN_ERROR          (NETWORK_ERROR+5)
+#define IPV6_NOT_SUPPORTED         (NETWORK_ERROR+6)
 
 #define MEMORY_ERROR               ERROR_DOMAIN(4)
 #define NULL_ADDRESS_ERROR         (MEMORY_ERROR+1)

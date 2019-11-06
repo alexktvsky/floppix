@@ -13,8 +13,24 @@ CFLAGS += -Iinclude -Wall -pipe
 build: CFLAGS += -g0 -s -O3
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
-LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 LDFLAGS += -lpcre
+
+ifeq ($(CC), gcc)
+	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+endif
+
+ifeq ($(CC), clang)
+	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+endif
+
+ifeq ($(CC), x86_64-w64-mingw32-gcc)
+	LDFLAGS += -lwsock32
+endif
+
+ifeq ($(CC), i686-w64-mingw32-gcc)
+	LDFLAGS += -lwsock32
+endif
+
 build: LDFLAGS += -static -static-libgcc
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
@@ -53,7 +69,7 @@ uninstall:
 	rm -f $(PREFIX)/$(BIN_FILE)
 
 clean:
-	rm -f obj/*
+	rm -f obj/* bin/$(BIN_FILE)
 
 mkdirs: 
 	@if [ ! -d bin ] ; then \
