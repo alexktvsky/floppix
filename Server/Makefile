@@ -69,7 +69,7 @@ uninstall:
 	rm -f $(PREFIX)/$(BIN_FILE)
 
 clean:
-	rm -f obj/* bin/$(BIN_FILE)
+	rm -f obj/* bin/*
 
 mkdirs: 
 	@if [ ! -d bin ] ; then \
