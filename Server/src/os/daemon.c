@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "platform.h"
@@ -8,8 +9,10 @@
 #include <fcntl.h>
 #include <signal.h>
 #endif
+
 #if SYSTEM_WIN32 || SYSTEM_WIN64
 #include <windows.h>
+#include <io.h>
 #endif
 
 
@@ -70,6 +73,11 @@ status_t init_daemon(void)
 {
     HWND hWnd = GetConsoleWindow();
     ShowWindow(hWnd, SW_HIDE);
+
+    _close(STDIN_FILENO);
+    _close(STDOUT_FILENO);
+    _close(STDERR_FILENO);
+
     return OK;
 }
 #endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */
