@@ -9,7 +9,7 @@ SRC_FILES += listen.c
 SRC_FILES += sockets.c
 SRC_FILES += syslog.c
 
-CFLAGS += -Iinclude -Wall -pipe
+CFLAGS += -Iinclude -Wall -pedantic -std=c11 -pipe
 build: CFLAGS += -g0 -s -O3
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
