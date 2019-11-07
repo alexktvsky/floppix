@@ -7,7 +7,7 @@
 #define LOG_INFO   3
 #define LOG_DEBUG  4
 
-#define DEFAULT_LOG_FILE "server.log"
+#define DEFAULT_LOG_FILE "log.log"
 
 
 status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary);

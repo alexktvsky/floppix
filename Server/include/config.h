@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define DEFAULT_CONFIG_FILE "server.conf"
+#define DEFAULT_CONFIG_FILE "config.conf"
 
 
 status_t init_config(void);
