@@ -8,7 +8,7 @@
 
 #include "platform.h"
 
-#if (SYSTEM_WIN32) || (SYSTEM_WIN64)
+#if SYSTEM_WIN32 || SYSTEM_WIN64
     #include <windows.h>
     #undef ALLOCATE_WITH_MMAP
 #endif
@@ -61,7 +61,7 @@ struct memnode_s {
 };
 
 struct pool_s {
-    memnode_t *nodes[MAX_INDEX + 1];
+    memnode_t *nodes[MAX_INDEX];
     pool_t *parent;
     pool_t *brother;
     pool_t *child;
@@ -91,7 +91,7 @@ static inline size_t get_page_size(void)
     size_t page_size;
 #if defined (_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
-#elif (SYSTEM_WIN32) || (SYSTEM_WIN64)
+#elif SYSTEM_WIN32 || SYSTEM_WIN64
     SYSTEM_INFO si;
     GetSystemInfo(&si);
     page_size = si.dwPageSize;
@@ -143,22 +143,6 @@ static memnode_t *memnode_allocate(pool_t *pool, size_t in_size)
     node->endp = (uint8_t *) node + full_size;
     node->free_size = MAX_MEMNODE_SIZE(node);
 
-    /* Registaration of memnode */
-    memnode_t *temp1 = (pool->nodes)[index];
-    memnode_t *temp2;
-    /* If array is empty */
-    if (!temp1) {
-        (pool->nodes)[index] = node;
-    }
-    /* If array is not empty */
-    else {
-        /* Go to the end of list */
-        while (temp1) {
-            temp2 = temp1;
-            temp1 = temp1->next;
-        }
-        temp2->next = node;
-    }
     return node;
 }
 
@@ -215,7 +199,6 @@ void *palloc(pool_t *pool, size_t in_size)
     }
     void *mem;
     memnode_t *node = (pool->nodes)[index];
-
     while (node) {
         if (node->free_size >= size) {
             node->free_size -= size;
@@ -229,9 +212,24 @@ void *palloc(pool_t *pool, size_t in_size)
     /* If we haven't got a suitable node, allocate a new one */
     if (!node) {
         node = memnode_allocate(pool, size);
-        if (!node) {
-            return NULL;
+
+        /* Registaration of memnode */
+        memnode_t *temp1 = (pool->nodes)[index];
+        memnode_t *temp2;
+        /* If array is empty */
+        if (!temp1) {
+            (pool->nodes)[index] = node;
         }
+        /* If array is not empty */
+        else {
+            /* Go to the end of list */
+            while (temp1) {
+                temp2 = temp1;
+                temp1 = temp1->next;
+            }
+            temp2->next = node;
+        }
+
         node->free_size -= size;
         mem = node->first_avail;
         node->first_avail += size;
@@ -255,7 +253,7 @@ size_t get_pool_size(pool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
-    for (size_t i = 0; i <= MAX_INDEX; i++) {
+    for (size_t i = 0; i < MAX_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += MAX_MEMNODE_SIZE(node);
@@ -270,7 +268,7 @@ size_t get_pool_free_size(pool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
-    for (size_t i = 0; i <= MAX_INDEX; i++) {
+    for (size_t i = 0; i < MAX_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += node->free_size;
@@ -285,7 +283,7 @@ size_t get_pool_total_size(pool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
-    for (size_t i = 0; i <= MAX_INDEX; i++) {
+    for (size_t i = 0; i < MAX_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += PAGE_SIZE * (i + 1);
@@ -309,7 +307,7 @@ void pool_clear(pool_t *pool)
     }
 
     memnode_t *node; 
-    for (size_t i = 0; i <= MAX_INDEX; i++) {
+    for (size_t i = 0; i < MAX_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
             node->first_avail = node->startp;
@@ -334,7 +332,7 @@ void pool_destroy(pool_t *pool)
 
     memnode_t *node;
     memnode_t *temp;    
-    for (size_t i = 0; i <= MAX_INDEX; i++) {
+    for (size_t i = 0; i < MAX_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
             temp = node;
