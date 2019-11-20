@@ -57,19 +57,19 @@ int main(int argc, char *argv[])
 
     err = init_config();
     if (err != OK) {
-        log_and_abort(LOG_EMERG, "Load config failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to load config.", err);
     }
 
     parse_argv(argc, argv);
 
     err = parse_config();
     if (err != OK) {
-        log_and_abort(LOG_EMERG, "Read config failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to read config.", err);
     }
 
     err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
     if (err != OK) {
-        log_and_abort(LOG_EMERG, "Initialization log failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to initialization log.", err);
     }
 
     /* 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
     err = init_daemon();
     if (err != OK) {
-        log_and_abort(LOG_EMERG, "Initialization daemon process failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to initialization daemon process.", err);
     }
 
     log_msg(LOG_INFO, "Hello from server!");
@@ -94,13 +94,13 @@ int main(int argc, char *argv[])
 #if SYSTEM_WIN32 || SYSTEM_WIN64
     /* Initialization of Windows sockets library */
     if (init_winsock() != OK) {
-        log_and_abort(LOG_EMERG, "Initialization winsock failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to initialization winsock.", err);
     }
 #endif
 
     err = init_listen_sockets(config_get_listeners());
     if (err != OK) {
-        log_and_abort(LOG_EMERG, "Listen for connections failed.", err);
+        log_and_abort(LOG_EMERG, "Failed to listen for connections.", err);
     }
    
     if (!config_get_nprocs()) {
