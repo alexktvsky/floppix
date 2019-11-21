@@ -26,7 +26,7 @@ QUIET_CC = @echo '   ' CC $(notdir $@);
 VPATH := src src/os
 
 
-.ONESHELL:
+#.ONESHELL:
 .PHONY: build debug test
 
 all: mkdirs build
@@ -50,13 +50,14 @@ uninstall:
 	rm -f $(PREFIX)/$(BIN_FILE)
 
 clean:
-	rm -f obj/*.o
+	rm -f obj/*
+	rm -f bin/*
 
 mkdirs: 
-	@if [ ! -d bin ] ; then
-		mkdir bin
+	@if [ ! -d bin ] ; then \
+		mkdir bin ; \
 	fi
 
-	@if [ ! -d obj ] ; then
-		mkdir obj
+	@if [ ! -d obj ] ; then \
+		mkdir obj ; \
 	fi
