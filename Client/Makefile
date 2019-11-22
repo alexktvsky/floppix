@@ -3,8 +3,10 @@ SRC_FILES += connect.c
 SRC_FILES += sockets.c
 
 CFLAGS += -Iinc -Wall -pipe
-build: CFLAGS += -s -O3 -static -static-libgcc
+build: CFLAGS += -s -O3 -DNDEBUG
 debug: CFLAGS += -g -O0 -DDEBUG
+
+build: LDFLAGS += -static -static-libgcc
 
 # Define compilation variables for Linux
 ifeq ($(CC),gcc)
