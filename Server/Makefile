@@ -15,6 +15,10 @@ debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
 LDFLAGS += -lpcre
 
+ifeq ($(CC), cc)
+	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+endif
+
 ifeq ($(CC), gcc)
 	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
