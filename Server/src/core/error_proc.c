@@ -10,9 +10,9 @@ static const struct {
 } ErrorList[] = {
     /* CONF_ERROR domain */
     {CONF_INIT_ERROR,              "Error of initialization config."},
-    {CONF_OPEN_ERROR,              "Error of opening config file."},
+    {CONF_OPEN_ERROR,              "Config file isn't exist or available."},
     {CONF_OVERFLOW_ERROR,          "Parser section overflow."},
-    {CONF_REGEX_ERROR,             "Error of compiling regular expressions."},
+    {CONF_REGEX_ERROR,             "Failed to compiling regular expressions."},
     {CONF_SUBSTR_ERROR,            "Error of pcre substring list."},
     {CONF_SYNTAX_ERROR,            "Error of syntax configure file."},
 
@@ -25,7 +25,7 @@ static const struct {
     {IPV6_NOT_SUPPORTED,           "IPv6 is not supported on this system."},
 
     /* MEMORY_ERROR domain */
-    {NULL_ADDRESS_ERROR,           "Error of null address."},
+    {NULL_ADDRESS_ERROR,           "Error of attempted to access a NULL address."},
     {ALLOC_MEM_ERROR,              "Error of allocate memory."},
     {INIT_POOL_ERROR,              "Error of initialization new memory pool."},
 
@@ -34,10 +34,9 @@ static const struct {
     {LOG_OPEN_ERROR,               "Error of opening log file."},
     {LOG_WRITE_ERROR,              "Error of writing log file."},
 
-
     {FAILED,                       "Default system error."},
     /* End of error list */
-    {0,                            "Undefined error code."}
+    {0x0,                          "Undefined error code."}
 };
 
 
