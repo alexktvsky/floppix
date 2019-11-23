@@ -108,10 +108,9 @@ status_t log_status(int in_level, status_t statcode)
         return OK;
     }
     char buf[MAX_STRLEN_MESSAGE];
-    snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d-%d. %s", 
-             SET_ERROR_DOMAIN(statcode),
-             statcode,
-             set_strerror(statcode));
+    snprintf(buf, MAX_STRLEN_MESSAGE, "Error 0x%x. %s", 
+            statcode,
+            set_strerror(statcode));
 	return log_msg(in_level, buf);
 }
 
@@ -119,7 +118,6 @@ status_t log_status(int in_level, status_t statcode)
 void log_and_abort(int level, char *stage_description, status_t statcode)
 {
     init_log_if_not(DEFAULT_LOG_FILE, -1, level);
-    printf("%s\n", stage_description);
     log_msg(level, stage_description);
     log_status(level, statcode);
     fini_log();

@@ -7,17 +7,17 @@
 typedef int status_t;
 
 #ifndef SUCCESS
-#define SUCCESS                    0
+#define SUCCESS                    0x0
 #endif
 #ifndef OK
-#define OK                         0
+#define OK                         0x0
 #endif
 #ifndef FAILED
-#define FAILED                     1
+#define FAILED                     0x1
 #endif
 
 /* Error domain provides a unique value for all error codes */
-#define ERROR_DOMAIN_BASE          100
+#define ERROR_DOMAIN_BASE          0x100
 #define ERROR_DOMAIN(_domain) (_domain * ERROR_DOMAIN_BASE)
 
 #define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)
