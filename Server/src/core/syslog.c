@@ -42,7 +42,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
         return OK;
     }
 
-    openfile = fopen(in_filename, "w+");
+    openfile = fopen(in_filename, "w");
     if (!openfile) {
     	return LOG_OPEN_ERROR; /* Error while open log file */
     }

@@ -7,7 +7,7 @@
 static const struct {
     status_t code;
     const char *message;
-} ErrorList[] = {
+} error_list[] = {
     /* CONF_ERROR domain */
     {CONF_INIT_ERROR,              "Error of initialization config."},
     {CONF_OPEN_ERROR,              "Config file isn't exist or available."},
@@ -44,13 +44,13 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize)
 {
     size_t len;
     for (int i = 0; ; i++) {           
-        if (!ErrorList[i].code || ErrorList[i].code == statcode) {
-            len = strlen(ErrorList[i].message);
+        if (!error_list[i].code || error_list[i].code == statcode) {
+            len = strlen(error_list[i].message);
             if (len > bufsize) {
-                memmove(buf, ErrorList[i].message, bufsize);
+                memmove(buf, error_list[i].message, bufsize);
             }
             else {
-                memmove(buf, ErrorList[i].message, len);
+                memmove(buf, error_list[i].message, len);
             }
             break;
         }
@@ -61,8 +61,8 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize)
 const char *set_strerror(status_t statcode)
 {
     for (int i = 0; ; i++) {      
-        if (!ErrorList[i].code || ErrorList[i].code == statcode) {
-            return ErrorList[i].message;
+        if (!error_list[i].code || error_list[i].code == statcode) {
+            return error_list[i].message;
         }
     }
 }
