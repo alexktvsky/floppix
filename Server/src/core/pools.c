@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 //#include <pthread.h>
@@ -9,12 +9,11 @@
 #include "platform.h"
 
 #if SYSTEM_WIN32 || SYSTEM_WIN64
-    #include <windows.h>
-    #undef ALLOCATE_WITH_MMAP
+#include <windows.h>
 #endif
 
 #ifdef ALLOCATE_WITH_MMAP
-    #include <sys/mman.h>
+#include <sys/mman.h>
 #endif
 
 #include "error_proc.h"
@@ -22,7 +21,7 @@
 
 
 /* Alignment macros is only to be used to align on a power of 2 boundary */
-#define ALIGN_SIZE sizeof(unsigned long)
+#define ALIGN_SIZE sizeof(uintptr_t)
 #define ALIGN(p, b) \
     (((p) + ((b) - 1)) & ~((b) - 1))
 #define ALIGN_DEFAULT(p) ALIGN(p, ALIGN_SIZE)
@@ -74,8 +73,7 @@ struct pool_s {
 
 static inline size_t align_allocation(size_t in_size)
 {
-    size_t size = in_size;
-    size = ALIGN_DEFAULT(size);
+    size_t size = ALIGN_DEFAULT(in_size);
     if (size < in_size) {
         return 0;
     }
@@ -150,8 +148,11 @@ static memnode_t *memnode_allocate(pool_t *pool, size_t in_size)
 status_t pool_create(pool_t **newpool, pool_t *parent)
 {
     pool_t *pool = malloc(SIZEOF_POOL_T);
+    /* XXX: Can we do smth if malloc return NULL?
+     * Allocate from stack or text section instead?
+     */
     if (!pool) {
-        return XXX_FAILED;
+        return ALLOC_MEM_ERROR;
     }
     memset(pool, 0, SIZEOF_POOL_T);
 
@@ -181,10 +182,6 @@ status_t pool_create(pool_t **newpool, pool_t *parent)
 
 void *palloc(pool_t *pool, size_t in_size)
 {
-    if (!pool) {
-        return NULL;
-    }
-
     size_t size = align_allocation(in_size);
     if (!size) {
         return NULL;
@@ -234,7 +231,6 @@ void *palloc(pool_t *pool, size_t in_size)
         mem = node->first_avail;
         node->first_avail += size;
     }
-
     return mem;
 }
 
