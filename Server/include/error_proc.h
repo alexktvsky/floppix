@@ -3,18 +3,14 @@
 
 #include <stddef.h>
 
+
 /* Type for specifying an error or status code */
 typedef int status_t;
 
-#ifndef SUCCESS
-#define SUCCESS                    0x0
-#endif
-#ifndef OK
-#define OK                         0x0
-#endif
-#ifndef FAILED
-#define FAILED                     0x1
-#endif
+#define XXX_OK                     0
+#define XXX_FAILED                 1
+#define XXX_BUSY                   2
+#define XXX_ABORT                  3
 
 /* Error domain provides a unique value for all error codes */
 #define ERROR_DOMAIN_BASE          0x100
@@ -22,6 +18,7 @@ typedef int status_t;
 
 #define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)
 #define IS_NOT_ERROR(_error) (_error != SUCCESS)
+
 
 const char *set_strerror(status_t statcode);
 void cpystrerror(status_t statcode, char *buf, size_t bufsize);

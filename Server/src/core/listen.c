@@ -37,7 +37,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
         close_socket(unit->socket);
         return INIT_LISTEN_ERROR; /* Error of initialization listening socket */
     }
-    return OK;
+    return XXX_OK;
 }
 
 
@@ -82,7 +82,7 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
         close_socket(unit->socket);
         return INIT_LISTEN_ERROR; /* Error of initialization listening socket */
     }
-    return OK;
+    return XXX_OK;
 }
 #endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */
 
@@ -102,9 +102,9 @@ status_t init_listen_sockets(listen_unit_t *listeners)
                 stat = init_listen_tcp6(temp);
                 break;
         }
-        if (stat != OK) {
+        if (stat != XXX_OK) {
             return stat;
         }
     }
-    return OK;
+    return XXX_OK;
 }

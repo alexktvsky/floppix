@@ -1,4 +1,5 @@
 #include "platform.h"
+#include "error_proc.h"
 #include "sockets.h"
 
 
@@ -20,7 +21,7 @@ int tcp_nopush(socket_t socket)
 #elif (SYSTEM_SOLARIS)
     /* do smth */
 #else
-    return 0;
+    return XXX_OK;
 #endif
 }
 
@@ -38,7 +39,7 @@ int tcp_push(socket_t socket)
 #elif (SYSTEM_SOLARIS)
     /* do smth */
 #else
-    return 0;
+    return XXX_OK;
 #endif
 }
 
@@ -65,6 +66,6 @@ int init_winsock(void)
     wVersionRequested = MAKEWORD(2, 2);
     return WSAStartup(wVersionRequested, &wsaData);
 #else
-    return 0;
+    return XXX_OK;
 #endif
 }

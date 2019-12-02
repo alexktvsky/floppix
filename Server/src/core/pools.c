@@ -151,7 +151,7 @@ status_t pool_create(pool_t **newpool, pool_t *parent)
 {
     pool_t *pool = malloc(SIZEOF_POOL_T);
     if (!pool) {
-        return 1;
+        return XXX_FAILED;
     }
     memset(pool, 0, SIZEOF_POOL_T);
 
@@ -175,7 +175,7 @@ status_t pool_create(pool_t **newpool, pool_t *parent)
     }
 
     *newpool = pool;
-    return OK;
+    return XXX_OK;
 }
 
 

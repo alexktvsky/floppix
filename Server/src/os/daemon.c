@@ -21,7 +21,7 @@ status_t init_daemon(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
-        return FAILED;
+        return XXX_FAILED;
     }
 
     /* Parent terminates */
@@ -33,13 +33,13 @@ status_t init_daemon(void)
 
     /* Become session leader */
     if (setsid() < 0) { 
-        return FAILED;
+        return XXX_FAILED;
     }
 
     signal(SIGHUP, SIG_IGN);
 
     if ((pid = fork()) < 0) {
-        return FAILED;
+        return XXX_FAILED;
     }
 
     /* 1th child terminates */
@@ -63,7 +63,7 @@ status_t init_daemon(void)
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    return OK;
+    return XXX_OK;
 }
 #endif /* SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS */
 
@@ -78,6 +78,6 @@ status_t init_daemon(void)
     _close(STDOUT_FILENO);
     _close(STDERR_FILENO);
 
-    return OK;
+    return XXX_OK;
 }
 #endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */

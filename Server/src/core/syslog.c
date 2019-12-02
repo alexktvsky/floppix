@@ -34,12 +34,9 @@ static const char *priorities[] = {
 
 status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
 {
-    if (!in_filename) {
-        return NULL_ADDRESS_ERROR; /* Error of null address */
-    }
     /* If log is already has been opened don't change it */ 
     if (openfile) {
-        return OK;
+        return XXX_OK;
     }
 
     openfile = fopen(in_filename, "w");
@@ -57,7 +54,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
     else {
         max_size = in_maxsize;
     }
-    return OK;
+    return XXX_OK;
 }
 
 
@@ -70,7 +67,7 @@ status_t init_log_if_not(char *in_filename, ssize_t in_maxsize, int in_level_bou
 status_t log_msg(int in_level, char *message)
 {
 	if (in_level > level_boundary) {
-		return OK;
+		return XXX_OK;
 	}
 
     char strtime[MAX_STRLEN_TIME];
@@ -98,14 +95,14 @@ status_t log_msg(int in_level, char *message)
     }
     fflush(openfile);
     size_counter += msglen + HEADER_MSG_SIZE;
-    return OK;
+    return XXX_OK;
 }
 
 
 status_t log_status(int in_level, status_t statcode)
 {
-    if (statcode == OK) {
-        return OK;
+    if (statcode == XXX_OK) {
+        return XXX_OK;
     }
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error 0x%x. %s", 

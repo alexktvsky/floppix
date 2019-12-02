@@ -62,11 +62,11 @@ status_t init_config(void)
 {
     was_init = true;
     pool_t *newpool;
-    if (pool_create(&newpool, NULL) != OK) {
+    if (pool_create(&newpool, NULL) != XXX_OK) {
         return ALLOC_MEM_ERROR;
     }
     config.pool = newpool;
-    return OK;
+    return XXX_OK;
 }
 
 
@@ -86,14 +86,14 @@ void fini_config(void)
 status_t set_config_filename(char *in_filename)
 {
     if (!was_init) {
-        return EXIT_FAILURE;
+        return XXX_FAILED;
     }
     if (!in_filename) {
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     was_set_filename = true;
     config.config_filename = in_filename;
-    return OK;
+    return XXX_OK;
 }
 
 
@@ -136,11 +136,11 @@ size_t config_get_maxlog(void)
 status_t parse_config(void)
 {
     if (!was_init) {
-        return EXIT_FAILURE;
+        return XXX_FAILED;
     }
 
     if (!was_set_filename) {
-        return EXIT_FAILURE;
+        return XXX_FAILED;
     }
 
     was_read = true;
@@ -363,5 +363,5 @@ status_t parse_config(void)
         pcre_free(pcre_array[i]);
     }
     fclose(conf_file);
-    return OK;
+    return XXX_OK;
 }
