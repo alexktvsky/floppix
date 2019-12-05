@@ -13,7 +13,11 @@
 #endif
 
 #ifdef ALLOCATE_WITH_MMAP
+#if SYSTEM_WIN32 || SYSTEM_WIN64
+#error "Allocate with mmap not supported on Windows!"
+#elif SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS
 #include <sys/mman.h>
+#endif
 #endif
 
 #include "error_proc.h"
@@ -94,7 +98,7 @@ static inline size_t get_page_size(void)
     GetSystemInfo(&si);
     page_size = si.dwPageSize;
 #else
-    #error "Error of determine page size!"
+#error "Error of determine page size!"
 #endif
     return page_size;
 }
@@ -112,22 +116,15 @@ static inline size_t get_npages(size_t in_size)
 }
 
 
-static memnode_t *memnode_allocate(pool_t *pool, size_t in_size)
+static memnode_t *memnode_allocate_and_init(size_t in_size)
 {
-    size_t npages = get_npages(in_size);
-    size_t full_size = npages * PAGE_SIZE;
-    size_t index = npages - 1;
-    if (index > MAX_INDEX) {
-        return NULL;
-    }
-
     memnode_t *node;
 
 #ifdef ALLOCATE_WITH_MMAP
-    node = mmap(NULL, full_size, PROT_READ|PROT_WRITE,
+    node = mmap(NULL, in_size, PROT_READ|PROT_WRITE,
                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 #else
-    node = malloc(full_size);
+    node = malloc(in_size);
 #endif
 
     if (!node) {
@@ -138,7 +135,7 @@ static memnode_t *memnode_allocate(pool_t *pool, size_t in_size)
     node->next = NULL;
     node->startp = (uint8_t *) node + SIZEOF_MEMNODE_T_ALIGN;
     node->first_avail = (uint8_t *) node->startp;
-    node->endp = (uint8_t *) node + full_size;
+    node->endp = (uint8_t *) node + in_size;
     node->free_size = MAX_MEMNODE_SIZE(node);
 
     return node;
@@ -208,7 +205,7 @@ void *palloc(pool_t *pool, size_t in_size)
 
     /* If we haven't got a suitable node, allocate a new one */
     if (!node) {
-        node = memnode_allocate(pool, size);
+        node = memnode_allocate_and_init(npages * PAGE_SIZE);
 
         /* Registaration of memnode */
         memnode_t *temp1 = (pool->nodes)[index];
