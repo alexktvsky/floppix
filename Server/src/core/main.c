@@ -42,11 +42,11 @@ void parse_argv(int argc, char *argv[])
      * argv[1] -v version
      * argv[1] -h help
      */
-    if (!argv[1]) {
-        set_config_filename(DEFAULT_CONFIG_FILE);
+    if (argc > 1) {
+        set_config_filename(argv[1]);
     }
     else {
-        set_config_filename(argv[1]);
+        set_config_filename(DEFAULT_CONFIG_FILE);
     }
 }
 

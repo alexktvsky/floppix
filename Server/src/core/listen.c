@@ -8,7 +8,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
     struct sockaddr_in ip4_sockaddr;
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (unit->socket == -1) {
+    if (unit->socket == INVALID_SOCKET) {
         return INIT_SOCKET_ERROR; /* Error of initialization new socket */
     }
 
@@ -43,6 +43,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
 #if SYSTEM_WIN32 || SYSTEM_WIN64
 static status_t init_listen_tcp6(listen_unit_t *unit)
 {
+    (void) unit;
     return IPV6_NOT_SUPPORTED;
 }
 

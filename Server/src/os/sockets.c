@@ -21,6 +21,7 @@ int tcp_nopush(socket_t socket)
 #elif (SYSTEM_SOLARIS)
     /* do smth */
 #else
+    (void) socket;
     return XXX_OK;
 #endif
 }
@@ -39,6 +40,7 @@ int tcp_push(socket_t socket)
 #elif (SYSTEM_SOLARIS)
     /* do smth */
 #else
+    (void) socket;
     return XXX_OK;
 #endif
 }

@@ -3,7 +3,7 @@
 
 #include "platform.h"
 
-#if (SYSTEM_LINUX)
+#if SYSTEM_LINUX
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -15,20 +15,23 @@
 #define SHUT_RECEIVE SHUT_RD
 #define SHUT_SEND    SHUT_WR
 #define SHUT_BOTH    SHUT_RDWR
+#define INVALID_SOCKET -1
 typedef int socket_t;
 
-#elif (SYSTEM_FREEBSD)
+
+#elif SYSTEM_FREEBSD
 /* Details for FreeBSD */
-
+#define INVALID_SOCKET -1
 typedef int socket_t;
 
-#elif (SYSTEM_SOLARIS)
+
+#elif SYSTEM_SOLARIS
 /* Details for Solaris */
-
+#define INVALID_SOCKET -1
 typedef int socket_t;
 
 
-#elif (SYSTEM_WIN32) || (SYSTEM_WIN64)
+#elif SYSTEM_WIN32 || SYSTEM_WIN64
 #include <winsock2.h>
 #include <ws2ipdef.h>
 #include <windows.h>
