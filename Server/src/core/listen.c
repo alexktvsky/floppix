@@ -9,7 +9,6 @@ static status_t init_listen_tcp(listen_unit_t *unit)
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (unit->socket == -1) {
-        close_socket(unit->socket);
         return INIT_SOCKET_ERROR; /* Error of initialization new socket */
     }
 
