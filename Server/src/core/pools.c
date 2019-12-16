@@ -40,7 +40,7 @@
 #define SIZEOF_POOL_T_ALIGN ALIGN_DEFAULT(sizeof(pool_t))
 
 #define MAX_MEMNODE_SIZE(_node) \
-    (uint32_t) (intptr_t) _node->endp - (intptr_t) _node->startp;
+    (uint32_t) (uintptr_t) _node->endp - (uintptr_t) _node->startp;
 
 /* slot  0: size  4096
  * slot  1: size  8192
