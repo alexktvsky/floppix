@@ -8,12 +8,12 @@
 typedef int status_t;
 
 #define XXX_OK                     0
-#define XXX_FAILED                 1
-#define XXX_BUSY                   2
-#define XXX_ABORT                  3
+#define XXX_FAILED                -1
+#define XXX_BUSY                  -2
+#define XXX_ABORT                 -3
 
 /* Error domain provides a unique value for all error codes */
-#define ERROR_DOMAIN_BASE          0x100
+#define ERROR_DOMAIN_BASE          100
 #define ERROR_DOMAIN(_domain) (_domain * ERROR_DOMAIN_BASE)
 
 #define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)

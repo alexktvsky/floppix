@@ -105,7 +105,7 @@ status_t log_status(int in_level, status_t statcode)
         return XXX_OK;
     }
     char buf[MAX_STRLEN_MESSAGE];
-    snprintf(buf, MAX_STRLEN_MESSAGE, "Error 0x%x. %s", 
+    snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d. %s", 
             statcode,
             set_strerror(statcode));
 	return log_msg(in_level, buf);
