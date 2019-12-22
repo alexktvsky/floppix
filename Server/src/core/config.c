@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "platform.h"
-#include "error_proc.h"
+#include "errors.h"
 #include "sockets.h"
 #include "listen.h"
 #include "pools.h"

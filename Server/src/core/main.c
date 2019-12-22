@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "platform.h"
-#include "error_proc.h"
+#include "errors.h"
 #include "daemon.h"
 
 

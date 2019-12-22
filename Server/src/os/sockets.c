@@ -1,5 +1,5 @@
 #include "platform.h"
-#include "error_proc.h"
+#include "errors.h"
 #include "sockets.h"
 
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "platform.h"
-#include "error_proc.h"
+#include "errors.h"
 
 #if SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS
 #include <unistd.h>

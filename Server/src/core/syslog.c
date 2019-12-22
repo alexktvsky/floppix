@@ -8,7 +8,7 @@
 #include <sys/types.h>
 
 #include "platform.h"
-#include "error_proc.h"
+#include "errors.h"
 #include "syslog.h"
 
 #define MAX_STRLEN_TIME 50

@@ -20,7 +20,7 @@
 #endif
 #endif
 
-#include "error_proc.h"
+#include "errors.h"
 #include "pools.h"
 
 
