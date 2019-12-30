@@ -122,14 +122,16 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
 
 #ifdef ALLOCATE_WITH_MMAP
     node = mmap(NULL, in_size, PROT_READ|PROT_WRITE,
-                MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+                                MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if (node == MAP_FAILED) {
+        return NULL;
+    }
 #else
     node = malloc(in_size);
-#endif
-
     if (!node) {
         return NULL;
     }
+#endif
 
     /* Initialization of memnode */
     node->next = NULL;
