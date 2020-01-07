@@ -1,5 +1,5 @@
-#ifndef ERROR_PROC_H
-#define ERROR_PROC_H
+#ifndef ERRORS_H
+#define ERRORS_H
 
 #include <stddef.h>
 
@@ -53,4 +53,4 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize);
 #define LOG_OPEN_ERROR             (SYSLOG_ERROR+2)
 #define LOG_WRITE_ERROR            (SYSLOG_ERROR+3)
 
-#endif /* ERROR_PROC_H */
+#endif /* ERRORS_H */

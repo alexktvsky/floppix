@@ -61,7 +61,7 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize)
 const char *set_strerror(status_t statcode)
 {
     for (int i = 0; ; i++) {      
-        if (!error_list[i].code || error_list[i].code == statcode) {
+        if (error_list[i].code == statcode || error_list[i].code == 0) {
             return error_list[i].message;
         }
     }

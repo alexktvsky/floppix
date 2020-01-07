@@ -4,27 +4,23 @@
 #include "platform.h"
 #include "errors.h"
 
-#if SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#endif
-
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#elif (SYSTEM_WINDOWS)
 #include <windows.h>
 #include <io.h>
 #endif
 
 
-#if SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 status_t init_daemon(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
         return XXX_FAILED;
     }
-
-    /* Parent terminates */
     else if (pid) {
         exit(0);
     }
@@ -51,13 +47,6 @@ status_t init_daemon(void)
 
     chdir("/");
 
-    /* Close off file descriptors */
-/*
-    for (int i = 0; i < MAXFD; i++) {
-        close(i);
-    }
-*/
-
     /* Close out the standard file descriptors */
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
@@ -65,10 +54,8 @@ status_t init_daemon(void)
 
     return XXX_OK;
 }
-#endif /* SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS */
 
-
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#elif (SYSTEM_WINDOWS)
 status_t init_daemon(void)
 {
     HWND hWnd = GetConsoleWindow();
@@ -80,4 +67,4 @@ status_t init_daemon(void)
 
     return XXX_OK;
 }
-#endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */
+#endif /* (SYSTEM_WINDOWS) */

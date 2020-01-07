@@ -40,14 +40,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
 }
 
 
-#if SYSTEM_WIN32 || SYSTEM_WIN64
-static status_t init_listen_tcp6(listen_unit_t *unit)
-{
-    (void) unit;
-    return IPV6_NOT_SUPPORTED;
-}
-
-#else
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 static status_t init_listen_tcp6(listen_unit_t *unit)
 {
     struct sockaddr_in6 ip6_sockaddr;
@@ -84,7 +77,14 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
     }
     return XXX_OK;
 }
-#endif /* SYSTEM_WIN32 || SYSTEM_WIN64 */
+
+#elif (SYSTEM_WINDOWS)
+static status_t init_listen_tcp6(listen_unit_t *unit)
+{
+    (void) unit;
+    return IPV6_NOT_SUPPORTED;
+}
+#endif
 
 
 status_t init_listen_sockets(listen_unit_t *listeners)

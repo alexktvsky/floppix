@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     log_msg(LOG_INFO, "Hello from server!");
 
 
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#if (SYSTEM_WIN32) || (SYSTEM_WIN64)
     /* Initialization of Windows sockets library */
     if (init_winsock() != XXX_OK) {
         log_and_abort(LOG_EMERG, "Failed to initialization winsock.", err);

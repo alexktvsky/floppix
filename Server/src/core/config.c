@@ -10,7 +10,7 @@
 #include "pools.h"
 #include "config.h"
 
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#if (SYSTEM_WINDOWS)
 #define PCRE_STATIC
 #endif
 #include <pcre.h>

@@ -8,14 +8,14 @@
 
 #include "platform.h"
 
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#if (SYSTEM_WINDOWS)
 #include <windows.h>
 #endif
 
 #ifdef ALLOCATE_WITH_MMAP
-#if SYSTEM_WIN32 || SYSTEM_WIN64
+#if (SYSTEM_WINDOWS)
 #error "Allocate with mmap not supported on Windows!"
-#elif SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS
+#elif (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <sys/mman.h>
 #endif
 #endif
@@ -91,9 +91,9 @@ static inline size_t align_allocation(size_t in_size)
 static inline size_t get_page_size(void)
 {
     size_t page_size;
-#if defined (_SC_PAGESIZE)
+#if defined(_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
-#elif SYSTEM_WIN32 || SYSTEM_WIN64
+#elif (SYSTEM_WINDOWS)
     SYSTEM_INFO si;
     GetSystemInfo(&si);
     page_size = si.dwPageSize;
