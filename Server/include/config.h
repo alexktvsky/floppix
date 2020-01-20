@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef XXX_CONFIG_H
+#define XXX_CONFIG_H
 
 #define DEFAULT_CONFIG_FILE "server.conf"
 
@@ -14,4 +14,4 @@ size_t config_get_nprocs(void);
 char *config_get_logfile(void);
 size_t config_get_maxlog(void);
 
-#endif /* CONFIG_H */
+#endif /* XXX_CONFIG_H */

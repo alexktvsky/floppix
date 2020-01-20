@@ -1,5 +1,5 @@
-#ifndef SOCKETS_H
-#define SOCKETS_H
+#ifndef XXX_SOCKETS_H
+#define XXX_SOCKETS_H
 
 #include "platform.h"
 
@@ -50,4 +50,4 @@ int tcp_push(socket_t socket);
 int close_socket(socket_t socket);
 int init_winsock(void);
 
-#endif /* SOCKETS_H */
+#endif /* XXX_SOCKETS_H */

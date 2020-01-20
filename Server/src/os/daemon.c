@@ -21,12 +21,10 @@ status_t init_daemon(void)
     if ((pid = fork()) < 0) {
         return XXX_FAILED;
     }
-    else if (pid) {
+    /* Parent terminates */
+    if (pid) {
         exit(0);
     }
-
-    /* 1th child continues... */
-
     /* Become session leader */
     if (setsid() < 0) { 
         return XXX_FAILED;
@@ -37,20 +35,25 @@ status_t init_daemon(void)
     if ((pid = fork()) < 0) {
         return XXX_FAILED;
     }
-
     /* 1th child terminates */
-    else if (pid) {
+    if (pid) {
         exit(0);
     }
 
-    /* 2th child continues... */
+    /* Change the current working directory */
+    if ((chdir("/")) < 0) {
+        return XXX_FAILED;
+    }
 
-    chdir("/");
-
-    /* Close out the standard file descriptors */
+    /* Close off file descriptors */
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
+
+    /* Redirect stdin, stdout, and stderr to /dev/null */
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_RDWR);
+    open("/dev/null", O_RDWR);
 
     return XXX_OK;
 }
@@ -58,13 +61,15 @@ status_t init_daemon(void)
 #elif (SYSTEM_WINDOWS)
 status_t init_daemon(void)
 {
-    HWND hWnd = GetConsoleWindow();
-    ShowWindow(hWnd, SW_HIDE);
-
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
     _close(STDIN_FILENO);
     _close(STDOUT_FILENO);
     _close(STDERR_FILENO);
 
+    /*
+     * TODO: How to redirect stdin, stdout, and stderr to /dev/null on Windows
+     */
+
     return XXX_OK;
 }
-#endif /* (SYSTEM_WINDOWS) */
+#endif

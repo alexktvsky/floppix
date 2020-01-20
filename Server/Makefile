@@ -1,9 +1,9 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += daemon.c
 SRC_FILES += errors.c
 SRC_FILES += mempool.c
+SRC_FILES += daemon.c
 SRC_FILES += config.c
 SRC_FILES += listen.c
 SRC_FILES += sockets.c

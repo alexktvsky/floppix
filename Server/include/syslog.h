@@ -1,5 +1,5 @@
-#ifndef SYSLOG_H
-#define SYSLOG_H
+#ifndef XXX_SYSLOG_H
+#define XXX_SYSLOG_H
 
 #define LOG_EMERG  0
 #define LOG_ERROR  1
@@ -17,4 +17,4 @@ status_t log_status(int level, status_t statcode);
 void log_and_abort(int level, char *stage_description, status_t statcode);
 void fini_log(void);
 
-#endif /* SYSLOG_H */
+#endif /* XXX_SYSLOG_H */

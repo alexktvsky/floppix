@@ -1,5 +1,5 @@
-#ifndef LISTEN_H
-#define LISTEN_H
+#ifndef XXX_LISTEN_H
+#define XXX_LISTEN_H
 
 /* Some operating systems do not support a value more than 5 */
 #define MAX_LEN_QUEUE  5
@@ -21,4 +21,4 @@ struct listen_unit_s {
 
 status_t init_listen_sockets(listen_unit_t *listeners);
 
-#endif /* LISTEN_H */
+#endif /* XXX_LISTEN_H */

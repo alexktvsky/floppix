@@ -41,7 +41,7 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
 
     openfile = fopen(in_filename, "w");
     if (!openfile) {
-    	return LOG_OPEN_ERROR; /* Error while open log file */
+        return LOG_OPEN_ERROR; /* Error while open log file */
     }
     level_boundary = in_level_boundary;
     if (in_maxsize == -1) {
@@ -66,9 +66,9 @@ status_t init_log_if_not(char *in_filename, ssize_t in_maxsize, int in_level_bou
 
 status_t log_msg(int in_level, char *message)
 {
-	if (in_level > level_boundary) {
-		return XXX_OK;
-	}
+    if (in_level > level_boundary) {
+        return XXX_OK;
+    }
 
     char strtime[MAX_STRLEN_TIME];
     time_t timer = time(NULL);
@@ -91,7 +91,7 @@ status_t log_msg(int in_level, char *message)
                             strtime,
                             priorities[in_level],
                             message) < 0) {
-    	return LOG_WRITE_ERROR; /* Error of writing log file */
+        return LOG_WRITE_ERROR; /* Error of writing log file */
     }
     fflush(openfile);
     size_counter += msglen + HEADER_MSG_SIZE;
@@ -108,7 +108,7 @@ status_t log_status(int in_level, status_t statcode)
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d. %s", 
             statcode,
             set_strerror(statcode));
-	return log_msg(in_level, buf);
+    return log_msg(in_level, buf);
 }
 
 
@@ -124,6 +124,6 @@ void log_and_abort(int level, char *stage_description, status_t statcode)
 
 void fini_log(void)
 {
-	fclose(openfile);
+    fclose(openfile);
     openfile = NULL;
 }

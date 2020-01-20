@@ -1,5 +1,5 @@
-#ifndef MEMPOOL_H
-#define MEMPOOL_H
+#ifndef XXX_MEMPOOL_H
+#define XXX_MEMPOOL_H
 
 typedef struct mempool_s mempool_t;
 
@@ -12,4 +12,4 @@ size_t get_mempool_total_size(mempool_t *pool);
 void mempool_clear(mempool_t *pool);
 void mempool_destroy(mempool_t *pool);
 
-#endif /* MEMPOOL_H */
+#endif /* XXX_MEMPOOL_H */

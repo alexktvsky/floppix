@@ -4,20 +4,11 @@
 #include "platform.h"
 #include "errors.h"
 #include "daemon.h"
-
-
-//#include <pthread.h>
-
 #include "sockets.h"
 #include "listen.h"
 #include "mempool.h"
 #include "config.h"
-#include "core.h"
 #include "syslog.h"
-
-#if (SYSTEM_LINUX)
-#include <sys/sysinfo.h>
-#endif 
 
 
 #ifdef DEBUG

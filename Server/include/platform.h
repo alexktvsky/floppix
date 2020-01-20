@@ -1,5 +1,5 @@
-#ifndef PLATFORM_H
-#define PLATFORM_H
+#ifndef XXX_PLATFORM_H
+#define XXX_PLATFORM_H
 
 #if defined(__linux__) || defined(__gnu_linux__)
 #define PLATFORM_NAME "Linux"
@@ -50,4 +50,4 @@
 #error Unsupported operating system!
 #endif
 
-#endif /* PLATFORM_H */
+#endif /* XXX_PLATFORM_H */
