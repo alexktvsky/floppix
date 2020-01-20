@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-//#include <pthread.h>
+// #include <pthread.h>
 
 #include "platform.h"
 
@@ -21,7 +21,7 @@
 #endif
 
 #include "errors.h"
-#include "pools.h"
+#include "mempool.h"
 
 
 /* Alignment macros is only to be used to align on a power of 2 boundary */
@@ -34,10 +34,10 @@
 #define MIN_ALLOC (ALIGN_SIZE << MIN_ORDER)
 
 #define SIZEOF_MEMNODE_T (sizeof(memnode_t))
-#define SIZEOF_POOL_T (sizeof(pool_t))
+#define SIZEOF_MEMPOOL_T (sizeof(mempool_t))
 
 #define SIZEOF_MEMNODE_T_ALIGN ALIGN_DEFAULT(sizeof(memnode_t))
-#define SIZEOF_POOL_T_ALIGN ALIGN_DEFAULT(sizeof(pool_t))
+#define SIZEOF_MEMPOOL_T_ALIGN ALIGN_DEFAULT(sizeof(mempool_t))
 
 #define MAX_MEMNODE_SIZE(_node) \
     (uint32_t) (uintptr_t) _node->endp - (uintptr_t) _node->startp;
@@ -63,11 +63,11 @@ struct memnode_s {
     uint32_t free_size;
 };
 
-struct pool_s {
+struct mempool_s {
     memnode_t *nodes[MAX_INDEX];
-    pool_t *parent;
-    pool_t *brother;
-    pool_t *child;
+    mempool_t *parent;
+    mempool_t *brother;
+    mempool_t *child;
 
 #ifdef _PTHREAD_H
     pthread_mutex_t mutex;
@@ -144,16 +144,16 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
 }
 
 
-status_t pool_create(pool_t **newpool, pool_t *parent)
+status_t mempool_create(mempool_t **newpool, mempool_t *parent)
 {
-    pool_t *pool = malloc(SIZEOF_POOL_T);
+    mempool_t *pool = malloc(SIZEOF_MEMPOOL_T);
     /* XXX: Can we do smth if malloc return NULL?
      * Allocate from stack or text section instead?
      */
     if (!pool) {
         return ALLOC_MEM_ERROR;
     }
-    memset(pool, 0, SIZEOF_POOL_T);
+    memset(pool, 0, SIZEOF_MEMPOOL_T);
 
     if (parent) {
         pool->parent = parent;
@@ -164,8 +164,8 @@ status_t pool_create(pool_t **newpool, pool_t *parent)
         /* If new pool is not first child */
         else {
             /* Go to end of list */
-            pool_t *temp1 = parent->child;
-            pool_t *temp2;
+            mempool_t *temp1 = parent->child;
+            mempool_t *temp2;
             while (temp1) {
                 temp2 = temp1;
                 temp1 = temp1->brother;
@@ -179,7 +179,7 @@ status_t pool_create(pool_t **newpool, pool_t *parent)
 }
 
 
-void *palloc(pool_t *pool, size_t in_size)
+void *palloc(mempool_t *pool, size_t in_size)
 {
     size_t size = align_allocation(in_size);
     if (!size) {
@@ -234,7 +234,7 @@ void *palloc(pool_t *pool, size_t in_size)
 }
 
 
-void *pcalloc(pool_t *pool, size_t in_size)
+void *pcalloc(mempool_t *pool, size_t in_size)
 {
     void *mem;
     if ((mem = palloc(pool, in_size)) != NULL) {
@@ -244,7 +244,7 @@ void *pcalloc(pool_t *pool, size_t in_size)
 }
 
 
-size_t get_pool_size(pool_t *pool)
+size_t get_mempool_size(mempool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
@@ -259,7 +259,7 @@ size_t get_pool_size(pool_t *pool)
 }
 
 
-size_t get_pool_free_size(pool_t *pool)
+size_t get_mempool_free_size(mempool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
@@ -274,7 +274,7 @@ size_t get_pool_free_size(pool_t *pool)
 }
 
 
-size_t get_pool_total_size(pool_t *pool)
+size_t get_mempool_total_size(mempool_t *pool)
 {
     size_t size = 0;
     memnode_t *node;
@@ -289,15 +289,15 @@ size_t get_pool_total_size(pool_t *pool)
 }
 
 
-void pool_clear(pool_t *pool)
+void mempool_clear(mempool_t *pool)
 {
     if (pool->child) {
-        pool_t *temp1 = pool->child;
-        pool_t *temp2;
+        mempool_t *temp1 = pool->child;
+        mempool_t *temp2;
         while (temp1) {
             temp2 = temp1;
             temp1 = temp1->brother;
-            pool_clear(temp2);
+            mempool_clear(temp2);
         }
     }
 
@@ -313,15 +313,15 @@ void pool_clear(pool_t *pool)
 }
 
 
-void pool_destroy(pool_t *pool)
+void mempool_destroy(mempool_t *pool)
 {
     if (pool->child) {
-        pool_t *temp1 = pool->child;
-        pool_t *temp2;
+        mempool_t *temp1 = pool->child;
+        mempool_t *temp2;
         while (temp1) {
             temp2 = temp1;
             temp1 = temp1->brother;
-            pool_destroy(temp2);
+            mempool_destroy(temp2);
         }
     }
 

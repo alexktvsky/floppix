@@ -7,7 +7,7 @@
 #include "errors.h"
 #include "sockets.h"
 #include "listen.h"
-#include "pools.h"
+#include "mempool.h"
 #include "config.h"
 
 #if (SYSTEM_WINDOWS)
@@ -40,7 +40,7 @@ static struct {
     /* Limit size of log file */
     size_t maxlog;
     /* Private field */
-    pool_t *pool;
+    mempool_t *pool;
 } config;
 
 
@@ -61,8 +61,8 @@ static struct {
 status_t init_config(void)
 {
     was_init = true;
-    pool_t *newpool;
-    if (pool_create(&newpool, NULL) != XXX_OK) {
+    mempool_t *newpool;
+    if (mempool_create(&newpool, NULL) != XXX_OK) {
         return ALLOC_MEM_ERROR;
     }
     config.pool = newpool;
@@ -79,7 +79,7 @@ void fini_config(void)
     was_set_filename = false;
     was_read = false;
     if (config.pool) {
-        pool_destroy(config.pool);
+        mempool_destroy(config.pool);
     }
 }
 
