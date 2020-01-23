@@ -32,14 +32,14 @@ static const char *priorities[] = {
 };
 
 
-status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
+status_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
 {
     /* If log is already has been opened don't change it */ 
     if (openfile) {
         return XXX_OK;
     }
 
-    openfile = fopen(in_filename, "w");
+    openfile = fopen(in_fname, "w");
     if (!openfile) {
         return LOG_OPEN_ERROR; /* Error while open log file */
     }
@@ -58,13 +58,13 @@ status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
 }
 
 
-status_t init_log_if_not(char *in_filename, ssize_t in_maxsize, int in_level_boundary)
+status_t init_log_if_not(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
 {
-    return init_log(in_filename, in_maxsize, in_level_boundary);
+    return init_log(in_fname, in_maxsize, in_level_boundary);
 }
 
 
-status_t log_msg(int in_level, char *message)
+status_t log_msg(int in_level, const char *message)
 {
     if (in_level > level_boundary) {
         return XXX_OK;
@@ -112,7 +112,7 @@ status_t log_status(int in_level, status_t statcode)
 }
 
 
-void log_and_abort(int level, char *stage_description, status_t statcode)
+void log_and_abort(int level, const char *stage_description, status_t statcode)
 {
     init_log_if_not(DEFAULT_LOG_FILE, -1, level);
     log_msg(level, stage_description);

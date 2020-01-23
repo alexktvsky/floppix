@@ -10,11 +10,11 @@
 #define DEFAULT_LOG_FILE "server.log"
 
 
-status_t init_log(char *in_filename, ssize_t in_maxsize, int in_level_boundary);
-status_t init_log_if_not(char *in_filename, ssize_t in_maxsize, int in_level_boundary);
-status_t log_msg(int level, char *message);
+status_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary);
+status_t init_log_if_not(const char *in_fname, ssize_t in_maxsize, int in_level_boundary);
+status_t log_msg(int level, const char *message);
 status_t log_status(int level, status_t statcode);
-void log_and_abort(int level, char *stage_description, status_t statcode);
+void log_and_abort(int level, const char *stage_description, status_t statcode);
 void fini_log(void);
 
 #endif /* XXX_SYSLOG_H */

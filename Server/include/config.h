@@ -5,7 +5,7 @@
 
 
 status_t init_config(void);
-status_t set_config_filename(char *in_filename);
+status_t set_config_filename(const char *in_filename);
 status_t parse_config(void);
 void fini_config(void);
 

@@ -6,26 +6,11 @@
 #include "daemon.h"
 #include "sockets.h"
 #include "listen.h"
-#include "mempool.h"
 #include "config.h"
 #include "syslog.h"
 
 
-#ifdef DEBUG
-typedef struct {
-    /* add IPv4 */
-    struct sockaddr_in6 IP6SockClient;
-    unsigned size_IP6SockClient;
-    char ip[INET6_ADDRSTRLEN];
-    socket_t socket;
-    int port;
-    int host_port;
-} connect_unit_t;
-#endif
-
-
-
-void parse_argv(int argc, char *argv[])
+void parse_argv(int argc, char const *argv[])
 {
     /* 
      * Parse input parametrs:
@@ -42,7 +27,7 @@ void parse_argv(int argc, char *argv[])
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char const *argv[])
 {
     status_t err;
 
@@ -71,7 +56,7 @@ int main(int argc, char *argv[])
 
     /* 
      * Now log file is available and server can write error mesages in it, so
-     * here we close TTY, fork off the parent process and run daemon.
+     * here we close TTY, fork off the parent process and run daemon
      */
 
     err = init_daemon();
@@ -82,8 +67,7 @@ int main(int argc, char *argv[])
     log_msg(LOG_INFO, "Hello from server!");
 
 
-#if (SYSTEM_WIN32) || (SYSTEM_WIN64)
-    /* Initialization of Windows sockets library */
+#if (SYSTEM_WINDOWS)
     if (init_winsock() != XXX_OK) {
         log_and_abort(LOG_EMERG, "Failed to initialization winsock.", err);
     }
@@ -100,45 +84,14 @@ int main(int argc, char *argv[])
     }
 
 
-    while(1);
-
-
-#ifdef DEBUG
-
-    /* Pull connection requests from the queue */
-    listen_unit_t *temp = config_get_listeners();
-    connect_unit_t scunit1;
-    scunit1.size_IP6SockClient = sizeof(scunit1.IP6SockClient);
-    scunit1.socket = accept(temp->socket, 
-                           (struct sockaddr *) &scunit1.IP6SockClient,
-                            &scunit1.size_IP6SockClient);
-
-    inet_ntop(AF_INET6, &(scunit1.IP6SockClient.sin6_addr),
-              scunit1.ip, INET6_ADDRSTRLEN);
-    scunit1.port = ntohs(scunit1.IP6SockClient.sin6_port);
-    scunit1.host_port = temp->port;
-
-
-    char buf[1024];
-    int bytes_read;
-
-    while (1) {
-        bytes_read = recv(scunit1.socket, buf, 1024, 0);
-        if (bytes_read <= 0) {
-            break;
-        }
-        buf[bytes_read] = '\0';
-        fprintf(stdout, "Client: '%s'\n", buf);
-    }
-#endif
-
+    while (1);
 
 
     fini_config();
     fini_log();
 
-    //close_socket((config->listeners)[2].socket);
-    //close_socket(scunit1.socket);
+    // close_socket((config->listeners)[2].socket);
+    // close_socket(scunit1.socket);
 
     exit(0);
 }

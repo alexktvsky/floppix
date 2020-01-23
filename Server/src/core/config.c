@@ -83,7 +83,7 @@ void fini_config(void)
     }
 }
 
-status_t set_config_filename(char *in_filename)
+status_t set_config_filename(const char *in_filename)
 {
     if (!was_init) {
         return XXX_FAILED;
@@ -92,7 +92,7 @@ status_t set_config_filename(char *in_filename)
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     was_set_filename = true;
-    config.config_filename = in_filename;
+    config.config_filename = (char *) in_filename;
     return XXX_OK;
 }
 
