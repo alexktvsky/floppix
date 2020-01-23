@@ -10,20 +10,10 @@
 #include "syslog.h"
 
 
-void parse_argv(int argc, char const *argv[])
+status_t parse_argv(int argc, char const *argv[])
 {
-    /* 
-     * Parse input parametrs:
-     * argv[1] config file
-     * argv[1] -v version
-     * argv[1] -h help
-     */
-    if (argc > 1) {
-        set_config_filename(argv[1]);
-    }
-    else {
-        set_config_filename(DEFAULT_CONFIG_FILE);
-    }
+
+    return XXX_OK;
 }
 
 
@@ -31,28 +21,29 @@ int main(int argc, char const *argv[])
 {
     status_t err;
 
-    err = init_config();
+    err = parse_argv(argc, argv);
     if (err != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to load config.", err);
+        fprintf(stderr, "%s\n", "Invalid input parameters");
+        goto failed;
     }
 
-    parse_argv(argc, argv);
+    err = init_config();
+    if (err != XXX_OK) {
+        fprintf(stderr, "%s\n", "Failed to load config");
+        goto failed;
+    }
 
     err = parse_config();
     if (err != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to read config.", err);
+        fprintf(stderr, "%s\n", "Failed to read config");
+        goto failed;
     }
 
     err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
     if (err != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to initialization log.", err);
+        fprintf(stderr, "%s\n", "Failed to initialization log");
+        goto failed;
     }
-
-    /* 
-     * init_signal_catch
-     * do_test_crypto
-     * 
-     */
 
     /* 
      * Now log file is available and server can write error mesages in it, so
@@ -61,37 +52,51 @@ int main(int argc, char const *argv[])
 
     err = init_daemon();
     if (err != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to initialization daemon process.", err);
+        log_error(LOG_EMERG, "Failed to initialization daemon process.", err);
+        goto failed;
     }
 
     log_msg(LOG_INFO, "Hello from server!");
 
+    /* TODO:
+     * regex_init
+     * init_signals
+     * ssl_init
+     * create_mempool
+     * init_cycle
+     * 
+     * single_process_cycle(cycle);
+     * master_process_cycle(cycle);
+     * 
+     */
 
 #if (SYSTEM_WINDOWS)
     if (init_winsock() != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to initialization winsock.", err);
+        log_error(LOG_EMERG, "Failed to initialization winsock.", err);
+        goto failed;
     }
 #endif
 
     err = init_listen_sockets(config_get_listeners());
     if (err != XXX_OK) {
-        log_and_abort(LOG_EMERG, "Failed to listen for connections.", err);
+        log_error(LOG_EMERG, "Failed to listen for connections.", err);
+        goto failed;
     }
    
     if (!config_get_nprocs()) {
         /* Platform depends code sction */
-        /* get_nprocs(); */
+        // get_nprocs();
     }
-
 
     while (1);
 
+    return XXX_OK;
 
-    fini_config();
+failed:
     fini_log();
-
-    // close_socket((config->listeners)[2].socket);
-    // close_socket(scunit1.socket);
-
-    exit(0);
+    fini_config();
+#if (SYSTEM_WINDOWS)
+    system("pause");
+#endif
+    return XXX_FAILED;
 }
