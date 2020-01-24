@@ -32,7 +32,7 @@ static const char *priorities[] = {
 };
 
 
-status_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
+xxx_err_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
 {
     /* If log is already has been opened don't change it */ 
     if (open_logfile) {
@@ -58,7 +58,7 @@ status_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundar
 }
 
 
-status_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
+xxx_err_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
 {
     
     if (!in_openfile) {
@@ -97,28 +97,28 @@ status_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
 }
 
 
-status_t log_msg(int in_level, const char *message)
+xxx_err_t log_msg(int in_level, const char *message)
 {
     return log_msg_ex(open_logfile, in_level, message);
 }
 
 
-status_t log_status(int in_level, status_t statcode)
+xxx_err_t log_status(int in_level, xxx_err_t errcode)
 {
-    if (statcode == XXX_OK) {
+    if (errcode == XXX_OK) {
         return XXX_OK;
     }
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d. %s", 
-            statcode,
-            set_strerror(statcode));
+            errcode,
+            set_strerror(errcode));
     return log_msg(in_level, buf);
 }
 
-void log_error(int level, const char *description, status_t statcode)
+void log_error(int level, const char *description, xxx_err_t errcode)
 {
     log_msg(level, description);
-    log_status(level, statcode);
+    log_status(level, errcode);
 }
 
 

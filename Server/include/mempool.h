@@ -3,7 +3,7 @@
 
 typedef struct mempool_s mempool_t;
 
-status_t mempool_create(mempool_t **newpool, mempool_t *parent);
+xxx_err_t mempool_create(mempool_t **newpool, mempool_t *parent);
 void *palloc(mempool_t *pool, size_t in_size);
 void *pcalloc(mempool_t *pool, size_t in_size);
 size_t get_mempool_size(mempool_t *pool);

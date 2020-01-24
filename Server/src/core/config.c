@@ -58,7 +58,7 @@ static struct {
 }
 
 
-status_t init_config(void)
+xxx_err_t init_config(void)
 {
     was_init = true;
     mempool_t *newpool;
@@ -83,7 +83,7 @@ void fini_config(void)
     }
 }
 
-status_t set_config_filename(const char *in_filename)
+xxx_err_t set_config_filename(const char *in_filename)
 {
     if (!was_init) {
         return XXX_FAILED;
@@ -133,7 +133,7 @@ size_t config_get_maxlog(void)
 }
 
 
-status_t parse_config(void)
+xxx_err_t parse_config(void)
 {
     if (!was_init) {
         return XXX_FAILED;

@@ -4,9 +4,9 @@
 #define DEFAULT_CONFIG_FILE "server.conf"
 
 
-status_t init_config(void);
-status_t set_config_filename(const char *in_filename);
-status_t parse_config(void);
+xxx_err_t init_config(void);
+xxx_err_t set_config_filename(const char *in_fname);
+xxx_err_t parse_config(void);
 void fini_config(void);
 
 listen_unit_t *config_get_listeners(void);

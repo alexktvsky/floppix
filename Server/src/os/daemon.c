@@ -15,7 +15,7 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-status_t init_daemon(void)
+xxx_err_t init_daemon(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
@@ -59,7 +59,7 @@ status_t init_daemon(void)
 }
 
 #elif (SYSTEM_WINDOWS)
-status_t init_daemon(void)
+xxx_err_t init_daemon(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     _close(STDIN_FILENO);

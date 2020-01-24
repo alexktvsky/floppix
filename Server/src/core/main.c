@@ -10,7 +10,7 @@
 #include "syslog.h"
 
 
-status_t parse_argv(int argc, char const *argv[])
+xxx_err_t parse_argv(int argc, char const *argv[])
 {
 
     return XXX_OK;
@@ -19,7 +19,7 @@ status_t parse_argv(int argc, char const *argv[])
 
 int main(int argc, char const *argv[])
 {
-    status_t err;
+    xxx_err_t err;
 
     err = parse_argv(argc, argv);
     if (err != XXX_OK) {

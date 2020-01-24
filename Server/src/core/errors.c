@@ -5,7 +5,7 @@
 
 
 static const struct {
-    status_t code;
+    xxx_err_t code;
     const char *message;
 } error_list[] = {
     /* CONF_ERROR domain */
@@ -40,11 +40,11 @@ static const struct {
 };
 
 
-void cpystrerror(status_t statcode, char *buf, size_t bufsize)
+void cpystrerror(xxx_err_t errcode, char *buf, size_t bufsize)
 {
     size_t len;
     for (int i = 0; ; i++) {
-        if (error_list[i].code == statcode || error_list[i].code == 0) {
+        if (error_list[i].code == errcode || error_list[i].code == 0) {
             len = strlen(error_list[i].message);
             if (len > bufsize) {
                 memmove(buf, error_list[i].message, bufsize);
@@ -58,10 +58,10 @@ void cpystrerror(status_t statcode, char *buf, size_t bufsize)
 }
 
 
-const char *set_strerror(status_t statcode)
+const char *set_strerror(xxx_err_t errcode)
 {
     for (int i = 0; ; i++) {      
-        if (error_list[i].code == statcode || error_list[i].code == 0) {
+        if (error_list[i].code == errcode || error_list[i].code == 0) {
             return error_list[i].message;
         }
     }

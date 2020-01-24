@@ -5,7 +5,7 @@
 
 
 /* Type for specifying an error or status code */
-typedef int status_t;
+typedef int xxx_err_t;
 
 #define XXX_OK                     0
 #define XXX_FAILED                -1
@@ -20,8 +20,8 @@ typedef int status_t;
 #define IS_NOT_ERROR(_error) (_error != SUCCESS)
 
 
-const char *set_strerror(status_t statcode);
-void cpystrerror(status_t statcode, char *buf, size_t bufsize);
+const char *set_strerror(xxx_err_t errcode);
+void cpystrerror(xxx_err_t errcode, char *buf, size_t bufsize);
 
 
 #define BOOT_ERROR                 ERROR_DOMAIN(1)

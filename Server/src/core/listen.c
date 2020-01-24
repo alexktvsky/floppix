@@ -3,7 +3,7 @@
 #include "listen.h"
 
 
-static status_t init_listen_tcp(listen_unit_t *unit)
+static xxx_err_t init_listen_tcp(listen_unit_t *unit)
 {
     struct sockaddr_in ip4_sockaddr;
     unit->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -41,7 +41,7 @@ static status_t init_listen_tcp(listen_unit_t *unit)
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-static status_t init_listen_tcp6(listen_unit_t *unit)
+static xxx_err_t init_listen_tcp6(listen_unit_t *unit)
 {
     struct sockaddr_in6 ip6_sockaddr;
     unit->socket = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -79,7 +79,7 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
 }
 
 #elif (SYSTEM_WINDOWS)
-static status_t init_listen_tcp6(listen_unit_t *unit)
+static xxx_err_t init_listen_tcp6(listen_unit_t *unit)
 {
     (void) unit;
     return IPV6_NOT_SUPPORTED;
@@ -87,9 +87,9 @@ static status_t init_listen_tcp6(listen_unit_t *unit)
 #endif
 
 
-status_t init_listen_sockets(listen_unit_t *listeners)
+xxx_err_t init_listen_sockets(listen_unit_t *listeners)
 {
-    status_t stat;
+    xxx_err_t stat;
     listen_unit_t *temp;
     for (temp = listeners; temp; temp = temp->next) {
         switch (temp->protocol) {

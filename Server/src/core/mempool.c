@@ -144,7 +144,7 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
 }
 
 
-status_t mempool_create(mempool_t **newpool, mempool_t *parent)
+xxx_err_t mempool_create(mempool_t **newpool, mempool_t *parent)
 {
     mempool_t *pool = malloc(SIZEOF_MEMPOOL_T);
     /* XXX: Can we do smth if malloc return NULL?

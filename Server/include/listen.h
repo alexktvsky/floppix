@@ -19,6 +19,6 @@ struct listen_unit_s {
 };
 
 
-status_t init_listen_sockets(listen_unit_t *listeners);
+xxx_err_t init_listen_sockets(listen_unit_t *listeners);
 
 #endif /* XXX_LISTEN_H */

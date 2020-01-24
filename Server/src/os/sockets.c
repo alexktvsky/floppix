@@ -22,7 +22,7 @@ int tcp_nopush(socket_t socket)
     /* do smth */
 #else
     (void) socket;
-    return XXX_OK;
+    return 0;
 #endif
 }
 
@@ -41,7 +41,7 @@ int tcp_push(socket_t socket)
     /* do smth */
 #else
     (void) socket;
-    return XXX_OK;
+    return 0;
 #endif
 }
 
@@ -64,6 +64,6 @@ int init_winsock(void)
     wVersionRequested = MAKEWORD(2, 2);
     return WSAStartup(wVersionRequested, &wsaData);
 #else
-    return XXX_OK;
+    return 0;
 #endif
 }
