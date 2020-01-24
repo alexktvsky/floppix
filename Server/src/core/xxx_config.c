@@ -3,12 +3,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "platform.h"
-#include "errors.h"
-#include "sockets.h"
-#include "listen.h"
-#include "mempool.h"
-#include "config.h"
+#include "xxx_system.h"
+#include "xxx_errors.h"
+#include "xxx_sockets.h"
+#include "xxx_listen.h"
+#include "xxx_mempool.h"
+#include "xxx_config.h"
 
 #if (SYSTEM_WINDOWS)
 #define PCRE_STATIC

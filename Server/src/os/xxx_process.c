@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform.h"
-#include "errors.h"
+#include "xxx_system.h"
+#include "xxx_errors.h"
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>

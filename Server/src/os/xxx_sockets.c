@@ -1,6 +1,6 @@
-#include "platform.h"
-#include "errors.h"
-#include "sockets.h"
+#include "xxx_system.h"
+#include "xxx_errors.h"
+#include "xxx_sockets.h"
 
 
 int tcp_nopush(socket_t socket)

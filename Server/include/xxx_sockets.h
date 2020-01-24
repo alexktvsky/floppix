@@ -1,7 +1,7 @@
 #ifndef XXX_SOCKETS_H
 #define XXX_SOCKETS_H
 
-#include "platform.h"
+#include "xxx_system.h"
 
 #if (SYSTEM_LINUX)
 #include <unistd.h>

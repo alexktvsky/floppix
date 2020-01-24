@@ -6,7 +6,7 @@
 #include <string.h>
 // #include <pthread.h>
 
-#include "platform.h"
+#include "xxx_system.h"
 
 #if (SYSTEM_WINDOWS)
 #include <windows.h>
@@ -20,8 +20,8 @@
 #endif
 #endif
 
-#include "errors.h"
-#include "mempool.h"
+#include "xxx_errors.h"
+#include "xxx_mempool.h"
 
 
 /* Alignment macros is only to be used to align on a power of 2 boundary */

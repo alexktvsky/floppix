@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform.h"
-#include "errors.h"
-#include "process.h"
-#include "sockets.h"
-#include "listen.h"
-#include "config.h"
-#include "syslog.h"
+#include "xxx_system.h"
+#include "xxx_errors.h"
+#include "xxx_process.h"
+#include "xxx_sockets.h"
+#include "xxx_listen.h"
+#include "xxx_config.h"
+#include "xxx_syslog.h"
 
 
 xxx_err_t parse_argv(int argc, char const *argv[])

@@ -4,12 +4,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-#include "platform.h"
-#include "errors.h"
-#include "syslog.h"
+#include "xxx_system.h"
+#include "xxx_errors.h"
+#include "xxx_syslog.h"
 
 #define MAX_STRLEN_TIME 50
 #define MAX_STRLEN_MESSAGE 100
