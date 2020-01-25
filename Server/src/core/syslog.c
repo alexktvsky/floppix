@@ -3,11 +3,15 @@
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 
-#include "xxx_system.h"
-#include "xxx_errors.h"
-#include "xxx_syslog.h"
+#include "syshead.h"
+
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
+#include <unistd.h>
+#endif
+
+#include "errors.h"
+#include "syslog.h"
 
 #define MAX_STRLEN_TIME 50
 #define MAX_STRLEN_MESSAGE 100
@@ -30,11 +34,11 @@ static const char *priorities[] = {
 };
 
 
-xxx_err_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
+err_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_boundary)
 {
     /* If log is already has been opened don't change it */ 
     if (open_logfile) {
-        return XXX_OK;
+        return OK;
     }
 
     open_logfile = fopen(in_fname, "w");
@@ -52,18 +56,18 @@ xxx_err_t init_log(const char *in_fname, ssize_t in_maxsize, int in_level_bounda
     else {
         max_size = in_maxsize;
     }
-    return XXX_OK;
+    return OK;
 }
 
 
-xxx_err_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
+err_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
 {
     
     if (!in_openfile) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
     if (in_level > level_boundary) {
-        return XXX_OK;
+        return OK;
     }
 
     char strtime[MAX_STRLEN_TIME];
@@ -91,20 +95,20 @@ xxx_err_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
     }
     fflush(in_openfile);
     size_counter += msglen + HEADER_MSG_SIZE;
-    return XXX_OK;
+    return OK;
 }
 
 
-xxx_err_t log_msg(int in_level, const char *message)
+err_t log_msg(int in_level, const char *message)
 {
     return log_msg_ex(open_logfile, in_level, message);
 }
 
 
-xxx_err_t log_status(int in_level, xxx_err_t errcode)
+err_t log_status(int in_level, err_t errcode)
 {
-    if (errcode == XXX_OK) {
-        return XXX_OK;
+    if (errcode == OK) {
+        return OK;
     }
     char buf[MAX_STRLEN_MESSAGE];
     snprintf(buf, MAX_STRLEN_MESSAGE, "Error %d. %s", 
@@ -113,10 +117,11 @@ xxx_err_t log_status(int in_level, xxx_err_t errcode)
     return log_msg(in_level, buf);
 }
 
-void log_error(int level, const char *description, xxx_err_t errcode)
+void log_error(int level, const char *description, err_t errcode)
 {
     log_msg(level, description);
     log_status(level, errcode);
+    return;
 }
 
 
@@ -126,4 +131,5 @@ void fini_log(void)
         fclose(open_logfile);
         open_logfile = NULL;
     }
+    return;
 }

@@ -1,5 +1,5 @@
-#ifndef XXX_LISTEN_H
-#define XXX_LISTEN_H
+#ifndef INCLUDED_LISTEN_H
+#define INCLUDED_LISTEN_H
 
 /* Some operating systems do not support a value more than 5 */
 #define MAX_LEN_QUEUE  5
@@ -11,7 +11,7 @@ typedef struct listen_unit_s listen_unit_t;
 
 struct listen_unit_s {
     char *ip;
-    int port;
+    uint16_t port;
     char *netface;
     int protocol;
     socket_t socket;
@@ -19,6 +19,6 @@ struct listen_unit_s {
 };
 
 
-xxx_err_t init_listen_sockets(listen_unit_t *listeners);
+err_t init_listen_sockets(listen_unit_t *listeners);
 
-#endif /* XXX_LISTEN_H */
+#endif /* INCLUDED_LISTEN_H */

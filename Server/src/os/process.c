@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "xxx_system.h"
-#include "xxx_errors.h"
+#include "syshead.h"
+#include "errors.h"
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
@@ -15,11 +15,11 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-xxx_err_t init_daemon(void)
+err_t init_daemon(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
     /* Parent terminates */
     if (pid) {
@@ -27,13 +27,13 @@ xxx_err_t init_daemon(void)
     }
     /* Become session leader */
     if (setsid() < 0) { 
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
 
     signal(SIGHUP, SIG_IGN);
 
     if ((pid = fork()) < 0) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
     /* 1th child terminates */
     if (pid) {
@@ -42,7 +42,7 @@ xxx_err_t init_daemon(void)
 
     /* Change the current working directory */
     if ((chdir("/")) < 0) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
 
     /* Close off file descriptors */
@@ -55,11 +55,11 @@ xxx_err_t init_daemon(void)
     open("/dev/null", O_RDWR);
     open("/dev/null", O_RDWR);
 
-    return XXX_OK;
+    return OK;
 }
 
 #elif (SYSTEM_WINDOWS)
-xxx_err_t init_daemon(void)
+err_t init_daemon(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
     _close(STDIN_FILENO);
@@ -70,6 +70,6 @@ xxx_err_t init_daemon(void)
      * TODO: How to redirect stdin, stdout, and stderr to /dev/null on Windows
      */
 
-    return XXX_OK;
+    return OK;
 }
 #endif

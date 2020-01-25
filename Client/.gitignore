@@ -46,3 +46,4 @@
 bin
 obj
 docs/html
+*.log

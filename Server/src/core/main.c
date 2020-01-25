@@ -1,46 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "xxx_system.h"
-#include "xxx_errors.h"
-#include "xxx_process.h"
-#include "xxx_sockets.h"
-#include "xxx_listen.h"
-#include "xxx_config.h"
-#include "xxx_syslog.h"
+#include "syshead.h"
+#include "errors.h"
+#include "process.h"
+#include "sockets.h"
+#include "listen.h"
+#include "config.h"
+#include "syslog.h"
 
 
-xxx_err_t parse_argv(int argc, char const *argv[])
+err_t parse_argv(int argc, char const *argv[])
 {
 
-    return XXX_OK;
+    return OK;
 }
 
 
 int main(int argc, char const *argv[])
 {
-    xxx_err_t err;
+    err_t err;
 
     err = parse_argv(argc, argv);
-    if (err != XXX_OK) {
+    if (err != OK) {
         fprintf(stderr, "%s\n", "Invalid input parameters");
         goto failed;
     }
 
     err = init_config();
-    if (err != XXX_OK) {
+    if (err != OK) {
         fprintf(stderr, "%s\n", "Failed to load config");
         goto failed;
     }
 
     err = parse_config();
-    if (err != XXX_OK) {
+    if (err != OK) {
         fprintf(stderr, "%s\n", "Failed to read config");
         goto failed;
     }
 
     err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
-    if (err != XXX_OK) {
+    if (err != OK) {
         fprintf(stderr, "%s\n", "Failed to initialization log");
         goto failed;
     }
@@ -51,12 +51,10 @@ int main(int argc, char const *argv[])
      */
 
     err = init_daemon();
-    if (err != XXX_OK) {
+    if (err != OK) {
         log_error(LOG_EMERG, "Failed to initialization daemon process.", err);
         goto failed;
     }
-
-    log_msg(LOG_INFO, "Hello from server!");
 
     /* TODO:
      * regex_init
@@ -71,26 +69,15 @@ int main(int argc, char const *argv[])
      */
 
 #if (SYSTEM_WINDOWS)
-    if (init_winsock() != XXX_OK) {
+    if (init_winsock() != OK) {
         log_error(LOG_EMERG, "Failed to initialization winsock.", err);
         goto failed;
     }
 #endif
 
-    err = init_listen_sockets(config_get_listeners());
-    if (err != XXX_OK) {
-        log_error(LOG_EMERG, "Failed to listen for connections.", err);
-        goto failed;
-    }
-   
-    if (!config_get_nprocs()) {
-        /* Platform depends code sction */
-        // get_nprocs();
-    }
-
     while (1);
 
-    return XXX_OK;
+    return OK;
 
 failed:
     fini_log();
@@ -98,5 +85,5 @@ failed:
 #if (SYSTEM_WINDOWS)
     system("pause");
 #endif
-    return XXX_FAILED;
+    return ERR_FAILED;
 }

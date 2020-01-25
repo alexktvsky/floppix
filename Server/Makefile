@@ -1,13 +1,14 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += xxx_errors.c
-SRC_FILES += xxx_mempool.c
-SRC_FILES += xxx_process.c
-SRC_FILES += xxx_config.c
-SRC_FILES += xxx_listen.c
-SRC_FILES += xxx_sockets.c
-SRC_FILES += xxx_syslog.c
+SRC_FILES += errors.c
+SRC_FILES += config.c
+SRC_FILES += syslog.c
+SRC_FILES += mempool.c
+SRC_FILES += process.c
+SRC_FILES += sockets.c
+SRC_FILES += listen.c
+
 
 CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -std=c11 -pipe
 build: CFLAGS += -g0 -s -O3 -DNDEBUG

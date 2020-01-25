@@ -1,11 +1,13 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "xxx_errors.h"
+#include "errors.h"
+
+#define UNDEF_ERROR_CODE 0
 
 
 static const struct {
-    xxx_err_t code;
+    err_t code;
     const char *message;
 } error_list[] = {
     /* CONF_ERROR domain */
@@ -34,17 +36,31 @@ static const struct {
     {LOG_OPEN_ERROR,               "Error of opening log file"},
     {LOG_WRITE_ERROR,              "Error of writing log file"},
 
-    {XXX_FAILED,                   "Default system error"},
+    {ERR_FAILED,                   "Default system error"},
     /* End of error list */
-    {0,                            "Undefined error code"}
+    {UNDEF_ERROR_CODE,             "Undefined error code"}
 };
 
+static const char *message_ok = "OK";
 
-void cpystrerror(xxx_err_t errcode, char *buf, size_t bufsize)
+
+void cpystrerror(err_t errcode, char *buf, size_t bufsize)
 {
     size_t len;
-    for (int i = 0; ; i++) {
-        if (error_list[i].code == errcode || error_list[i].code == 0) {
+    if (errcode == OK) {
+        len = strlen(message_ok);
+        if (len > bufsize) {
+            memmove(buf, message_ok, bufsize);
+        }
+        else {
+            memmove(buf, message_ok, len);
+        }
+        return;
+    }
+    
+    for (size_t i = 0; ; i++) {
+        if (error_list[i].code == errcode ||
+                    error_list[i].code == UNDEF_ERROR_CODE) {
             len = strlen(error_list[i].message);
             if (len > bufsize) {
                 memmove(buf, error_list[i].message, bufsize);
@@ -55,14 +71,20 @@ void cpystrerror(xxx_err_t errcode, char *buf, size_t bufsize)
             break;
         }
     }
+    return;
 }
 
 
-const char *set_strerror(xxx_err_t errcode)
+const char *set_strerror(err_t errcode)
 {
-    for (int i = 0; ; i++) {      
-        if (error_list[i].code == errcode || error_list[i].code == 0) {
+    if (errcode == OK) {
+        return message_ok;
+    }
+    for (size_t i = 0; ; i++) {      
+        if (error_list[i].code == errcode ||
+                    error_list[i].code == UNDEF_ERROR_CODE) {
             return error_list[i].message;
         }
     }
+    return NULL;
 }

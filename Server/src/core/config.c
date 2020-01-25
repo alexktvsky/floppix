@@ -3,12 +3,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "xxx_system.h"
-#include "xxx_errors.h"
-#include "xxx_sockets.h"
-#include "xxx_listen.h"
-#include "xxx_mempool.h"
-#include "xxx_config.h"
+#include "syshead.h"
+#include "errors.h"
+#include "sockets.h"
+#include "listen.h"
+#include "mempool.h"
+#include "config.h"
 
 #if (SYSTEM_WINDOWS)
 #define PCRE_STATIC
@@ -58,15 +58,15 @@ static struct {
 }
 
 
-xxx_err_t init_config(void)
+err_t init_config(void)
 {
     was_init = true;
     mempool_t *newpool;
-    if (mempool_create(&newpool, NULL) != XXX_OK) {
+    if (mempool_create(&newpool, NULL) != OK) {
         return ALLOC_MEM_ERROR;
     }
     config.pool = newpool;
-    return XXX_OK;
+    return OK;
 }
 
 
@@ -81,19 +81,20 @@ void fini_config(void)
     if (config.pool) {
         mempool_destroy(config.pool);
     }
+    return;
 }
 
-xxx_err_t set_config_filename(const char *in_filename)
+err_t set_config_filename(const char *in_filename)
 {
     if (!was_init) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
     if (!in_filename) {
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     was_set_filename = true;
     config.config_filename = (char *) in_filename;
-    return XXX_OK;
+    return OK;
 }
 
 
@@ -133,14 +134,14 @@ size_t config_get_maxlog(void)
 }
 
 
-xxx_err_t parse_config(void)
+err_t parse_config(void)
 {
     if (!was_init) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
 
     if (!was_set_filename) {
-        return XXX_FAILED;
+        return ERR_FAILED;
     }
 
     was_read = true;
@@ -363,5 +364,5 @@ xxx_err_t parse_config(void)
         pcre_free(pcre_array[i]);
     }
     fclose(conf_file);
-    return XXX_OK;
+    return OK;
 }

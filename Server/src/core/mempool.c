@@ -2,14 +2,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 // #include <pthread.h>
 
-#include "xxx_system.h"
+#include "syshead.h"
 
 #if (SYSTEM_WINDOWS)
 #include <windows.h>
+#elif (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
+#include <unistd.h>
 #endif
 
 #ifdef ALLOCATE_WITH_MMAP
@@ -20,8 +21,8 @@
 #endif
 #endif
 
-#include "xxx_errors.h"
-#include "xxx_mempool.h"
+#include "errors.h"
+#include "mempool.h"
 
 
 /* Alignment macros is only to be used to align on a power of 2 boundary */
@@ -40,7 +41,7 @@
 #define SIZEOF_MEMPOOL_T_ALIGN ALIGN_DEFAULT(sizeof(mempool_t))
 
 #define MAX_MEMNODE_SIZE(_node) \
-    (uint32_t) (uintptr_t) _node->endp - (uintptr_t) _node->startp;
+    (size_t) (uintptr_t) _node->endp - (uintptr_t) _node->startp;
 
 /* slot  0: size  4096
  * slot  1: size  8192
@@ -60,7 +61,7 @@ struct memnode_s {
     uint8_t *startp;
     uint8_t *first_avail;
     uint8_t *endp;
-    uint32_t free_size;
+    size_t free_size;
 };
 
 struct mempool_s {
@@ -144,7 +145,7 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
 }
 
 
-xxx_err_t mempool_create(mempool_t **newpool, mempool_t *parent)
+err_t mempool_create(mempool_t **newpool, mempool_t *parent)
 {
     mempool_t *pool = malloc(SIZEOF_MEMPOOL_T);
     /* XXX: Can we do smth if malloc return NULL?
@@ -175,7 +176,7 @@ xxx_err_t mempool_create(mempool_t **newpool, mempool_t *parent)
     }
 
     *newpool = pool;
-    return XXX_OK;
+    return OK;
 }
 
 
@@ -310,6 +311,7 @@ void mempool_clear(mempool_t *pool)
             node = node->next;
         }
     }
+    return;
 }
 
 
@@ -340,4 +342,5 @@ void mempool_destroy(mempool_t *pool)
         }
     }
     free(pool);
+    return;
 }

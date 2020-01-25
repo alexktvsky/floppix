@@ -1,5 +1,5 @@
-#ifndef XXX_SYSTEM_H
-#define XXX_SYSTEM_H
+#ifndef INCLUDED_SYSTEM_H
+#define INCLUDED_SYSTEM_H
 
 #if defined(__linux__) || defined(__gnu_linux__)
 #define SYSTEM_NAME "Linux"
@@ -28,26 +28,26 @@
 #define SYSTEM_WIN64   0
 #define SYSTEM_WINDOWS 0
 
-#elif defined(__WIN32__)
-#define SYSTEM_NAME "Win32"
-#define SYSTEM_LINUX   0
-#define SYSTEM_FREEBSD 0
-#define SYSTEM_SOLARIS 0
-#define SYSTEM_WIN32   1
-#define SYSTEM_WIN64   0
-#define SYSTEM_WINDOWS 1
-
 #elif defined(__WIN64__)
 #define SYSTEM_NAME "Win64"
 #define SYSTEM_LINUX   0
 #define SYSTEM_FREEBSD 0
 #define SYSTEM_SOLARIS 0
-#define SYSTEM_WIN32   0
 #define SYSTEM_WIN64   1
+#define SYSTEM_WIN32   0
+#define SYSTEM_WINDOWS 1
+
+#elif defined(__WIN32__)
+#define SYSTEM_NAME "Win32"
+#define SYSTEM_LINUX   0
+#define SYSTEM_FREEBSD 0
+#define SYSTEM_SOLARIS 0
+#define SYSTEM_WIN64   0
+#define SYSTEM_WIN32   1
 #define SYSTEM_WINDOWS 1
 
 #else
 #error Unsupported operating system!
 #endif
 
-#endif /* XXX_SYSTEM_H */
+#endif /* INCLUDED_SYSTEM_H */
