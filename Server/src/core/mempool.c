@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <pthread.h>
 
 #include "syshead.h"
 
@@ -40,8 +39,8 @@
 #define SIZEOF_MEMNODE_T_ALIGN ALIGN_DEFAULT(sizeof(memnode_t))
 #define SIZEOF_MEMPOOL_T_ALIGN ALIGN_DEFAULT(sizeof(mempool_t))
 
-#define MAX_MEMNODE_SIZE(_node) \
-    (size_t) (uintptr_t) _node->endp - (uintptr_t) _node->startp;
+#define MAX_MEMNODE_SIZE(node) \
+    (size_t) (uintptr_t) node->endp - (uintptr_t) node->startp;
 
 /* slot  0: size  4096
  * slot  1: size  8192
@@ -76,7 +75,7 @@ struct mempool_s {
 };
 
 
-static inline size_t align_allocation(size_t in_size)
+static size_t align_allocation(size_t in_size)
 {
     size_t size = ALIGN_DEFAULT(in_size);
     if (size < in_size) {
@@ -89,7 +88,7 @@ static inline size_t align_allocation(size_t in_size)
 }
 
 
-static inline size_t get_page_size(void)
+static size_t get_page_size(void)
 {
     size_t page_size;
 #if defined(_SC_PAGESIZE)
@@ -99,13 +98,13 @@ static inline size_t get_page_size(void)
     GetSystemInfo(&si);
     page_size = si.dwPageSize;
 #else
-#error "Error of determine page size!"
+#error "Failed to determine page size"
 #endif
     return page_size;
 }
 
 
-static inline size_t get_npages(size_t in_size)
+static size_t get_npages(size_t in_size)
 {
     size_t size = in_size + SIZEOF_MEMNODE_T_ALIGN;
     if (size < PAGE_SIZE) {
@@ -140,7 +139,6 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
     node->first_avail = (uint8_t *) node->startp;
     node->endp = (uint8_t *) node + in_size;
     node->free_size = MAX_MEMNODE_SIZE(node);
-
     return node;
 }
 
@@ -152,7 +150,7 @@ err_t mempool_create(mempool_t **newpool, mempool_t *parent)
      * Allocate from stack or text section instead?
      */
     if (!pool) {
-        return ALLOC_MEM_ERROR;
+        return ERR_MEM_INIT_POOL;
     }
     memset(pool, 0, SIZEOF_MEMPOOL_T);
 

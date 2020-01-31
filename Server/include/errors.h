@@ -18,43 +18,40 @@ typedef int err_t;
 
 /* Error domain provides a unique value for all error codes */
 #define ERROR_DOMAIN_BASE          100
-#define ERROR_DOMAIN(_domain) (_domain * ERROR_DOMAIN_BASE)
-
-#define SET_ERROR_DOMAIN(_error) (_error / ERROR_DOMAIN_BASE)
-#define IS_NOT_ERROR(_error) (_error != SUCCESS)
+#define ERROR_DOMAIN(domain) (domain * ERROR_DOMAIN_BASE)
+#define SET_ERROR_DOMAIN(errcode) (errcode / ERROR_DOMAIN_BASE)
 
 
 const char *set_strerror(err_t errcode);
 void cpystrerror(err_t errcode, char *buf, size_t bufsize);
 
 
-#define BOOT_ERROR                 ERROR_DOMAIN(1)
+#define ERR_CONF                   ERROR_DOMAIN(1)
+#define ERR_CONF_REGEX             (ERR_CONF+1)
 
-#define CONF_ERROR                 ERROR_DOMAIN(2)
-#define CONF_INIT_ERROR            (CONF_ERROR+1)
-#define CONF_OPEN_ERROR            (CONF_ERROR+2)
-#define CONF_OVERFLOW_ERROR        (CONF_ERROR+3)
-#define CONF_REGEX_ERROR           (CONF_ERROR+4)
-#define CONF_SUBSTR_ERROR          (CONF_ERROR+5)
-#define CONF_SYNTAX_ERROR          (CONF_ERROR+6)
+#define ERR_NET                    ERROR_DOMAIN(2)
+#define ERR_NET_SOCKET             (ERR_NET+1)
+#define ERR_NET_ADDR               (ERR_NET+2)
+#define ERR_NET_BIND               (ERR_NET+3)
+#define ERR_NET_TCP_NOPUSH         (ERR_NET+4)
+#define ERR_NET_TCP_PUSH           (ERR_NET+5)
+#define ERR_NET_TCP_NONBLOCK       (ERR_NET+6)
+#define ERR_NET_TCP_BLOCK          (ERR_NET+7)
+#define ERR_NET_LISTEN             (ERR_NET+8)
+#define ERR_NET_IPV6               (ERR_NET+9)
 
-#define NETWORK_ERROR              ERROR_DOMAIN(3)
-#define INIT_SOCKET_ERROR          (NETWORK_ERROR+1)
-#define ADDR_ERROR                 (NETWORK_ERROR+2)
-#define SETSOCKOPT_ERROR           (NETWORK_ERROR+3)
-#define BIND_ERROR                 (NETWORK_ERROR+4)
-#define INIT_LISTEN_ERROR          (NETWORK_ERROR+5)
-#define IPV6_NOT_SUPPORTED         (NETWORK_ERROR+6)
+#define ERR_MEM                    ERROR_DOMAIN(3)
+#define ERR_MEM_NULL_ADDR          (ERR_MEM+1)
+#define ERR_MEM_ALLOC              (ERR_MEM+2)
+#define ERR_MEM_INIT_POOL          (ERR_MEM+3)
 
-#define MEMORY_ERROR               ERROR_DOMAIN(4)
-#define NULL_ADDRESS_ERROR         (MEMORY_ERROR+1)
-#define ALLOC_MEM_ERROR            (MEMORY_ERROR+2)
-#define INIT_POOL_ERROR            (MEMORY_ERROR+3)
+#define ERR_LOG                    ERROR_DOMAIN(4)
+#define ERR_LOGSIZE                (ERR_LOG+1)
 
-
-#define SYSLOG_ERROR               ERROR_DOMAIN(5)
-#define LOG_MAXSIZE_ERROR          (SYSLOG_ERROR+1)
-#define LOG_OPEN_ERROR             (SYSLOG_ERROR+2)
-#define LOG_WRITE_ERROR            (SYSLOG_ERROR+3)
+#define ERR_FILE                   ERROR_DOMAIN(5)
+#define ERR_FILE_OPEN              (ERR_FILE+1)
+#define ERR_FILE_SIZE              (ERR_FILE+2)
+#define ERR_FILE_READ              (ERR_FILE+3)
+#define ERR_FILE_WRITE             (ERR_FILE+4)
 
 #endif /* INCLUDED_ERRORS_H */

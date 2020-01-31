@@ -4,7 +4,7 @@
 #include "syshead.h"
 
 /* Some operating systems do not support a value more than 5 */
-#define MAX_CONNECT_QUEUELEN  5
+#define MAX_CONNECT_QUEUELEN         5
 
 #if (SYSTEM_LINUX)
 #include <unistd.h>
@@ -17,24 +17,27 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-#define SHUT_RECEIVE SHUT_RD
-#define SHUT_SEND    SHUT_WR
-#define SHUT_BOTH    SHUT_RDWR
-#define INVALID_SOCKET -1
+#define SYS_SHUT_RECEIVE             SHUT_RD
+#define SYS_SHUT_SEND                SHUT_WR
+#define SYS_SHUT_BOTH                SHUT_RDWR
+#define SYS_INVALID_SOCKET          -1
+#define close_socket(s)              close(s)
 typedef int socket_t;
 
 
 #elif (SYSTEM_FREEBSD)
 #include <sys/ioctl.h>
 /* Details for FreeBSD */
-#define INVALID_SOCKET -1
+#define SYS_INVALID_SOCKET          -1
+#define close_socket(s)              close(s)
 typedef int socket_t;
 
 
 #elif (SYSTEM_SOLARIS)
 #include <sys/ioctl.h>
 /* Details for Solaris */
-#define INVALID_SOCKET -1
+#define SYS_INVALID_SOCKET          -1
+#define close_socket(s)              close(s)
 typedef int socket_t;
 
 
@@ -43,9 +46,10 @@ typedef int socket_t;
 #include <ws2tcpip.h>
 #include <ws2ipdef.h>
 #include <windows.h>
-#define SHUT_RECEIVE SD_RECEIVE
-#define SHUT_SEND    SD_SEND
-#define SHUT_BOTH    SD_BOTH
+#define SYS_SHUT_RECEIVE             SD_RECEIVE
+#define SYS_SHUT_SEND                SD_SEND
+#define SYS_SHUT_BOTH                SD_BOTH
+#define close_socket(s)              closesocket(s)
 typedef SOCKET socket_t;
 
 int init_winsock(void);
@@ -56,6 +60,5 @@ int tcp_nopush(socket_t s);
 int tcp_push(socket_t s);
 int socket_nonblocking(socket_t s);
 int socket_blocking(socket_t s);
-int close_socket(socket_t s);
 
 #endif /* INCLUDED_SOCKETS_H */

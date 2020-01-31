@@ -3,42 +3,44 @@
 
 #include "errors.h"
 
-#define UNDEF_ERROR_CODE 0
+#define ERR_UNDEF_CODE 0
 
 
 static const struct {
     err_t code;
     const char *message;
 } error_list[] = {
-    /* CONF_ERROR domain */
-    {CONF_INIT_ERROR,              "Error of initialization config"},
-    {CONF_OPEN_ERROR,              "Config file isn't exist or available"},
-    {CONF_OVERFLOW_ERROR,          "Parser section overflow"},
-    {CONF_REGEX_ERROR,             "Failed to compiling regular expressions"},
-    {CONF_SUBSTR_ERROR,            "Error of pcre substring list"},
-    {CONF_SYNTAX_ERROR,            "Error of syntax configure file"},
+    /* ERR_CONF domain */
+    {ERR_CONF_REGEX,             "Failed to compile regular expressions"},
 
-    /* NETWORK_ERROR domain */
-    {INIT_SOCKET_ERROR,            "Error of initialization new socket"},
-    {ADDR_ERROR,                   "Host IP address is not correct"},
-    {BIND_ERROR,                   "Error of binding."},
-    {SETSOCKOPT_ERROR,             "Error of set options on sockets"},
-    {INIT_LISTEN_ERROR,            "Error of initialization listening socket"},
-    {IPV6_NOT_SUPPORTED,           "IPv6 is not supported on this system"},
+    /* ERR_NET domain */
+    {ERR_NET_SOCKET,             "Failed to initialize socket"},
+    {ERR_NET_ADDR,               "IP address is not correct"},
+    {ERR_NET_BIND,               "Failed to bind socket"},
+    {ERR_NET_TCP_NOPUSH,         "Failed to set socket in no push mode"},
+    {ERR_NET_TCP_PUSH,           "Failed to set socket in push mode"},
+    {ERR_NET_TCP_NONBLOCK,       "Failed to set socket in nonblocking mode"},
+    {ERR_NET_TCP_BLOCK,          "Failed to set socket in blocking mode"},
+    {ERR_NET_LISTEN,             "Failed to initialize listen socket"},
+    {ERR_NET_IPV6,               "IPv6 is not supported on this system"},
 
-    /* MEMORY_ERROR domain */
-    {NULL_ADDRESS_ERROR,           "Error of attempted to access a NULL address"},
-    {ALLOC_MEM_ERROR,              "Error of allocate memory"},
-    {INIT_POOL_ERROR,              "Error of initialization new memory pool"},
+    /* ERR_MEM domain */
+    {ERR_MEM_NULL_ADDR,          "Attempted to access a NULL address"},
+    {ERR_MEM_ALLOC,              "Failed to allocate memory"},
+    {ERR_MEM_INIT_POOL,          "Failed to initialize memory pool"},
 
-    /* SYSLOG_ERROR domain */
-    {LOG_MAXSIZE_ERROR,            "Size of log file is too small"},
-    {LOG_OPEN_ERROR,               "Error of opening log file"},
-    {LOG_WRITE_ERROR,              "Error of writing log file"},
+    /* ERR_LOG domain */
+    {ERR_LOGSIZE,                "Size of log file is too small"},
 
-    {ERR_FAILED,                   "Default system error"},
+    /* ERR_FILE domain */
+    {ERR_FILE_OPEN,              "Failed to open file"},
+    {ERR_FILE_SIZE,              "Failed to determine file size"},
+    {ERR_FILE_READ,              "Failed to read data from file"},
+    {ERR_FILE_WRITE,             "Failed to write data to file"},
+
+    {ERR_FAILED,                 "Default system error"},
     /* End of error list */
-    {UNDEF_ERROR_CODE,             "Undefined error code"}
+    {ERR_UNDEF_CODE,             "Undefined error code"}
 };
 
 static const char *message_ok = "OK";
@@ -47,7 +49,7 @@ static const char *message_ok = "OK";
 void cpystrerror(err_t errcode, char *buf, size_t bufsize)
 {
     size_t len;
-    if (errcode == OK) {
+    if (errcode == ERR_OK) {
         len = strlen(message_ok);
         if (len > bufsize) {
             memmove(buf, message_ok, bufsize);
@@ -60,7 +62,7 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize)
     
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
-                    error_list[i].code == UNDEF_ERROR_CODE) {
+                    error_list[i].code == ERR_UNDEF_CODE) {
             len = strlen(error_list[i].message);
             if (len > bufsize) {
                 memmove(buf, error_list[i].message, bufsize);
@@ -77,12 +79,12 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize)
 
 const char *set_strerror(err_t errcode)
 {
-    if (errcode == OK) {
+    if (errcode == ERR_OK) {
         return message_ok;
     }
     for (size_t i = 0; ; i++) {      
         if (error_list[i].code == errcode ||
-                    error_list[i].code == UNDEF_ERROR_CODE) {
+                    error_list[i].code == ERR_UNDEF_CODE) {
             return error_list[i].message;
         }
     }

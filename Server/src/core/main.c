@@ -3,6 +3,7 @@
 
 #include "syshead.h"
 #include "errors.h"
+#include "files.h"
 #include "syslog.h"
 #include "process.h"
 
@@ -20,7 +21,7 @@ int main(int argc, char const *argv[])
 
     err = parse_argv(argc, argv);
     if (err != OK) {
-        fprintf(stderr, "%s\n", "Invalid input parameters");
+        write_stderr("Invalid input parameters\n");
         goto failed;
     }
 
@@ -30,9 +31,9 @@ int main(int argc, char const *argv[])
      * here we close TTY, fork off the parent process and run daemon
      */
 
-    err = init_daemon();
+    err = daemon_init();
     if (err != OK) {
-        log_error(LOG_EMERG, "Failed to initialization daemon process.", err);
+        log_error(LOG_EMERG, "Failed to initialization daemon process", err);
         goto failed;
     }
 
@@ -50,7 +51,7 @@ int main(int argc, char const *argv[])
 
 #if (SYSTEM_WINDOWS)
     if (init_winsock() != OK) {
-        log_error(LOG_EMERG, "Failed to initialization winsock.", err);
+        log_error(LOG_EMERG, "Failed to initialization winsock", err);
         goto failed;
     }
 #endif

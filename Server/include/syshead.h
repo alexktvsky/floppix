@@ -47,7 +47,7 @@
 #define SYSTEM_WINDOWS 1
 
 #else
-#error Unsupported operating system!
+#error "Unsupported operating system"
 #endif
 
 #endif /* INCLUDED_SYSTEM_H */
