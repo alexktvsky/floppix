@@ -3,11 +3,8 @@
 
 #include "syshead.h"
 #include "errors.h"
-#include "process.h"
-#include "sockets.h"
-#include "listen.h"
-#include "config.h"
 #include "syslog.h"
+#include "process.h"
 
 
 err_t parse_argv(int argc, char const *argv[])
@@ -27,23 +24,6 @@ int main(int argc, char const *argv[])
         goto failed;
     }
 
-    err = init_config();
-    if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to load config");
-        goto failed;
-    }
-
-    err = parse_config();
-    if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to read config");
-        goto failed;
-    }
-
-    err = init_log(config_get_logfile(), config_get_maxlog(), LOG_INFO);
-    if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to initialization log");
-        goto failed;
-    }
 
     /* 
      * Now log file is available and server can write error mesages in it, so
@@ -80,8 +60,7 @@ int main(int argc, char const *argv[])
     return OK;
 
 failed:
-    fini_log();
-    fini_config();
+
 #if (SYSTEM_WINDOWS)
     system("pause");
 #endif
