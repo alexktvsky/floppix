@@ -1,17 +1,13 @@
-
-
-
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #include "syshead.h"
 #include "errors.h"
 #include "files.h"
+#include "syslog.h"
 
 
-
-typedef struct log_s {
-    file_t *file;
-
-} log_t;
 
 
 

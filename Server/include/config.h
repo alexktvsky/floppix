@@ -1,17 +1,23 @@
 #ifndef INCLUDED_CONFIG_H
 #define INCLUDED_CONFIG_H
 
-#define DEFAULT_CONF_FILE "server.conf"
 
-typedef struct config_s {
+typedef struct config_s config_t;
+
+
+struct config_s {
     file_t *file;
     char *data;
+    listening_t *listeners;
     char *log;
+    char *workdir;
     uint8_t loglevel;
     size_t logsize;
-} config_t;
+};
 
 
-
+err_t config_init(config_t **conf, const char *fname);
+err_t config_parse(config_t *conf);
+void config_fini(config_t *conf);
 
 #endif /* INCLUDED_CONFIG_H */

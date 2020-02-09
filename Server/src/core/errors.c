@@ -77,7 +77,7 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize)
 }
 
 
-const char *set_strerror(err_t errcode)
+const char *get_strerror(err_t errcode)
 {
     if (errcode == ERR_OK) {
         return message_ok;

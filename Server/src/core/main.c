@@ -1,45 +1,93 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "syshead.h"
 #include "errors.h"
 #include "files.h"
-#include "syslog.h"
+#include "connection.h"
+#include "config.h"
 #include "process.h"
+#include "syslog.h"
+
+
+static const char *conf_file;
 
 
 err_t parse_argv(int argc, char const *argv[])
 {
-
+    if (argc == 2) {
+        conf_file = argv[1];
+    }
+    else {
+        conf_file = "server.conf";
+    }
     return OK;
 }
 
 
 int main(int argc, char const *argv[])
 {
+    config_t *conf;
     err_t err;
 
     err = parse_argv(argc, argv);
     if (err != OK) {
-        write_stderr("Invalid input parameters\n");
+        fprintf(stderr, "%s\n", "Invalid input parameters");
         goto failed;
     }
 
-
-    /* 
-     * Now log file is available and server can write error mesages in it, so
-     * here we close TTY, fork off the parent process and run daemon
-     */
-
-    err = daemon_init();
+    err = config_init(&conf, conf_file);
     if (err != OK) {
-        log_error(LOG_EMERG, "Failed to initialization daemon process", err);
+        fprintf(stderr, "%s\n", get_strerror(err));
         goto failed;
     }
+
+    err = config_parse(conf);
+    if (err != OK) {
+        fprintf(stderr, "%s\n", get_strerror(err));
+        goto failed;
+    }
+
+
+    printf("%s\n", conf->log);
+    printf("%d\n", conf->loglevel);
+    printf("%ld\n", conf->logsize);
+    printf("%s\n", conf->workdir);
+    listening_t *temp = conf->listeners;
+    while (temp) {
+        printf("%s:%d\n", temp->ip, temp->port);
+        temp = temp->next;
+    }
+
+#if (SYSTEM_WINDOWS)
+    err = winsock_init();
+    if (err != OK) {
+        fprintf(stderr, "%s\n", "Failed to initialize winsock");
+        goto failed;
+    }
+#endif
+
+    err = open_listening_sockets(conf->listeners);
+    if (err != OK) {
+        fprintf(stderr, "%s\n", get_strerror(err));
+        goto failed;
+    }
+
+     
+    /* Now log file is available and server can write error mesages in it, so
+     * here we close TTY, fork off the parent process and run daemon */
+
+    // err = daemon_init(conf->workdir);
+    // if (err != OK) {
+    //     log_error(LOG_EMERG, "Failed to initialization daemon process", err);
+    //     goto failed;
+    // }
 
     /* TODO:
-     * regex_init
-     * init_signals
+     * signals_init
      * ssl_init
      * create_mempool
      * init_cycle
@@ -49,21 +97,19 @@ int main(int argc, char const *argv[])
      * 
      */
 
-#if (SYSTEM_WINDOWS)
-    if (init_winsock() != OK) {
-        log_error(LOG_EMERG, "Failed to initialization winsock", err);
-        goto failed;
-    }
-#endif
+
 
     while (1);
 
-    return OK;
+    return 0;
 
 failed:
-
-#if (SYSTEM_WINDOWS)
-    system("pause");
-#endif
-    return ERR_FAILED;
+    if (conf->listeners) {
+        close_listening_sockets(conf->listeners);
+    }
+    config_fini(conf);
+    if (conf) {
+        free(conf);
+    }
+    return 1;
 }

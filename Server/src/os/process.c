@@ -15,7 +15,7 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-err_t daemon_init(void)
+err_t daemon_init(const char *workdir)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
@@ -41,7 +41,7 @@ err_t daemon_init(void)
     }
 
     /* Change the current working directory */
-    if ((chdir("/")) < 0) {
+    if ((chdir(workdir)) < 0) {
         return ERR_FAILED;
     }
 
@@ -59,9 +59,14 @@ err_t daemon_init(void)
 }
 
 #elif (SYSTEM_WINDOWS)
-err_t daemon_init(void)
+err_t daemon_init(const char *workdir)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
+    
+    if (!SetCurrentDirectory(workdir)) {
+        return ERR_FAILED;
+    }
+
     _close(STDIN_FILENO);
     _close(STDOUT_FILENO);
     _close(STDERR_FILENO);

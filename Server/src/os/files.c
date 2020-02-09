@@ -67,7 +67,7 @@ ssize_t file_size(file_t *file)
         return -1;
     }
     size_t size = (size_t) lseek(file->fd, 0, SEEK_END);
-    if (size == (off_t) -1) {
+    if (size == (size_t) -1) {
         return -1;
     }
     if (lseek(file->fd, off, SEEK_SET) == (off_t) -1) {
@@ -90,6 +90,7 @@ ssize_t write_fd(fd_t fd, void *buf, size_t n)
 #elif (SYSTEM_WINDOWS)
 err_t file_init(file_t *file, const char *name, int mode, int create, int access)
 {
+    (void) access;
     fd_t fd = open_file(name, mode, create, access);
     if (fd == SYS_INVALID_FILE) {
         return ERR_FAILED;

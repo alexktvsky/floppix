@@ -49,10 +49,11 @@ typedef int socket_t;
 #define SYS_SHUT_RECEIVE             SD_RECEIVE
 #define SYS_SHUT_SEND                SD_SEND
 #define SYS_SHUT_BOTH                SD_BOTH
+#define SYS_INVALID_SOCKET           INVALID_SOCKET
 #define close_socket(s)              closesocket(s)
 typedef SOCKET socket_t;
 
-int init_winsock(void);
+int winsock_init(void);
 
 #endif
 

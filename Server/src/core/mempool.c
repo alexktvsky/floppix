@@ -6,17 +6,17 @@
 
 #include "syshead.h"
 
-#if (SYSTEM_WINDOWS)
-#include <windows.h>
-#elif (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
+#elif (SYSTEM_WINDOWS)
+#include <windows.h>
 #endif
 
 #ifdef ALLOCATE_WITH_MMAP
-#if (SYSTEM_WINDOWS)
-#error "Allocate with mmap not supported on Windows!"
-#elif (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <sys/mman.h>
+#elif (SYSTEM_WINDOWS)
+#error "Allocate with mmap not supported on Windows!"
 #endif
 #endif
 

@@ -22,7 +22,7 @@ typedef int err_t;
 #define SET_ERROR_DOMAIN(errcode) (errcode / ERROR_DOMAIN_BASE)
 
 
-const char *set_strerror(err_t errcode);
+const char *get_strerror(err_t errcode);
 void cpystrerror(err_t errcode, char *buf, size_t bufsize);
 
 

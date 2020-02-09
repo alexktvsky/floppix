@@ -7,7 +7,13 @@
 #define LOG_INFO    3
 #define LOG_DEBUG   4
 
-#define DEFAULT_LOGFILE "server.log"
+
+typedef struct log_s log_t;
+
+struct log_s {
+    file_t *file;
+    uint8_t level;
+};
 
 
 // void log_error(int level, const char *description, err_t errcode);

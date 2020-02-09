@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -14,6 +13,7 @@
 #include <pcre.h>
 
 #include "errors.h"
+#include "connection.h"
 #include "files.h"
 #include "config.h"
 
@@ -23,6 +23,7 @@
 #define PATTERN_LOG                 2
 #define PATTERN_LOGLEVEL            3
 #define PATTERN_LOGSIZE             4
+#define PATTERN_WORKDIR             5
 
 
 #define FIRST_SUBSTR                (data + vector[2])
@@ -33,10 +34,52 @@
 #define THIRD_SUBSTR_LEN            (vector[7] - vector[6])
 
 
-err_t config_init(config_t *conf, const char *fname)
+
+
+
+static void config_set_default_params(config_t *conf)
 {
+
+
+
+
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
+    conf->workdir = "/";
+    // conf->log = "";
+#elif (SYSTEM_WINDOWS)
+    conf->workdir = "C:\\";
+    // conf->log = "";
+#endif
+    conf->logsize = 0;
+    conf->loglevel = 1;
+
+
+
+
+
+
+
+
+    return;
+}
+
+
+
+err_t config_init(config_t **conf, const char *fname)
+{
+
+    config_t *new_conf = NULL;
     file_t *file = NULL;
     err_t err;
+
+    new_conf = malloc(sizeof(config_t));
+    if (!new_conf) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+    // memset(new_conf, 0, sizeof(config_t));
+    /* TODO: Set default value for config variables */
+    config_set_default_params(new_conf);
 
     file = malloc(sizeof(file_t));
     if (!file) {
@@ -50,10 +93,14 @@ err_t config_init(config_t *conf, const char *fname)
         goto failed;
     }
 
-    conf->file = file;
+    new_conf->file = file;
+    *conf = new_conf;
     return OK;
 
 failed:
+    if (new_conf) {
+        free(new_conf);
+    }
     file_fini(file);
     if (file) {
         free(file);
@@ -71,23 +118,32 @@ void config_fini(config_t *conf)
     if (conf->data) {
         free(conf->data);
     }
+    listening_t *temp1 = conf->listeners;
+    listening_t *temp2;
+    while (temp1) {
+        temp2 = temp1;
+        temp1 = temp1->next;
+        free(temp2);
+    }
     return;
 }
 
 
-err_t config_do_parse(config_t *conf)
+err_t config_parse(config_t *conf)
 {
     static const char *patterns[] = {
         "(?<=listen )([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n", /* PATTERN_LISTEN   */
-        "(?<=listen )\\[([0-9/a-f/A-F/:]*)\\]:([0-9]+)\n",      /* PATTERN_LISTEN6  */
+        "(?<=listen )\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",    /* PATTERN_LISTEN6  */
         "(?<=log )([0-9/a-z/A-Z///./:/\\\\]+)\n",               /* PATTERN_LOG      */
         "(?<=loglevel )([0-9]+)\n",                             /* PATTERN_LOGLEVEL */
-        "(?<=logsize )([0-9]+)\n"                               /* PATTERN_LOGSIZE  */
+        "(?<=logsize )([0-9]+)\n",                              /* PATTERN_LOGSIZE  */
+        "(?<=workdir )([0-9/a-z/A-Z///./:/\\\\]+)\n"            /* PATTERN_WORKDIR  */
     };
 
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
-    const char *error;
     char *data = NULL;
+
+    const char *error;
     int erroffset;
     int rc;
     int vector[100];
@@ -96,6 +152,9 @@ err_t config_do_parse(config_t *conf)
     pcre *re = NULL;
     int offset = 0;
     err_t err;
+
+    listening_t *cur_listener = NULL;
+    listening_t *prev;
 
     fsize = file_size(conf->file);
     if (fsize == -1) {
@@ -131,18 +190,37 @@ err_t config_do_parse(config_t *conf)
 
             switch (number) {
             case PATTERN_LISTEN:
-                /* do smth */
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
-                printf("%s\n", FIRST_SUBSTR);
-                printf("%s\n", SECOND_SUBSTR);
+
+                prev = cur_listener;
+                cur_listener = malloc(sizeof(listening_t));
+                if (!cur_listener) {
+                    cur_listener = prev;
+                    err = ERR_MEM_ALLOC;
+                    goto failed;
+                }
+                cur_listener->ip = FIRST_SUBSTR;
+                cur_listener->port = atoi(SECOND_SUBSTR);
+                cur_listener->is_ipv6 = false;
+                cur_listener->next = prev;
                 break;
             case PATTERN_LISTEN6:
                 /* do smth */
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
-                printf("%s\n", FIRST_SUBSTR);
-                printf("%s\n", SECOND_SUBSTR);
+
+                prev = cur_listener;
+                cur_listener = malloc(sizeof(listening_t));
+                if (!cur_listener) {
+                    cur_listener = prev;
+                    err = ERR_MEM_ALLOC;
+                    goto failed;
+                }
+                cur_listener->ip = FIRST_SUBSTR;
+                cur_listener->port = atoi(SECOND_SUBSTR);
+                cur_listener->is_ipv6 = true;
+                cur_listener->next = prev;
                 break;
             case PATTERN_LOG:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
@@ -156,12 +234,17 @@ err_t config_do_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->logsize = (size_t) atoi(FIRST_SUBSTR);
                 break;
+            case PATTERN_WORKDIR:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                conf->workdir = FIRST_SUBSTR;
+                break;
             }
             offset = vector[1];
         }
         pcre_free(re);
     }
     conf->data = data;
+    conf->listeners = cur_listener;
     return OK;
 
 failed:
@@ -171,35 +254,10 @@ failed:
     if (data) {
         free(data);
     }
+    while (cur_listener) {
+        prev = cur_listener;
+        cur_listener = cur_listener->next;
+        free(prev);
+    }
     return err;
-}
-
-
-int main(void)
-{
-    err_t err;
-
-    config_t *conf = malloc(sizeof(config_t));
-
-    err = config_init(conf, "../../sample/sample-config-files/server.conf");
-    if (err != OK) {
-        printf("%s\n", set_strerror(err));
-        free(conf);
-        abort();
-    }
-
-    err = config_do_parse(conf);
-    if (err != OK) {
-        printf("%s\n", set_strerror(err));
-        free(conf);
-        abort();
-    }
-
-    printf("%s\n", conf->log);
-    printf("%d\n", conf->loglevel);
-    printf("%ld\n", conf->logsize);
-
-    config_fini(conf);
-    free(conf);
-    return 0;
 }
