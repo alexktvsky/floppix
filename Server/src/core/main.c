@@ -45,23 +45,6 @@ int main(int argc, char const *argv[])
         goto failed;
     }
 
-    err = config_parse(conf);
-    if (err != OK) {
-        fprintf(stderr, "%s\n", get_strerror(err));
-        goto failed;
-    }
-
-
-    printf("%s\n", conf->log);
-    printf("%d\n", conf->loglevel);
-    printf("%ld\n", conf->logsize);
-    printf("%s\n", conf->workdir);
-    listening_t *temp = conf->listeners;
-    while (temp) {
-        printf("%s:%d\n", temp->ip, temp->port);
-        temp = temp->next;
-    }
-
 #if (SYSTEM_WINDOWS)
     err = winsock_init();
     if (err != OK) {
@@ -98,7 +81,6 @@ int main(int argc, char const *argv[])
      */
 
 
-
     while (1);
 
     return 0;
@@ -107,9 +89,8 @@ failed:
     if (conf->listeners) {
         close_listening_sockets(conf->listeners);
     }
-    config_fini(conf);
     if (conf) {
-        free(conf);
+        config_fini(conf);
     }
     return 1;
 }

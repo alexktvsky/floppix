@@ -19,11 +19,14 @@
 
 
 #define PATTERN_LISTEN              0
-#define PATTERN_LISTEN6             1
-#define PATTERN_LOG                 2
-#define PATTERN_LOGLEVEL            3
-#define PATTERN_LOGSIZE             4
-#define PATTERN_WORKDIR             5
+#define PATTERN_LISTEN4             1
+#define PATTERN_LISTEN6             2
+#define PATTERN_LOG                 3
+#define PATTERN_LOGLEVEL            4
+#define PATTERN_LOGSIZE             5
+#define PATTERN_WORKDIR             6
+#define PATTERN_SSL_CERT            7
+#define PATTERN_SSL_CERT_KEY        8
 
 
 #define FIRST_SUBSTR                (data + vector[2])
@@ -34,110 +37,38 @@
 #define THIRD_SUBSTR_LEN            (vector[7] - vector[6])
 
 
-
-
-
 static void config_set_default_params(config_t *conf)
 {
-
-
-
-
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
     conf->workdir = "/";
     // conf->log = "";
+
 #elif (SYSTEM_WINDOWS)
     conf->workdir = "C:\\";
     // conf->log = "";
 #endif
+
     conf->logsize = 0;
     conf->loglevel = 1;
 
 
 
-
-
-
-
-
     return;
 }
 
 
-
-err_t config_init(config_t **conf, const char *fname)
-{
-
-    config_t *new_conf = NULL;
-    file_t *file = NULL;
-    err_t err;
-
-    new_conf = malloc(sizeof(config_t));
-    if (!new_conf) {
-        err = ERR_MEM_ALLOC;
-        goto failed;
-    }
-    // memset(new_conf, 0, sizeof(config_t));
-    /* TODO: Set default value for config variables */
-    config_set_default_params(new_conf);
-
-    file = malloc(sizeof(file_t));
-    if (!file) {
-        err = ERR_MEM_ALLOC;
-        goto failed;
-    }
-
-    if (file_init(file, fname, SYS_FILE_RDONLY,
-                    SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
-        err = ERR_FILE_OPEN;
-        goto failed;
-    }
-
-    new_conf->file = file;
-    *conf = new_conf;
-    return OK;
-
-failed:
-    if (new_conf) {
-        free(new_conf);
-    }
-    file_fini(file);
-    if (file) {
-        free(file);
-    }
-    return err;
-}
-
-
-void config_fini(config_t *conf)
-{
-    file_fini(conf->file);
-    if (conf->file) {
-        free(conf->file);
-    }
-    if (conf->data) {
-        free(conf->data);
-    }
-    listening_t *temp1 = conf->listeners;
-    listening_t *temp2;
-    while (temp1) {
-        temp2 = temp1;
-        temp1 = temp1->next;
-        free(temp2);
-    }
-    return;
-}
-
-
-err_t config_parse(config_t *conf)
+static err_t config_parse(config_t *conf)
 {
     static const char *patterns[] = {
-        "(?<=listen )([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n", /* PATTERN_LISTEN   */
-        "(?<=listen )\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",    /* PATTERN_LISTEN6  */
-        "(?<=log )([0-9/a-z/A-Z///./:/\\\\]+)\n",               /* PATTERN_LOG      */
-        "(?<=loglevel )([0-9]+)\n",                             /* PATTERN_LOGLEVEL */
-        "(?<=logsize )([0-9]+)\n",                              /* PATTERN_LOGSIZE  */
-        "(?<=workdir )([0-9/a-z/A-Z///./:/\\\\]+)\n"            /* PATTERN_WORKDIR  */
+        "(?<=listen )\\s*([0-9]+)\n",
+        "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
+        "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",
+        "(?<=log )\\s*([\\S]+)\n",
+        "(?<=loglevel )\\s*([0-9]+)\n",
+        "(?<=logsize )\\s*([0-9]+)\n",
+        "(?<=workdir )\\s*([\\S]+)\n",
+        "(?<=ssl_certificate )\\s*([\\S]+)\n",
+        "(?<=ssl_certificate_key )\\s*([\\S]+)\n"
     };
 
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
@@ -154,7 +85,7 @@ err_t config_parse(config_t *conf)
     err_t err;
 
     listening_t *cur_listener = NULL;
-    listening_t *prev;
+    listening_t *prev_listener;
 
     fsize = file_size(conf->file);
     if (fsize == -1) {
@@ -191,52 +122,82 @@ err_t config_parse(config_t *conf)
             switch (number) {
             case PATTERN_LISTEN:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                prev = cur_listener;
+                prev_listener = cur_listener;
                 cur_listener = malloc(sizeof(listening_t));
                 if (!cur_listener) {
-                    cur_listener = prev;
+                    cur_listener = prev_listener;
                     err = ERR_MEM_ALLOC;
                     goto failed;
                 }
-                cur_listener->ip = FIRST_SUBSTR;
-                cur_listener->port = atoi(SECOND_SUBSTR);
+                cur_listener->ip = "0.0.0.0";
+                cur_listener->port = (uint16_t) atoi(FIRST_SUBSTR);
                 cur_listener->is_ipv6 = false;
-                cur_listener->next = prev;
+                cur_listener->next = prev_listener;
                 break;
-            case PATTERN_LISTEN6:
-                /* do smth */
+
+            case PATTERN_LISTEN4:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                prev = cur_listener;
+                prev_listener = cur_listener;
                 cur_listener = malloc(sizeof(listening_t));
                 if (!cur_listener) {
-                    cur_listener = prev;
+                    cur_listener = prev_listener;
                     err = ERR_MEM_ALLOC;
                     goto failed;
                 }
                 cur_listener->ip = FIRST_SUBSTR;
-                cur_listener->port = atoi(SECOND_SUBSTR);
-                cur_listener->is_ipv6 = true;
-                cur_listener->next = prev;
+                cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
+                cur_listener->is_ipv6 = false;
+                cur_listener->next = prev_listener;
                 break;
+
+            case PATTERN_LISTEN6:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
+
+                prev_listener = cur_listener;
+                cur_listener = malloc(sizeof(listening_t));
+                if (!cur_listener) {
+                    cur_listener = prev_listener;
+                    err = ERR_MEM_ALLOC;
+                    goto failed;
+                }
+                cur_listener->ip = FIRST_SUBSTR;
+                cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
+                cur_listener->is_ipv6 = true;
+                cur_listener->next = prev_listener;
+                break;
+
             case PATTERN_LOG:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->log = FIRST_SUBSTR;
                 break;
+
             case PATTERN_LOGLEVEL:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->loglevel = (uint8_t) atoi(FIRST_SUBSTR);
                 break;
+
             case PATTERN_LOGSIZE:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->logsize = (size_t) atoi(FIRST_SUBSTR);
                 break;
+
             case PATTERN_WORKDIR:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->workdir = FIRST_SUBSTR;
+                break;
+
+            case PATTERN_SSL_CERT:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                conf->cert = FIRST_SUBSTR;
+                break;
+
+            case PATTERN_SSL_CERT_KEY:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                conf->cert_key = FIRST_SUBSTR;
                 break;
             }
             offset = vector[1];
@@ -245,6 +206,20 @@ err_t config_parse(config_t *conf)
     }
     conf->data = data;
     conf->listeners = cur_listener;
+
+    /* TODO: Log server configuration */
+    printf("log = \"%s\"\n", conf->log);
+    printf("loglevel = %d\n", conf->loglevel);
+    printf("logsize = %ld\n", conf->logsize);
+    printf("workdir = \"%s\"\n", conf->workdir);
+    printf("ssl_certificate = \"%s\"\n", conf->cert);
+    printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
+    listening_t *temp = conf->listeners;
+    while (temp) {
+        printf("listen %s:%d\n", temp->ip, temp->port);
+        temp = temp->next;
+    }
+
     return OK;
 
 failed:
@@ -255,9 +230,78 @@ failed:
         free(data);
     }
     while (cur_listener) {
-        prev = cur_listener;
+        prev_listener = cur_listener;
         cur_listener = cur_listener->next;
-        free(prev);
+        free(prev_listener);
     }
     return err;
+}
+
+
+err_t config_init(config_t **conf, const char *fname)
+{
+    config_t *new_conf = NULL;
+    file_t *file = NULL;
+    err_t err;
+
+    new_conf = malloc(sizeof(config_t));
+    if (!new_conf) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+
+    file = malloc(sizeof(file_t));
+    if (!file) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+
+    if (file_init(file, fname, SYS_FILE_RDONLY,
+                    SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
+        err = ERR_FILE_OPEN;
+        goto failed;
+    }
+
+    new_conf->file = file;
+
+    config_set_default_params(new_conf);
+
+    err = config_parse(new_conf);
+    if (err != OK) {
+        goto failed;
+    }
+
+    *conf = new_conf;
+    return OK;
+
+failed:
+    if (new_conf) {
+        free(new_conf);
+    }
+    file_fini(file);
+    if (file) {
+        free(file);
+    }
+    return err;
+}
+
+
+void config_fini(config_t *conf)
+{
+    file_fini(conf->file);
+    if (conf->file) {
+        free(conf->file);
+    }
+    if (conf->data) {
+        free(conf->data);
+    }
+    listening_t *temp1 = conf->listeners;
+    listening_t *temp2;
+    while (temp1) {
+        temp2 = temp1;
+        temp1 = temp1->next;
+        free(temp2);
+    }
+    free(conf);
+    return;
 }

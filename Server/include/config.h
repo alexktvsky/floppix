@@ -13,11 +13,12 @@ struct config_s {
     char *workdir;
     uint8_t loglevel;
     size_t logsize;
+    char *cert;
+    char *cert_key;
 };
 
 
 err_t config_init(config_t **conf, const char *fname);
-err_t config_parse(config_t *conf);
 void config_fini(config_t *conf);
 
 #endif /* INCLUDED_CONFIG_H */
