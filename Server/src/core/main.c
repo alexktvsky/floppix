@@ -6,10 +6,11 @@
 
 #include "syshead.h"
 #include "errors.h"
-#include "files.h"
 #include "connection.h"
+#include "files.h"
 #include "config.h"
 #include "process.h"
+#include "cycle.h"
 #include "syslog.h"
 
 
@@ -62,7 +63,6 @@ int main(int argc, char const *argv[])
      
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
-
     // err = daemon_init(conf->workdir);
     // if (err != OK) {
     //     log_error(LOG_EMERG, "Failed to initialization daemon process", err);
@@ -75,13 +75,12 @@ int main(int argc, char const *argv[])
      * create_mempool
      * init_cycle
      * 
-     * single_process_cycle(cycle);
-     * master_process_cycle(cycle);
+     * master_process_cycle(conf);
      * 
      */
 
 
-    while (1);
+    single_process_cycle(conf);
 
     return 0;
 

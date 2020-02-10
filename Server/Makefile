@@ -8,17 +8,17 @@ SRC_FILES += connection.c
 SRC_FILES += mempool.c
 SRC_FILES += files.c
 SRC_FILES += process.c
+SRC_FILES += cycle.c
 SRC_FILES += sockets.c
 
-
+CC = gcc
 
 CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -std=c11 -pipe
 build: CFLAGS += -g0 -s -O3 -DNDEBUG
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
 LDFLAGS += -lpcre
-
-CC = gcc
+build: LDFLAGS += -static -static-libgcc
 
 ifeq ($(CC), gcc)
 	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
@@ -37,7 +37,7 @@ ifeq ($(CC), i686-w64-mingw32-gcc)
 	LDFLAGS += -lwsock32
 endif
 
-build: LDFLAGS += -static -static-libgcc
+
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -41,17 +40,15 @@ static void config_set_default_params(config_t *conf)
 {
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
     conf->workdir = "/";
-    // conf->log = "";
+    conf->log = "server.log";
 
 #elif (SYSTEM_WINDOWS)
     conf->workdir = "C:\\";
-    // conf->log = "";
+    conf->log = "server.log";
 #endif
 
     conf->logsize = 0;
     conf->loglevel = 1;
-
-
 
     return;
 }
@@ -77,7 +74,8 @@ static err_t config_parse(config_t *conf)
     const char *error;
     int erroffset;
     int rc;
-    int vector[100];
+    size_t vector_size = 100;
+    int vector[vector_size];
     ssize_t fsize;
     ssize_t bytes_read;
     pcre *re = NULL;
@@ -114,7 +112,7 @@ static err_t config_parse(config_t *conf)
             goto failed;
         }
         while (1) {
-            rc = pcre_exec(re, 0, data, fsize, offset, 0, vector, sizeof(vector));
+            rc = pcre_exec(re, 0, data, fsize, offset, 0, vector, vector_size);
             if (rc < 0) {
                 break;
             }
