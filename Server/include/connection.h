@@ -12,22 +12,22 @@ typedef union {
 
 
 
-typedef struct listening_s listening_t;
+typedef struct listener_s listener_t;
 
-struct listening_s {
+struct listener_s {
     socket_t fd;
     sockaddr_t *sockaddr;
     char *ip;
     uint16_t port;
     bool is_ipv6;
-    listening_t *next;
+    listener_t *next;
 };
 
 
 // typedef struct connection_s {
 // } connection_t;
 
-err_t open_listening_sockets(listening_t *listeners);
-void close_listening_sockets(listening_t *listeners);
+err_t open_listening_sockets(listener_t *listeners);
+void close_listening_sockets(listener_t *listeners);
 
 #endif /* INCLUDED_CONNECTION_H */

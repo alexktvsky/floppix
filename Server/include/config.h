@@ -8,7 +8,7 @@ typedef struct config_s config_t;
 struct config_s {
     file_t *file;
     char *data;
-    listening_t *listeners;
+    listener_t *listeners;
     char *logfile;
     char *workdir;
     uint8_t loglevel;

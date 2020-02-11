@@ -9,7 +9,7 @@
 #include "connection.h"
 
 
-static err_t open_tcp_socket(listening_t *listener)
+static err_t open_tcp_socket(listener_t *listener)
 {
     err_t err;
     sockaddr_t *sockaddr = NULL;
@@ -69,7 +69,7 @@ failed:
 }
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-static err_t open_tcp6_socket(listening_t *listener)
+static err_t open_tcp6_socket(listener_t *listener)
 {
     err_t err;
     sockaddr_t *sockaddr = NULL;
@@ -127,7 +127,7 @@ failed:
     return err;
 }
 #elif (SYSTEM_WINDOWS)
-static err_t open_tcp6_socket(listening_t *listener)
+static err_t open_tcp6_socket(listener_t *listener)
 {
     (void) listener;
     return ERR_NET_IPV6;
@@ -135,10 +135,10 @@ static err_t open_tcp6_socket(listening_t *listener)
 #endif
 
 
-err_t open_listening_sockets(listening_t *listeners)
+err_t open_listening_sockets(listener_t *listeners)
 {
     err_t err;
-    listening_t *current = listeners;
+    listener_t *current = listeners;
     while (current) {
         if (current->is_ipv6) {
             err = open_tcp6_socket(current);
@@ -157,7 +157,7 @@ err_t open_listening_sockets(listening_t *listeners)
 }
 
 
-static void close_tcp_socket(listening_t *listener)
+static void close_tcp_socket(listener_t *listener)
 {
     close_socket(listener->fd);
     if (listener->sockaddr) {
@@ -167,7 +167,7 @@ static void close_tcp_socket(listening_t *listener)
 }
 
 
-void close_listening_sockets(listening_t *listeners)
+void close_listening_sockets(listener_t *listeners)
 {
     while (listeners) {
         close_tcp_socket(listeners);

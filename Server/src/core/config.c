@@ -82,8 +82,8 @@ static err_t config_parse(config_t *conf)
     int offset = 0;
     err_t err;
 
-    listening_t *cur_listener = NULL;
-    listening_t *prev_listener;
+    listener_t *cur_listener = NULL;
+    listener_t *prev_listener;
 
     fsize = file_size(conf->file);
     if (fsize == -1) {
@@ -122,7 +122,7 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
 
                 prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listening_t));
+                cur_listener = malloc(sizeof(listener_t));
                 if (!cur_listener) {
                     cur_listener = prev_listener;
                     err = ERR_MEM_ALLOC;
@@ -139,7 +139,7 @@ static err_t config_parse(config_t *conf)
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
                 prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listening_t));
+                cur_listener = malloc(sizeof(listener_t));
                 if (!cur_listener) {
                     cur_listener = prev_listener;
                     err = ERR_MEM_ALLOC;
@@ -156,7 +156,7 @@ static err_t config_parse(config_t *conf)
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
                 prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listening_t));
+                cur_listener = malloc(sizeof(listener_t));
                 if (!cur_listener) {
                     cur_listener = prev_listener;
                     err = ERR_MEM_ALLOC;
@@ -213,7 +213,7 @@ static err_t config_parse(config_t *conf)
     printf("workdir = \"%s\"\n", conf->workdir);
     printf("ssl_certificate = \"%s\"\n", conf->cert);
     printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
-    listening_t *temp = conf->listeners;
+    listener_t *temp = conf->listeners;
     while (temp) {
         printf("listen %s:%d\n", temp->ip, temp->port);
         temp = temp->next;
@@ -295,8 +295,8 @@ void config_fini(config_t *conf)
     if (conf->data) {
         free(conf->data);
     }
-    listening_t *temp1 = conf->listeners;
-    listening_t *temp2;
+    listener_t *temp1 = conf->listeners;
+    listener_t *temp2;
     while (temp1) {
         temp2 = temp1;
         temp1 = temp1->next;
