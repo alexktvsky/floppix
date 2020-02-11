@@ -138,17 +138,20 @@ static err_t open_tcp6_socket(listening_t *listener)
 err_t open_listening_sockets(listening_t *listeners)
 {
     err_t err;
-    while (listeners) {
-        if (listeners->is_ipv6) {
-            err = open_tcp6_socket(listeners);
+    listening_t *current = listeners;
+    while (current) {
+        if (current->is_ipv6) {
+            err = open_tcp6_socket(current);
         }
         else {
-            err = open_tcp_socket(listeners);
+            err = open_tcp_socket(current);
         }
         if (err != OK) {
+            /* If smth happens wrong close already opened sockets */
+            close_listening_sockets(listeners);
             return err;
         }
-        listeners = listeners->next;
+        current = current->next;
     }
     return OK;
 }

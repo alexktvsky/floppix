@@ -7,8 +7,8 @@
 #include "errors.h"
 #include "connection.h"
 #include "files.h"
-#include "config.h"
 #include "syslog.h"
+#include "config.h"
 #include "cycle.h"
 
 

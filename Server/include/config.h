@@ -9,12 +9,13 @@ struct config_s {
     file_t *file;
     char *data;
     listening_t *listeners;
-    char *log;
+    char *logfile;
     char *workdir;
     uint8_t loglevel;
     size_t logsize;
     char *cert;
     char *cert_key;
+    log_t *log;
 };
 
 

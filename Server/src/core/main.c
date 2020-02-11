@@ -8,10 +8,10 @@
 #include "errors.h"
 #include "connection.h"
 #include "files.h"
+#include "syslog.h"
 #include "config.h"
 #include "process.h"
 #include "cycle.h"
-#include "syslog.h"
 
 
 static const char *conf_file;
@@ -37,43 +37,47 @@ int main(int argc, char const *argv[])
     err = parse_argv(argc, argv);
     if (err != OK) {
         fprintf(stderr, "%s\n", "Invalid input parameters");
-        goto failed;
+        goto error0;
     }
 
     err = config_init(&conf, conf_file);
     if (err != OK) {
         fprintf(stderr, "%s\n", get_strerror(err));
-        goto failed;
+        goto error0;
     }
 
 #if (SYSTEM_WINDOWS)
     err = winsock_init();
     if (err != OK) {
         fprintf(stderr, "%s\n", "Failed to initialize winsock");
-        goto failed;
+        goto error1;
     }
 #endif
 
     err = open_listening_sockets(conf->listeners);
     if (err != OK) {
         fprintf(stderr, "%s\n", get_strerror(err));
-        goto failed;
+        goto error1;
     }
 
-     
+    // err = log_init(conf->logfile, conf->log);
+    // if (err != OK) {
+    //     fprintf(stderr, "%s\n", get_strerror(err));
+    //     goto log_init_failed;
+    // }
+
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
     // err = daemon_init(conf->workdir);
     // if (err != OK) {
     //     log_error(LOG_EMERG, "Failed to initialization daemon process", err);
-    //     goto failed;
+    //     goto daemon_init_failed;
     // }
 
     /* TODO:
      * signals_init
      * ssl_init
      * create_mempool
-     * init_cycle
      * 
      * master_process_cycle(conf);
      * 
@@ -84,12 +88,9 @@ int main(int argc, char const *argv[])
 
     return 0;
 
-failed:
-    if (conf->listeners) {
-        close_listening_sockets(conf->listeners);
-    }
-    if (conf) {
-        config_fini(conf);
-    }
+    close_listening_sockets(conf->listeners);
+error1:
+    config_fini(conf);
+error0:
     return 1;
 }

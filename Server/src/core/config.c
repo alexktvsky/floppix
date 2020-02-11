@@ -14,13 +14,14 @@
 #include "errors.h"
 #include "connection.h"
 #include "files.h"
+#include "syslog.h"
 #include "config.h"
 
 
 #define PATTERN_LISTEN              0
 #define PATTERN_LISTEN4             1
 #define PATTERN_LISTEN6             2
-#define PATTERN_LOG                 3
+#define PATTERN_LOGFILE             3
 #define PATTERN_LOGLEVEL            4
 #define PATTERN_LOGSIZE             5
 #define PATTERN_WORKDIR             6
@@ -40,16 +41,15 @@ static void config_set_default_params(config_t *conf)
 {
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
     conf->workdir = "/";
-    conf->log = "server.log";
+    conf->logfile = "server.log";
 
 #elif (SYSTEM_WINDOWS)
     conf->workdir = "C:\\";
-    conf->log = "server.log";
+    conf->logfile = "server.log";
 #endif
 
     conf->logsize = 0;
     conf->loglevel = 1;
-
     return;
 }
 
@@ -60,7 +60,7 @@ static err_t config_parse(config_t *conf)
         "(?<=listen )\\s*([0-9]+)\n",
         "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
         "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",
-        "(?<=log )\\s*([\\S]+)\n",
+        "(?<=logfile )\\s*([\\S]+)\n",
         "(?<=loglevel )\\s*([0-9]+)\n",
         "(?<=logsize )\\s*([0-9]+)\n",
         "(?<=workdir )\\s*([\\S]+)\n",
@@ -168,9 +168,9 @@ static err_t config_parse(config_t *conf)
                 cur_listener->next = prev_listener;
                 break;
 
-            case PATTERN_LOG:
+            case PATTERN_LOGFILE:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->log = FIRST_SUBSTR;
+                conf->logfile = FIRST_SUBSTR;
                 break;
 
             case PATTERN_LOGLEVEL:
@@ -206,7 +206,8 @@ static err_t config_parse(config_t *conf)
     conf->listeners = cur_listener;
 
     /* TODO: Log server configuration */
-    printf("log = \"%s\"\n", conf->log);
+    printf("conffile = \"%s\"\n", conf->file->name);
+    printf("logfile = \"%s\"\n", conf->logfile);
     printf("loglevel = %d\n", conf->loglevel);
     printf("logsize = %ld\n", conf->logsize);
     printf("workdir = \"%s\"\n", conf->workdir);
@@ -247,6 +248,7 @@ err_t config_init(config_t **conf, const char *fname)
         err = ERR_MEM_ALLOC;
         goto failed;
     }
+    memset(new_conf, 0, sizeof(config_t));
 
     file = malloc(sizeof(file_t));
     if (!file) {
