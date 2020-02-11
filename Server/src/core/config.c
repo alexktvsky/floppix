@@ -12,6 +12,7 @@
 #include <pcre.h>
 
 #include "errors.h"
+#include "mempool.h"
 #include "connection.h"
 #include "files.h"
 #include "syslog.h"
@@ -145,6 +146,8 @@ static err_t config_parse(config_t *conf)
                     err = ERR_MEM_ALLOC;
                     goto failed;
                 }
+                /* TODO: move allocation and initialization to init function */
+                memset(cur_listener, 0, sizeof(listener_t));
                 cur_listener->ip = FIRST_SUBSTR;
                 cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
                 cur_listener->is_ipv6 = false;
@@ -162,6 +165,8 @@ static err_t config_parse(config_t *conf)
                     err = ERR_MEM_ALLOC;
                     goto failed;
                 }
+                /* TODO: move allocation and initialization to init function */
+                memset(cur_listener, 0, sizeof(listener_t));
                 cur_listener->ip = FIRST_SUBSTR;
                 cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
                 cur_listener->is_ipv6 = true;

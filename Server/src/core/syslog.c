@@ -8,6 +8,6 @@
 #include "syslog.h"
 
 
-
+/* !!! TODO: LOG IS MUST BE NONBLOCKING */
 
 

@@ -22,10 +22,11 @@ static const struct {
     {ERR_NET_TCP_NONBLOCK,       "Failed to set socket in nonblocking mode"},
     {ERR_NET_TCP_BLOCK,          "Failed to set socket in blocking mode"},
     {ERR_NET_LISTEN,             "Failed to initialize listen socket"},
+    {ERR_NET_ACCEPT,             "Failed to accept a connection on a socket"},
     {ERR_NET_IPV6,               "IPv6 is not supported on this system"},
 
     /* ERR_MEM domain */
-    {ERR_MEM_NULL_ADDR,          "Attempted to access a NULL address"},
+    {ERR_MEM_NULL_ADDR,          "A null pointer dereference"},
     {ERR_MEM_ALLOC,              "Failed to allocate memory"},
     {ERR_MEM_INIT_POOL,          "Failed to initialize memory pool"},
 

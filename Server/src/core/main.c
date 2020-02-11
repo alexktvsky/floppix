@@ -6,6 +6,7 @@
 
 #include "syshead.h"
 #include "errors.h"
+#include "mempool.h"
 #include "connection.h"
 #include "files.h"
 #include "syslog.h"
