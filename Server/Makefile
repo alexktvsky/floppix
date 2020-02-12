@@ -13,7 +13,7 @@ SRC_FILES += sockets.c
 
 CC = gcc
 
-CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -std=c11 -pipe
+CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -pipe
 build: CFLAGS += -g0 -s -O3 -DNDEBUG
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
@@ -30,11 +30,11 @@ ifeq ($(CC), clang)
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
-	LDFLAGS += -lwsock32
+	LDFLAGS += -lws2_32
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
-	LDFLAGS += -lwsock32
+	LDFLAGS += -lws2_32
 endif
 
 

@@ -53,7 +53,7 @@ typedef int socket_t;
 #define close_socket(s)              closesocket(s)
 typedef SOCKET socket_t;
 
-int winsock_init(void);
+int winsock_init_v22(void);
 
 #endif
 

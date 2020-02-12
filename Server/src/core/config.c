@@ -83,9 +83,6 @@ static err_t config_parse(config_t *conf)
     int offset = 0;
     err_t err;
 
-    listener_t *cur_listener = NULL;
-    listener_t *prev_listener;
-
     fsize = file_size(conf->file);
     if (fsize == -1) {
         err = ERR_FILE_SIZE;
@@ -122,55 +119,30 @@ static err_t config_parse(config_t *conf)
             case PATTERN_LISTEN:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
 
-                prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listener_t));
-                if (!cur_listener) {
-                    cur_listener = prev_listener;
-                    err = ERR_MEM_ALLOC;
+                err = listen_list_append_ipv4(conf->listeners, "0.0.0.0", FIRST_SUBSTR);
+                if (err != OK) {
                     goto failed;
                 }
-                cur_listener->ip = "0.0.0.0";
-                cur_listener->port = (uint16_t) atoi(FIRST_SUBSTR);
-                cur_listener->is_ipv6 = false;
-                cur_listener->next = prev_listener;
                 break;
 
             case PATTERN_LISTEN4:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listener_t));
-                if (!cur_listener) {
-                    cur_listener = prev_listener;
-                    err = ERR_MEM_ALLOC;
+                err = listen_list_append_ipv4(conf->listeners, FIRST_SUBSTR, SECOND_SUBSTR);
+                if (err != OK) {
                     goto failed;
                 }
-                /* TODO: move allocation and initialization to init function */
-                memset(cur_listener, 0, sizeof(listener_t));
-                cur_listener->ip = FIRST_SUBSTR;
-                cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
-                cur_listener->is_ipv6 = false;
-                cur_listener->next = prev_listener;
                 break;
 
             case PATTERN_LISTEN6:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                prev_listener = cur_listener;
-                cur_listener = malloc(sizeof(listener_t));
-                if (!cur_listener) {
-                    cur_listener = prev_listener;
-                    err = ERR_MEM_ALLOC;
+                err = listen_list_append_ipv6(conf->listeners, FIRST_SUBSTR, SECOND_SUBSTR);
+                if (err != OK) {
                     goto failed;
                 }
-                /* TODO: move allocation and initialization to init function */
-                memset(cur_listener, 0, sizeof(listener_t));
-                cur_listener->ip = FIRST_SUBSTR;
-                cur_listener->port = (uint16_t) atoi(SECOND_SUBSTR);
-                cur_listener->is_ipv6 = true;
-                cur_listener->next = prev_listener;
                 break;
 
             case PATTERN_LOGFILE:
@@ -208,7 +180,6 @@ static err_t config_parse(config_t *conf)
         pcre_free(re);
     }
     conf->data = data;
-    conf->listeners = cur_listener;
 
     /* TODO: Log server configuration */
     printf("conffile = \"%s\"\n", conf->file->name);
@@ -218,10 +189,12 @@ static err_t config_parse(config_t *conf)
     printf("workdir = \"%s\"\n", conf->workdir);
     printf("ssl_certificate = \"%s\"\n", conf->cert);
     printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
-    listener_t *temp = conf->listeners;
-    while (temp) {
-        printf("listen %s:%d\n", temp->ip, temp->port);
-        temp = temp->next;
+
+    char str_ip[NI_MAXHOST];
+    char str_port[NI_MAXSERV];
+    for (listener_t *ls = conf->listeners->head; ls; ls = ls->next) {
+        printf("%s:%s\n", get_addr(str_ip, &ls->sockaddr),
+                                get_port(str_port, &ls->sockaddr));
     }
 
     return OK;
@@ -233,11 +206,6 @@ failed:
     if (data) {
         free(data);
     }
-    while (cur_listener) {
-        prev_listener = cur_listener;
-        cur_listener = cur_listener->next;
-        free(prev_listener);
-    }
     return err;
 }
 
@@ -245,6 +213,7 @@ failed:
 err_t config_init(config_t **conf, const char *fname)
 {
     config_t *new_conf = NULL;
+    listen_list_t *listeners;
     file_t *file = NULL;
     err_t err;
 
@@ -260,6 +229,13 @@ err_t config_init(config_t **conf, const char *fname)
         err = ERR_MEM_ALLOC;
         goto failed;
     }
+
+    err = listen_list_create(&listeners);
+    if (err != OK) {
+        goto failed;
+    }
+
+    new_conf->listeners = listeners;
 
     if (file_init(file, fname, SYS_FILE_RDONLY,
                     SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
@@ -300,13 +276,7 @@ void config_fini(config_t *conf)
     if (conf->data) {
         free(conf->data);
     }
-    listener_t *temp1 = conf->listeners;
-    listener_t *temp2;
-    while (temp1) {
-        temp2 = temp1;
-        temp1 = temp1->next;
-        free(temp2);
-    }
+    listen_list_destroy(conf->listeners);
     free(conf);
     return;
 }

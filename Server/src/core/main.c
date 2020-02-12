@@ -48,17 +48,19 @@ int main(int argc, char const *argv[])
     }
 
 #if (SYSTEM_WINDOWS)
-    err = winsock_init();
+    err = winsock_init_v22();
     if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to initialize winsock");
+        fprintf(stderr, "%s\n", "Failed to initialize Winsock 2.2");
         goto error1;
     }
 #endif
 
-    err = open_listening_sockets(conf->listeners);
-    if (err != OK) {
-        fprintf(stderr, "%s\n", get_strerror(err));
-        goto error1;
+    for (listener_t *ls = conf->listeners->head; ls; ls = ls->next) {
+        err = listener_listen(ls);
+        if (err != OK) {
+            fprintf(stderr, "%s\n", get_strerror(err));
+            goto error1;
+        }
     }
 
     // err = log_init(conf->logfile, conf->log);
@@ -84,12 +86,11 @@ int main(int argc, char const *argv[])
      * 
      */
 
-
     single_process_cycle(conf);
 
     return 0;
 
-    close_listening_sockets(conf->listeners);
+    listen_list_destroy(conf->listeners);
 error1:
     config_fini(conf);
 error0:

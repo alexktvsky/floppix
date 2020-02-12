@@ -119,7 +119,7 @@ int socket_blocking(socket_t s)
 }
 
 
-int winsock_init(void)
+int winsock_init_v22(void)
 {
     WSADATA data;
     WORD version_requested = MAKEWORD(2, 2);

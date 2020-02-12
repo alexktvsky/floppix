@@ -39,7 +39,9 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize);
 #define ERR_NET_TCP_BLOCK          (ERR_NET+7)
 #define ERR_NET_LISTEN             (ERR_NET+8)
 #define ERR_NET_ACCEPT             (ERR_NET+9)
-#define ERR_NET_IPV6               (ERR_NET+10)
+#define ERR_NET_GAI                (ERR_NET+10)
+#define ERR_NET_GSN                (ERR_NET+11)
+#define ERR_NET_GPN                (ERR_NET+12)
 
 #define ERR_MEM                    ERROR_DOMAIN(3)
 #define ERR_MEM_NULL_ADDR          (ERR_MEM+1)

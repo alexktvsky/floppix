@@ -29,11 +29,25 @@ void single_process_cycle(config_t *conf)
     struct timeval timeout;
     fd_set rfds;
     fd_set wfds;
-    listener_t *lisr;
+    listener_t *ls;
     connect_t *conn;
     int flag;
     socket_t fdmax;
     err_t err;
+
+    char str_ip[NI_MAXHOST]; // only for debug
+    char str_port[NI_MAXSERV]; // only for debug
+
+
+    /* Init connection lists for all listeners */
+    for (ls = conf->listeners->head; ls; ls = ls->next) {
+        err = conn_list_create(&ls->connects);
+        if (err != OK) {
+            fprintf(stderr, "conn_list_create() failed\n");
+            fprintf(stderr, "%s\n", get_strerror(err));
+            abort();
+        }
+    }
 
     while (1) {
 
@@ -42,15 +56,15 @@ void single_process_cycle(config_t *conf)
         FD_ZERO(&wfds);
 
         /* Add listening sockets to read array */
-        for (lisr = conf->listeners; lisr; lisr = lisr->next) {
-            FD_SET(lisr->fd, &rfds);
-            if (fdmax < lisr->fd) {
-                fdmax = lisr->fd;
+        for (ls = conf->listeners->head; ls; ls = ls->next) {
+            FD_SET(ls->fd, &rfds);
+            if (fdmax < ls->fd) {
+                fdmax = ls->fd;
             }
         }
         /* Add clients sockets to read array */
-        for (lisr = conf->listeners; lisr; lisr = lisr->next) {
-            for (conn = lisr->connects; conn; conn = conn->next) {
+        for (ls = conf->listeners->head; ls; ls = ls->next) {
+            for (conn = ls->connects->head; conn; conn = conn->next) {
                 FD_SET(conn->fd, &rfds);
                 if (fdmax < conn->fd) {
                     fdmax = conn->fd;
@@ -58,8 +72,8 @@ void single_process_cycle(config_t *conf)
             }
         }
         /* Add clients sockets to write array */
-        for (lisr = conf->listeners; lisr; lisr = lisr->next) {
-            for (conn = lisr->connects; conn; conn = conn->next) {
+        for (ls = conf->listeners->head; ls; ls = ls->next) {
+            for (conn = ls->connects->head; conn; conn = conn->next) {
                 if (!conn->want_to_write) {
                     continue;
                 }
@@ -90,26 +104,30 @@ void single_process_cycle(config_t *conf)
             printf("timeout\n");
         }
 
-        for (lisr = conf->listeners; lisr; lisr = lisr->next) {
+        for (ls = conf->listeners->head; ls; ls = ls->next) {
             /* Search listeners */
-            if (FD_ISSET(lisr->fd, &rfds)) {
-                printf("New connection %s:%d\n", lisr->ip, lisr->port);
-                err = create_and_accept_connection(lisr);
+            if (FD_ISSET(ls->fd, &rfds)) {
+
+                printf("New connection %s:%s\n", get_addr(str_ip, &ls->sockaddr),
+                                get_port(str_port, &ls->sockaddr));
+                err = conn_list_append(ls->connects, ls);
                 if (err != OK) {
-                    fprintf(stderr, "create_and_accept_connection() failed\n");
+                    fprintf(stderr, "conn_list_append() failed\n");
                     fprintf(stderr, "%s\n", get_strerror(err));
                     abort();
                 }
             }
             /* Search current listener connections */
-            for (conn = lisr->connects; conn; conn = conn->next) {
+            for (conn = ls->connects->head; conn; conn = conn->next) {
                 /* New data available to read from client */
                 if (FD_ISSET(conn->fd, &rfds)) {
-                    printf("new data from %d\n", get_connect_port(conn));
+                    printf("New data from %s:%s\n", get_addr(str_ip, &conn->sockaddr),
+                                get_port(str_port, &conn->sockaddr));
                 }
                 /* Client buffer available to write data */
                 if (FD_ISSET(conn->fd, &wfds)) {
-                    printf("wait data to %d\n", get_connect_port(conn));
+                    printf("Wait data to %s:%s\n", get_addr(str_ip, &conn->sockaddr),
+                                get_port(str_port, &conn->sockaddr));
                 }
             }
         }

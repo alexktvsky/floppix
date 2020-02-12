@@ -11,265 +11,504 @@
 #include "connection.h"
 
 
-static err_t open_tcp_socket(listener_t *listener)
+const char *get_addr(char *buf, struct sockaddr_storage *sockaddr)
+{
+    socklen_t addr_len = sizeof(struct sockaddr_storage);
+    if (getnameinfo((const struct sockaddr *)sockaddr, addr_len,
+                            buf, NI_MAXHOST, 0, 0, NI_NUMERICHOST) != 0) {
+        return NULL;
+    }
+    return buf;
+}
+
+const char *get_port(char *buf, struct sockaddr_storage *sockaddr)
+{
+    socklen_t addr_len = sizeof(struct sockaddr_storage);
+
+    if (getnameinfo((const struct sockaddr *)sockaddr, addr_len, NULL, 0,
+                    buf, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV) != 0) {
+        return NULL;
+    }
+    return buf;
+}
+
+
+err_t listen_list_create(listen_list_t **list)
+{
+    listen_list_t *new_list = malloc(sizeof(listen_list_t));
+    if (!new_list) {
+        return ERR_MEM_ALLOC;
+    }
+    memset(new_list, 0, sizeof(listen_list_t));
+    *list = new_list;
+    return OK;
+}
+
+err_t listen_list_append_ipv4(listen_list_t *list, const char *ip, const char *port)
 {
     err_t err;
-    socket_t new_fd;
-    sockaddr_t *new_sockaddr = NULL;
+    struct addrinfo hints;
+    struct addrinfo *result = NULL;
+    struct addrinfo *rp;
+    socket_t fd;
+    listener_t *new_ls = NULL;
 
-    new_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (new_fd == SYS_INVALID_SOCKET) {
-        err = ERR_NET_SOCKET;
-        goto failed;
-    }
-
-    new_sockaddr = malloc(sizeof(sockaddr_t));
-    if (!new_sockaddr) {
+    new_ls = malloc(sizeof(listener_t));
+    if (!new_ls) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
+    memset(new_ls, 0 ,sizeof(listener_t));
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = IPPROTO_TCP;
 
-    new_sockaddr->sockaddr_in.sin_family = AF_INET;
-    new_sockaddr->sockaddr_in.sin_port = htons(listener->port);
-    new_sockaddr->sockaddr_in.sin_addr.s_addr = inet_addr(listener->ip);
-    if (new_sockaddr->sockaddr_in.sin_addr.s_addr == INADDR_NONE) {
-        err = ERR_NET_ADDR;
+    if (getaddrinfo(ip, port, &hints, &result) != 0) {
+        err = ERR_NET_GAI;
         goto failed;
     }
 
-    if (tcp_nopush(new_fd) == -1) {
-        err = ERR_NET_TCP_NOPUSH;
-        goto failed;
-    }
-
-    if (socket_nonblocking(new_fd) == -1) {
-        err = ERR_NET_TCP_NONBLOCK;
-        goto failed;
-    }
-
-
-    if (bind(new_fd, (struct sockaddr *) &(new_sockaddr->sockaddr_in),
-                                            sizeof(struct sockaddr_in)) == -1) {
-        err = ERR_NET_BIND;
-        goto failed;
-    }
-
-    if (listen(new_fd, MAX_CONNECT_QUEUELEN) == -1) {
-        err = ERR_NET_LISTEN;
-        goto failed;
-    }
-
-    listener->fd = new_fd;
-    listener->sockaddr = new_sockaddr;
-    return OK;
-
-failed:
-    if (new_fd != SYS_INVALID_SOCKET) {
-        close_socket(new_fd);
-    }
-    if (new_sockaddr) {
-        free(new_sockaddr);
-    }
-    return err;
-}
-
-#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-static err_t open_tcp_socket_ipv6(listener_t *listener)
-{
-    err_t err;
-    socket_t new_fd;
-    sockaddr_t *new_sockaddr = NULL;
-
-    new_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-    if (new_fd == SYS_INVALID_SOCKET) {
-        err = ERR_NET_SOCKET;
-        goto failed;
-    }
-
-    new_sockaddr = malloc(sizeof(sockaddr_t));
-    if (!new_sockaddr) {
-        err = ERR_MEM_ALLOC;
-        goto failed;
-    }
-
-    new_sockaddr->sockaddr_in6.sin6_family = AF_INET6;
-    new_sockaddr->sockaddr_in6.sin6_port = htons(listener->port);
-    if (!inet_pton(AF_INET6, listener->ip,
-                (void *) new_sockaddr->sockaddr_in6.sin6_addr.s6_addr)) {
-        err = ERR_NET_ADDR;
-        goto failed;
-    }
-
-    if (tcp_nopush(new_fd) == -1) {
-        err = ERR_NET_TCP_NOPUSH;
-        goto failed;
-    }
-
-    if (socket_nonblocking(new_fd) == -1) {
-        err = ERR_NET_TCP_NONBLOCK;
-        goto failed;
-    }
-
-    if (bind(new_fd, (struct sockaddr *) &(new_sockaddr->sockaddr_in6),
-                                        sizeof(struct sockaddr_in6)) == -1) {
-        err = ERR_NET_BIND;
-        goto failed;
-    }
-
-    if (listen(new_fd, MAX_CONNECT_QUEUELEN) == -1) {
-        err = ERR_NET_LISTEN;
-        goto failed;
-    }
-
-    listener->fd = new_fd;
-    listener->sockaddr = new_sockaddr;
-    return OK;
-
-failed:
-    if (new_fd != SYS_INVALID_SOCKET) {
-        close_socket(new_fd);
-    }
-    if (new_sockaddr) {
-        free(new_sockaddr);
-    }
-    return err;
-}
-#elif (SYSTEM_WINDOWS)
-static err_t open_tcp_socket_ipv6(listener_t *listener)
-{
-    (void) listener;
-    return ERR_NET_IPV6;
-}
-#endif
-
-
-err_t open_listening_sockets(listener_t *listeners)
-{
-    err_t err;
-    listener_t *current = listeners;
-    while (current) {
-        if (current->is_ipv6) {
-            err = open_tcp_socket_ipv6(current);
+    for (rp = result; rp; rp = rp->ai_next) {
+        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (fd == SYS_INVALID_SOCKET) {
+            err = ERR_NET_SOCKET;
+            continue;
         }
+        if (tcp_nopush(fd) == -1) {
+            close_socket(fd);
+            err = ERR_NET_TCP_NOPUSH;
+            continue;
+        }
+        if (socket_nonblocking(fd) == -1) {
+            close_socket(fd);
+            err = ERR_NET_TCP_NONBLOCK;
+            continue;
+        }
+        if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
+            close_socket(fd);
+            err = ERR_NET_BIND;
+            continue;
+        }
+        /* Stop search, we found available address */
         else {
-            err = open_tcp_socket(current);
+            break;
         }
-        if (err != OK) {
-            /* If smth happens wrong close already opened sockets */
-            close_listening_sockets(listeners);
-            return err;
+    }
+    if (!rp) {
+        goto failed;
+    }
+
+    socklen_t addr_len = sizeof(struct sockaddr_storage);
+    if (getsockname(fd, (struct sockaddr *) &new_ls->sockaddr, &addr_len) != 0) {
+        err = ERR_NET_GSN;
+        goto failed;
+    }
+    new_ls->fd = fd;
+
+    /* Append to linked list */
+
+    /* If list is empty */
+    if (!list->head) {
+        list->head = new_ls;
+        new_ls->prev = NULL;
+    }
+    else {
+        list->tail->next = new_ls;
+        new_ls->prev = list->tail;
+    }
+    list->tail = new_ls;
+
+    new_ls->next = NULL;
+    list->size += 1;
+
+    freeaddrinfo(result);
+    return OK;
+
+failed:
+    if (new_ls) {
+        free(new_ls);
+    }
+    if (result) {
+        freeaddrinfo(result);
+    }
+    if (fd != SYS_INVALID_SOCKET) {
+        close_socket(fd);
+    }
+    return err;
+}
+
+err_t listen_list_append_ipv6(listen_list_t *list, const char *ip, const char *port)
+{
+    err_t err;
+    struct addrinfo hints;
+    struct addrinfo *result = NULL;
+    struct addrinfo *rp;
+    socket_t fd;
+    listener_t *new_ls = NULL;
+
+    new_ls = malloc(sizeof(listener_t));
+    if (!new_ls) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+    memset(new_ls, 0 ,sizeof(listener_t));
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET6;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if (getaddrinfo(ip, port, &hints, &result) != 0) {
+        err = ERR_NET_GAI;
+        goto failed;
+    }
+
+    for (rp = result; rp; rp = rp->ai_next) {
+        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (fd == SYS_INVALID_SOCKET) {
+            err = ERR_NET_SOCKET;
+            continue;
         }
-        current = current->next;
+        if (tcp_nopush(fd) == -1) {
+            close_socket(fd);
+            err = ERR_NET_TCP_NOPUSH;
+            continue;
+        }
+        if (socket_nonblocking(fd) == -1) {
+            close_socket(fd);
+            err = ERR_NET_TCP_NONBLOCK;
+            continue;
+        }
+        if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
+            close_socket(fd);
+            err = ERR_NET_BIND;
+            continue;
+        }
+        /* Stop search, we found available address */
+        else {
+            break;
+        }
+    }
+    if (!rp) {
+        goto failed;
+    }
+
+    socklen_t addr_len = sizeof(struct sockaddr_storage);
+    if (getsockname(fd, (struct sockaddr *) &new_ls->sockaddr, &addr_len) != 0) {
+        err = ERR_NET_GSN;
+        goto failed;
+    }
+    new_ls->fd = fd;
+
+    /* Append to linked list */
+
+    /* If list is empty */
+    if (!list->head) {
+        list->head = new_ls;
+        new_ls->prev = NULL;
+    }
+    else {
+        list->tail->next = new_ls;
+        new_ls->prev = list->tail;
+    }
+    list->tail = new_ls;
+
+    new_ls->next = NULL;
+    list->size += 1;
+
+    freeaddrinfo(result);
+    return OK;
+
+failed:
+    if (new_ls) {
+        free(new_ls);
+    }
+    if (result) {
+        freeaddrinfo(result);
+    }
+    if (fd != SYS_INVALID_SOCKET) {
+        close_socket(fd);
+    }
+    return err;
+}
+
+err_t listen_list_remove(listen_list_t *list, listener_t *ls) {
+    listener_t *temp1 = list->head;
+    listener_t *temp2 = list->tail;
+
+    /* If first element */
+    if (list->head == ls) {
+        list->head->next->prev = NULL;
+        list->head = list->head->next;
+        free(temp1);
+        list->size -= 1;
+        return OK;
+    }
+    /* If the last element */
+    else if (list->tail == ls) {
+        list->tail->prev->next = NULL;
+        list->tail = list->tail->prev;
+        free(temp2);
+        list->size -= 1;
+        return OK;
+    }
+    else {
+        temp1 = temp1->next; /* Fisrt element not suitable */
+        while (temp1 != ls) {
+            temp2 = temp1;
+            temp1 = temp1->next;
+            if (temp1 == list->tail) { /* Last element not suitable */
+                return ERR_FAILED;
+            }
+        }
+        temp1->next->prev = temp1->prev;
+        temp1->prev->next = temp1->next;
+        free(temp1);
+        list->size -= 1;
+        return OK;
+    }
+}
+
+void listen_list_clean(listen_list_t *list)
+{
+    listener_t *temp1 = list->head;
+    listener_t *temp2;
+    while (temp1) {
+        temp2 = temp1;
+        temp1 = temp1->next;
+        free(temp2);
+        list->size -= 1;
+    }
+    return;
+}
+
+void listen_list_destroy(listen_list_t *list)
+{
+    listen_list_clean(list);
+    free(list);
+    return;
+}
+
+
+err_t listener_listen(listener_t *ls)
+{
+    if (listen(ls->fd, MAX_CONNECT_QUEUELEN) == -1) {
+        return ERR_NET_LISTEN;
     }
     return OK;
 }
 
-
-static void close_tcp_socket(listener_t *listener)
+void listener_close(listener_t *ls)
 {
-    close_socket(listener->fd);
-    if (listener->sockaddr) {
-        free(listener->sockaddr);
+    if (ls->fd != SYS_INVALID_SOCKET) {
+        close_socket(ls->fd);
     }
+    ls->fd = SYS_INVALID_SOCKET;
     return;
 }
 
 
-void close_listening_sockets(listener_t *listeners)
-{
-    while (listeners) {
-        close_tcp_socket(listeners);
-        listeners = listeners->next;
+static void list_push_free(conn_list_t *list, connect_t *node) {
+    /* If list is empty */
+    if (!list->free) {
+        list->free = node;
+        node->prev = NULL;
     }
+    else {
+        list->free_tail->next = node;
+        node->prev = list->free_tail;
+    }
+    list->free_tail = node;
+
+    node->next = NULL;
+    list->nfree += 1;
     return;
 }
 
+static connect_t *list_pull_free(conn_list_t *list) {
+    connect_t *temp1 = list->free;
+    if (!list->free) {
+        return NULL;
+    }
+    if (list->free->next) {
+        list->free->next->prev = NULL;
+    }
+    list->free = list->free->next;
+    list->nfree -= 1;
+    return temp1;
+}
 
-err_t create_and_accept_connection(listener_t *listener)
+
+err_t conn_list_create(conn_list_t **list)
+{
+    conn_list_t *new_list = malloc(sizeof(conn_list_t));
+    if (!new_list) {
+        return ERR_MEM_ALLOC;
+    }
+    memset(new_list, 0, sizeof(conn_list_t));
+    *list = new_list;
+    return OK;
+}
+
+err_t conn_list_append(conn_list_t *list, listener_t *ls)
 {
     err_t err;
     socket_t new_fd;
     connect_t *new_conn = NULL;
-    sockaddr_t *new_sockaddr = NULL;
+    bool alloc_with_malloc;
 
-    new_conn = malloc(sizeof(connect_t));
-    if (!new_conn) {
-        err = ERR_MEM_ALLOC;
-        goto failed;
+    if (list->nfree > 0) {
+        new_conn = list_pull_free(list);
+        alloc_with_malloc = false;
     }
+    else {
+        new_conn = malloc(sizeof(listener_t));
+        alloc_with_malloc = true;
+    }
+    if (!new_conn) {
+        return ERR_MEM_ALLOC;
+    }
+
     memset(new_conn, 0, sizeof(connect_t));
 
-    new_sockaddr = malloc(sizeof(sockaddr_t));
-    if (!new_sockaddr) {
-        err = ERR_MEM_ALLOC;
-        goto failed;
-    }
-
-    socklen_t sockaddr_in_size = sizeof(struct sockaddr_in);
-    new_fd = accept(listener->fd,
-                            (struct sockaddr *) &(new_sockaddr->sockaddr_in),
-                                                            &sockaddr_in_size);
+    socklen_t addr_len = sizeof(struct sockaddr_in);
+    new_fd = accept(ls->fd,
+                            (struct sockaddr *) &new_conn->sockaddr,
+                                                            &addr_len);
     if (new_fd == SYS_INVALID_SOCKET) {
         err = ERR_NET_ACCEPT;
         goto failed;
     }
     new_conn->fd = new_fd;
-    new_conn->sockaddr = new_sockaddr;
-    new_conn->owner = listener;
-    new_conn->self = new_conn;
-    /* XXX: Have not to do it because we use memset()
-     * new_conn->next = NULL; */
+    new_conn->owner = ls;
 
-    /* If connection is first for this listener*/
-    if (!listener->connects) {
-        listener->connects = new_conn;
-        /* XXX: Have not to do it because we use memset()
-         * new_conn->prev = NULL; */
+    /* Append to the list */
+    /* If list is empty */
+    if (!list->head) {
+        list->head = new_conn;
+        new_conn->prev = NULL;
     }
-
-
-
-    // !!! TODO: SET PREV POINTER TO NODE !!!
-
-
-
-
-    /* Go to the end of list and add new connection */
     else {
-        connect_t *temp1 = listener->connects;
-        connect_t *temp2;
-        while (temp1) {
-            temp2 = temp1;
-            temp1 = temp1->next;
-        }
-        temp2->next = new_conn;
+        list->tail->next = new_conn;
+        new_conn->prev = list->tail;
     }
+    list->tail = new_conn;
+
+    new_conn->next = NULL;
+    list->size += 1;
+
     return OK;
 
 failed:
+    /* TODO: Is it correct? */
     if (new_conn) {
-        free(new_conn);
-    }
-    if (new_sockaddr) {
-        free(new_sockaddr);
+        if (alloc_with_malloc) {
+            free(new_conn);
+        }
+        else {
+            if (list->nfree < LIST_MAXFREE_NODES) {
+                list_push_free(list, new_conn);
+            }
+            else {
+                conn_list_remove(list, new_conn);
+            }
+        }
     }
     return err;
 }
 
-void destroy_and_close_connection(connect_t *conn)
+void connection_close(connect_t *cn)
 {
-    free(conn->sockaddr);
-    free(conn);
-
-    // !!! TODO: REMOVE FROM DOUBLE LINKED LIST !!!
-
+    if (cn->fd != SYS_INVALID_SOCKET) {
+        close_socket(cn->fd);
+    }
+    cn->fd = SYS_INVALID_SOCKET;
     return;
 }
 
-const char *get_connect_ip(connect_t *connect) {
-    return inet_ntoa(connect->sockaddr->sockaddr_in.sin_addr);
+err_t conn_list_remove(conn_list_t *list, connect_t *cn)
+{
+    connect_t *temp1 = list->head;
+    connect_t *temp2 = list->tail;
+
+    if (cn->fd != SYS_INVALID_SOCKET) {
+        close_socket(cn->fd);
+    }
+
+    /* If first element */
+    if (list->head == cn) {
+        if (list->head->next) {
+            list->head->next->prev = NULL;
+        }
+        list->head = list->head->next;
+        if (list->nfree < LIST_MAXFREE_NODES) {
+            list_push_free(list, temp1);
+        }
+        else {
+            free(temp1);
+        }
+        list->size -= 1;
+        return EXIT_SUCCESS;
+    }
+    /* If the last element */
+    else if (list->tail == cn) {
+        if (list->tail->prev) {
+            list->tail->prev->next = NULL;
+        }
+        list->tail = list->tail->prev;
+        if (list->nfree < LIST_MAXFREE_NODES) {
+            list_push_free(list, temp2);
+        }
+        else {
+            free(temp2);
+        }
+        list->size -= 1;
+        return EXIT_SUCCESS;
+    }
+    else {
+        temp1 = temp1->next; /* Fisrt element not suitable */
+        while (temp1 != cn) {
+            temp2 = temp1;
+            temp1 = temp1->next;
+            if (temp1 == list->tail) { /* Last element not suitable */
+                return EXIT_FAILURE;
+            }
+        }
+        temp1->next->prev = temp1->prev;
+        temp1->prev->next = temp1->next;
+        if (list->nfree < LIST_MAXFREE_NODES) {
+            list_push_free(list, temp1);
+        }
+        else {
+            free(temp1);
+        }
+        list->size -= 1;
+        return EXIT_SUCCESS;
+    }
 }
 
-uint16_t get_connect_port(connect_t *connect) {
-    return ntohs(connect->sockaddr->sockaddr_in.sin_port);
+
+void conn_list_clean(conn_list_t *list)
+{
+    connect_t *temp1 = list->head;
+    connect_t *temp2;
+
+    while (temp1) {
+        temp2 = temp1;
+        temp1 = temp1->next;
+        free(temp2);
+        list->size -= 1;
+    }
+    return;
 }
+
+void conn_list_destroy(conn_list_t *list)
+{
+    conn_list_clean(list);
+    free(list);
+    return;
+}
+
+
