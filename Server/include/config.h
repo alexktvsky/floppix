@@ -9,6 +9,7 @@ struct config_s {
     file_t *file;
     char *data;
     list_t *listeners;
+    list_t *free_connects; // linked list with free and available connections
     char *logfile;
     char *workdir;
     uint8_t loglevel;

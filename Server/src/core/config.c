@@ -230,7 +230,8 @@ err_t config_init(config_t **conf, const char *fname)
 {
     config_t *new_conf = NULL;
     file_t *new_file = NULL;
-    list_t *new_list;
+    list_t *listeners = NULL;
+    list_t *free_connects = NULL;
     err_t err;
 
     new_conf = malloc(sizeof(config_t));
@@ -246,12 +247,14 @@ err_t config_init(config_t **conf, const char *fname)
         goto failed;
     }
 
-    err = list_create(&new_list);
+    err = list_create(&listeners);
     if (err != OK) {
         goto failed;
     }
-
-    new_conf->listeners = new_list;
+    err = list_create(&free_connects);
+    if (err != OK) {
+        goto failed;
+    }
 
     if (file_init(new_file, fname, SYS_FILE_RDONLY,
                     SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
@@ -260,6 +263,8 @@ err_t config_init(config_t **conf, const char *fname)
     }
 
     new_conf->file = new_file;
+    new_conf->listeners = listeners;
+    new_conf->free_connects = free_connects;
 
     config_set_default_params(new_conf);
 
@@ -279,6 +284,12 @@ failed:
     if (new_file) {
         free(new_file);
     }
+    if (listeners) {
+        list_destroy(listeners);
+    }
+    if (free_connects) {
+        list_destroy(free_connects);
+    }
     return err;
 }
 
@@ -294,6 +305,7 @@ void config_fini(config_t *conf)
     }
     // Do we need clean listeners in list? */
     list_destroy(conf->listeners);
+    list_destroy(conf->free_connects);
     free(conf);
     return;
 }
