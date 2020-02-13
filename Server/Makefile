@@ -2,6 +2,7 @@ BIN_FILE = server
 
 SRC_FILES += main.c
 SRC_FILES += errors.c
+SRC_FILES += cycle.c
 # SRC_FILES += syslog.c
 SRC_FILES += config.c
 SRC_FILES += connection.c
@@ -9,8 +10,11 @@ SRC_FILES += mempool.c
 SRC_FILES += list.c
 SRC_FILES += files.c
 SRC_FILES += process.c
-SRC_FILES += cycle.c
 SRC_FILES += sockets.c
+SRC_FILES += event_connect.c
+SRC_FILES += event_read.c
+SRC_FILES += event_write.c
+SRC_FILES += event_timer.c
 
 CC = gcc
 
@@ -43,7 +47,7 @@ endif
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
 
-VPATH := src/core src/os
+VPATH := src/core src/event src/os
 
 #.ONESHELL:
 .PHONY: build debug test docs

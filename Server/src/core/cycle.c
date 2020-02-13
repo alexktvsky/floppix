@@ -23,7 +23,7 @@
 #include "syslog.h"
 #include "config.h"
 #include "cycle.h"
-
+#include "events.h"
 
 
 socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
@@ -72,72 +72,6 @@ socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 }
 
 
-
-err_t handle_new_connection(config_t *conf, connect_t *cn, listener_t *ls)
-{
-    err_t err;
-
-    char str_ip[NI_MAXHOST]; // only for debug
-    char str_port[NI_MAXSERV]; // only for debug
-
-    printf("New connection %s:%s\n",
-        get_addr(str_ip, &ls->sockaddr),
-        get_port(str_port, &ls->sockaddr));
-
-    listnode_t *temp = list_first(conf->free_connects);
-
-    /* XXX: If free_connects list is empty */
-    if (!temp) {
-        err = connection_create(&cn);
-        if (err != OK) {
-            goto failed;
-        }
-    }
-    else {
-        cn = list_data(temp);
-    }
-    err = connection_accept(cn, ls);
-    if (err != OK) {
-        goto failed;
-    }
-
-    err = list_append(ls->connects, cn);
-    if (err != OK) {
-        goto failed;
-    }
-    return OK;
-
-failed:
-    return err;
-}
-
-err_t handle_input_data(config_t *conf, connect_t *cn, listener_t *ls)
-{
-    (void) conf, ls;
-    char str_ip[NI_MAXHOST]; // only for debug
-    char str_port[NI_MAXSERV]; // only for debug
-
-    printf("New data from %s:%s\n",
-        get_addr(str_ip, &cn->sockaddr),
-        get_port(str_port, &cn->sockaddr));
-
-    return OK;
-}
-
-err_t handle_output_data(config_t *conf, connect_t *cn, listener_t *ls)
-{
-    (void) conf, ls;
-    char str_ip[NI_MAXHOST]; // only for debug
-    char str_port[NI_MAXSERV]; // only for debug
-
-    printf("Wait data to %s:%s\n",
-        get_addr(str_ip, &cn->sockaddr),
-        get_port(str_port, &cn->sockaddr));
-
-    return OK;
-}
-
-
 void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
     listener_t *ls;
@@ -151,9 +85,9 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
         /* Search listeners */
         ls = (listener_t *)list_data(i);
         if (FD_ISSET(ls->fd, rfds)) {
-            err = handle_new_connection(conf, cn, ls);
+            err = event_connect(conf, cn, ls);
             if (err != OK) {
-                fprintf(stderr, "handle_new_connection() failed\n");
+                fprintf(stderr, "event_connect() failed\n");
                 fprintf(stderr, "%s\n", get_strerror(err));
                 abort();
             }
@@ -164,26 +98,25 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             /* New data available to read from client */
             cn = (connect_t *)list_data(j);
             if (FD_ISSET(cn->fd, rfds)) {
-                err = handle_input_data(conf, cn, ls);
+                err = event_read(conf, cn, ls);
                 if (err != OK) {
-                    fprintf(stderr, "handle_input_data() failed\n");
+                    fprintf(stderr, "event_read() failed\n");
                     fprintf(stderr, "%s\n", get_strerror(err));
                     abort();
                 }
-
-
             }
             /* Client buffer available to write data */
             if (FD_ISSET(cn->fd, wfds)) {
-                err = handle_output_data(conf, cn, ls);
+                err = event_write(conf, cn, ls);
                 if (err != OK) {
-                    fprintf(stderr, "handle_output_data() failed\n");
+                    fprintf(stderr, "event_write() failed\n");
                     fprintf(stderr, "%s\n", get_strerror(err));
                     abort();
                 }
             }
         }
     }
+    return;
 }
 
 
@@ -214,7 +147,7 @@ void single_process_cycle(config_t *conf)
             }
         }
         else if (!flag) {
-            printf("timeout\n");
+            event_timer(conf);
         }
 
         else {
