@@ -8,6 +8,7 @@
 #include "errors.h"
 #include "sockets.h"
 #include "mempool.h"
+#include "list.h"
 #include "connection.h"
 
 
@@ -33,32 +34,28 @@ const char *get_port(char *buf, struct sockaddr_storage *sockaddr)
 }
 
 
-err_t listen_list_create(listen_list_t **list)
+err_t listener_create_ipv4(listener_t **ls, const char *ip, const char *port)
 {
-    listen_list_t *new_list = malloc(sizeof(listen_list_t));
-    if (!new_list) {
-        return ERR_MEM_ALLOC;
-    }
-    memset(new_list, 0, sizeof(listen_list_t));
-    *list = new_list;
-    return OK;
-}
-
-err_t listen_list_append_ipv4(listen_list_t *list, const char *ip, const char *port)
-{
-    err_t err;
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    socket_t fd;
+    socket_t fd = SYS_INVALID_SOCKET;
     listener_t *new_ls = NULL;
+    list_t *new_connects = NULL;
+    err_t err;
 
     new_ls = malloc(sizeof(listener_t));
     if (!new_ls) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
-    memset(new_ls, 0 ,sizeof(listener_t));
+    memset(new_ls, 0, sizeof(listener_t));
+
+    err = list_create(&new_connects);
+    if (err != OK) {
+        goto failed;
+    }
+
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -106,24 +103,10 @@ err_t listen_list_append_ipv4(listen_list_t *list, const char *ip, const char *p
         goto failed;
     }
     new_ls->fd = fd;
-
-    /* Append to linked list */
-
-    /* If list is empty */
-    if (!list->head) {
-        list->head = new_ls;
-        new_ls->prev = NULL;
-    }
-    else {
-        list->tail->next = new_ls;
-        new_ls->prev = list->tail;
-    }
-    list->tail = new_ls;
-
-    new_ls->next = NULL;
-    list->size += 1;
-
+    new_ls->connects = new_connects;
     freeaddrinfo(result);
+
+    *ls = new_ls;
     return OK;
 
 failed:
@@ -136,24 +119,40 @@ failed:
     if (fd != SYS_INVALID_SOCKET) {
         close_socket(fd);
     }
+    if (new_connects) {
+        list_destroy(new_connects);
+    }
     return err;
 }
 
-err_t listen_list_append_ipv6(listen_list_t *list, const char *ip, const char *port)
+err_t listener_create_ipv6(listener_t **ls, const char *ip, const char *port)
 {
-    err_t err;
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    socket_t fd;
+    socket_t fd = SYS_INVALID_SOCKET;
     listener_t *new_ls = NULL;
+    list_t *new_connects = NULL;
+    list_t *new_free_connects = NULL;
+    err_t err;
 
     new_ls = malloc(sizeof(listener_t));
     if (!new_ls) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
-    memset(new_ls, 0 ,sizeof(listener_t));
+    memset(new_ls, 0, sizeof(listener_t));
+
+    err = list_create(&new_connects);
+    if (err != OK) {
+        goto failed;
+    }
+
+    err = list_create(&new_free_connects);
+    if (err != OK) {
+        goto failed;
+    }
+
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
@@ -201,24 +200,10 @@ err_t listen_list_append_ipv6(listen_list_t *list, const char *ip, const char *p
         goto failed;
     }
     new_ls->fd = fd;
-
-    /* Append to linked list */
-
-    /* If list is empty */
-    if (!list->head) {
-        list->head = new_ls;
-        new_ls->prev = NULL;
-    }
-    else {
-        list->tail->next = new_ls;
-        new_ls->prev = list->tail;
-    }
-    list->tail = new_ls;
-
-    new_ls->next = NULL;
-    list->size += 1;
-
+    new_ls->connects = new_connects;
     freeaddrinfo(result);
+
+    *ls = new_ls;
     return OK;
 
 failed:
@@ -233,64 +218,6 @@ failed:
     }
     return err;
 }
-
-err_t listen_list_remove(listen_list_t *list, listener_t *ls) {
-    listener_t *temp1 = list->head;
-    listener_t *temp2 = list->tail;
-
-    /* If first element */
-    if (list->head == ls) {
-        list->head->next->prev = NULL;
-        list->head = list->head->next;
-        free(temp1);
-        list->size -= 1;
-        return OK;
-    }
-    /* If the last element */
-    else if (list->tail == ls) {
-        list->tail->prev->next = NULL;
-        list->tail = list->tail->prev;
-        free(temp2);
-        list->size -= 1;
-        return OK;
-    }
-    else {
-        temp1 = temp1->next; /* Fisrt element not suitable */
-        while (temp1 != ls) {
-            temp2 = temp1;
-            temp1 = temp1->next;
-            if (temp1 == list->tail) { /* Last element not suitable */
-                return ERR_FAILED;
-            }
-        }
-        temp1->next->prev = temp1->prev;
-        temp1->prev->next = temp1->next;
-        free(temp1);
-        list->size -= 1;
-        return OK;
-    }
-}
-
-void listen_list_clean(listen_list_t *list)
-{
-    listener_t *temp1 = list->head;
-    listener_t *temp2;
-    while (temp1) {
-        temp2 = temp1;
-        temp1 = temp1->next;
-        free(temp2);
-        list->size -= 1;
-    }
-    return;
-}
-
-void listen_list_destroy(listen_list_t *list)
-{
-    listen_list_clean(list);
-    free(list);
-    return;
-}
-
 
 err_t listener_listen(listener_t *ls)
 {
@@ -309,114 +236,52 @@ void listener_close(listener_t *ls)
     return;
 }
 
-
-static void list_push_free(conn_list_t *list, connect_t *node) {
-    /* If list is empty */
-    if (!list->free) {
-        list->free = node;
-        node->prev = NULL;
-    }
-    else {
-        list->free_tail->next = node;
-        node->prev = list->free_tail;
-    }
-    list->free_tail = node;
-
-    node->next = NULL;
-    list->nfree += 1;
+void listener_clean(listener_t *ls)
+{
+    (void) ls;
+    // What we need to do?
     return;
 }
 
-static connect_t *list_pull_free(conn_list_t *list) {
-    connect_t *temp1 = list->free;
-    if (!list->free) {
-        return NULL;
-    }
-    if (list->free->next) {
-        list->free->next->prev = NULL;
-    }
-    list->free = list->free->next;
-    list->nfree -= 1;
-    return temp1;
+void listener_destroy(listener_t *ls)
+{
+    (void) ls;
+    // for (listnode_t *n = list_first(ls->connects); n; n = list_next(n)) {
+    //     connection_destroy(list_data(n));
+    // }
+    // list_destroy(ls->connects);
+    // free(ls)
+    return;
 }
 
-
-err_t conn_list_create(conn_list_t **list)
+err_t connection_create(connect_t **cn)
 {
-    conn_list_t *new_list = malloc(sizeof(conn_list_t));
-    if (!new_list) {
+    connect_t *new_cn = NULL;
+
+    new_cn = malloc(sizeof(connect_t));
+    if (!new_cn) {
         return ERR_MEM_ALLOC;
     }
-    memset(new_list, 0, sizeof(conn_list_t));
-    *list = new_list;
+    memset(new_cn, 0, sizeof(connect_t));
+    *cn = new_cn;
     return OK;
 }
 
-err_t conn_list_append(conn_list_t *list, listener_t *ls)
+
+err_t connection_accept(connect_t *cn, listener_t *ls)
 {
-    err_t err;
     socket_t new_fd;
-    connect_t *new_conn = NULL;
-    bool alloc_with_malloc;
-
-    if (list->nfree > 0) {
-        new_conn = list_pull_free(list);
-        alloc_with_malloc = false;
-    }
-    else {
-        new_conn = malloc(sizeof(listener_t));
-        alloc_with_malloc = true;
-    }
-    if (!new_conn) {
-        return ERR_MEM_ALLOC;
-    }
-
-    memset(new_conn, 0, sizeof(connect_t));
 
     socklen_t addr_len = sizeof(struct sockaddr_in);
     new_fd = accept(ls->fd,
-                            (struct sockaddr *) &new_conn->sockaddr,
-                                                            &addr_len);
+                        (struct sockaddr *) &cn->sockaddr,
+                                                    &addr_len);
     if (new_fd == SYS_INVALID_SOCKET) {
-        err = ERR_NET_ACCEPT;
-        goto failed;
+        return ERR_NET_ACCEPT;
     }
-    new_conn->fd = new_fd;
-    new_conn->owner = ls;
-
-    /* Append to the list */
-    /* If list is empty */
-    if (!list->head) {
-        list->head = new_conn;
-        new_conn->prev = NULL;
-    }
-    else {
-        list->tail->next = new_conn;
-        new_conn->prev = list->tail;
-    }
-    list->tail = new_conn;
-
-    new_conn->next = NULL;
-    list->size += 1;
-
+    cn->fd = new_fd;
+    cn->owner = ls;
     return OK;
-
-failed:
-    /* TODO: Is it correct? */
-    if (new_conn) {
-        if (alloc_with_malloc) {
-            free(new_conn);
-        }
-        else {
-            if (list->nfree < LIST_MAXFREE_NODES) {
-                list_push_free(list, new_conn);
-            }
-            else {
-                conn_list_remove(list, new_conn);
-            }
-        }
-    }
-    return err;
 }
 
 void connection_close(connect_t *cn)
@@ -427,88 +292,4 @@ void connection_close(connect_t *cn)
     cn->fd = SYS_INVALID_SOCKET;
     return;
 }
-
-err_t conn_list_remove(conn_list_t *list, connect_t *cn)
-{
-    connect_t *temp1 = list->head;
-    connect_t *temp2 = list->tail;
-
-    if (cn->fd != SYS_INVALID_SOCKET) {
-        close_socket(cn->fd);
-    }
-
-    /* If first element */
-    if (list->head == cn) {
-        if (list->head->next) {
-            list->head->next->prev = NULL;
-        }
-        list->head = list->head->next;
-        if (list->nfree < LIST_MAXFREE_NODES) {
-            list_push_free(list, temp1);
-        }
-        else {
-            free(temp1);
-        }
-        list->size -= 1;
-        return EXIT_SUCCESS;
-    }
-    /* If the last element */
-    else if (list->tail == cn) {
-        if (list->tail->prev) {
-            list->tail->prev->next = NULL;
-        }
-        list->tail = list->tail->prev;
-        if (list->nfree < LIST_MAXFREE_NODES) {
-            list_push_free(list, temp2);
-        }
-        else {
-            free(temp2);
-        }
-        list->size -= 1;
-        return EXIT_SUCCESS;
-    }
-    else {
-        temp1 = temp1->next; /* Fisrt element not suitable */
-        while (temp1 != cn) {
-            temp2 = temp1;
-            temp1 = temp1->next;
-            if (temp1 == list->tail) { /* Last element not suitable */
-                return EXIT_FAILURE;
-            }
-        }
-        temp1->next->prev = temp1->prev;
-        temp1->prev->next = temp1->next;
-        if (list->nfree < LIST_MAXFREE_NODES) {
-            list_push_free(list, temp1);
-        }
-        else {
-            free(temp1);
-        }
-        list->size -= 1;
-        return EXIT_SUCCESS;
-    }
-}
-
-
-void conn_list_clean(conn_list_t *list)
-{
-    connect_t *temp1 = list->head;
-    connect_t *temp2;
-
-    while (temp1) {
-        temp2 = temp1;
-        temp1 = temp1->next;
-        free(temp2);
-        list->size -= 1;
-    }
-    return;
-}
-
-void conn_list_destroy(conn_list_t *list)
-{
-    conn_list_clean(list);
-    free(list);
-    return;
-}
-
 

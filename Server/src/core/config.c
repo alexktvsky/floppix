@@ -13,6 +13,7 @@
 
 #include "errors.h"
 #include "mempool.h"
+#include "list.h"
 #include "connection.h"
 #include "files.h"
 #include "syslog.h"
@@ -83,6 +84,8 @@ static err_t config_parse(config_t *conf)
     int offset = 0;
     err_t err;
 
+    listener_t *new_ls;
+
     fsize = file_size(conf->file);
     if (fsize == -1) {
         err = ERR_FILE_SIZE;
@@ -119,7 +122,11 @@ static err_t config_parse(config_t *conf)
             case PATTERN_LISTEN:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
 
-                err = listen_list_append_ipv4(conf->listeners, "0.0.0.0", FIRST_SUBSTR);
+                err = listener_create_ipv4(&new_ls, "0.0.0.0", FIRST_SUBSTR);
+                if (err != OK) {
+                    goto failed;
+                }
+                err = list_append(conf->listeners, new_ls);
                 if (err != OK) {
                     goto failed;
                 }
@@ -129,7 +136,11 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                err = listen_list_append_ipv4(conf->listeners, FIRST_SUBSTR, SECOND_SUBSTR);
+                err = listener_create_ipv4(&new_ls, FIRST_SUBSTR, SECOND_SUBSTR);
+                if (err != OK) {
+                    goto failed;
+                }
+                err = list_append(conf->listeners, new_ls);
                 if (err != OK) {
                     goto failed;
                 }
@@ -139,7 +150,11 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                err = listen_list_append_ipv6(conf->listeners, FIRST_SUBSTR, SECOND_SUBSTR);
+                err = listener_create_ipv6(&new_ls, FIRST_SUBSTR, SECOND_SUBSTR);
+                if (err != OK) {
+                    goto failed;
+                }
+                err = list_append(conf->listeners, new_ls);
                 if (err != OK) {
                     goto failed;
                 }
@@ -192,9 +207,10 @@ static err_t config_parse(config_t *conf)
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
-    for (listener_t *ls = conf->listeners->head; ls; ls = ls->next) {
-        printf("%s:%s\n", get_addr(str_ip, &ls->sockaddr),
-                                get_port(str_port, &ls->sockaddr));
+    for (listnode_t *n = list_first(conf->listeners); n; n = list_next(n)) {
+        printf("%s:%s\n",
+            get_addr(str_ip, &((listener_t *) list_data(n))->sockaddr),
+            get_port(str_port, &((listener_t *) list_data(n))->sockaddr));
     }
 
     return OK;
@@ -213,8 +229,8 @@ failed:
 err_t config_init(config_t **conf, const char *fname)
 {
     config_t *new_conf = NULL;
-    listen_list_t *listeners;
-    file_t *file = NULL;
+    file_t *new_file = NULL;
+    list_t *new_list;
     err_t err;
 
     new_conf = malloc(sizeof(config_t));
@@ -224,26 +240,26 @@ err_t config_init(config_t **conf, const char *fname)
     }
     memset(new_conf, 0, sizeof(config_t));
 
-    file = malloc(sizeof(file_t));
-    if (!file) {
+    new_file = malloc(sizeof(file_t));
+    if (!new_file) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
 
-    err = listen_list_create(&listeners);
+    err = list_create(&new_list);
     if (err != OK) {
         goto failed;
     }
 
-    new_conf->listeners = listeners;
+    new_conf->listeners = new_list;
 
-    if (file_init(file, fname, SYS_FILE_RDONLY,
+    if (file_init(new_file, fname, SYS_FILE_RDONLY,
                     SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
         err = ERR_FILE_OPEN;
         goto failed;
     }
 
-    new_conf->file = file;
+    new_conf->file = new_file;
 
     config_set_default_params(new_conf);
 
@@ -259,9 +275,9 @@ failed:
     if (new_conf) {
         free(new_conf);
     }
-    file_fini(file);
-    if (file) {
-        free(file);
+    file_fini(new_file);
+    if (new_file) {
+        free(new_file);
     }
     return err;
 }
@@ -276,7 +292,8 @@ void config_fini(config_t *conf)
     if (conf->data) {
         free(conf->data);
     }
-    listen_list_destroy(conf->listeners);
+    // Do we need clean listeners in list? */
+    list_destroy(conf->listeners);
     free(conf);
     return;
 }

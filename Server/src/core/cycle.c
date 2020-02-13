@@ -17,6 +17,7 @@
 
 #include "errors.h"
 #include "mempool.h"
+#include "list.h"
 #include "connection.h"
 #include "files.h"
 #include "syslog.h"
@@ -29,24 +30,29 @@ void single_process_cycle(config_t *conf)
     struct timeval timeout;
     fd_set rfds;
     fd_set wfds;
-    listener_t *ls;
-    connect_t *conn;
     int flag;
     socket_t fdmax;
+    socket_t fd;
     err_t err;
+
+    listener_t *ls;
+    connect_t *cn;
+    listnode_t *i;
+    listnode_t *j;
+    listnode_t *temp;
+
+    list_t *free_connects; // linked list with free and available connections
+
+
 
     char str_ip[NI_MAXHOST]; // only for debug
     char str_port[NI_MAXSERV]; // only for debug
 
-
-    /* Init connection lists for all listeners */
-    for (ls = conf->listeners->head; ls; ls = ls->next) {
-        err = conn_list_create(&ls->connects);
-        if (err != OK) {
-            fprintf(stderr, "conn_list_create() failed\n");
-            fprintf(stderr, "%s\n", get_strerror(err));
-            abort();
-        }
+    err = list_create(&free_connects);
+    if (err != OK) {
+        fprintf(stderr, "list_create() failed\n");
+        fprintf(stderr, "%s\n", get_strerror(err));
+        abort();
     }
 
     while (1) {
@@ -55,34 +61,36 @@ void single_process_cycle(config_t *conf)
         FD_ZERO(&rfds);
         FD_ZERO(&wfds);
 
-        /* Add listening sockets to read array */
-        for (ls = conf->listeners->head; ls; ls = ls->next) {
-            FD_SET(ls->fd, &rfds);
-            if (fdmax < ls->fd) {
-                fdmax = ls->fd;
+        for (i = list_first(conf->listeners); i; i = list_next(i)) {
+            /* Add listening sockets to read array */
+            fd = ((listener_t *)list_data(i))->fd;
+            FD_SET(fd, &rfds);
+            if (fdmax < fd) {
+                fdmax = fd;
             }
-        }
-        /* Add clients sockets to read array */
-        for (ls = conf->listeners->head; ls; ls = ls->next) {
-            for (conn = ls->connects->head; conn; conn = conn->next) {
-                FD_SET(conn->fd, &rfds);
-                if (fdmax < conn->fd) {
-                    fdmax = conn->fd;
+
+            j = list_first(((listener_t *)list_data(i))->connects);
+            for ( ; j; j = list_next(j)) {
+                /* Add clients sockets to read array */
+                cn = (connect_t *)list_data(j);
+                fd = cn->fd;
+                FD_SET(fd, &rfds);
+                if (fdmax < fd) {
+                    fdmax = fd;
                 }
-            }
-        }
-        /* Add clients sockets to write array */
-        for (ls = conf->listeners->head; ls; ls = ls->next) {
-            for (conn = ls->connects->head; conn; conn = conn->next) {
-                if (!conn->want_to_write) {
+
+                /* Add clients sockets to write array */
+                if (!cn->want_to_write) {
                     continue;
                 }
-                FD_SET(conn->fd, &wfds);
-                if (fdmax < conn->fd) {
-                    fdmax = conn->fd;
+                fd = cn->fd;
+                FD_SET(fd, &wfds);
+                if (fdmax < fd) {
+                    fdmax = fd;
                 }
             }
         }
+
 
         timeout.tv_sec = 10; // TODO: get value from config
         timeout.tv_usec = 0;
@@ -104,30 +112,58 @@ void single_process_cycle(config_t *conf)
             printf("timeout\n");
         }
 
-        for (ls = conf->listeners->head; ls; ls = ls->next) {
+        for (i = list_first(conf->listeners); i; i = list_next(i)) {
             /* Search listeners */
+            ls = (listener_t *)list_data(i);
             if (FD_ISSET(ls->fd, &rfds)) {
+                printf("New connection %s:%s\n",
+                    get_addr(str_ip, &ls->sockaddr),
+                    get_port(str_port, &ls->sockaddr));
 
-                printf("New connection %s:%s\n", get_addr(str_ip, &ls->sockaddr),
-                                get_port(str_port, &ls->sockaddr));
-                err = conn_list_append(ls->connects, ls);
+
+                temp = list_first(free_connects);
+
+                /* XXX: If free_connects list is empty */
+                if (!temp) {
+                    err = connection_create(&cn);
+                    if (err != OK) {
+                        fprintf(stderr, "connection_create() failed\n");
+                        fprintf(stderr, "%s\n", get_strerror(err));
+                        abort();
+                    }
+                }
+                else {
+                    cn = list_data(temp);
+                }
+                err = connection_accept(cn, ls);
                 if (err != OK) {
-                    fprintf(stderr, "conn_list_append() failed\n");
+                    fprintf(stderr, "connection_accept() failed\n");
+                    fprintf(stderr, "%s\n", get_strerror(err));
+                    abort();
+                }
+
+                err = list_append(ls->connects, cn);
+                if (err != OK) {
+                    fprintf(stderr, "list_append() failed\n");
                     fprintf(stderr, "%s\n", get_strerror(err));
                     abort();
                 }
             }
-            /* Search current listener connections */
-            for (conn = ls->connects->head; conn; conn = conn->next) {
+            /* Search from current listener connections */
+            j = list_first(((listener_t *)list_data(i))->connects);
+            for ( ; j; j = list_next(j)) {
                 /* New data available to read from client */
-                if (FD_ISSET(conn->fd, &rfds)) {
-                    printf("New data from %s:%s\n", get_addr(str_ip, &conn->sockaddr),
-                                get_port(str_port, &conn->sockaddr));
+                cn = (connect_t *)list_data(j);
+                if (FD_ISSET(cn->fd, &rfds)) {
+                    printf("New data from %s:%s\n",
+                        get_addr(str_ip, &cn->sockaddr),
+                        get_port(str_port, &cn->sockaddr));
                 }
                 /* Client buffer available to write data */
-                if (FD_ISSET(conn->fd, &wfds)) {
-                    printf("Wait data to %s:%s\n", get_addr(str_ip, &conn->sockaddr),
-                                get_port(str_port, &conn->sockaddr));
+                if (FD_ISSET(cn->fd, &wfds)) {
+                    printf("Wait data to %s:%s\n",
+                        get_addr(str_ip, &cn->sockaddr),
+                        get_port(str_port, &cn->sockaddr));
                 }
             }
         }

@@ -7,6 +7,7 @@
 #include "syshead.h"
 #include "errors.h"
 #include "mempool.h"
+#include "list.h"
 #include "connection.h"
 #include "files.h"
 #include "syslog.h"
@@ -35,6 +36,14 @@ int main(int argc, char const *argv[])
     config_t *conf;
     err_t err;
 
+#if (SYSTEM_WINDOWS)
+    err = winsock_init_v22();
+    if (err != OK) {
+        fprintf(stderr, "%s\n", "Failed to initialize Winsock 2.2");
+        goto error1;
+    }
+#endif
+
     err = parse_argv(argc, argv);
     if (err != OK) {
         fprintf(stderr, "%s\n", "Invalid input parameters");
@@ -47,16 +56,8 @@ int main(int argc, char const *argv[])
         goto error0;
     }
 
-#if (SYSTEM_WINDOWS)
-    err = winsock_init_v22();
-    if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to initialize Winsock 2.2");
-        goto error1;
-    }
-#endif
-
-    for (listener_t *ls = conf->listeners->head; ls; ls = ls->next) {
-        err = listener_listen(ls);
+    for (listnode_t *i = list_first(conf->listeners); i; i = list_next(i)) {
+        err = listener_listen(list_data(i));
         if (err != OK) {
             fprintf(stderr, "%s\n", get_strerror(err));
             goto error1;
@@ -90,7 +91,7 @@ int main(int argc, char const *argv[])
 
     return 0;
 
-    listen_list_destroy(conf->listeners);
+
 error1:
     config_fini(conf);
 error0:
