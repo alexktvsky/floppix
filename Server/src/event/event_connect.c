@@ -15,9 +15,10 @@
 #include "events.h"
 
 
-err_t event_connect(config_t *conf, connect_t *cn, listener_t *ls)
+err_t event_connect(config_t *conf, listener_t *ls)
 {
     err_t err;
+    connect_t *cn;
 
     char str_ip[NI_MAXHOST]; // only for debug
     char str_port[NI_MAXSERV]; // only for debug

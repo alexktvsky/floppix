@@ -14,9 +14,10 @@ struct config_s {
     char *workdir;
     uint8_t loglevel;
     size_t logsize;
+    log_t *log;
     char *cert;
     char *cert_key;
-    log_t *log;
+    int8_t priority; // signed value
 };
 
 

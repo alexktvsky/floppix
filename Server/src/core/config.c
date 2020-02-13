@@ -29,6 +29,7 @@
 #define PATTERN_WORKDIR             6
 #define PATTERN_SSL_CERT            7
 #define PATTERN_SSL_CERT_KEY        8
+#define PATTERN_PRIORITY            9
 
 
 #define FIRST_SUBSTR                (data + vector[2])
@@ -52,6 +53,7 @@ static void config_set_default_params(config_t *conf)
 
     conf->logsize = 0;
     conf->loglevel = 1;
+    conf->priority = 0;
     return;
 }
 
@@ -67,7 +69,8 @@ static err_t config_parse(config_t *conf)
         "(?<=logsize )\\s*([0-9]+)\n",
         "(?<=workdir )\\s*([\\S]+)\n",
         "(?<=ssl_certificate )\\s*([\\S]+)\n",
-        "(?<=ssl_certificate_key )\\s*([\\S]+)\n"
+        "(?<=ssl_certificate_key )\\s*([\\S]+)\n",
+        "(?<=priority )\\s*([0-9/-]+)\n"  // signed value
     };
 
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
@@ -189,6 +192,10 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->cert_key = FIRST_SUBSTR;
                 break;
+            case PATTERN_PRIORITY:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                conf->priority = (int8_t) atoi(FIRST_SUBSTR);
+                break;
             }
             offset = vector[1];
         }
@@ -204,6 +211,7 @@ static err_t config_parse(config_t *conf)
     printf("workdir = \"%s\"\n", conf->workdir);
     printf("ssl_certificate = \"%s\"\n", conf->cert);
     printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
+    printf("priority = \"%d\"\n", conf->priority);
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];

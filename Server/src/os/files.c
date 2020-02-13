@@ -169,11 +169,13 @@ ssize_t write_fd(fd_t fd, void *buf, size_t size)
 
 #endif
 
-ssize_t write_stdout(const char *str) {
+ssize_t write_stdout(const char *str)
+{
     return write_fd(SYS_STDOUT, (void *) str, strlen(str));
 }
 
-ssize_t write_stderr(const char *str) {
+ssize_t write_stderr(const char *str)
+{
     return write_fd(SYS_STDERR, (void *) str, strlen(str));
 }
 

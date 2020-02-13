@@ -40,17 +40,17 @@ socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 
     for (i = list_first(conf->listeners); i; i = list_next(i)) {
         /* Add listening sockets to read array */
-        ls = (listener_t *)list_data(i);
+        ls = (listener_t *) list_data(i);
         fd = ls->fd;
         FD_SET(fd, rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
 
-        j = list_first(((listener_t *)list_data(i))->connects);
+        j = list_first(ls->connects);
         for ( ; j; j = list_next(j)) {
             /* Add clients sockets to read array */
-            cn = (connect_t *)list_data(j);
+            cn = (connect_t *) list_data(j);
             fd = cn->fd;
             FD_SET(fd, rfds);
             if (fdmax < fd) {
@@ -83,9 +83,9 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 
     for (i = list_first(conf->listeners); i; i = list_next(i)) {
         /* Search listeners */
-        ls = (listener_t *)list_data(i);
+        ls = (listener_t *) list_data(i);
         if (FD_ISSET(ls->fd, rfds)) {
-            err = event_connect(conf, cn, ls);
+            err = event_connect(conf, ls);
             if (err != OK) {
                 fprintf(stderr, "event_connect() failed\n");
                 fprintf(stderr, "%s\n", get_strerror(err));
@@ -93,10 +93,10 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             }
         }
         /* Search from current listener connections */
-        j = list_first(((listener_t *)list_data(i))->connects);
+        j = list_first(ls->connects);
         for ( ; j; j = list_next(j)) {
             /* New data available to read from client */
-            cn = (connect_t *)list_data(j);
+            cn = (connect_t *) list_data(j);
             if (FD_ISSET(cn->fd, rfds)) {
                 err = event_read(conf, cn, ls);
                 if (err != OK) {
