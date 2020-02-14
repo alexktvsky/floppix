@@ -15,7 +15,6 @@ static const struct {
 
     /* ERR_NET domain */
     {ERR_NET_SOCKET,             "Failed to initialize socket"},
-    {ERR_NET_ADDR,               "IP address is not correct"},
     {ERR_NET_BIND,               "Failed to bind socket"},
     {ERR_NET_TCP_NOPUSH,         "Failed to set socket in no push mode"},
     {ERR_NET_TCP_PUSH,           "Failed to set socket in push mode"},

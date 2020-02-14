@@ -6,6 +6,7 @@ SRC_FILES += cycle.c
 # SRC_FILES += syslog.c
 SRC_FILES += config.c
 SRC_FILES += connection.c
+SRC_FILES += memory.c
 SRC_FILES += mempool.c
 SRC_FILES += list.c
 SRC_FILES += files.c

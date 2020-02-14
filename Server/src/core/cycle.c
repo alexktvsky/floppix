@@ -95,7 +95,6 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
         /* Search from current listener connections */
         j = list_first(ls->connects);
         for ( ; j; j = list_next(j)) {
-            /* New data available to read from client */
             cn = (connect_t *) list_data(j);
             if (FD_ISSET(cn->fd, rfds)) {
                 err = event_read(conf, cn, ls);
@@ -105,7 +104,6 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
                     abort();
                 }
             }
-            /* Client buffer available to write data */
             if (FD_ISSET(cn->fd, wfds)) {
                 err = event_write(conf, cn, ls);
                 if (err != OK) {
@@ -123,7 +121,8 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 
 void single_process_cycle(config_t *conf)
 {
-    struct timeval timeout;
+    struct timeval tv;
+    struct timeval *timeout;
     fd_set rfds;
     fd_set wfds;
     int flag;
@@ -132,10 +131,21 @@ void single_process_cycle(config_t *conf)
     while (1) {
 
         fdmax = select_events(conf, &rfds, &wfds);
-        timeout.tv_sec = 10; // TODO: get value from config
-        timeout.tv_usec = 0;
 
-        flag = select(fdmax + 1, &rfds, &wfds, NULL, &timeout);
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+        timeout = &tv;
+
+        // if (timer == 0) {
+        //     timeout = NULL;
+        // }
+        // else {
+        //     tv.tv_sec = (long) (timer / 1000);
+        //     tv.tv_usec = (long) ((timer % 1000) * 1000);
+        //     timeout = &tv;
+        // }
+
+        flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
 
         if (flag == -1) {
             if (errno != EINTR) {
