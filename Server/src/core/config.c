@@ -209,9 +209,9 @@ static err_t config_parse(config_t *conf)
     printf("loglevel = %d\n", conf->loglevel);
     printf("logsize = %ld\n", conf->logsize);
     printf("workdir = \"%s\"\n", conf->workdir);
+    printf("priority = \"%d\"\n", conf->priority);
     printf("ssl_certificate = \"%s\"\n", conf->cert);
     printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
-    printf("priority = \"%d\"\n", conf->priority);
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];

@@ -15,11 +15,11 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-err_t daemon_init(const char *workdir)
+err_t process_daemon_init(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
-        return ERR_FAILED;
+        return ERR_PROC_DAEMON;
     }
     /* Parent terminates */
     if (pid) {
@@ -27,22 +27,17 @@ err_t daemon_init(const char *workdir)
     }
     /* Become session leader */
     if (setsid() < 0) { 
-        return ERR_FAILED;
+        return ERR_PROC_DAEMON;
     }
 
     signal(SIGHUP, SIG_IGN);
 
     if ((pid = fork()) < 0) {
-        return ERR_FAILED;
+        return ERR_PROC_DAEMON;
     }
     /* 1th child terminates */
     if (pid) {
         exit(0);
-    }
-
-    /* Change the current working directory */
-    if ((chdir(workdir)) < 0) {
-        return ERR_FAILED;
     }
 
     /* Close off file descriptors */
@@ -58,13 +53,25 @@ err_t daemon_init(const char *workdir)
     return OK;
 }
 
+err_t process_set_workdir(const char *workdir)
+{
+    if ((chdir(workdir)) < 0) {
+        return ERR_PROC_WORKDIR;
+    }
+    return OK;
+}
+
+// err_t process_set_priority(int8_t prio) {}
+
+
+
 #elif (SYSTEM_WINDOWS)
-err_t daemon_init(const char *workdir)
+err_t process_daemon_init(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
-    
-    if (!SetCurrentDirectory(workdir)) {
-        return ERR_FAILED;
+
+    if (FreeConsole() == 0) {
+        return ERR_PROC_DAEMON;
     }
 
     _close(STDIN_FILENO);
@@ -77,4 +84,15 @@ err_t daemon_init(const char *workdir)
 
     return OK;
 }
+
+err_t process_set_workdir(const char *workdir)
+{
+    if (!SetCurrentDirectory(workdir)) {
+        return ERR_PROC_WORKDIR;
+    }
+    return OK;
+}
+
+// err_t process_set_priority(int8_t prio) {}
+
 #endif

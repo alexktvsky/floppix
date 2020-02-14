@@ -41,6 +41,10 @@ static const struct {
     {ERR_FILE_READ,              "Failed to read data from file"},
     {ERR_FILE_WRITE,             "Failed to write data to file"},
 
+    /* ERR_PROC domain */
+    {ERR_PROC_DAEMON,            "Failed to become background process"},
+    {ERR_PROC_WORKDIR,           "Failed to set process workdir"},
+
     {ERR_FAILED,                 "Default system error"},
     /* End of error list */
     {ERR_UNDEF_CODE,             "Undefined error code"}

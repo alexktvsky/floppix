@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
     err = winsock_init_v22();
     if (err != OK) {
         fprintf(stderr, "%s\n", "Failed to initialize Winsock 2.2");
-        goto error1;
+        goto error0;
     }
 #endif
 
@@ -56,6 +56,12 @@ int main(int argc, char const *argv[])
         goto error0;
     }
 
+    err = process_set_workdir(conf->workdir);
+    if (err != OK) {
+        fprintf(stderr, "%s\n", get_strerror(err));
+        goto error1;
+    }
+
     for (listnode_t *i = list_first(conf->listeners); i; i = list_next(i)) {
         err = listener_listen(list_data(i));
         if (err != OK) {
@@ -63,6 +69,8 @@ int main(int argc, char const *argv[])
             goto error1;
         }
     }
+
+
 
     // err = log_init(conf->logfile, conf->log);
     // if (err != OK) {
@@ -72,7 +80,7 @@ int main(int argc, char const *argv[])
 
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
-    // err = daemon_init(conf->workdir);
+    // err = process_daemon_init();
     // if (err != OK) {
     //     log_error(LOG_EMERG, "Failed to initialization daemon process", err);
     //     goto daemon_init_failed;

@@ -57,4 +57,9 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize);
 #define ERR_FILE_READ              (ERR_FILE+3)
 #define ERR_FILE_WRITE             (ERR_FILE+4)
 
+#define ERR_PROC                   ERROR_DOMAIN(6)
+#define ERR_PROC_DAEMON            (ERR_PROC+1)
+#define ERR_PROC_WORKDIR           (ERR_PROC+2)
+
+
 #endif /* INCLUDED_ERRORS_H */
