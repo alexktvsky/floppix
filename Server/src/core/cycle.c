@@ -29,28 +29,23 @@
 socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
     socket_t fd;
-    listener_t *ls;
-    connect_t *cn;
-    listnode_t *i;
-    listnode_t *j;
     socket_t fdmax = 0;
 
     FD_ZERO(rfds);
     FD_ZERO(wfds);
 
-    for (i = list_first(conf->listeners); i; i = list_next(i)) {
+    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
+                                    ls; ls = (listener_t *) list_next(ls)) {
         /* Add listening sockets to read array */
-        ls = (listener_t *) list_data(i);
         fd = ls->fd;
         FD_SET(fd, rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
 
-        j = list_first(ls->connects);
-        for ( ; j; j = list_next(j)) {
+        for (connect_t *cn = (connect_t *) list_first(ls->connects);
+                                    cn; cn = (connect_t *) list_next(cn)) {
             /* Add clients sockets to read array */
-            cn = (connect_t *) list_data(j);
             fd = cn->fd;
             FD_SET(fd, rfds);
             if (fdmax < fd) {
@@ -74,16 +69,11 @@ socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 
 void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
-    listener_t *ls;
-    connect_t *cn;
-    listnode_t *i;
-    listnode_t *j;
-
     err_t err;
 
-    for (i = list_first(conf->listeners); i; i = list_next(i)) {
+    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
+                                    ls; ls = (listener_t *) list_next(ls)) {
         /* Search listeners */
-        ls = (listener_t *) list_data(i);
         if (FD_ISSET(ls->fd, rfds)) {
             err = event_connect(conf, ls);
             if (err != OK) {
@@ -93,9 +83,8 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             }
         }
         /* Search from current listener connections */
-        j = list_first(ls->connects);
-        for ( ; j; j = list_next(j)) {
-            cn = (connect_t *) list_data(j);
+        for (connect_t *cn = (connect_t *) list_first(ls->connects);
+                                    cn; cn = (connect_t *) list_next(cn)) {
             if (FD_ISSET(cn->fd, rfds)) {
                 err = event_read(conf, cn, ls);
                 if (err != OK) {
@@ -116,7 +105,6 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     }
     return;
 }
-
 
 
 void single_process_cycle(config_t *conf)

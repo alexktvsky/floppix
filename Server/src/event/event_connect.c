@@ -18,7 +18,7 @@
 err_t event_connect(config_t *conf, listener_t *ls)
 {
     err_t err;
-    connect_t *cn;
+    connect_t *new_cn;
 
     char str_ip[NI_MAXHOST]; // only for debug
     char str_port[NI_MAXSERV]; // only for debug
@@ -27,24 +27,24 @@ err_t event_connect(config_t *conf, listener_t *ls)
         get_addr(str_ip, &ls->sockaddr),
         get_port(str_port, &ls->sockaddr));
 
-    listnode_t *temp = list_first(conf->free_connects);
+    connect_t *cn = (connect_t *) list_first(conf->free_connects);
 
     /* XXX: If free_connects list is empty */
-    if (!temp) {
-        err = connection_create(&cn);
+    if (!cn) {
+        err = connection_create(&new_cn);
         if (err != OK) {
             goto failed;
         }
     }
     else {
-        cn = list_data(temp);
+        new_cn = cn;
     }
-    err = connection_accept(cn, ls);
+    err = connection_accept(new_cn, ls);
     if (err != OK) {
         goto failed;
     }
 
-    err = list_append(ls->connects, cn);
+    err = list_append(ls->connects, new_cn);
     if (err != OK) {
         goto failed;
     }

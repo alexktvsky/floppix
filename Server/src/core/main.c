@@ -62,8 +62,9 @@ int main(int argc, char const *argv[])
         goto error1;
     }
 
-    for (listnode_t *i = list_first(conf->listeners); i; i = list_next(i)) {
-        err = listener_listen(list_data(i));
+    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
+                                    ls; ls = (listener_t *) list_next(ls)) {
+        err = listener_start_listen(ls);
         if (err != OK) {
             fprintf(stderr, "%s\n", get_strerror(err));
             goto error1;

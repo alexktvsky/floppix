@@ -8,12 +8,16 @@ typedef struct listener_s listener_t;
 typedef struct connect_s connect_t;
 
 struct listener_s {
+    listnode_t *next;
+    listnode_t *prev;
     socket_t fd;
     struct sockaddr_storage sockaddr;
     list_t *connects;
 };
 
 struct connect_s {
+    listnode_t *next;
+    listnode_t *prev;
     socket_t fd;
     struct sockaddr_storage sockaddr;
     listener_t *owner;
@@ -23,7 +27,7 @@ struct connect_s {
 
 err_t listener_create_ipv4(listener_t **ls, const char *ip, const char *port);
 err_t listener_create_ipv6(listener_t **ls, const char *ip, const char *port);
-err_t listener_listen(listener_t *ls);
+err_t listener_start_listen(listener_t *ls);
 void listener_close(listener_t *ls);
 void listener_clean(listener_t *ls); // delete all connections
 void listener_destroy(listener_t *ls);

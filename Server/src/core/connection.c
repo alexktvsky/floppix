@@ -219,7 +219,7 @@ failed:
     return err;
 }
 
-err_t listener_listen(listener_t *ls)
+err_t listener_start_listen(listener_t *ls)
 {
     if (listen(ls->fd, MAX_CONNECT_QUEUELEN) == -1) {
         return ERR_NET_LISTEN;

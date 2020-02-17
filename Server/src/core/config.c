@@ -215,10 +215,11 @@ static err_t config_parse(config_t *conf)
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
-    for (listnode_t *n = list_first(conf->listeners); n; n = list_next(n)) {
+    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
+                                    ls; ls = (listener_t *) list_next(ls)) {
         printf("%s:%s\n",
-            get_addr(str_ip, &((listener_t *) list_data(n))->sockaddr),
-            get_port(str_port, &((listener_t *) list_data(n))->sockaddr));
+            get_addr(str_ip, &(ls)->sockaddr),
+            get_port(str_port, &(ls)->sockaddr));
     }
 
     return OK;

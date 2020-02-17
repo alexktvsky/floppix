@@ -41,7 +41,7 @@ static const struct {
     {ERR_FILE_WRITE,             "Failed to write data to file"},
 
     /* ERR_PROC domain */
-    {ERR_PROC_DAEMON,            "Failed to become background process"},
+    {ERR_PROC_DAEMON,            "Failed to create server process"},
     {ERR_PROC_WORKDIR,           "Failed to set process workdir"},
 
     {ERR_FAILED,                 "Default system error"},
