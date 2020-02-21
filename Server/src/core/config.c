@@ -27,9 +27,10 @@
 #define PATTERN_LOGLEVEL            4
 #define PATTERN_LOGSIZE             5
 #define PATTERN_WORKDIR             6
-#define PATTERN_SSL_CERT            7
-#define PATTERN_SSL_CERT_KEY        8
-#define PATTERN_PRIORITY            9
+#define PATTERN_SSL_ON              7
+#define PATTERN_SSL_CERT            8
+#define PATTERN_SSL_CERT_KEY        9
+#define PATTERN_PRIORITY            10
 
 
 #define FIRST_SUBSTR                (data + vector[2])
@@ -68,6 +69,7 @@ static err_t config_parse(config_t *conf)
         "(?<=loglevel )\\s*([0-9]+)\n",
         "(?<=logsize )\\s*([0-9]+)\n",
         "(?<=workdir )\\s*([\\S]+)\n",
+        "(?<=ssl )\\s*([o,O,n,N]+)\n",
         "(?<=ssl_certificate )\\s*([\\S]+)\n",
         "(?<=ssl_certificate_key )\\s*([\\S]+)\n",
         "(?<=priority )\\s*([0-9/-]+)\n"  // signed value
@@ -183,6 +185,10 @@ static err_t config_parse(config_t *conf)
                 conf->workdir = FIRST_SUBSTR;
                 break;
 
+            case PATTERN_SSL_ON:
+                conf->use_ssl = true;
+                break;
+
             case PATTERN_SSL_CERT:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->cert = FIRST_SUBSTR;
@@ -192,6 +198,7 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->cert_key = FIRST_SUBSTR;
                 break;
+
             case PATTERN_PRIORITY:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 conf->priority = (int8_t) atoi(FIRST_SUBSTR);
@@ -210,6 +217,7 @@ static err_t config_parse(config_t *conf)
     printf("logsize = %ld\n", conf->logsize);
     printf("workdir = \"%s\"\n", conf->workdir);
     printf("priority = \"%d\"\n", conf->priority);
+    printf("ssl = \"%d\"\n", conf->use_ssl);
     printf("ssl_certificate = \"%s\"\n", conf->cert);
     printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
 

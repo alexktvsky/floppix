@@ -15,6 +15,7 @@ struct config_s {
     uint8_t loglevel;
     size_t logsize;
     log_t *log;
+    bool use_ssl;
     char *cert;
     char *cert_key;
     int8_t priority; // signed value
