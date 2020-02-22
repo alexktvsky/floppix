@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include "syshead.h"
 
@@ -19,8 +18,9 @@
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"
-#include "files.h"
-#include "syslog.h"
+#include "sys_files.h"
+#include "sys_errno.h"
+#include "log.h"
 #include "config.h"
 #include "cycle.h"
 #include "events.h"

@@ -9,10 +9,11 @@
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"
-#include "files.h"
-#include "syslog.h"
+#include "sys_files.h"
+#include "sys_errno.h"
+#include "log.h"
 #include "config.h"
-#include "process.h"
+#include "sys_process.h"
 #include "cycle.h"
 
 
@@ -39,7 +40,8 @@ int main(int argc, char const *argv[])
 #if (SYSTEM_WINDOWS)
     err = winsock_init_v22();
     if (err != OK) {
-        fprintf(stderr, "%s\n", "Failed to initialize Winsock 2.2");
+        fprintf(stderr, "%s: %s\n", "Failed to initialize Winsock 2.2",
+                                    sys_strerror(sys_get_errno));
         goto error0;
     }
 #endif
@@ -52,13 +54,15 @@ int main(int argc, char const *argv[])
 
     err = config_init(&conf, conf_file);
     if (err != OK) {
-        fprintf(stderr, "%s\n", get_strerror(err));
+        fprintf(stderr, "%s: %s\n", get_strerror(err),
+                                    sys_strerror(sys_get_errno));
         goto error0;
     }
 
     err = process_set_workdir(conf->workdir);
     if (err != OK) {
-        fprintf(stderr, "%s\n", get_strerror(err));
+        fprintf(stderr, "%s: %s\n", get_strerror(err),
+                                    sys_strerror(sys_get_errno));
         goto error1;
     }
 
@@ -66,7 +70,8 @@ int main(int argc, char const *argv[])
                                     ls; ls = (listener_t *) list_next(ls)) {
         err = listener_start_listen(ls);
         if (err != OK) {
-            fprintf(stderr, "%s\n", get_strerror(err));
+        fprintf(stderr, "%s: %s\n", get_strerror(err),
+                                    sys_strerror(sys_get_errno));
             goto error1;
         }
     }

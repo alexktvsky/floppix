@@ -6,7 +6,7 @@
 
 #include "syshead.h"
 #include "errors.h"
-#include "files.h"
+#include "sys_files.h"
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)

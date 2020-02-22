@@ -6,7 +6,7 @@
 
 #include "syshead.h"
 #include "errors.h"
-#include "sockets.h"
+#include "sys_sockets.h"
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"

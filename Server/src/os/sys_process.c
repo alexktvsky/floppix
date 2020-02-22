@@ -3,6 +3,7 @@
 
 #include "syshead.h"
 #include "errors.h"
+#include "sys_process.h"
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>

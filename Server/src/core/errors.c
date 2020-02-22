@@ -6,6 +6,8 @@
 #define ERR_UNDEF_CODE 0
 
 
+static const char *message_ok = "OK";
+
 static const struct {
     err_t code;
     const char *message;
@@ -49,21 +51,22 @@ static const struct {
     {ERR_UNDEF_CODE,             "Undefined error code"}
 };
 
-static const char *message_ok = "OK";
 
-
-void cpystrerror(err_t errcode, char *buf, size_t bufsize)
+size_t cpystrerror(err_t errcode, char *buf, size_t bufsize)
 {
     size_t len;
+    size_t n;
     if (errcode == ERR_OK) {
         len = strlen(message_ok);
         if (len > bufsize) {
             memmove(buf, message_ok, bufsize);
+            n = bufsize;
         }
         else {
             memmove(buf, message_ok, len);
+            n = len;
         }
-        return;
+        return n;
     }
     
     for (size_t i = 0; ; i++) {
@@ -72,16 +75,17 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize)
             len = strlen(error_list[i].message);
             if (len > bufsize) {
                 memmove(buf, error_list[i].message, bufsize);
+                n = bufsize;
             }
             else {
                 memmove(buf, error_list[i].message, len);
+                n = len;
             }
             break;
         }
     }
-    return;
+    return n;
 }
-
 
 const char *get_strerror(err_t errcode)
 {

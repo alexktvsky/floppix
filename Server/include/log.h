@@ -1,5 +1,5 @@
-#ifndef INCLUDED_SYSLOG_H
-#define INCLUDED_SYSLOG_H
+#ifndef INCLUDED_LOG_H
+#define INCLUDED_LOG_H
 
 #define LOG_EMERG   0
 #define LOG_ERROR   1
@@ -19,4 +19,4 @@ struct log_s {
 // void log_error(int level, const char *description, err_t errcode);
 
 
-#endif /* INCLUDED_SYSLOG_H */
+#endif /* INCLUDED_LOG_H */

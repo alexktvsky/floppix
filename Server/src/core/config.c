@@ -15,8 +15,8 @@
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"
-#include "files.h"
-#include "syslog.h"
+#include "sys_files.h"
+#include "log.h"
 #include "config.h"
 
 

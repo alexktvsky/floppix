@@ -1,7 +1,7 @@
 #ifndef INCLUDED_CONNECTION_H
 #define INCLUDED_CONNECTION_H
 
-#include "sockets.h"
+#include "sys_sockets.h"
 
 
 typedef struct listener_s listener_t;

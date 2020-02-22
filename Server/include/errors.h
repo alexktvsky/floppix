@@ -3,10 +3,6 @@
 
 #include <stddef.h>
 
-
-/* Type for specifying an error or status code */
-typedef int err_t;
-
 #define ERR_OK                     0
 #define ERR_FAILED                -1
 #define ERR_BUSY                  -2
@@ -20,11 +16,6 @@ typedef int err_t;
 #define ERROR_DOMAIN_BASE          100
 #define ERROR_DOMAIN(domain) (domain * ERROR_DOMAIN_BASE)
 #define SET_ERROR_DOMAIN(errcode) (errcode / ERROR_DOMAIN_BASE)
-
-
-const char *get_strerror(err_t errcode);
-void cpystrerror(err_t errcode, char *buf, size_t bufsize);
-
 
 #define ERR_CONF                   ERROR_DOMAIN(1)
 #define ERR_CONF_REGEX             (ERR_CONF+1)
@@ -60,5 +51,11 @@ void cpystrerror(err_t errcode, char *buf, size_t bufsize);
 #define ERR_PROC_DAEMON            (ERR_PROC+1)
 #define ERR_PROC_WORKDIR           (ERR_PROC+2)
 
+
+/* Type for specifying an error or status code */
+typedef int err_t;
+
+const char *get_strerror(err_t errcode);
+size_t cpystrerror(err_t errcode, char *buf, size_t bufsize);
 
 #endif /* INCLUDED_ERRORS_H */
