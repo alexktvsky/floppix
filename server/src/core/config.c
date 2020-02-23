@@ -93,7 +93,7 @@ static err_t config_parse(config_t *conf)
 
     fsize = file_size(conf->file);
     if (fsize == -1) {
-        err = ERR_FILE_SIZE;
+        err = ERR_CONF_SIZE;
         goto failed;
     }
 
@@ -105,7 +105,7 @@ static err_t config_parse(config_t *conf)
 
     bytes_read = file_read(conf->file, (uint8_t *) data, fsize, 0);
     if (bytes_read != fsize) {
-        err = ERR_FILE_READ;
+        err = ERR_CONF_READ;
         goto failed;
     }
     data[fsize] = '\0';
@@ -210,26 +210,6 @@ static err_t config_parse(config_t *conf)
     }
     conf->data = data;
 
-    /* TODO: Log server configuration */
-    printf("conffile = \"%s\"\n", conf->file->name);
-    printf("logfile = \"%s\"\n", conf->logfile);
-    printf("loglevel = %d\n", conf->loglevel);
-    printf("logsize = %ld\n", conf->logsize);
-    printf("workdir = \"%s\"\n", conf->workdir);
-    printf("priority = \"%d\"\n", conf->priority);
-    printf("ssl = \"%d\"\n", conf->use_ssl);
-    printf("ssl_certificate = \"%s\"\n", conf->cert);
-    printf("ssl_certificate_key = \"%s\"\n", conf->cert_key);
-
-    char str_ip[NI_MAXHOST];
-    char str_port[NI_MAXSERV];
-    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
-                                    ls; ls = (listener_t *) list_next(ls)) {
-        printf("%s:%s\n",
-            get_addr(str_ip, &(ls)->sockaddr),
-            get_port(str_port, &(ls)->sockaddr));
-    }
-
     return OK;
 
 failed:
@@ -275,7 +255,7 @@ err_t config_init(config_t **conf, const char *fname)
 
     if (file_init(new_file, fname, SYS_FILE_RDONLY,
                     SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
-        err = ERR_FILE_OPEN;
+        err = ERR_CONF_OPEN;
         goto failed;
     }
 

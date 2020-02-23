@@ -166,7 +166,6 @@ ssize_t write_fd(fd_t fd, void *buf, size_t size)
     }
     return -1;
 }
-
 #endif
 
 ssize_t write_stdout(const char *str)

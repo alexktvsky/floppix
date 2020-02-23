@@ -8,11 +8,13 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-const char *sys_strerror(sys_err_t err) {
+const char *sys_strerror(sys_err_t err)
+{
     return strerror(err);
 }
 
-size_t sys_cpystrerror(sys_err_t err, char *buf, size_t bufsize) {
+size_t sys_strerror_r(sys_err_t err, char *buf, size_t bufsize)
+{
     char *strerr = strerror(err);
     size_t len = strlen(strerr);
     size_t n;
@@ -29,13 +31,15 @@ size_t sys_cpystrerror(sys_err_t err, char *buf, size_t bufsize) {
 
 
 #elif (SYSTEM_WINDOWS)
-const char *sys_strerror(sys_err_t err) {
+const char *sys_strerror(sys_err_t err)
+{
     static _Thread_local char buf[1024];
-    sys_cpystrerror(err, buf, sizeof(buf));
+    sys_strerror_r(err, buf, sizeof(buf));
     return buf;
 }
 
-size_t sys_cpystrerror(sys_err_t err, char *buf, size_t bufsize) {
+size_t sys_strerror_r(sys_err_t err, char *buf, size_t bufsize)
+{
 
     static DWORD lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
     DWORD len;

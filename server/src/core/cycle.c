@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "syshead.h"
 
@@ -19,7 +20,6 @@
 #include "list.h"
 #include "connection.h"
 #include "sys_files.h"
-#include "sys_errno.h"
 #include "log.h"
 #include "config.h"
 #include "cycle.h"
@@ -78,7 +78,7 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             err = event_connect(conf, ls);
             if (err != OK) {
                 fprintf(stderr, "event_connect() failed\n");
-                fprintf(stderr, "%s\n", get_strerror(err));
+                fprintf(stderr, "%s\n", err_strerror(err));
                 abort();
             }
         }
@@ -89,7 +89,7 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
                 err = event_read(conf, cn, ls);
                 if (err != OK) {
                     fprintf(stderr, "event_read() failed\n");
-                    fprintf(stderr, "%s\n", get_strerror(err));
+                    fprintf(stderr, "%s\n", err_strerror(err));
                     abort();
                 }
             }
@@ -97,7 +97,7 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
                 err = event_write(conf, cn, ls);
                 if (err != OK) {
                     fprintf(stderr, "event_write() failed\n");
-                    fprintf(stderr, "%s\n", get_strerror(err));
+                    fprintf(stderr, "%s\n", err_strerror(err));
                     abort();
                 }
             }

@@ -20,6 +20,8 @@ SRC_FILES += event_timer.c
 
 CC = gcc
 
+INSTALL_DIR = /usr/local/bin
+
 CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -pipe
 build: CFLAGS += -g0 -s -O3 -DNDEBUG
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
@@ -37,19 +39,19 @@ ifeq ($(CC), clang)
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
+	CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	LDFLAGS += -lws2_32
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
+	CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	LDFLAGS += -lws2_32
 endif
-
-
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
 
-VPATH := src/core src/event src/os
+VPATH := src/core src/event src/sys
 
 #.ONESHELL:
 .PHONY: build debug test docs
@@ -76,20 +78,20 @@ obj/%.o: %.c
 	$(QUIET_CC) $(CC) -c $< -o $@ $(CFLAGS)
 
 install: mkdirs build
-	install bin/$(BIN_FILE) $(PREFIX)
+	install bin/$(BIN_FILE) $(INSTALL_DIR)
 
 uninstall:
-	rm -f $(PREFIX)/$(BIN_FILE)
+	rm -f $(INSTALL_DIR)/$(BIN_FILE)
 
 clean:
 	rm -f obj/*
 	rm -f bin/*
 
 mkdirs: 
-	@if [ ! -d bin ] ; then \
-		mkdir bin ; \
+	@if [ ! -d bin ]; then \
+		mkdir bin; \
 	fi
 
-	@if [ ! -d obj ] ; then \
-		mkdir obj ; \
+	@if [ ! -d obj ]; then \
+		mkdir obj; \
 	fi

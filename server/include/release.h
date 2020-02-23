@@ -1,0 +1,10 @@
+#ifndef INCLUDED_RELEASE_H
+#define INCLUDED_RELEASE_H
+
+#define SERVER_NAME "Server"
+#define SERVER_VERSION "1.0.0"
+#define SERVER_VERSION_INFO (SERVER_NAME " " SERVER_VERSION)
+
+#define get_version_info() (SERVER_VERSION_INFO)
+
+#endif /* INCLUDED_RELEASE_H */

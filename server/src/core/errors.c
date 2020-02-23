@@ -13,6 +13,9 @@ static const struct {
     const char *message;
 } error_list[] = {
     /* ERR_CONF domain */
+    {ERR_CONF_OPEN,              "Failed to open config file"},
+    {ERR_CONF_SIZE,              "Failed to determine config file size"},
+    {ERR_CONF_READ,              "Failed to read from config file"},
     {ERR_CONF_REGEX,             "Failed to compile regular expressions"},
 
     /* ERR_NET domain */
@@ -29,18 +32,21 @@ static const struct {
     {ERR_NET_GPN,                "Failed to get address of the peer connected to the socket"},
 
     /* ERR_MEM domain */
-    {ERR_MEM_NULL_ADDR,          "A null pointer dereference"},
+    {ERR_MEM_NULL,               "A null pointer dereference"},
     {ERR_MEM_ALLOC,              "Failed to allocate memory"},
     {ERR_MEM_INIT_POOL,          "Failed to initialize memory pool"},
 
     /* ERR_LOG domain */
-    {ERR_LOGSIZE,                "Size of log file is too small"},
+    {ERR_LOG_OPEN,               "Failed to open log file"},
+    {ERR_LOG_WRITE,              "Failed to write to log file"},
+    {ERR_LOG_MAXSIZE,            "Size of log file is too small"},
 
-    /* ERR_FILE domain */
-    {ERR_FILE_OPEN,              "Failed to open file"},
-    {ERR_FILE_SIZE,              "Failed to determine file size"},
-    {ERR_FILE_READ,              "Failed to read data from file"},
-    {ERR_FILE_WRITE,             "Failed to write data to file"},
+    /* ERR_SSL domain */
+    {ERR_SSL_INIT,               "Failed to initialize SSL library"},
+    {ERR_SSL_OPEN_CERT,          "Failed to open SSL certificate file"},
+    {ERR_SSL_READ_CERT,          "Failed to read from SSL certificate file"},
+    {ERR_SSL_OPEN_CERTKEY,       "Failed to open SSL certificate key file"},
+    {ERR_SSL_READ_CERTKEY,       "Failed to read from SSL certificate key file"},
 
     /* ERR_PROC domain */
     {ERR_PROC_DAEMON,            "Failed to create server process"},
@@ -52,7 +58,7 @@ static const struct {
 };
 
 
-size_t cpystrerror(err_t errcode, char *buf, size_t bufsize)
+size_t err_strerror_r(err_t errcode, char *buf, size_t bufsize)
 {
     size_t len;
     size_t n;
@@ -87,7 +93,7 @@ size_t cpystrerror(err_t errcode, char *buf, size_t bufsize)
     return n;
 }
 
-const char *get_strerror(err_t errcode)
+const char *err_strerror(err_t errcode)
 {
     if (errcode == ERR_OK) {
         return message_ok;
