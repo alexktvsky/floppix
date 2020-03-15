@@ -23,14 +23,15 @@
 #define PATTERN_LISTEN              0
 #define PATTERN_LISTEN4             1
 #define PATTERN_LISTEN6             2
-#define PATTERN_LOGFILE             3
-#define PATTERN_LOGLEVEL            4
-#define PATTERN_LOGSIZE             5
+#define PATTERN_LOG_FILE            3
+#define PATTERN_LOG_LEVEL           4
+#define PATTERN_LOG_SIZE            5
 #define PATTERN_WORKDIR             6
 #define PATTERN_SSL_ON              7
-#define PATTERN_SSL_CERT            8
-#define PATTERN_SSL_CERT_KEY        9
-#define PATTERN_PRIORITY            10
+#define PATTERN_SSL_OFF             8
+#define PATTERN_SSL_CERTFILE        9
+#define PATTERN_SSL_KEYFILE         10
+#define PATTERN_PRIORITY            11
 
 
 #define FIRST_SUBSTR                (data + vector[2])
@@ -45,15 +46,15 @@ static void config_set_default_params(config_t *conf)
 {
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
     conf->workdir = "/";
-    conf->logfile = "server.log";
+    conf->log_file = "server.log";
 
 #elif (SYSTEM_WINDOWS)
     conf->workdir = "C:\\";
-    conf->logfile = "server.log";
+    conf->log_file = "server.log";
 #endif
 
-    conf->logsize = 0;
-    conf->loglevel = 1;
+    conf->log_size = 0;
+    conf->log_level = 1;
     conf->priority = 0;
     return;
 }
@@ -65,13 +66,14 @@ static err_t config_parse(config_t *conf)
         "(?<=listen )\\s*([0-9]+)\n",
         "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
         "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",
-        "(?<=logfile )\\s*([\\S]+)\n",
-        "(?<=loglevel )\\s*([0-9]+)\n",
-        "(?<=logsize )\\s*([0-9]+)\n",
+        "(?<=log_file )\\s*([\\S]+)\n",
+        "(?<=log_level )\\s*([0-9]+)\n",
+        "(?<=log_size )\\s*([0-9]+)\n",
         "(?<=workdir )\\s*([\\S]+)\n",
-        "(?<=ssl )\\s*([o,O,n,N]+)\n",
-        "(?<=ssl_certificate )\\s*([\\S]+)\n",
-        "(?<=ssl_certificate_key )\\s*([\\S]+)\n",
+        "(?<=ssl )\\s*(on)\n",
+        "(?<=ssl )\\s*(off)\n",
+        "(?<=ssl_certfile )\\s*([\\S]+)\n",
+        "(?<=ssl_keyfile )\\s*([\\S]+)\n",
         "(?<=priority )\\s*([0-9/-]+)\n"  // signed value
     };
 
@@ -165,19 +167,19 @@ static err_t config_parse(config_t *conf)
                 }
                 break;
 
-            case PATTERN_LOGFILE:
+            case PATTERN_LOG_FILE:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->logfile = FIRST_SUBSTR;
+                conf->log_file = FIRST_SUBSTR;
                 break;
 
-            case PATTERN_LOGLEVEL:
+            case PATTERN_LOG_LEVEL:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->loglevel = (uint8_t) atoi(FIRST_SUBSTR);
+                conf->log_level = (uint8_t) atoi(FIRST_SUBSTR);
                 break;
 
-            case PATTERN_LOGSIZE:
+            case PATTERN_LOG_SIZE:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->logsize = (size_t) atoi(FIRST_SUBSTR);
+                conf->log_size = (size_t) atoi(FIRST_SUBSTR);
                 break;
 
             case PATTERN_WORKDIR:
@@ -186,17 +188,21 @@ static err_t config_parse(config_t *conf)
                 break;
 
             case PATTERN_SSL_ON:
-                conf->use_ssl = true;
+                conf->ssl_on = true;
                 break;
 
-            case PATTERN_SSL_CERT:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->cert = FIRST_SUBSTR;
+            case PATTERN_SSL_OFF:
+                conf->ssl_on = false;
                 break;
 
-            case PATTERN_SSL_CERT_KEY:
+            case PATTERN_SSL_CERTFILE:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->cert_key = FIRST_SUBSTR;
+                conf->ssl_certfile = FIRST_SUBSTR;
+                break;
+
+            case PATTERN_SSL_KEYFILE:
+                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                conf->ssl_keyfile = FIRST_SUBSTR;
                 break;
 
             case PATTERN_PRIORITY:

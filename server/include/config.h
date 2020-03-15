@@ -9,16 +9,16 @@ struct config_s {
     file_t *file;
     char *data;
     list_t *listeners;
-    list_t *free_connects; // linked list with free and available connections
-    char *logfile;
+    list_t *free_connects; // Linked list with free and available connections
     char *workdir;
-    uint8_t loglevel;
-    size_t logsize;
     log_t *log;
-    bool use_ssl;
-    char *cert;
-    char *cert_key;
-    int8_t priority; // signed value
+    char *log_file;
+    uint8_t log_level;
+    size_t log_size;
+    bool ssl_on;
+    char *ssl_certfile;
+    char *ssl_keyfile;
+    int8_t priority; // XXX: Signed value
 };
 
 

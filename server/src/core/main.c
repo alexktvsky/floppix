@@ -91,17 +91,27 @@ err_t parse_argv(int argc, char *const argv[])
 
 void show_config_info(config_t *conf)
 {
-    fprintf(stdout, "conffile: \"%s\"\n", conf->file->name);
-    fprintf(stdout, "logfile: \"%s\"\n", conf->logfile);
-    fprintf(stdout, "loglevel: %u\n", conf->loglevel);
-    fprintf(stdout, "logsize: %zu\n", conf->logsize);
+    fprintf(stdout, "conf_file: \"%s\"\n", conf->file->name);
+    fprintf(stdout, "log_file: \"%s\"\n", conf->log_file);
+    fprintf(stdout, "log_level: %u\n", conf->log_level);
+    fprintf(stdout, "log_size: %zu\n", conf->log_size);
     fprintf(stdout, "workdir: \"%s\"\n", conf->workdir);
     fprintf(stdout, "priority: %d\n", conf->priority);
 
-    if (conf->use_ssl) {
+    if (conf->ssl_on) {
         fprintf(stdout, "ssl: on\n");
-        fprintf(stdout, "ssl_certificate: \"%s\"\n", conf->cert);
-        fprintf(stdout, "ssl_certificate_key: \"%s\"\n", conf->cert_key);
+        if (conf->ssl_certfile) {
+            fprintf(stdout, "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
+        }
+        else {
+            fprintf(stdout, "WARNING: SSL certificate file is undefined\n");
+        }
+        if (conf->ssl_keyfile) {
+            fprintf(stdout, "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
+        }
+        else {
+            fprintf(stdout, "WARNING: SSL key file is undefined\n");
+        }
     }
     else {
         fprintf(stdout, "ssl: off\nWARNING: SSL is disable\n");

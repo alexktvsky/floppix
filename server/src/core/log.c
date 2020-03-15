@@ -10,7 +10,7 @@
 
 /*
  * TODO:
- * - LOG IS MUST BE NONBLOCKING
+ * - LOG MUST BE NONBLOCKING
  * - Save to log server configuration
  */
 
