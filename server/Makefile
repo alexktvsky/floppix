@@ -22,7 +22,8 @@ CC = gcc
 
 INSTALL_DIR = /usr/local/bin
 
-CFLAGS += -Iinclude -Wall -Wextra -Wuninitialized -pipe
+CFLAGS += -Iinclude
+CFLAGS += -Wall -Wextra -Wuninitialized -pipe
 build: CFLAGS += -g0 -s -O3 -DNDEBUG
 debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
