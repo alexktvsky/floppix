@@ -119,11 +119,10 @@ void show_config_info(config_t *conf)
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
-    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
-                                    ls; ls = (listener_t *) list_next(ls)) {
+    list_foreach(listener_t *, listener, conf->listeners) {
         fprintf(stdout, "listen: %s:%s\n",
-            get_addr(str_ip, &(ls)->sockaddr),
-            get_port(str_port, &(ls)->sockaddr));
+            get_addr(str_ip, &(listener)->sockaddr),
+            get_port(str_port, &(listener)->sockaddr));
     }
     return;
 }

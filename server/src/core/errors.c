@@ -98,7 +98,7 @@ const char *err_strerror(err_t errcode)
     if (errcode == ERR_OK) {
         return message_ok;
     }
-    for (size_t i = 0; ; i++) {      
+    for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
                     error_list[i].code == ERR_UNDEF_CODE) {
             return error_list[i].message;

@@ -34,29 +34,27 @@ socket_t select_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     FD_ZERO(rfds);
     FD_ZERO(wfds);
 
-    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
-                                    ls; ls = (listener_t *) list_next(ls)) {
+    list_foreach(listener_t *, listener, conf->listeners) {
         /* Add listening sockets to read array */
-        fd = ls->fd;
+        fd = listener->fd;
         FD_SET(fd, rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
 
-        for (connect_t *cn = (connect_t *) list_first(ls->connects);
-                                    cn; cn = (connect_t *) list_next(cn)) {
+        list_foreach(connect_t *, connect, listener->connects) {
             /* Add clients sockets to read array */
-            fd = cn->fd;
+            fd = connect->fd;
             FD_SET(fd, rfds);
             if (fdmax < fd) {
                 fdmax = fd;
             }
 
             /* Add clients sockets to write array */
-            if (!cn->want_to_write) {
+            if (!connect->want_to_write) {
                 continue;
             }
-            fd = cn->fd;
+            fd = connect->fd;
             FD_SET(fd, wfds);
             if (fdmax < fd) {
                 fdmax = fd;
@@ -71,11 +69,10 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
     err_t err;
 
-    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
-                                    ls; ls = (listener_t *) list_next(ls)) {
+    list_foreach(listener_t *, listener, conf->listeners) {
         /* Search listeners */
-        if (FD_ISSET(ls->fd, rfds)) {
-            err = event_connect(conf, ls);
+        if (FD_ISSET(listener->fd, rfds)) {
+            err = event_connect(conf, listener);
             if (err != OK) {
                 fprintf(stderr, "event_connect() failed\n");
                 fprintf(stderr, "%s\n", err_strerror(err));
@@ -83,18 +80,17 @@ void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             }
         }
         /* Search from current listener connections */
-        for (connect_t *cn = (connect_t *) list_first(ls->connects);
-                                    cn; cn = (connect_t *) list_next(cn)) {
-            if (FD_ISSET(cn->fd, rfds)) {
-                err = event_read(conf, cn, ls);
+        list_foreach(connect_t *, connect, listener->connects) {
+            if (FD_ISSET(connect->fd, rfds)) {
+                err = event_read(conf, connect, listener);
                 if (err != OK) {
                     fprintf(stderr, "event_read() failed\n");
                     fprintf(stderr, "%s\n", err_strerror(err));
                     abort();
                 }
             }
-            if (FD_ISSET(cn->fd, wfds)) {
-                err = event_write(conf, cn, ls);
+            if (FD_ISSET(connect->fd, wfds)) {
+                err = event_write(conf, connect, listener);
                 if (err != OK) {
                     fprintf(stderr, "event_write() failed\n");
                     fprintf(stderr, "%s\n", err_strerror(err));
