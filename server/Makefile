@@ -18,6 +18,8 @@ SRC_FILES += event_read.c
 SRC_FILES += event_write.c
 SRC_FILES += event_timer.c
 
+SRC_FILES += select_module.c
+
 CC = gcc
 
 INSTALL_DIR = /usr/local/bin
@@ -31,20 +33,24 @@ LDFLAGS += -lpcre
 build: LDFLAGS += -static -static-libgcc
 
 ifeq ($(CC), gcc)
+	CFLAGS += -DEVENT_USE_SELECT
 	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), clang)
+	CFLAGS += -DEVENT_USE_SELECT
 	CFLAGS += -Qunused-arguments
 	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
+	CFLAGS += -DEVENT_USE_SELECT
 	CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	LDFLAGS += -lws2_32
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
+	CFLAGS += -DEVENT_USE_SELECT
 	CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	LDFLAGS += -lws2_32
 endif
@@ -52,7 +58,7 @@ endif
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
 
-VPATH := src/core src/event src/sys
+VPATH := src/core src/event src/event/modules src/sys
 
 #.ONESHELL:
 .PHONY: build debug test docs

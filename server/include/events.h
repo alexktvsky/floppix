@@ -6,4 +6,7 @@ err_t event_read(config_t *conf, connect_t *cn, listener_t *ls);
 err_t event_write(config_t *conf, connect_t *cn, listener_t *ls);
 void event_timer(config_t *conf);
 
+
+void select_process_events(config_t *conf);
+
 #endif /* INCLUDED_EVENTS_H */
