@@ -1,10 +1,8 @@
 #include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
 #include <string.h>
 
-#include "syshead.h"
 #include "sys_errno.h"
+#include "syshead.h"
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)

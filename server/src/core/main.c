@@ -2,18 +2,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <stdlib.h>
 
 #include "syshead.h"
-#include "errors.h"
-#include "mempool.h"
-#include "list.h"
-#include "connection.h"
-#include "sys_files.h"
 #include "sys_errno.h"
+#include "sys_process.h"
+#include "errors.h"
+#include "connection.h"
 #include "log.h"
 #include "config.h"
-#include "sys_process.h"
 #include "cycle.h"
 #include "release.h"
 

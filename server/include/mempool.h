@@ -1,6 +1,11 @@
 #ifndef INCLUDED_MEMPOOL_H
 #define INCLUDED_MEMPOOL_H
 
+#include <stddef.h>
+
+#include "errors.h"
+
+
 typedef struct mempool_s mempool_t;
 
 err_t mempool_create(mempool_t **newpool, mempool_t *parent);

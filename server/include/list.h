@@ -1,6 +1,12 @@
 #ifndef INCLUDED_LIST_H
 #define INCLUDED_LIST_H
 
+#include "errors.h"
+
+#include <stdint.h>
+#include <stddef.h>
+
+
 typedef struct list_s list_t;
 typedef struct listnode_s listnode_t;
 
@@ -17,11 +23,11 @@ typedef struct listnode_s listnode_t;
     (list_remove1(list, (listnode_t *) in_node))
 
 #define list_begin(list) list_first(list)
-#define list_end(list) list_last(list)
+#define list_end(list) NULL
 
 #define list_foreach(type, var, list) \
     for (type var = (type) list_begin(list); \
-        var != NULL; var = (type) list_next(var))
+        var != list_end(list); var = (type) list_next(var))
 
 err_t list_create(list_t **list);
 err_t list_append1(list_t *list, listnode_t *in_node);

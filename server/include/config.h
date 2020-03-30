@@ -1,6 +1,17 @@
 #ifndef INCLUDED_CONFIG_H
 #define INCLUDED_CONFIG_H
 
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+#include "errors.h"
+#include "mempool.h"
+#include "list.h"
+#include "connection.h"
+#include "sys_files.h"
+#include "log.h"
+
 
 typedef struct config_s config_t;
 

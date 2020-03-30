@@ -1,6 +1,3 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,12 +8,6 @@
 #endif
 #include <pcre.h>
 
-#include "errors.h"
-#include "mempool.h"
-#include "list.h"
-#include "connection.h"
-#include "sys_files.h"
-#include "log.h"
 #include "config.h"
 
 

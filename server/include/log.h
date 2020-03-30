@@ -1,6 +1,13 @@
 #ifndef INCLUDED_LOG_H
 #define INCLUDED_LOG_H
 
+#include <stdint.h>
+#include <stddef.h>
+
+#include "errors.h"
+#include "sys_files.h"
+
+
 #define LOG_EMERG   0
 #define LOG_ERROR   1
 #define LOG_WARN    2

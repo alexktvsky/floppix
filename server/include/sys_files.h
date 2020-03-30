@@ -1,10 +1,14 @@
 #ifndef INCLUDED_FILES_H
 #define INCLUDED_FILES_H
 
-#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
+
+#include "errors.h"
+#include "syshead.h"
+
+#if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,9 +46,6 @@ typedef int fd_t;
 
 
 #elif (SYSTEM_WINDOWS)
-#include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
 #include <windows.h> /* fileapi.h */
 
 #define SYS_STDIN                    GetStdHandle(STD_INPUT_HANDLE)

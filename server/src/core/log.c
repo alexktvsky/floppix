@@ -1,10 +1,3 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
-
-#include "syshead.h"
-#include "errors.h"
-#include "sys_files.h"
 #include "log.h"
 
 

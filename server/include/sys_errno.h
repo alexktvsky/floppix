@@ -1,6 +1,12 @@
 #ifndef INCLUDED_ERRNO_H
 #define INCLUDED_ERRNO_H
 
+#include <stdint.h>
+#include <stddef.h>
+
+#include "errors.h"
+
+
 #if defined(__linux__) || defined(__gnu_linux__)
 #include <errno.h>
 

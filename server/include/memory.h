@@ -1,6 +1,8 @@
 #ifndef INCLUDED_MEMORY_H
 #define INCLUDED_MEMORY_H
 
+#include <stddef.h>
+
 #if defined(__GNUC__)
 #define memory_barrier() __sync_synchronize()
 #elif defined(__sparc) || defined(__sparc__)

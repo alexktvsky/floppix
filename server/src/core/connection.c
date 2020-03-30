@@ -1,15 +1,8 @@
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "syshead.h"
-#include "errors.h"
-#include "sys_sockets.h"
-#include "mempool.h"
-#include "list.h"
 #include "connection.h"
+#include "mempool.h"
 
 
 const char *get_addr(char *buf, struct sockaddr_storage *sockaddr)
