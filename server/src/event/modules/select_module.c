@@ -28,22 +28,28 @@
 
 static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
+    listener_t *listener;
+    connect_t *connect;
+    listnode_t *iter1;
+    listnode_t *iter2;
     socket_t fd;
     socket_t fdmax = 0;
 
     FD_ZERO(rfds);
     FD_ZERO(wfds);
 
-    list_for_each(listener_t *, listener, conf->listeners) {
+    for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
         /* Add listening sockets to read array */
+        listener = list_cast_ptr(listener_t, iter1);
         fd = listener->fd;
         FD_SET(fd, rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
 
-        list_for_each(connect_t *, connect, listener->connects) {
+        for (iter2 = list_first(listener->connects); iter2; iter2 = list_next(iter2)) {
             /* Add clients sockets to read array */
+            connect = list_cast_ptr(connect_t, iter2);
             fd = connect->fd;
             FD_SET(fd, rfds);
             if (fdmax < fd) {
@@ -67,12 +73,17 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 
 static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
+    listener_t *listener;
+    connect_t *connect;
+    listnode_t *iter1;
+    listnode_t *iter2;
     err_t err;
 
-    list_for_each(listener_t *, listener, conf->listeners) {
+    for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
         /* Search listeners */
+        listener = list_cast_ptr(listener_t, iter1);
         if (FD_ISSET(listener->fd, rfds)) {
-            err = event_connect(conf, listener);
+            err = event_connect(conf, list_cast_ptr(listener_t, iter1));
             if (err != OK) {
                 fprintf(stderr, "event_connect() failed\n");
                 fprintf(stderr, "%s\n", err_strerror(err));
@@ -80,7 +91,8 @@ static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             }
         }
         /* Search from current listener connections */
-        list_for_each(connect_t *, connect, listener->connects) {
+        for (iter2 = list_first(listener->connects); iter2; iter2 = list_next(iter2)) {
+            connect = list_cast_ptr(connect_t, iter2);
             if (FD_ISSET(connect->fd, rfds)) {
                 err = event_read(conf, connect, listener);
                 if (err != OK) {

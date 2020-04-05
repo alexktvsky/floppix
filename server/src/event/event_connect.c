@@ -21,8 +21,8 @@ err_t event_connect(config_t *conf, listener_t *listener)
 
     /* XXX: If free_connects list is empty */
     if (!connect) {
-        err = connection_create(&new_connect);
-        if (err != OK) {
+        new_connect = list_create_node_and_append(connect_t, listener->connects);
+        if (!new_connect) {
             goto failed;
         }
     }
@@ -34,10 +34,6 @@ err_t event_connect(config_t *conf, listener_t *listener)
         goto failed;
     }
 
-    err = list_append(listener->connects, new_connect);
-    if (err != OK) {
-        goto failed;
-    }
     return OK;
 
 failed:

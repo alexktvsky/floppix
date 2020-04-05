@@ -82,7 +82,7 @@ static err_t config_parse(config_t *conf)
     int offset = 0;
     err_t err;
 
-    listener_t *new_ls;
+    listener_t *listener;
 
     fsize = file_size(conf->file);
     if (fsize == -1) {
@@ -120,11 +120,12 @@ static err_t config_parse(config_t *conf)
             case PATTERN_LISTEN:
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
 
-                err = listener_create_ipv4(&new_ls, "0.0.0.0", FIRST_SUBSTR);
-                if (err != OK) {
+                listener = list_create_node_and_append(listener_t, conf->listeners);
+                if (!listener) {
                     goto failed;
                 }
-                err = list_append(conf->listeners, new_ls);
+
+                err = listener_init_ipv4(listener, "0.0.0.0", FIRST_SUBSTR);
                 if (err != OK) {
                     goto failed;
                 }
@@ -134,11 +135,12 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                err = listener_create_ipv4(&new_ls, FIRST_SUBSTR, SECOND_SUBSTR);
-                if (err != OK) {
+                listener = list_create_node_and_append(listener_t, conf->listeners);
+                if (!listener) {
                     goto failed;
                 }
-                err = list_append(conf->listeners, new_ls);
+
+                err = listener_init_ipv4(listener, FIRST_SUBSTR, SECOND_SUBSTR);
                 if (err != OK) {
                     goto failed;
                 }
@@ -148,11 +150,12 @@ static err_t config_parse(config_t *conf)
                 FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
                 SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
 
-                err = listener_create_ipv6(&new_ls, FIRST_SUBSTR, SECOND_SUBSTR);
-                if (err != OK) {
+                listener = list_create_node_and_append(listener_t, conf->listeners);
+                if (!listener) {
                     goto failed;
                 }
-                err = list_append(conf->listeners, new_ls);
+
+                err = listener_init_ipv6(listener, FIRST_SUBSTR, SECOND_SUBSTR);
                 if (err != OK) {
                     goto failed;
                 }
@@ -241,11 +244,11 @@ err_t config_init(config_t **conf, const char *fname)
         goto failed;
     }
 
-    err = list_create(&listeners);
+    err = list_create1(&listeners);
     if (err != OK) {
         goto failed;
     }
-    err = list_create(&free_connects);
+    err = list_create1(&free_connects);
     if (err != OK) {
         goto failed;
     }

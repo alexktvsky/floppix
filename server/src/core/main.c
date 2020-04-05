@@ -4,10 +4,10 @@
 #include <stdbool.h>
 
 #include "syshead.h"
+#include "connection.h"
 #include "sys_errno.h"
 #include "sys_process.h"
 #include "errors.h"
-#include "connection.h"
 #include "log.h"
 #include "config.h"
 #include "cycle.h"
@@ -113,13 +113,16 @@ void show_config_info(config_t *conf)
         fprintf(stdout, "ssl: off\nWARNING: SSL is disable\n");
     }
 
+    listnode_t *iter;
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
-    list_for_each(listener_t *, listener, conf->listeners) {
+    
+    for (iter = list_first(conf->listeners); iter; iter = list_next(iter)) {
         fprintf(stdout, "listen: %s:%s\n",
-            get_addr(str_ip, &(listener)->sockaddr),
-            get_port(str_port, &(listener)->sockaddr));
+            get_addr(str_ip, &(list_cast_ptr(listener_t, iter))->sockaddr),
+            get_port(str_port, &(list_cast_ptr(listener_t, iter))->sockaddr));
     }
+
     return;
 }
 
@@ -174,9 +177,10 @@ int main(int argc, char *const argv[])
         goto error1;
     }
 
-    for (listener_t *ls = (listener_t *) list_first(conf->listeners);
-                                    ls; ls = (listener_t *) list_next(ls)) {
-        err = listener_start_listen(ls);
+    listnode_t *iter;
+    for (iter = list_first(conf->listeners); iter; iter = list_next(iter)) {
+
+        err = listener_start_listen(list_cast_ptr(listener_t, iter));
         if (err != OK) {
         fprintf(stderr, "%s: %s\n", err_strerror(err),
                                     sys_strerror(sys_errno));

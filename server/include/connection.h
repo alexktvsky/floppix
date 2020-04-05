@@ -15,16 +15,12 @@ typedef struct listener_s listener_t;
 typedef struct connect_s connect_t;
 
 struct listener_s {
-    listnode_t *next;
-    listnode_t *prev;
     socket_t fd;
     struct sockaddr_storage sockaddr;
     list_t *connects;
 };
 
 struct connect_s {
-    listnode_t *next;
-    listnode_t *prev;
     socket_t fd;
     struct sockaddr_storage sockaddr;
     listener_t *owner;
@@ -32,19 +28,19 @@ struct connect_s {
 };
 
 
-err_t listener_create_ipv4(listener_t **ls, const char *ip, const char *port);
-err_t listener_create_ipv6(listener_t **ls, const char *ip, const char *port);
-err_t listener_start_listen(listener_t *ls);
-void listener_close(listener_t *ls);
-void listener_clean(listener_t *ls); // delete all connections
-void listener_destroy(listener_t *ls);
+err_t listener_init_ipv4(listener_t *listener, const char *ip, const char *port);
+err_t listener_init_ipv6(listener_t *listener, const char *ip, const char *port);
+err_t listener_start_listen(listener_t *listener);
+void listener_close(listener_t *listener);
+void listener_clean(listener_t *listener); // delete all connections
+void listener_destroy(listener_t *listener);
 
 
-err_t connection_create(connect_t **cn);
-err_t connection_accept(connect_t *cn, listener_t *ls);
-void connection_clean(connect_t *cn);
-void connection_close(connect_t *cn);
-void connection_destroy(connect_t *cn);
+err_t connection_init(connect_t *connect);
+err_t connection_accept(connect_t *connect, listener_t *listener);
+void connection_clean(connect_t *connect);
+void connection_close(connect_t *connect);
+void connection_destroy(connect_t *connect);
 
 
 const char *get_addr(char *buf, struct sockaddr_storage *sockaddr);
