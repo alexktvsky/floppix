@@ -34,7 +34,7 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     FD_ZERO(rfds);
     FD_ZERO(wfds);
 
-    list_foreach(listener_t *, listener, conf->listeners) {
+    list_for_each(listener_t *, listener, conf->listeners) {
         /* Add listening sockets to read array */
         fd = listener->fd;
         FD_SET(fd, rfds);
@@ -42,7 +42,7 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             fdmax = fd;
         }
 
-        list_foreach(connect_t *, connect, listener->connects) {
+        list_for_each(connect_t *, connect, listener->connects) {
             /* Add clients sockets to read array */
             fd = connect->fd;
             FD_SET(fd, rfds);
@@ -69,7 +69,7 @@ static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
 {
     err_t err;
 
-    list_foreach(listener_t *, listener, conf->listeners) {
+    list_for_each(listener_t *, listener, conf->listeners) {
         /* Search listeners */
         if (FD_ISSET(listener->fd, rfds)) {
             err = event_connect(conf, listener);
@@ -80,7 +80,7 @@ static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             }
         }
         /* Search from current listener connections */
-        list_foreach(connect_t *, connect, listener->connects) {
+        list_for_each(connect_t *, connect, listener->connects) {
             if (FD_ISSET(connect->fd, rfds)) {
                 err = event_read(conf, connect, listener);
                 if (err != OK) {

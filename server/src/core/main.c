@@ -115,7 +115,7 @@ void show_config_info(config_t *conf)
 
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
-    list_foreach(listener_t *, listener, conf->listeners) {
+    list_for_each(listener_t *, listener, conf->listeners) {
         fprintf(stdout, "listen: %s:%s\n",
             get_addr(str_ip, &(listener)->sockaddr),
             get_port(str_port, &(listener)->sockaddr));

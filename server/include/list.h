@@ -22,12 +22,13 @@ typedef struct listnode_s listnode_t;
 #define list_remove(list, in_node) \
     (list_remove1(list, (listnode_t *) in_node))
 
-#define list_begin(list) list_first(list)
-#define list_end(list) NULL
+#define list_for_each(type, var, list) \
+    for (type var = (type) list_first(list); \
+        var != NULL; var = (type) list_next(var))
 
-#define list_foreach(type, var, list) \
-    for (type var = (type) list_begin(list); \
-        var != list_end(list); var = (type) list_next(var))
+#define list_for_each_back(type, var, list) \
+    for (type var = (type) list_last(list); \
+        var != NULL; var = (type) list_prev(var))
 
 err_t list_create(list_t **list);
 err_t list_append1(list_t *list, listnode_t *in_node);
