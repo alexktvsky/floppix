@@ -2,10 +2,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #include "syshead.h"
 
+#ifdef USE_SELECT_MODULE
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
 #include <sys/time.h>
@@ -16,17 +16,19 @@
 #endif
 
 #include "errors.h"
+#include "sys_errno.h"
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"
-#include "sys_files.h"
 #include "log.h"
 #include "config.h"
-#include "cycle.h"
 #include "events.h"
 
+static fd_set rfds;
+static fd_set wfds;
 
-static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
+
+static socket_t set_events(config_t *conf)
 {
     listener_t *listener;
     connect_t *connect;
@@ -35,14 +37,14 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     socket_t fd;
     socket_t fdmax = 0;
 
-    FD_ZERO(rfds);
-    FD_ZERO(wfds);
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
 
     for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
         /* Add listening sockets to read array */
         listener = list_cast_ptr(listener_t, iter1);
         fd = listener->fd;
-        FD_SET(fd, rfds);
+        FD_SET(fd, &rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
@@ -51,7 +53,7 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
             /* Add clients sockets to read array */
             connect = list_cast_ptr(connect_t, iter2);
             fd = connect->fd;
-            FD_SET(fd, rfds);
+            FD_SET(fd, &rfds);
             if (fdmax < fd) {
                 fdmax = fd;
             }
@@ -61,7 +63,7 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
                 continue;
             }
             fd = connect->fd;
-            FD_SET(fd, wfds);
+            FD_SET(fd, &wfds);
             if (fdmax < fd) {
                 fdmax = fd;
             }
@@ -70,8 +72,7 @@ static socket_t set_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     return fdmax;
 }
 
-
-static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
+static err_t process_events(config_t *conf)
 {
     listener_t *listener;
     connect_t *connect;
@@ -82,51 +83,47 @@ static void handle_events(config_t *conf, fd_set *rfds, fd_set *wfds)
     for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
         /* Search listeners */
         listener = list_cast_ptr(listener_t, iter1);
-        if (FD_ISSET(listener->fd, rfds)) {
+        if (FD_ISSET(listener->fd, &rfds)) {
             err = event_connect(conf, list_cast_ptr(listener_t, iter1));
             if (err != OK) {
-                fprintf(stderr, "event_connect() failed\n");
-                fprintf(stderr, "%s\n", err_strerror(err));
-                abort();
+                goto failed;
             }
         }
         /* Search from current listener connections */
         for (iter2 = list_first(listener->connects); iter2; iter2 = list_next(iter2)) {
             connect = list_cast_ptr(connect_t, iter2);
-            if (FD_ISSET(connect->fd, rfds)) {
+            if (FD_ISSET(connect->fd, &rfds)) {
                 err = event_read(conf, connect, listener);
                 if (err != OK) {
-                    fprintf(stderr, "event_read() failed\n");
-                    fprintf(stderr, "%s\n", err_strerror(err));
-                    abort();
+                    goto failed;
                 }
             }
-            if (FD_ISSET(connect->fd, wfds)) {
+            if (FD_ISSET(connect->fd, &wfds)) {
                 err = event_write(conf, connect, listener);
                 if (err != OK) {
-                    fprintf(stderr, "event_write() failed\n");
-                    fprintf(stderr, "%s\n", err_strerror(err));
-                    abort();
+                    goto failed;
                 }
             }
         }
     }
-    return;
-}
 
+    return OK;
+
+failed:
+    return err;
+}
 
 void select_process_events(config_t *conf)
 {
     struct timeval tv;
     struct timeval *timeout;
-    fd_set rfds;
-    fd_set wfds;
     int flag;
     socket_t fdmax;
+    err_t err;
 
     while (1) {
 
-        fdmax = set_events(conf, &rfds, &wfds);
+        fdmax = set_events(conf);
 
         tv.tv_sec = 10;
         tv.tv_usec = 0;
@@ -144,7 +141,7 @@ void select_process_events(config_t *conf)
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
 
         if (flag == -1) {
-            if (errno != EINTR) {
+            if (sys_errno != EINTR) {
                 fprintf(stderr, "select() failed\n");
                 abort();
             }
@@ -155,10 +152,15 @@ void select_process_events(config_t *conf)
         else if (!flag) {
             event_timer(conf);
         }
-
         else {
-            handle_events(conf, &rfds, &wfds);
+            err = process_events(conf);
+            if (err != OK) {
+                fprintf(stderr, "%s\n", "process_events() failed");
+                fprintf(stderr, "%s\n", err_strerror(err));
+                fprintf(stderr, "%s\n", sys_strerror(sys_errno));
+                abort();
+            }
         }
-
     } /* while (1) */
 }
+#endif /* USE_SELECT_MODULE */

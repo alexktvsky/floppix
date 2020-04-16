@@ -13,5 +13,8 @@ void event_timer(config_t *conf);
 
 
 void select_process_events(config_t *conf);
+void epoll_process_events(config_t *conf);
+void kqueue_process_events(config_t *conf);
+void iocp_process_events(config_t *conf);
 
 #endif /* INCLUDED_EVENTS_H */

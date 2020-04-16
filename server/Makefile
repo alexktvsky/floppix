@@ -17,56 +17,53 @@ SRC_FILES += event_connect.c
 SRC_FILES += event_read.c
 SRC_FILES += event_write.c
 SRC_FILES += event_timer.c
-
 SRC_FILES += select_module.c
+SRC_FILES += epoll_module.c
 
-CC = gcc
+VPATH += src/core
+VPATH += src/event
+VPATH += src/sys
+VPATH += src/sys/event_modules
 
 INSTALL_DIR = /usr/local/bin
 
-CFLAGS += -Iinclude
-CFLAGS += -Wall -Wextra -Wuninitialized -pipe
-build: CFLAGS += -g0 -s -O3 -DNDEBUG
-debug: CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
+override CFLAGS += -Iinclude
+override CFLAGS += -Wall -Wextra -Wuninitialized -pipe
+build: override CFLAGS += -g0 -s -O3 -DNDEBUG
+debug: override CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 
-LDFLAGS += -lpcre
-build: LDFLAGS += -static -static-libgcc
+override LDFLAGS += -lpcre
+build: override LDFLAGS += -static -static-libgcc
+
+CC = gcc # Default compiler
 
 ifeq ($(CC), gcc)
-	CFLAGS += -DEVENT_USE_SELECT
-	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), clang)
-	CFLAGS += -DEVENT_USE_SELECT
-	CFLAGS += -Qunused-arguments
-	LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+	override CFLAGS += -Qunused-arguments
+	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
-	CFLAGS += -DEVENT_USE_SELECT
-	CFLAGS += -D__USE_MINGW_ANSI_STDIO
-	LDFLAGS += -lws2_32
+	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
+	override LDFLAGS += -lws2_32
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
-	CFLAGS += -DEVENT_USE_SELECT
-	CFLAGS += -D__USE_MINGW_ANSI_STDIO
-	LDFLAGS += -lws2_32
+	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
+	override LDFLAGS += -lws2_32
 endif
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
 
-VPATH := src/core src/event src/event/modules src/sys
-
 #.ONESHELL:
 .PHONY: build debug test docs
 
 all: build
-
 build: mkdirs _build
-
 debug: mkdirs _debug
 
 _build: $(OBJ_FILES)
