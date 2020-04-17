@@ -35,7 +35,7 @@ debug: override CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
 override LDFLAGS += -lpcre
 build: override LDFLAGS += -static -static-libgcc
 
-CC = gcc # Default compiler
+CC = gcc
 
 ifeq ($(CC), gcc)
 	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive

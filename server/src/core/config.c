@@ -56,7 +56,7 @@ static err_t config_parse(config_t *conf)
     static const char *patterns[] = {
         "(?<=listen )\\s*([0-9]+)\n",
         "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
-        "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/.]*)\\]:([0-9]+)\n",
+        "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/%%/.]*)\\]:([0-9]+)\n",
         "(?<=log_file )\\s*([\\S]+)\n",
         "(?<=log_level )\\s*([0-9]+)\n",
         "(?<=log_size )\\s*([0-9]+)\n",

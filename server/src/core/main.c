@@ -119,11 +119,9 @@ void show_config_info(config_t *conf)
     
     for (iter = list_first(conf->listeners); iter; iter = list_next(iter)) {
         fprintf(stdout, "listen: %s:%s\n",
-            get_addr(str_ip, &(list_cast_ptr(listener_t, iter))->sockaddr),
-            get_port(str_port, &(list_cast_ptr(listener_t, iter))->sockaddr));
+            listener_get_addr(str_ip, &(list_cast_ptr(listener_t, iter))->sockaddr),
+            listener_get_port(str_port, &(list_cast_ptr(listener_t, iter))->sockaddr));
     }
-
-    return;
 }
 
 

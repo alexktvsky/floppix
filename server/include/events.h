@@ -7,8 +7,8 @@
 #include "config.h"
 
 err_t event_connect(config_t *conf, listener_t *listener);
-err_t event_read(config_t *conf, connect_t *connect, listener_t *listener);
-err_t event_write(config_t *conf, connect_t *connect, listener_t *listener);
+err_t event_read(config_t *conf, connect_t *connect);
+err_t event_write(config_t *conf, connect_t *connect);
 void event_timer(config_t *conf);
 
 

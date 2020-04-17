@@ -6,36 +6,13 @@
 
 err_t event_connect(config_t *conf, listener_t *listener)
 {
-    err_t err;
-    connect_t *connect;
-    connect_t *new_connect;
+    (void) conf;
 
     char str_ip[NI_MAXHOST]; // only for debug
     char str_port[NI_MAXSERV]; // only for debug
-
     printf("New connection %s:%s\n",
-        get_addr(str_ip, &listener->sockaddr),
-        get_port(str_port, &listener->sockaddr));
-
-    connect = (connect_t *) list_first(conf->free_connects);
-
-    /* XXX: If free_connects list is empty */
-    if (!connect) {
-        new_connect = list_create_node_and_append(connect_t, listener->connects);
-        if (!new_connect) {
-            goto failed;
-        }
-    }
-    else {
-        new_connect = connect;
-    }
-    err = connection_accept(new_connect, listener);
-    if (err != OK) {
-        goto failed;
-    }
+        connection_get_addr(str_ip, &listener->sockaddr),
+        connection_get_port(str_port, &listener->sockaddr));
 
     return OK;
-
-failed:
-    return err;
 }

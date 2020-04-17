@@ -185,3 +185,38 @@ void list_remove_and_destroy_node(list_t *list, listnode_t *node)
     list_destroy_node(node);
     return;
 }
+
+listnode_t *try_use_already_exist_node1(size_t size, list_t *free_nodes, list_t *list)
+{
+    listnode_t *node;
+
+    /* Check for empty already exist node */
+    node = list_first(free_nodes);
+
+    /* Use already exist node */
+    if (node) {
+        list_remove(free_nodes, node);
+        list_append(list, node);
+    }
+    /* If there are not empty nodes, create new */
+    else {
+        node = list_create_node(size);
+        if (!node) {
+            goto failed;
+        }
+        list_append(list, node);
+    }
+
+    return node;
+
+failed:
+    return NULL;
+}
+
+void reserve_node(void *instance, list_t *free_nodes, list_t *list)
+{
+    listnode_t *node;
+    node = list_cast_node_by_ptr(instance);
+    list_remove(list, node);
+    list_append(free_nodes, node);
+}

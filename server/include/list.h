@@ -18,6 +18,12 @@
 #define list_create_node_and_append(type, list) \
     list_cast_ptr(type, list_create_node_and_append1(sizeof(type), list))
 
+#define try_use_already_exist_node(type, free_nodes, list) \
+    list_cast_ptr(type, try_use_already_exist_node1(sizeof(type), free_nodes, list))
+
+
+#define list_push_back list_append
+
 
 typedef struct list_s list_t;
 typedef struct listnode_s listnode_t;
@@ -43,5 +49,7 @@ void list_destroy_node(listnode_t *node);
 
 listnode_t *list_create_node_and_append1(size_t size, list_t *list);
 void list_remove_and_destroy_node(list_t *list, listnode_t *node);
+listnode_t *try_use_already_exist_node1(size_t size, list_t *free_nodes, list_t *list);
+void reserve_node(void *instance, list_t *free_nodes, list_t *list);
 
 #endif /* INCLUDED_LIST_H */

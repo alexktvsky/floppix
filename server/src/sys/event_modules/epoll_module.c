@@ -20,21 +20,20 @@
 #include "events.h"
 
 
-static struct epoll_event *events;
+static struct epoll_event *event_list;
 static int max_events;
-static int epfd = -1;
+static int epfd = SYS_INVALID_SOCKET;
 
 
-/* XXX: Work for new connections too */
-static err_t epoll_add_event(socket_t fd, int flags)
+static err_t epoll_add_listener(listener_t *listener, int flags)
 {
     struct epoll_event ee;
     int op = EPOLL_CTL_ADD; // When we need to use EPOLL_CTL_MOD?
 
     ee.events = flags;
-    ee.data.fd = fd;
+    ee.data.ptr = listener;
 
-    if (epoll_ctl(epfd, op, fd, &ee) == -1) {
+    if (epoll_ctl(epfd, op, listener->fd, &ee) == -1) {
         fprintf(stderr, "epoll_ctl() failed\n");
         return ERR_FAILED;
     }
@@ -42,15 +41,15 @@ static err_t epoll_add_event(socket_t fd, int flags)
     return OK;
 }
 
-static err_t epoll_del_event(socket_t fd, int flags)
+static err_t epoll_del_listener(listener_t *listener, int flags)
 {
     struct epoll_event ee;
     int op = EPOLL_CTL_DEL; // When we need to use EPOLL_CTL_MOD?
 
     ee.events = flags;
-    ee.data.fd = fd;
+    ee.data.ptr = listener;
 
-    if (epoll_ctl(epfd, op, fd, &ee) == -1) {
+    if (epoll_ctl(epfd, op, listener->fd, &ee) == -1) {
         fprintf(stderr, "epoll_ctl() failed\n");
         return ERR_FAILED;
     }
@@ -58,29 +57,53 @@ static err_t epoll_del_event(socket_t fd, int flags)
     return OK;
 }
 
-static err_t epoll_add_connect(socket_t fd)
+static err_t epoll_add_connect(config_t *conf, listener_t *listener)
 {
     struct epoll_event ee;
+    connect_t *connect;
+    err_t err;
+
+    connect = try_use_already_exist_node(connect_t,
+                            conf->free_connects, listener->connects);
+    if (!connect) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+
+    err = connection_accept(connect, listener);
+    if (err != OK) {
+        goto failed;
+    }
+
     ee.events = EPOLLIN|EPOLLOUT|EPOLLET|EPOLLRDHUP;
+    ee.data.ptr = connect;
 
-    if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ee) == -1) {
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, connect->fd, &ee) == -1) {
         fprintf(stderr, "epoll_ctl() failed\n");
         return ERR_FAILED;
     }
 
     return OK;
+
+failed:
+
+    return err;
 }
 
-static err_t epoll_del_connect(socket_t fd)
+static err_t epoll_del_connect(config_t *conf, connect_t *connect)
 {
     struct epoll_event ee;
-    ee.events = 0;
-    ee.data.fd = -1;
 
-    if (epoll_ctl(epfd, EPOLL_CTL_DEL, fd, &ee) == -1) {
+    ee.events = 0;
+    ee.data.ptr = NULL;
+
+    if (epoll_ctl(epfd, EPOLL_CTL_DEL, connect->fd, &ee) == -1) {
         fprintf(stderr, "epoll_ctl() failed\n");
         return ERR_FAILED;
     }
+
+    connection_cleanup(connect);
+    reserve_node(connect, conf->free_connects, connect->owner->connects);
 
     return OK;
 }
@@ -96,8 +119,8 @@ static err_t epoll_init(config_t *conf)
         return ERR_FAILED;
     }
 
-    events = malloc(sizeof(struct epoll_event) * max_events);
-    if (!events) {
+    event_list = malloc(sizeof(struct epoll_event) * max_events);
+    if (!event_list) {
         return ERR_MEM_ALLOC;
     }
 
@@ -105,7 +128,7 @@ static err_t epoll_init(config_t *conf)
     listener_t *listener;
     for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
         listener = list_cast_ptr(listener_t, iter1);
-        err = epoll_add_event(listener->fd, EPOLLIN|EPOLLOUT);
+        err = epoll_add_listener(listener, EPOLLIN|EPOLLET);
         if (err != OK) {
             return err;
         }
@@ -115,31 +138,39 @@ static err_t epoll_init(config_t *conf)
 
 static err_t process_events(config_t *conf, int n)
 {
-    listener_t *listener;
-    connect_t *connect;
-    listnode_t *iter1;
-    listnode_t *iter2;
+    int flags;
     err_t err;
 
     for (int i = 0; i < n; i++) {
-        for (iter1 = list_first(conf->listeners); iter1; iter1 = list_next(iter1)) {
-            listener = list_cast_ptr(listener_t, iter1);
-            if (listener->fd == events[i].data.fd) {
-                err = event_connect(conf, list_cast_ptr(listener_t, iter1));
+        /* Search new input connections */
+        if (connection_identifier(event_list[i].data.ptr) == IS_LISTENER) {
+            err = epoll_add_connect(conf, event_list[i].data.ptr);
+            if (err != OK) {
+                goto failed;
+            }
+            err = event_connect(conf, event_list[i].data.ptr);
+            if (err != OK) {
+                goto failed;
+            }
+        }
+        else {
+            flags = event_list[i].events;
+            if (flags & EPOLLIN) {
+                err = event_read(conf, event_list[i].data.ptr);
                 if (err != OK) {
                     goto failed;
                 }
-                /* Get new connect from end of list */
-                iter2 = list_last(listener->connects);
-                connect = list_cast_ptr(connect_t, iter2);
-                err = epoll_add_connect(connect->fd);
+            }
+            if (flags & EPOLLOUT) {
+                err = event_write(conf, event_list[i].data.ptr);
                 if (err != OK) {
-                    fprintf(stderr, "%s\n", "epoll_add_connect() failed");
                     goto failed;
                 }
             }
         }
     }
+
+
     return OK;
 
 failed:
@@ -159,7 +190,7 @@ void epoll_process_events(config_t *conf)
 
     while (1) {
         /* TODO: Change to epoll_pwait when signal handler will be ready */
-        n = epoll_wait(epfd, events, max_events, timeout);
+        n = epoll_wait(epfd, event_list, max_events, timeout);
         if (n == -1) {
             if (sys_errno != EINTR) {
                 fprintf(stderr, "epoll_wait() failed\n");

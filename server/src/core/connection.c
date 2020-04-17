@@ -5,7 +5,7 @@
 #include "mempool.h"
 
 
-const char *get_addr(char *buf, struct sockaddr_storage *sockaddr)
+const char *connection_get_addr(char *buf, struct sockaddr_storage *sockaddr)
 {
     socklen_t addr_len = sizeof(struct sockaddr_storage);
     if (getnameinfo((const struct sockaddr *)sockaddr, addr_len,
@@ -15,7 +15,7 @@ const char *get_addr(char *buf, struct sockaddr_storage *sockaddr)
     return buf;
 }
 
-const char *get_port(char *buf, struct sockaddr_storage *sockaddr)
+const char *connection_get_port(char *buf, struct sockaddr_storage *sockaddr)
 {
     socklen_t addr_len = sizeof(struct sockaddr_storage);
 
@@ -89,6 +89,7 @@ err_t listener_init_ipv4(listener_t *listener, const char *ip, const char *port)
         err = ERR_NET_GSN;
         goto failed;
     }
+    listener->identifier = IS_LISTENER;
     listener->fd = fd;
     listener->connects = connects;
     freeaddrinfo(result);
@@ -171,6 +172,7 @@ err_t listener_init_ipv6(listener_t *listener, const char *ip, const char *port)
         err = ERR_NET_GSN;
         goto failed;
     }
+    listener->identifier = IS_LISTENER;
     listener->fd = fd;
     listener->connects = connects;
     freeaddrinfo(result);
@@ -204,46 +206,33 @@ void listener_close(listener_t *listener)
         close_socket(listener->fd);
     }
     listener->fd = SYS_INVALID_SOCKET;
-    return;
 }
 
-void listener_clean(listener_t *listener)
+void listener_cleanup(listener_t *listener)
 {
-    (void) listener;
-    // What we need to do?
-    return;
-}
+    listener_close(listener);
+    // What we need to do else?
 
-void listener_destroy(listener_t *listener)
-{
-    (void) listener;
-    // for (listnode_t *n = list_first(listener->connects); n; n = list_next(n)) {
-    //     connection_destroy(list_data(n));
-    // }
-    // list_destroy(listener->connects);
-    // free(listener)
-    return;
 }
-
-err_t connection_init(connect_t *connect)
-{
-    memset(connect, 0, sizeof(connect_t));
-    return OK;
-}
-
 
 err_t connection_accept(connect_t *connect, listener_t *listener)
 {
-    socket_t new_fd;
+    socket_t fd;
+    socklen_t addr_len;
 
-    socklen_t addr_len = sizeof(struct sockaddr_in);
-    new_fd = accept(listener->fd,
+    addr_len = sizeof(struct sockaddr_in);
+    fd = accept(listener->fd,
                         (struct sockaddr *) &connect->sockaddr,
                                                     &addr_len);
-    if (new_fd == SYS_INVALID_SOCKET) {
+    if (fd == SYS_INVALID_SOCKET) {
         return ERR_NET_ACCEPT;
     }
-    connect->fd = new_fd;
+    if (socket_nonblocking(fd) == -1) {
+        close_socket(fd);
+        return ERR_NET_TCP_NONBLOCK;
+    }
+    connect->identifier = IS_CONNECTION;
+    connect->fd = fd;
     connect->owner = listener;
     return OK;
 }
@@ -254,5 +243,19 @@ void connection_close(connect_t *connect)
         close_socket(connect->fd);
     }
     connect->fd = SYS_INVALID_SOCKET;
-    return;
 }
+
+void connection_cleanup(connect_t *connect)
+{
+    connection_close(connect);
+}
+
+uint8_t connection_identifier(void *instance)
+{
+    struct temp {
+        int8_t identifier;
+    };
+    struct temp *p = (struct temp *) instance;
+    return p->identifier;
+}
+

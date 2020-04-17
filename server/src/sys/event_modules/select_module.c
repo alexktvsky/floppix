@@ -72,6 +72,28 @@ static socket_t set_events(config_t *conf)
     return fdmax;
 }
 
+static err_t select_add_connect(config_t *conf, listener_t *listener)
+{
+    connect_t *connect;
+    err_t err;
+    connect = try_use_already_exist_node(connect_t,
+                            conf->free_connects, listener->connects);
+    if (!connect) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
+
+    err = connection_accept(connect, listener);
+    if (err != OK) {
+        goto failed;
+    }
+
+    return OK;
+
+failed:
+    return err;
+}
+
 static err_t process_events(config_t *conf)
 {
     listener_t *listener;
@@ -84,22 +106,26 @@ static err_t process_events(config_t *conf)
         /* Search listeners */
         listener = list_cast_ptr(listener_t, iter1);
         if (FD_ISSET(listener->fd, &rfds)) {
-            err = event_connect(conf, list_cast_ptr(listener_t, iter1));
+            err = select_add_connect(conf, listener);
+            if (err != OK) {
+                goto failed;
+            }
+            err = event_connect(conf, listener);
             if (err != OK) {
                 goto failed;
             }
         }
-        /* Search from current listener connections */
+        /* Search new input connections */
         for (iter2 = list_first(listener->connects); iter2; iter2 = list_next(iter2)) {
             connect = list_cast_ptr(connect_t, iter2);
             if (FD_ISSET(connect->fd, &rfds)) {
-                err = event_read(conf, connect, listener);
+                err = event_read(conf, connect);
                 if (err != OK) {
                     goto failed;
                 }
             }
             if (FD_ISSET(connect->fd, &wfds)) {
-                err = event_write(conf, connect, listener);
+                err = event_write(conf, connect);
                 if (err != OK) {
                     goto failed;
                 }
