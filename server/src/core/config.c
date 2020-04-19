@@ -47,7 +47,6 @@ static void config_set_default_params(config_t *conf)
     conf->log_size = 0;
     conf->log_level = 1;
     conf->priority = 0;
-    return;
 }
 
 
@@ -56,7 +55,7 @@ static err_t config_parse(config_t *conf)
     static const char *patterns[] = {
         "(?<=listen )\\s*([0-9]+)\n",
         "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
-        "(?<=listen )\\s*\\[([0-9/a-f/A-F/:/%%/.]*)\\]:([0-9]+)\n",
+        "(?<=listen )\\s*\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)\n",
         "(?<=log_file )\\s*([\\S]+)\n",
         "(?<=log_level )\\s*([0-9]+)\n",
         "(?<=log_size )\\s*([0-9]+)\n",
@@ -304,5 +303,4 @@ void config_fini(config_t *conf)
     list_destroy(conf->listeners);
     list_destroy(conf->free_connects);
     free(conf);
-    return;
 }
