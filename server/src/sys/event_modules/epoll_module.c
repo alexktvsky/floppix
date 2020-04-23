@@ -1,6 +1,6 @@
 #include "syshead.h"
 
-#ifndef USE_SELECT_MODULE
+#if !(USE_SELECT_MODULE)
 #if (SYSTEM_LINUX)
 #include <stdio.h>
 #include <stdint.h>

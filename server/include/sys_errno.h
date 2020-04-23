@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <windows.h> /* errhandlingapi.h */
 
-#define sys_get_errno               GetLastError()
+#define sys_get_errno()             GetLastError()
 #define sys_set_errno(err)          SetLastError(err)
 
 #endif

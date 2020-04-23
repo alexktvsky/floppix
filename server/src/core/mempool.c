@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 
-#ifdef ALLOCATE_WITH_MMAP
+#if (MEMPOOL_USE_MMAP)
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <sys/mman.h>
 #elif (SYSTEM_WINDOWS)
@@ -118,7 +118,7 @@ static memnode_t *memnode_allocate_and_init(size_t in_size)
 {
     memnode_t *node;
 
-#ifdef ALLOCATE_WITH_MMAP
+#if (MEMPOOL_USE_MMAP)
     node = mmap(NULL, in_size, PROT_READ|PROT_WRITE,
                                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if (node == MAP_FAILED) {
@@ -330,7 +330,7 @@ void mempool_destroy(mempool_t *pool)
         while (node) {
             temp = node;
             node = node->next;
-#ifdef ALLOCATE_WITH_MMAP
+#if (MEMPOOL_USE_MMAP)
             munmap(temp, PAGE_SIZE * (i + 1));
 #else
             free(temp);

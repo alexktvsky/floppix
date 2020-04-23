@@ -4,7 +4,7 @@
 
 void process_events(config_t *conf)
 {
-#ifdef USE_SELECT_MODULE
+#if (USE_SELECT_MODULE)
     select_process_events(conf);
 #else
 #if (SYSTEM_LINUX)

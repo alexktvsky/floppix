@@ -5,7 +5,7 @@
 
 #include "syshead.h"
 
-#ifdef USE_SELECT_MODULE
+#if (USE_SELECT_MODULE)
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
 #include <sys/time.h>
