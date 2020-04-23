@@ -24,13 +24,12 @@
 #define PATTERN_SSL_KEYFILE         10
 #define PATTERN_PRIORITY            11
 
-
-#define FIRST_SUBSTR                (data + vector[2])
-#define FIRST_SUBSTR_LEN            (vector[3] - vector[2])
-#define SECOND_SUBSTR               (data + vector[4])
-#define SECOND_SUBSTR_LEN           (vector[5] - vector[4])
-#define THIRD_SUBSTR                (data + vector[6])
-#define THIRD_SUBSTR_LEN            (vector[7] - vector[6])
+#define FIRST_SUBSTR                (raw_data + vector[4])
+#define FIRST_SUBSTR_LEN            (vector[5] - vector[4])
+#define SECOND_SUBSTR               (raw_data + vector[6])
+#define SECOND_SUBSTR_LEN           (vector[7] - vector[6])
+#define THIRD_SUBSTR                (raw_data + vector[8])
+#define THIRD_SUBSTR_LEN            (vector[9] - vector[8])
 
 
 static void config_set_default_params(config_t *conf)
@@ -52,23 +51,27 @@ static void config_set_default_params(config_t *conf)
 
 static err_t config_parse(config_t *conf)
 {
+
     static const char *patterns[] = {
-        "(?<=listen )\\s*([0-9]+)\n",
-        "(?<=listen )\\s*([0-9]+.[0-9]+.[0-9]+.[0-9]+):([0-9]+)\n",
-        "(?<=listen )\\s*\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)\n",
-        "(?<=log_file )\\s*([\\S]+)\n",
-        "(?<=log_level )\\s*([0-9]+)\n",
-        "(?<=log_size )\\s*([0-9]+)\n",
-        "(?<=workdir )\\s*([\\S]+)\n",
-        "(?<=ssl )\\s*(on)\n",
-        "(?<=ssl )\\s*(off)\n",
-        "(?<=ssl_certfile )\\s*([\\S]+)\n",
-        "(?<=ssl_keyfile )\\s*([\\S]+)\n",
-        "(?<=priority )\\s*([0-9/-]+)\n"  // signed value
+        "^(?!#)(listen)\\s+([0-9]+)\n",
+        "^(?!#)(listen)\\s+([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)\n",
+        "^(?!#)(listen)\\s+\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)\n",
+        "^(?!#)(log_file)\\s+([\\S]+)\n",
+        "^(?!#)(log_level)\\s+([0-9]+)\n",
+        "^(?!#)(log_size)\\s+([0-9]+)\n",
+        "^(?!#)(workdir)\\s+([\\S]+)\n",
+        "^(?!#)(ssl)\\s+(on)\n",
+        "^(?!#)(ssl)\\s+(off)\n",
+        "^(?!#)(ssl_certfile)\\s+([\\S]+)\n",
+        "^(?!#)(ssl_keyfile)\\s+([\\S]+)\n",
+        "^(?!#)(priority)\\s+([0-9/-]+)\n"  // signed value
     };
 
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
+    char *raw_data = NULL;
     char *data = NULL;
+    char *ptr;
+    char *ptr2;
 
     const char *error;
     int erroffset;
@@ -89,18 +92,24 @@ static err_t config_parse(config_t *conf)
         goto failed;
     }
 
+    raw_data = malloc(fsize * sizeof(char) + 1);
+    if (!raw_data) {
+        err = ERR_MEM_ALLOC;
+        goto failed;
+    }
     data = malloc(fsize * sizeof(char) + 1);
     if (!data) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
+    ptr = data;
 
-    bytes_read = file_read(conf->file, (uint8_t *) data, fsize, 0);
+    bytes_read = file_read(conf->file, (uint8_t *) raw_data, fsize, 0);
     if (bytes_read != fsize) {
         err = ERR_CONF_READ;
         goto failed;
     }
-    data[fsize] = '\0';
+    raw_data[fsize] = '\0';
 
     for (size_t number = 0; number < number_of_patterns; number++) {
         offset = 0;
@@ -110,74 +119,107 @@ static err_t config_parse(config_t *conf)
             goto failed;
         }
         while (1) {
-            rc = pcre_exec(re, 0, data, fsize, offset, 0, vector, vector_size);
+            rc = pcre_exec(re, 0, raw_data, fsize, offset, 0, vector, vector_size);
             if (rc < 0) {
                 break;
             }
 
             switch (number) {
             case PATTERN_LISTEN:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
 
                 listener = list_create_node_and_append(listener_t, conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
 
-                err = listener_init_ipv4(listener, "0.0.0.0", FIRST_SUBSTR);
+                err = listener_init_ipv4(listener, "0.0.0.0", ptr);
                 if (err != OK) {
                     goto failed;
                 }
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_LISTEN4:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                ptr2 = ptr + FIRST_SUBSTR_LEN + 1;
+
+                memmove(ptr2, SECOND_SUBSTR, SECOND_SUBSTR_LEN);
+                ptr2[SECOND_SUBSTR_LEN] = '\0';
 
                 listener = list_create_node_and_append(listener_t, conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
 
-                err = listener_init_ipv4(listener, FIRST_SUBSTR, SECOND_SUBSTR);
+                err = listener_init_ipv4(listener, ptr, ptr2);
                 if (err != OK) {
                     goto failed;
                 }
+
+                ptr += FIRST_SUBSTR_LEN + SECOND_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_LISTEN6:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                SECOND_SUBSTR[SECOND_SUBSTR_LEN] = '\0';
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                ptr2 = ptr + FIRST_SUBSTR_LEN + 1;
+
+                memmove(ptr2, SECOND_SUBSTR, SECOND_SUBSTR_LEN);
+                ptr2[SECOND_SUBSTR_LEN] = '\0';
 
                 listener = list_create_node_and_append(listener_t, conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
 
-                err = listener_init_ipv6(listener, FIRST_SUBSTR, SECOND_SUBSTR);
+                err = listener_init_ipv6(listener, ptr, ptr2);
                 if (err != OK) {
                     goto failed;
                 }
+
+                ptr += FIRST_SUBSTR_LEN + SECOND_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_LOG_FILE:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->log_file = FIRST_SUBSTR;
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->log_file = ptr;
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_LOG_LEVEL:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->log_level = (uint8_t) atoi(FIRST_SUBSTR);
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->log_level = (uint8_t) atoi(ptr);
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_LOG_SIZE:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->log_size = (size_t) atoi(FIRST_SUBSTR);
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->log_size = (size_t) atoi(ptr);
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_WORKDIR:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->workdir = FIRST_SUBSTR;
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->workdir = ptr;
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_SSL_ON:
@@ -189,18 +231,30 @@ static err_t config_parse(config_t *conf)
                 break;
 
             case PATTERN_SSL_CERTFILE:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->ssl_certfile = FIRST_SUBSTR;
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->ssl_certfile = ptr;
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_SSL_KEYFILE:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->ssl_keyfile = FIRST_SUBSTR;
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->ssl_keyfile = ptr;
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
 
             case PATTERN_PRIORITY:
-                FIRST_SUBSTR[FIRST_SUBSTR_LEN] = '\0';
-                conf->priority = (int8_t) atoi(FIRST_SUBSTR);
+                memmove(ptr, FIRST_SUBSTR, FIRST_SUBSTR_LEN);
+                ptr[FIRST_SUBSTR_LEN] = '\0';
+
+                conf->priority = (int8_t) atoi(ptr);
+
+                ptr += FIRST_SUBSTR_LEN + 1;
                 break;
             }
             offset = vector[1];
@@ -209,11 +263,15 @@ static err_t config_parse(config_t *conf)
     }
     conf->data = data;
 
+    free(raw_data);
     return OK;
 
 failed:
     if (re) {
         pcre_free(re);
+    }
+    if (raw_data) {
+        free(raw_data);
     }
     if (data) {
         free(data);
