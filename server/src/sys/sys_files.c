@@ -175,12 +175,8 @@ ssize_t write_stderr(const char *str)
 
 void file_fini(file_t *file)
 {
-    if (!file) {
-        return;
-    }
     close_file(file->fd);
     file->fd = SYS_INVALID_FILE;
     file->name = NULL;
     file->offset = (off_t) 0;
-    return;
 }

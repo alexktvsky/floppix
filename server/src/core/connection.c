@@ -234,6 +234,7 @@ err_t connection_accept(connect_t *connect, listener_t *listener)
     connect->identifier = IS_CONNECTION;
     connect->fd = fd;
     connect->owner = listener;
+    connect->want_to_write = 0;
     return OK;
 }
 

@@ -167,7 +167,7 @@ void select_process_events(config_t *conf)
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
 
         if (flag == -1) {
-            if (sys_errno != EINTR) {
+            if (sys_get_errno() != EINTR) {
                 fprintf(stderr, "select() failed\n");
                 abort();
             }
@@ -183,7 +183,7 @@ void select_process_events(config_t *conf)
             if (err != OK) {
                 fprintf(stderr, "%s\n", "process_events() failed");
                 fprintf(stderr, "%s\n", err_strerror(err));
-                fprintf(stderr, "%s\n", sys_strerror(sys_errno));
+                fprintf(stderr, "%s\n", sys_strerror(sys_get_errno()));
                 abort();
             }
         }

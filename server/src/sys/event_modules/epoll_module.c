@@ -163,9 +163,11 @@ static err_t process_events(config_t *conf, int n)
                 }
             }
             if (flags & EPOLLOUT) {
-                err = event_write(conf, event_list[i].data.ptr);
-                if (err != OK) {
-                    goto failed;
+                if (((connect_t *) event_list[i].data.ptr)->want_to_write) {
+                    err = event_write(conf, event_list[i].data.ptr);
+                    if (err != OK) {
+                        goto failed;
+                    }
                 }
             }
         }
@@ -181,7 +183,7 @@ failed:
 void epoll_process_events(config_t *conf)
 {
     int n;
-    int timeout = 5000;
+    int timeout = 10000;
     err_t err;
 
     if (epoll_init(conf) != OK) {
@@ -193,7 +195,7 @@ void epoll_process_events(config_t *conf)
         /* TODO: Change to epoll_pwait when signal handler will be ready */
         n = epoll_wait(epfd, event_list, max_events, timeout);
         if (n == -1) {
-            if (sys_errno != EINTR) {
+            if (sys_get_errno() != EINTR) {
                 fprintf(stderr, "epoll_wait() failed\n");
                 abort();
             }
@@ -213,7 +215,7 @@ void epoll_process_events(config_t *conf)
             if (err != OK) {
                 fprintf(stderr, "%s\n", "process_events() failed");
                 fprintf(stderr, "%s\n", err_strerror(err));
-                fprintf(stderr, "%s\n", sys_strerror(sys_errno));
+                fprintf(stderr, "%s\n", sys_strerror(sys_get_errno()));
                 abort();
             }
         }

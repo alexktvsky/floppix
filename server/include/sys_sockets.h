@@ -1,5 +1,5 @@
-#ifndef INCLUDED_SOCKETS_H
-#define INCLUDED_SOCKETS_H
+#ifndef INCLUDED_SYS_SOCKETS_H
+#define INCLUDED_SYS_SOCKETS_H
 
 #include "syshead.h"
 
@@ -62,4 +62,4 @@ int tcp_push(socket_t s);
 int socket_nonblocking(socket_t s);
 int socket_blocking(socket_t s);
 
-#endif /* INCLUDED_SOCKETS_H */
+#endif /* INCLUDED_SYS_SOCKETS_H */

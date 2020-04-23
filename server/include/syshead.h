@@ -1,5 +1,5 @@
-#ifndef INCLUDED_SYSTEM_H
-#define INCLUDED_SYSTEM_H
+#ifndef INCLUDED_SYSHEAD_H
+#define INCLUDED_SYSHEAD_H
 
 #if defined(__linux__) || defined(__gnu_linux__)
 #define SYSTEM_NAME "Linux"
@@ -50,4 +50,4 @@
 #error "Unsupported operating system"
 #endif
 
-#endif /* INCLUDED_SYSTEM_H */
+#endif /* INCLUDED_SYSHEAD_H */

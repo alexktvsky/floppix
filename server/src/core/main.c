@@ -150,7 +150,7 @@ int main(int argc, char *const argv[])
     err = winsock_init_v22();
     if (err != OK) {
         fprintf(stderr, "%s: %s\n", "Failed to initialize Winsock 2.2",
-                                    sys_strerror(sys_errno));
+                                    sys_strerror(sys_get_errno()));
         goto error0;
     }
 #endif
@@ -158,7 +158,7 @@ int main(int argc, char *const argv[])
     err = config_init(&conf, conf_file);
     if (err != OK) {
         fprintf(stderr, "%s: %s\n", err_strerror(err),
-                                    sys_strerror(sys_errno));
+                                    sys_strerror(sys_get_errno()));
         goto error0;
     }
 
@@ -171,7 +171,7 @@ int main(int argc, char *const argv[])
     err = process_set_workdir(conf->workdir);
     if (err != OK) {
         fprintf(stderr, "%s: %s\n", err_strerror(err),
-                                    sys_strerror(sys_errno));
+                                    sys_strerror(sys_get_errno()));
         goto error1;
     }
 
@@ -181,7 +181,7 @@ int main(int argc, char *const argv[])
         err = listener_start_listen(list_cast_ptr(listener_t, iter));
         if (err != OK) {
         fprintf(stderr, "%s: %s\n", err_strerror(err),
-                                    sys_strerror(sys_errno));
+                                    sys_strerror(sys_get_errno()));
             goto error1;
         }
     }

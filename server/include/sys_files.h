@@ -1,5 +1,5 @@
-#ifndef INCLUDED_FILES_H
-#define INCLUDED_FILES_H
+#ifndef INCLUDED_SYS_FILES_H
+#define INCLUDED_SYS_FILES_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -97,4 +97,4 @@ ssize_t write_stdout(const char *str);
 ssize_t write_stderr(const char *str);
 
 
-#endif /* INCLUDED_FILES_H */
+#endif /* INCLUDED_SYS_FILES_H */
