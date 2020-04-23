@@ -22,14 +22,14 @@ typedef struct connect_s connect_t;
 
 struct listener_s {
     int8_t identifier;
-    socket_t fd;
+    sys_socket_t fd;
     struct sockaddr_storage sockaddr;
     list_t *connects;
 };
 
 struct connect_s {
     int8_t identifier;
-    socket_t fd;
+    sys_socket_t fd;
     struct sockaddr_storage sockaddr;
     listener_t *owner;
     bool want_to_write;

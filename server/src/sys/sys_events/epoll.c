@@ -1,6 +1,6 @@
 #include "syshead.h"
 
-#if !(USE_SELECT_MODULE)
+#if !(EVENTS_USE_SELECT)
 #if (SYSTEM_LINUX)
 #include <stdio.h>
 #include <stdint.h>
@@ -222,4 +222,4 @@ void epoll_process_events(config_t *conf)
     } /* while (1) */
 }
 #endif /* SYSTEM_LINUX */
-#endif /* USE_SELECT_MODULE */
+#endif /* EVENTS_USE_SELECT */

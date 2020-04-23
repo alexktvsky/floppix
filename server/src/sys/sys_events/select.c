@@ -5,7 +5,7 @@
 
 #include "syshead.h"
 
-#if (USE_SELECT_MODULE)
+#if (EVENTS_USE_SELECT)
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
 #include <unistd.h>
 #include <sys/time.h>
@@ -28,14 +28,14 @@ static fd_set rfds;
 static fd_set wfds;
 
 
-static socket_t set_events(config_t *conf)
+static sys_socket_t set_events(config_t *conf)
 {
     listener_t *listener;
     connect_t *connect;
     listnode_t *iter1;
     listnode_t *iter2;
-    socket_t fd;
-    socket_t fdmax = 0;
+    sys_socket_t fd;
+    sys_socket_t fdmax = 0;
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
@@ -144,7 +144,7 @@ void select_process_events(config_t *conf)
     struct timeval tv;
     struct timeval *timeout;
     int flag;
-    socket_t fdmax;
+    sys_socket_t fdmax;
     err_t err;
 
     while (1) {
@@ -189,4 +189,4 @@ void select_process_events(config_t *conf)
         }
     } /* while (1) */
 }
-#endif /* USE_SELECT_MODULE */
+#endif /* EVENTS_USE_SELECT */

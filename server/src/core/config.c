@@ -280,23 +280,23 @@ failed:
 }
 
 
-err_t config_init(config_t **conf, const char *fname)
+err_t config_init(config_t **in_conf, const char *fname)
 {
-    config_t *new_conf = NULL;
-    file_t *new_file = NULL;
+    config_t *conf = NULL;
+    sys_file_t *file = NULL;
     list_t *listeners = NULL;
     list_t *free_connects = NULL;
     err_t err;
 
-    new_conf = sys_alloc(sizeof(config_t));
-    if (!new_conf) {
+    conf = sys_alloc(sizeof(config_t));
+    if (!conf) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
-    memset(new_conf, 0, sizeof(config_t));
+    memset(conf, 0, sizeof(config_t));
 
-    new_file = sys_alloc(sizeof(file_t));
-    if (!new_file) {
+    file = sys_alloc(sizeof(sys_file_t));
+    if (!file) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
@@ -310,33 +310,33 @@ err_t config_init(config_t **conf, const char *fname)
         goto failed;
     }
 
-    if (file_init(new_file, fname, SYS_FILE_RDONLY,
+    if (file_init(file, fname, SYS_FILE_RDONLY,
                     SYS_FILE_OPEN, SYS_FILE_DEFAULT_ACCESS) != OK) {
         err = ERR_CONF_OPEN;
         goto failed;
     }
 
-    new_conf->file = new_file;
-    new_conf->listeners = listeners;
-    new_conf->free_connects = free_connects;
+    conf->file = file;
+    conf->listeners = listeners;
+    conf->free_connects = free_connects;
 
-    config_set_default_params(new_conf);
+    config_set_default_params(conf);
 
-    err = config_parse(new_conf);
+    err = config_parse(conf);
     if (err != OK) {
         goto failed;
     }
 
-    *conf = new_conf;
+    *in_conf = conf;
     return OK;
 
 failed:
-    if (new_conf) {
-        sys_free(new_conf);
+    if (conf) {
+        sys_free(conf);
     }
-    file_fini(new_file);
-    if (new_file) {
-        sys_free(new_file);
+    file_fini(file);
+    if (file) {
+        sys_free(file);
     }
     if (listeners) {
         list_destroy(listeners);

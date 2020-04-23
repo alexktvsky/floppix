@@ -17,7 +17,7 @@ typedef struct config_s config_t;
 
 
 struct config_s {
-    file_t *file;
+    sys_file_t *file;
     char *data;
     list_t *listeners;
     list_t *free_connects; // Linked list with free and available connections

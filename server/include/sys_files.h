@@ -84,14 +84,14 @@ typedef struct file_s {
     fd_t fd;
     char *name;
     off_t offset;
-} file_t;
+} sys_file_t;
 
 
-err_t file_init(file_t *file, const char *fname, int mode, int create, int access);
-ssize_t file_read(file_t *file, uint8_t *buf, size_t size, off_t offset);
-ssize_t file_write(file_t *file, const char *buf, size_t size, off_t offset);
-ssize_t file_size(file_t *file);
-void file_fini(file_t *file);
+err_t file_init(sys_file_t *file, const char *fname, int mode, int create, int access);
+ssize_t file_read(sys_file_t *file, uint8_t *buf, size_t size, off_t offset);
+ssize_t file_write(sys_file_t *file, const char *buf, size_t size, off_t offset);
+ssize_t file_size(sys_file_t *file);
+void file_fini(sys_file_t *file);
 
 ssize_t write_stdout(const char *str);
 ssize_t write_stderr(const char *str);

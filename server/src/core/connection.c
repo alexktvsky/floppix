@@ -32,7 +32,7 @@ err_t listener_init_ipv4(listener_t *listener, const char *ip, const char *port)
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    socket_t fd = SYS_INVALID_SOCKET;
+    sys_socket_t fd = SYS_INVALID_SOCKET;
     list_t *connects = NULL;
     err_t err;
 
@@ -114,7 +114,7 @@ err_t listener_init_ipv6(listener_t *listener, const char *ip, const char *port)
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    socket_t fd = SYS_INVALID_SOCKET;
+    sys_socket_t fd = SYS_INVALID_SOCKET;
     list_t *connects = NULL;
     err_t err;
 
@@ -217,7 +217,7 @@ void listener_cleanup(listener_t *listener)
 
 err_t connection_accept(connect_t *connect, listener_t *listener)
 {
-    socket_t fd;
+    sys_socket_t fd;
     socklen_t addr_len;
 
     addr_len = sizeof(struct sockaddr_in);

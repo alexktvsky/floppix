@@ -5,8 +5,9 @@
 #include "events.h"
 
 
-void event_timer(config_t *conf)
+err_t event_timer(config_t *conf)
 {
+    (void) conf;
     printf("timeout\n");
-    return;
+    return OK;
 }

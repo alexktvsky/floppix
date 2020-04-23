@@ -5,7 +5,7 @@
 
 
 #if (SYSTEM_LINUX || SYSTEM_FREEBSD || SYSTEM_SOLARIS)
-err_t file_init(file_t *file, const char *name, int mode, int create, int access)
+err_t file_init(sys_file_t *file, const char *name, int mode, int create, int access)
 {
 
     fd_t fd = open_file(name, mode, create, access);
@@ -18,7 +18,7 @@ err_t file_init(file_t *file, const char *name, int mode, int create, int access
     return OK;   
 }
 
-ssize_t file_read(file_t *file, uint8_t *buf, size_t size, off_t offset)
+ssize_t file_read(sys_file_t *file, uint8_t *buf, size_t size, off_t offset)
 {
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         return -1;
@@ -31,7 +31,7 @@ ssize_t file_read(file_t *file, uint8_t *buf, size_t size, off_t offset)
     return n;
 }
 
-ssize_t file_write(file_t *file, const char *buf, size_t size, off_t offset)
+ssize_t file_write(sys_file_t *file, const char *buf, size_t size, off_t offset)
 {
     ssize_t n;
     ssize_t written = 0;
@@ -55,7 +55,7 @@ ssize_t file_write(file_t *file, const char *buf, size_t size, off_t offset)
 }
 
 /* Work even we already read some bytes from file */
-ssize_t file_size(file_t *file)
+ssize_t file_size(sys_file_t *file)
 {
     off_t off = lseek(file->fd, 0, SEEK_CUR);
     if (off == (off_t) -1) {
@@ -83,7 +83,7 @@ ssize_t write_fd(fd_t fd, void *buf, size_t n)
 
 
 #elif (SYSTEM_WINDOWS)
-err_t file_init(file_t *file, const char *name, int mode, int create, int access)
+err_t file_init(sys_file_t *file, const char *name, int mode, int create, int access)
 {
     (void) access;
     fd_t fd = open_file(name, mode, create, access);
@@ -96,7 +96,7 @@ err_t file_init(file_t *file, const char *name, int mode, int create, int access
     return OK;
 }
 
-ssize_t file_read(file_t *file, uint8_t *buf, size_t size, off_t offset)
+ssize_t file_read(sys_file_t *file, uint8_t *buf, size_t size, off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -113,7 +113,7 @@ ssize_t file_read(file_t *file, uint8_t *buf, size_t size, off_t offset)
     return (ssize_t) n;
 }
 
-ssize_t file_write(file_t *file, const char *buf, size_t size, off_t offset)
+ssize_t file_write(sys_file_t *file, const char *buf, size_t size, off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -134,7 +134,7 @@ ssize_t file_write(file_t *file, const char *buf, size_t size, off_t offset)
     return n;
 }
 
-ssize_t file_size(file_t *file)
+ssize_t file_size(sys_file_t *file)
 {
     LARGE_INTEGER info;
     if (GetFileSizeEx(file->fd, &info) != TRUE) {
@@ -173,7 +173,7 @@ ssize_t write_stderr(const char *str)
     return write_fd(SYS_STDERR, (void *) str, strlen(str));
 }
 
-void file_fini(file_t *file)
+void file_fini(sys_file_t *file)
 {
     close_file(file->fd);
     file->fd = SYS_INVALID_FILE;

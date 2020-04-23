@@ -13,17 +13,18 @@ SRC_FILES += sys_files.c
 SRC_FILES += sys_errno.c
 SRC_FILES += sys_process.c
 SRC_FILES += sys_sockets.c
+SRC_FILES += sys_events.c
 SRC_FILES += event_connect.c
 SRC_FILES += event_read.c
 SRC_FILES += event_write.c
 SRC_FILES += event_timer.c
-SRC_FILES += select_module.c
-SRC_FILES += epoll_module.c
+SRC_FILES += select.c
+SRC_FILES += epoll.c
 
 VPATH += src/core
 VPATH += src/event
 VPATH += src/sys
-VPATH += src/sys/event_modules
+VPATH += src/sys/sys_events
 
 INSTALL_DIR = /usr/local/bin
 

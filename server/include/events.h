@@ -9,12 +9,6 @@
 err_t event_connect(config_t *conf, listener_t *listener);
 err_t event_read(config_t *conf, connect_t *connect);
 err_t event_write(config_t *conf, connect_t *connect);
-void event_timer(config_t *conf);
-
-
-void select_process_events(config_t *conf);
-void epoll_process_events(config_t *conf);
-void kqueue_process_events(config_t *conf);
-void iocp_process_events(config_t *conf);
+err_t event_timer(config_t *conf);
 
 #endif /* INCLUDED_EVENTS_H */

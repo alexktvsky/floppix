@@ -8,6 +8,8 @@
 #define memory_barrier() __sync_synchronize()
 #elif defined(__sparc) || defined(__sparc__)
 #define memory_barrier() __asm (".volatile"); __asm (".nonvolatile")
+#else
+#define memory_barrier()
 /* TODO: etc */
 #endif
 
@@ -18,7 +20,6 @@ void explicit_memzero(void *buf, size_t n)
 {
     memset(buf, 0, n);
     memory_barrier();
-    return;
 }
 
 void *sys_alloc(size_t size)
@@ -42,7 +43,6 @@ void sys_free(void *mem)
 {
     free(mem);
     // ("free memory: %p:", mem)
-    return;
 }
 
 size_t sys_total_mem_usage(void)

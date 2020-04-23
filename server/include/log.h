@@ -18,7 +18,7 @@
 typedef struct log_s log_t;
 
 struct log_s {
-    file_t *file;
+    sys_file_t *file;
     uint8_t level;
 };
 
