@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sys_memory.h"
 #include "list.h"
 
 
@@ -21,7 +22,7 @@ const size_t listnode_t_size = sizeof(listnode_t);
 
 list_t *list_create(void)
 {
-    list_t *new_list = malloc(sizeof(list_t));
+    list_t *new_list = sys_alloc(sizeof(list_t));
     if (!new_list) {
         return NULL;
     }
@@ -31,7 +32,7 @@ list_t *list_create(void)
 
 err_t list_create1(list_t **list)
 {
-    list_t *new_list = malloc(sizeof(list_t));
+    list_t *new_list = sys_alloc(sizeof(list_t));
     if (!new_list) {
         return EXIT_FAILURE;
     }
@@ -69,7 +70,7 @@ err_t list_remove(list_t *list, listnode_t *in_node)
             list->head->next->prev = NULL;
         }
         list->head = list->head->next;
-        // free(temp1);
+        // sys_free(temp1);
         list->size -= 1;
         return EXIT_SUCCESS;
     }
@@ -79,7 +80,7 @@ err_t list_remove(list_t *list, listnode_t *in_node)
             list->tail->prev->next = NULL;
         }
         list->tail = list->tail->prev;
-        // free(temp2);
+        // sys_free(temp2);
         list->size -= 1;
         return EXIT_SUCCESS;
     }
@@ -93,7 +94,7 @@ err_t list_remove(list_t *list, listnode_t *in_node)
         }
         temp1->next->prev = temp1->prev;
         temp1->prev->next = temp1->next;
-        // free(temp1);
+        // sys_free(temp1);
         list->size -= 1;
         return EXIT_SUCCESS;
     }
@@ -132,14 +133,14 @@ void list_clean(list_t *list)
 
 void list_destroy(list_t *list)
 {
-    free(list);
+    sys_free(list);
     return;
 }
 
 
 listnode_t *list_create_node(size_t size)
 {
-    void *mem = malloc(sizeof(listnode_t) + size);
+    void *mem = sys_alloc(sizeof(listnode_t) + size);
     if (!mem) {
         return NULL;
     }
@@ -150,7 +151,7 @@ listnode_t *list_create_node(size_t size)
 
 err_t list_create_node1(listnode_t **node, size_t size)
 {
-    void *mem = malloc(sizeof(listnode_t) + size);
+    void *mem = sys_alloc(sizeof(listnode_t) + size);
     if (!mem) {
         return EXIT_FAILURE;
     }
@@ -162,7 +163,7 @@ err_t list_create_node1(listnode_t **node, size_t size)
 
 void list_destroy_node(listnode_t *node)
 {
-    free(node);
+    sys_free(node);
     return;
 }
 

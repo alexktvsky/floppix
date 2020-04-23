@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "syshead.h"
+#include "sys_memory.h"
 
 #if (SYSTEM_WINDOWS)
 #define PCRE_STATIC
@@ -92,12 +93,12 @@ static err_t config_parse(config_t *conf)
         goto failed;
     }
 
-    raw_data = malloc(fsize * sizeof(char) + 1);
+    raw_data = sys_alloc(fsize * sizeof(char) + 1);
     if (!raw_data) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
-    data = malloc(fsize * sizeof(char) + 1);
+    data = sys_alloc(fsize * sizeof(char) + 1);
     if (!data) {
         err = ERR_MEM_ALLOC;
         goto failed;
@@ -263,7 +264,7 @@ static err_t config_parse(config_t *conf)
     }
     conf->data = data;
 
-    free(raw_data);
+    sys_free(raw_data);
     return OK;
 
 failed:
@@ -271,10 +272,10 @@ failed:
         pcre_free(re);
     }
     if (raw_data) {
-        free(raw_data);
+        sys_free(raw_data);
     }
     if (data) {
-        free(data);
+        sys_free(data);
     }
     return err;
 }
@@ -288,14 +289,14 @@ err_t config_init(config_t **conf, const char *fname)
     list_t *free_connects = NULL;
     err_t err;
 
-    new_conf = malloc(sizeof(config_t));
+    new_conf = sys_alloc(sizeof(config_t));
     if (!new_conf) {
         err = ERR_MEM_ALLOC;
         goto failed;
     }
     memset(new_conf, 0, sizeof(config_t));
 
-    new_file = malloc(sizeof(file_t));
+    new_file = sys_alloc(sizeof(file_t));
     if (!new_file) {
         err = ERR_MEM_ALLOC;
         goto failed;
@@ -332,11 +333,11 @@ err_t config_init(config_t **conf, const char *fname)
 
 failed:
     if (new_conf) {
-        free(new_conf);
+        sys_free(new_conf);
     }
     file_fini(new_file);
     if (new_file) {
-        free(new_file);
+        sys_free(new_file);
     }
     if (listeners) {
         list_destroy(listeners);
@@ -352,13 +353,13 @@ void config_fini(config_t *conf)
 {
     file_fini(conf->file);
     if (conf->file) {
-        free(conf->file);
+        sys_free(conf->file);
     }
     if (conf->data) {
-        free(conf->data);
+        sys_free(conf->data);
     }
     // Do we need clean listeners in list? */
     list_destroy(conf->listeners);
     list_destroy(conf->free_connects);
-    free(conf);
+    sys_free(conf);
 }

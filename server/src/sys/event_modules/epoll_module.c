@@ -12,6 +12,7 @@
 
 #include "errors.h"
 #include "sys_errno.h"
+#include "sys_memory.h"
 #include "mempool.h"
 #include "list.h"
 #include "connection.h"
@@ -119,7 +120,7 @@ static err_t epoll_init(config_t *conf)
         return ERR_FAILED;
     }
 
-    event_list = malloc(sizeof(struct epoll_event) * max_events);
+    event_list = sys_alloc(sizeof(struct epoll_event) * max_events);
     if (!event_list) {
         return ERR_MEM_ALLOC;
     }
