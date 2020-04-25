@@ -137,7 +137,7 @@ int main(int argc, char *const argv[])
     }
 
     if (show_version) {
-        fprintf(stdout, "%s\n", get_version_info());
+        fprintf(stdout, "%s (%s)\n", get_version_info(), get_build_info());
         return 0;
     }
     if (show_help) {
