@@ -2,12 +2,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "events.h"
+#include "server/events.h"
 
 
-err_t event_timer(config_t *conf)
+hcnse_err_t event_timer(hcnse_conf_t *conf)
 {
     (void) conf;
     printf("timeout\n");
-    return OK;
+    return HCNSE_OK;
 }

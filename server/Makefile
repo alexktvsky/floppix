@@ -8,23 +8,23 @@ SRC_FILES += config.c
 SRC_FILES += connection.c
 SRC_FILES += mempool.c
 SRC_FILES += list.c
-SRC_FILES += sys_memory.c
-SRC_FILES += sys_files.c
-SRC_FILES += sys_errno.c
-SRC_FILES += sys_process.c
-SRC_FILES += sys_sockets.c
-SRC_FILES += sys_events.c
+SRC_FILES += memory.c
+SRC_FILES += files.c
+SRC_FILES += errno.c
+SRC_FILES += process.c
+SRC_FILES += sockets.c
+SRC_FILES += events.c
+SRC_FILES += select.c
+SRC_FILES += epoll.c
 SRC_FILES += event_connect.c
 SRC_FILES += event_read.c
 SRC_FILES += event_write.c
 SRC_FILES += event_timer.c
-SRC_FILES += select.c
-SRC_FILES += epoll.c
 
-VPATH += src/core
+VPATH += src/server
 VPATH += src/event
-VPATH += src/sys
-VPATH += src/sys/sys_events
+VPATH += src/os
+VPATH += src/os/events
 
 INSTALL_DIR = /usr/local/bin
 

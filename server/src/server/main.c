@@ -1,0 +1,230 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+#include "os/syshead.h"
+#include "server/connection.h"
+#include "os/errno.h"
+#include "os/process.h"
+#include "server/errors.h"
+#include "server/log.h"
+#include "server/config.h"
+#include "server/cycle.h"
+#include "server/release.h"
+
+
+static char *conf_file = "server.conf";
+static bool show_version;
+static bool show_help;
+static bool test_config;
+static bool quiet_mode;
+
+
+static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
+{
+    for (int i = 1; i < argc; i++) {
+        char *p = argv[i];
+        if (*p++ != '-') {
+            return HCNSE_FAILED;
+        }
+        while (*p) {
+            switch (*p++) {
+            case 'v':
+                show_version = true;
+                break;
+
+            case 'V':
+                show_version = true;
+                break;
+
+            case 'h':
+                show_help = true;
+                break;
+
+            case 'H':
+                show_help = true;
+                break;
+
+            case 't':
+                test_config = true;
+                break;
+
+            case 'T':
+                test_config = true;
+                break;
+
+            case 'q':
+                quiet_mode = true;
+                break;
+
+            case 'c':
+                if (argv[i++]) {
+                    conf_file = argv[i];
+                }
+                else {
+                    return HCNSE_FAILED;
+                }
+                break;
+
+            case 'C':
+                if (argv[i++]) {
+                    conf_file = argv[i];
+                }
+                else {
+                    return HCNSE_FAILED;
+                }
+                break;
+
+            /* smth else */
+            default:
+                return HCNSE_FAILED;
+            }
+        }
+    }
+    return HCNSE_OK;
+}
+
+static void hcnse_show_config_info(hcnse_conf_t *conf)
+{
+    hcnse_listener_t *listener;
+    hcnse_lnode_t *iter;
+    char str_ip[NI_MAXHOST];
+    char str_port[NI_MAXSERV];
+
+    fprintf(stdout, "conf_file: \"%s\"\n", conf->file->name);
+    fprintf(stdout, "log_file: \"%s\"\n", conf->log_file);
+    fprintf(stdout, "log_level: %u\n", conf->log_level);
+    fprintf(stdout, "log_size: %zu\n", conf->log_size);
+    fprintf(stdout, "workdir: \"%s\"\n", conf->workdir);
+    fprintf(stdout, "priority: %d\n", conf->priority);
+
+    if (conf->ssl_on) {
+        fprintf(stdout, "ssl: on\n");
+        if (conf->ssl_certfile) {
+            fprintf(stdout, "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
+        }
+        else {
+            fprintf(stdout, "WARNING: SSL certificate file is undefined\n");
+        }
+        if (conf->ssl_keyfile) {
+            fprintf(stdout, "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
+        }
+        else {
+            fprintf(stdout, "WARNING: SSL key file is undefined\n");
+        }
+    }
+    else {
+        fprintf(stdout, "ssl: off\nWARNING: SSL is disable\n");
+    }
+
+    for (iter = hcnse_list_first(conf->listeners);
+                                        iter; iter = hcnse_list_next(iter)) {
+        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
+        fprintf(stdout, "listen: %s:%s\n",
+            hcnse_listener_get_addr(str_ip, &(listener->sockaddr)),
+            hcnse_listener_get_port(str_port, &(listener->sockaddr)));
+    }
+}
+
+
+int main(int argc, char *const argv[])
+{
+    hcnse_listener_t *listener;
+    hcnse_conf_t *conf;
+    hcnse_err_t err;
+
+    err = hcnse_parse_argv(argc, argv);
+    if (err != HCNSE_OK) {
+        fprintf(stderr, "%s\n", "Invalid input parameters");
+        goto error0;
+    }
+
+    if (show_version) {
+        fprintf(stdout, "%s (%s, %s)\n", hcnse_version_info(),
+                                hcnse_system_name(), hcnse_build_time());
+        return 0;
+    }
+    if (show_help) {
+        fprintf(stdout, "%s\n", "Some help info");
+        return 0;
+    }
+
+
+#if (HCNSE_WINDOWS)
+    err = hcnse_winsock_init_v22();
+    if (err != HCNSE_OK) {
+        fprintf(stderr, "%s: %s\n", "Failed to initialize Winsock 2.2",
+                                    hcnse_errno_strerror(hcnse_get_errno()));
+        goto error0;
+    }
+#endif
+
+    err = hcnse_config_init(&conf, conf_file);
+    if (err != HCNSE_OK) {
+        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
+                                    hcnse_errno_strerror(hcnse_get_errno()));
+        goto error0;
+    }
+
+    if (test_config) {
+        hcnse_show_config_info(conf);
+        hcnse_config_fini(conf);
+        return 0;
+    }
+
+    err = hcnse_process_set_workdir(conf->workdir);
+    if (err != HCNSE_OK) {
+        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
+                                    hcnse_errno_strerror(hcnse_get_errno()));
+        goto error1;
+    }
+
+    hcnse_lnode_t *iter;
+    for (iter = hcnse_list_first(conf->listeners);
+                                        iter; iter = hcnse_list_next(iter)) {
+
+        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
+        err = hcnse_listener_start_listen(listener);
+        if (err != HCNSE_OK) {
+        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
+                                    hcnse_errno_strerror(hcnse_get_errno()));
+            goto error1;
+        }
+    }
+
+
+
+    // err = hcnse_log_init(conf->logfile, conf->log);
+    // if (err != HCNSE_OK) {
+    //     fprintf(stderr, "%s\n", hcnse_strerror(err));
+    //     goto error2;
+    // }
+
+    /* Now log file is available and server can write error mesages in it, so
+     * here we close TTY, fork off the parent process and run daemon */
+    // err = hcnse_process_daemon_init();
+    // if (err != HCNSE_OK) {
+    //     hcnse_log_error(LOG_EMERG, "Failed to initialization daemon process", err);
+    //     goto error3;
+    // }
+
+    /* TODO:
+     * hcnse_signals_init
+     * hcnse_ssl_init
+     * hcnse_create_mempool
+     * 
+     * hcnse_master_process_cycle(conf);
+     * 
+     */
+
+    hcnse_single_process_cycle(conf);
+
+    return 0;
+
+
+error1:
+    hcnse_config_fini(conf);
+error0:
+    return 1;
+}
