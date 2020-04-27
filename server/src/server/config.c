@@ -32,7 +32,7 @@
 #define THIRD_SUBSTR_LEN            (vector[9] - vector[8])
 
 
-static void config_set_default_params(hcnse_conf_t *conf)
+static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 {
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
     conf->workdir = "/";
@@ -49,9 +49,8 @@ static void config_set_default_params(hcnse_conf_t *conf)
 }
 
 
-static hcnse_err_t config_parse(hcnse_conf_t *conf)
+static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
 {
-
     static const char *patterns[] = {
         "^(?!#)(listen)\\s+([0-9]+)\n",
         "^(?!#)(listen)\\s+([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)\n",
@@ -323,9 +322,9 @@ hcnse_err_t hcnse_config_init(hcnse_conf_t **in_conf, const char *fname)
     conf->listeners = listeners;
     conf->free_connects = free_connects;
 
-    config_set_default_params(conf);
+    hcnse_config_set_default_params(conf);
 
-    err = config_parse(conf);
+    err = hcnse_config_parse(conf);
     if (err != HCNSE_OK) {
         goto failed;
     }

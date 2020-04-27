@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 
-#if (MEMPOOL_USE_MMAP)
+#if (HCNSE_HAVE_MMAP)
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <sys/mman.h>
 #elif (HCNSE_WINDOWS)
@@ -122,7 +122,7 @@ memnode_allocate_and_init(size_t in_size)
 {
     memnode_t *node;
 
-#if (MEMPOOL_USE_MMAP)
+#if (HCNSE_HAVE_MMAP)
     node = mmap(NULL, in_size, PROT_READ|PROT_WRITE,
                                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if (node == MAP_FAILED) {
@@ -342,7 +342,7 @@ hcnse_mempool_destroy(hcnse_mempool_t *pool)
         while (node) {
             temp = node;
             node = node->next;
-#if (MEMPOOL_USE_MMAP)
+#if (HCNSE_HAVE_MMAP)
             munmap(temp, PAGE_SIZE * (i + 1));
 #else
             free(temp);

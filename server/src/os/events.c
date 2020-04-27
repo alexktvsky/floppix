@@ -3,7 +3,7 @@
 
 hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
 {
-#if (EVENTS_USE_SELECT)
+#if (HCNSE_HAVE_SELECT)
     select_process_events(conf);
 #else
 #if (HCNSE_LINUX)

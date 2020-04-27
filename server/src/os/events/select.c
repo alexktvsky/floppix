@@ -5,7 +5,7 @@
 
 #include "os/syshead.h"
 
-#if (EVENTS_USE_SELECT)
+#if (HCNSE_HAVE_SELECT)
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <unistd.h>
 #include <sys/time.h>
@@ -196,4 +196,4 @@ select_process_events(hcnse_conf_t *conf)
         }
     } /* while (1) */
 }
-#endif /* EVENTS_USE_SELECT */
+#endif /* HCNSE_HAVE_SELECT */

@@ -42,7 +42,7 @@
 #define hcnse_close_file(fd)           close(fd)
 #define hcnse_delete_file(name)        unlink((const char *) name)
 
-typedef int server_fd_t;
+typedef int hcnse_fd_t;
 
 
 #elif (HCNSE_WINDOWS)
@@ -76,29 +76,30 @@ typedef int server_fd_t;
 #define hcnse_close_file(fd)           CloseHandle(fd)
 #define hcnse_delete_file(name)        DeleteFile((const char *) name)
 
-typedef HANDLE server_fd_t;
+typedef HANDLE hcnse_fd_t;
 
 #endif
 
 typedef struct hcnse_file_s {
-    server_fd_t fd;
+    hcnse_fd_t fd;
     char *name;
     off_t offset;
 } hcnse_file_t;
 
 
-hcnse_err_t hcnse_file_init(hcnse_file_t *file, const char *fname,
-                            int mode, int create, int access);
+hcnse_err_t hcnse_file_init(hcnse_file_t *file, const char *fname, int mode,
+    int create, int access);
 
-ssize_t hcnse_file_read(hcnse_file_t *file, uint8_t *buf,
-                            size_t size, off_t offset);
+ssize_t hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
+    off_t offset);
 
-ssize_t hcnse_file_write(hcnse_file_t *file, const char *buf,
-                            size_t size, off_t offset);
+ssize_t hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
+    off_t offset);
 
 ssize_t hcnse_file_size(hcnse_file_t *file);
 void hcnse_file_fini(hcnse_file_t *file);
 
+ssize_t hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size);
 ssize_t hcnse_write_stdout(const char *str);
 ssize_t hcnse_write_stderr(const char *str);
 

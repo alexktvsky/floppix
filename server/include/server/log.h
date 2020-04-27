@@ -23,7 +23,7 @@ struct hcnse_log_s {
 };
 
 
-// void server_log_error(int level, const char *description, hcnse_err_t errcode);
+// void hcnse_log_error(int level, const char *description, hcnse_err_t errcode);
 
 
 #endif /* INCLUDED_LOG_H */

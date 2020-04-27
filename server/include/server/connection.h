@@ -10,9 +10,6 @@
 #include "server/errors.h"
 #include "server/list.h"
 
-#define HCNSE_LISTENER_FLAG   0x1
-#define HCNSE_CONNECTION_FLAG 0x2
-
 #define hcnse_listener_get_addr hcnse_connection_get_addr
 #define hcnse_listener_get_port hcnse_connection_get_port
 
@@ -54,6 +51,8 @@ const char *hcnse_connection_get_addr(char *buf,
 const char *hcnse_connection_get_port(char *buf,
     struct sockaddr_storage *sockaddr);
 
-uint8_t hcnse_connection_identifier(void *instance);
+bool hcnse_is_listener(void *instance);
+bool hcnse_is_connection(void *instance);
+
 
 #endif /* INCLUDED_CONNECTION_H */

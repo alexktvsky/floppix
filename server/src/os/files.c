@@ -10,7 +10,7 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
 {
 
-    server_fd_t fd = hcnse_open_file(name, mode, create, access);
+    hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
         return HCNSE_FAILED;
     }
@@ -77,13 +77,13 @@ hcnse_file_size(hcnse_file_t *file)
 }
 
 ssize_t
-server_read_fd(server_fd_t fd, void *buf, size_t n)
+server_read_fd(hcnse_fd_t fd, void *buf, size_t n)
 {
     return read(fd, buf, n);
 }
 
 ssize_t
-server_write_fd(server_fd_t fd, void *buf, size_t n)
+hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t n)
 {
     return write(fd, buf, n);
 }
@@ -95,7 +95,7 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
 {
     (void) access;
-    server_fd_t fd = hcnse_open_file(name, mode, create, access);
+    hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
         return HCNSE_FAILED;
     }
@@ -157,7 +157,7 @@ hcnse_file_size(hcnse_file_t *file)
 }
 
 ssize_t
-server_read_fd(server_fd_t fd, void *buf, size_t size)
+server_read_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
     if (ReadFile(fd, buf, size, &n, NULL) != 0) {
@@ -167,7 +167,7 @@ server_read_fd(server_fd_t fd, void *buf, size_t size)
 }
 
 ssize_t
-server_write_fd(server_fd_t fd, void *buf, size_t size)
+hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
     if (WriteFile(fd, buf, size, &n, NULL) != 0) {
@@ -180,13 +180,13 @@ server_write_fd(server_fd_t fd, void *buf, size_t size)
 ssize_t
 hcnse_write_stdout(const char *str)
 {
-    return server_write_fd(HCNSE_STDOUT, (void *) str, strlen(str));
+    return hcnse_write_fd(HCNSE_STDOUT, (void *) str, strlen(str));
 }
 
 ssize_t
 hcnse_write_stderr(const char *str)
 {
-    return server_write_fd(HCNSE_STDERR, (void *) str, strlen(str));
+    return hcnse_write_fd(HCNSE_STDERR, (void *) str, strlen(str));
 }
 
 void

@@ -1,6 +1,6 @@
 #include "os/syshead.h"
 
-#if !(EVENTS_USE_SELECT)
+#if !(HCNSE_HAVE_SELECT)
 #if (HCNSE_LINUX)
 #include <stdio.h>
 #include <stdint.h>
@@ -151,8 +151,7 @@ process_events(hcnse_conf_t *conf, int n)
 
     for (int i = 0; i < n; i++) {
         /* Search new input connections */
-        if (hcnse_connection_identifier(event_list[i].data.ptr)
-                                                == HCNSE_LISTENER_FLAG) {
+        if (hcnse_is_listener(event_list[i].data.ptr)) {
             err = epoll_add_connect(conf, event_list[i].data.ptr);
             if (err != HCNSE_OK) {
                 goto failed;
@@ -231,4 +230,4 @@ epoll_process_events(hcnse_conf_t *conf)
     } /* while (1) */
 }
 #endif /* HCNSE_LINUX */
-#endif /* EVENTS_USE_SELECT */
+#endif /* HCNSE_HAVE_SELECT */

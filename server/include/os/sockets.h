@@ -21,7 +21,7 @@
 #define HCNSE_SHUT_WR                  SHUT_WR
 #define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
-#define server_close_socket(s)         close(s)
+#define hcnse_close_socket(s)          close(s)
 typedef int hcnse_socket_t;
 
 
@@ -29,7 +29,7 @@ typedef int hcnse_socket_t;
 #include <sys/ioctl.h>
 /* Details for FreeBSD */
 #define HCNSE_INVALID_SOCKET           -1
-#define server_close_socket(s)         close(s)
+#define hcnse_close_socket(s)          close(s)
 typedef int hcnse_socket_t;
 
 
@@ -37,7 +37,7 @@ typedef int hcnse_socket_t;
 #include <sys/ioctl.h>
 /* Details for Solaris */
 #define HCNSE_INVALID_SOCKET           -1
-#define server_close_socket(s)         close(s)
+#define hcnse_close_socket(s)          close(s)
 typedef int hcnse_socket_t;
 
 
@@ -50,7 +50,7 @@ typedef int hcnse_socket_t;
 #define HCNSE_SHUT_WR                  SD_SEND
 #define HCNSE_SHUT_RDWR                SD_BOTH
 #define HCNSE_INVALID_SOCKET           INVALID_SOCKET
-#define server_close_socket(s)         closesocket(s)
+#define hcnse_close_socket(s)          closesocket(s)
 typedef SOCKET hcnse_socket_t;
 
 int hcnse_winsock_init_v22(void);

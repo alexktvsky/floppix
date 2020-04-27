@@ -4,6 +4,9 @@
 #include "server/connection.h"
 #include "server/mempool.h"
 
+#define HCNSE_LISTENER_FLAG   0x1
+#define HCNSE_CONNECTION_FLAG 0x2
+
 
 const char *
 hcnse_connection_get_addr(char *buf, struct sockaddr_storage *sockaddr)
@@ -65,17 +68,17 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
             continue;
         }
         if (hcnse_tcp_nopush(fd) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_TCP_NOPUSH;
             continue;
         }
         if (hcnse_socket_nonblocking(fd) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_TCP_NONBLOCK;
             continue;
         }
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_BIND;
             continue;
         }
@@ -106,7 +109,7 @@ failed:
         freeaddrinfo(result);
     }
     if (fd != HCNSE_INVALID_SOCKET) {
-        server_close_socket(fd);
+        hcnse_close_socket(fd);
     }
     if (connects) {
         hcnse_list_destroy(connects);
@@ -151,17 +154,17 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
             continue;
         }
         if (hcnse_tcp_nopush(fd) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_TCP_NOPUSH;
             continue;
         }
         if (hcnse_socket_nonblocking(fd) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_TCP_NONBLOCK;
             continue;
         }
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-            server_close_socket(fd);
+            hcnse_close_socket(fd);
             err = HCNSE_ERR_NET_BIND;
             continue;
         }
@@ -192,7 +195,7 @@ failed:
         freeaddrinfo(result);
     }
     if (fd != HCNSE_INVALID_SOCKET) {
-        server_close_socket(fd);
+        hcnse_close_socket(fd);
     }
     if (connects) {
         hcnse_list_destroy(connects);
@@ -213,7 +216,7 @@ void
 hcnse_listener_close(hcnse_listener_t *listener)
 {
     if (listener->fd != HCNSE_INVALID_SOCKET) {
-        server_close_socket(listener->fd);
+        hcnse_close_socket(listener->fd);
     }
     listener->fd = HCNSE_INVALID_SOCKET;
 }
@@ -223,7 +226,6 @@ hcnse_listener_cleanup(hcnse_listener_t *listener)
 {
     hcnse_listener_close(listener);
     // What we need to do else?
-
 }
 
 hcnse_err_t
@@ -240,7 +242,7 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
         return HCNSE_ERR_NET_ACCEPT;
     }
     if (hcnse_socket_nonblocking(fd) == -1) {
-        server_close_socket(fd);
+        hcnse_close_socket(fd);
         return HCNSE_ERR_NET_TCP_NONBLOCK;
     }
     connect->identifier = HCNSE_CONNECTION_FLAG;
@@ -254,7 +256,7 @@ void
 hcnse_connection_close(hcnse_connect_t *connect)
 {
     if (connect->fd != HCNSE_INVALID_SOCKET) {
-        server_close_socket(connect->fd);
+        hcnse_close_socket(connect->fd);
     }
     connect->fd = HCNSE_INVALID_SOCKET;
 }
@@ -275,3 +277,22 @@ hcnse_connection_identifier(void *instance)
     return p->identifier;
 }
 
+bool
+hcnse_is_listener(void *instance)
+{
+    struct temp {
+        int8_t identifier;
+    };
+    struct temp *p = (struct temp *) instance;
+    return ((p->identifier) == HCNSE_LISTENER_FLAG);
+}
+
+bool
+hcnse_is_connection(void *instance)
+{
+    struct temp {
+        int8_t identifier;
+    };
+    struct temp *p = (struct temp *) instance;
+    return ((p->identifier) == HCNSE_CONNECTION_FLAG);
+}

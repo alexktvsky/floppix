@@ -6,8 +6,6 @@
 #define HCNSE_LINUX   1
 #define HCNSE_FREEBSD 0
 #define HCNSE_SOLARIS 0
-#define HCNSE_WIN32   0
-#define HCNSE_WIN64   0
 #define HCNSE_WINDOWS 0
 
 #elif defined(__FreeBSD__)
@@ -15,8 +13,6 @@
 #define HCNSE_LINUX   0
 #define HCNSE_FREEBSD 1
 #define HCNSE_SOLARIS 0
-#define HCNSE_WIN32   0
-#define HCNSE_WIN64   0
 #define HCNSE_WINDOWS 0
 
 #elif defined(__sun) && defined(__SVR4)
@@ -24,26 +20,13 @@
 #define HCNSE_LINUX   0
 #define HCNSE_FREEBSD 0
 #define HCNSE_SOLARIS 1
-#define HCNSE_WIN32   0
-#define HCNSE_WIN64   0
 #define HCNSE_WINDOWS 0
 
-#elif defined(__WIN64__)
-#define HCNSE_SYSTEM_NAME "Win64"
+#elif defined(__WIN32__) || defined(__WIN64__)
+#define HCNSE_SYSTEM_NAME "Windows"
 #define HCNSE_LINUX   0
 #define HCNSE_FREEBSD 0
 #define HCNSE_SOLARIS 0
-#define HCNSE_WIN64   1
-#define HCNSE_WIN32   0
-#define HCNSE_WINDOWS 1
-
-#elif defined(__WIN32__)
-#define HCNSE_SYSTEM_NAME "Win32"
-#define HCNSE_LINUX   0
-#define HCNSE_FREEBSD 0
-#define HCNSE_SOLARIS 0
-#define HCNSE_WIN64   0
-#define HCNSE_WIN32   1
 #define HCNSE_WINDOWS 1
 
 #else
