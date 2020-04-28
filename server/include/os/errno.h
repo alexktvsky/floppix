@@ -24,7 +24,9 @@
 
 #endif
 
-const char *hcnse_errno_strerror(hcnse_err_t err);
-size_t hcnse_errno_strerror_r(hcnse_err_t err, char *buf, size_t bufsize);
+typedef int hcnse_errno_t;
+
+const char *hcnse_errno_strerror(hcnse_errno_t err);
+size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize);
 
 #endif /* INCLUDED_OS_ERRNO_H */

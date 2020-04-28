@@ -29,7 +29,7 @@ static fd_set wfds;
 
 
 static hcnse_socket_t
-set_events(hcnse_conf_t *conf)
+hcnse_set_events(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
     hcnse_connect_t *connect;
@@ -76,7 +76,7 @@ set_events(hcnse_conf_t *conf)
 }
 
 static hcnse_err_t
-select_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
+hcnse_select_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
 {
     hcnse_connect_t *connect;
     hcnse_err_t err;
@@ -103,7 +103,7 @@ failed:
 }
 
 static hcnse_err_t
-process_events(hcnse_conf_t *conf)
+hcnse_process_events(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
     hcnse_connect_t *connect;
@@ -116,7 +116,7 @@ process_events(hcnse_conf_t *conf)
         /* Search listeners */
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter1);
         if (FD_ISSET(listener->fd, &rfds)) {
-            err = select_add_connect(conf, listener);
+            err = hcnse_select_add_connect(conf, listener);
             if (err != HCNSE_OK) {
                 goto failed;
             }
@@ -151,7 +151,7 @@ failed:
 }
 
 void
-select_process_events(hcnse_conf_t *conf)
+hcnse_select_process_events(hcnse_conf_t *conf)
 {
     hcnse_msec_t timer = 10000;
     struct timeval tv;
@@ -162,7 +162,7 @@ select_process_events(hcnse_conf_t *conf)
 
     while (1) {
 
-        fdmax = set_events(conf);
+        fdmax = hcnse_set_events(conf);
 
         tv.tv_sec = 10;
         tv.tv_usec = 0;
@@ -180,7 +180,7 @@ select_process_events(hcnse_conf_t *conf)
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
         if (flag == -1) {
             if (hcnse_get_errno() != EINTR) {
-                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
+                hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
                                     hcnse_get_errno(), "select() failed");
                 abort();
             }
@@ -193,10 +193,10 @@ select_process_events(hcnse_conf_t *conf)
             event_timer(conf);
         }
         else {
-            err = process_events(conf);
+            err = hcnse_process_events(conf);
             if (err != HCNSE_OK) {
-                hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                                "process_events() failed");
+                hcnse_log_error2(HCNSE_LOG_EMERG, conf->log,
+                        err, hcnse_get_errno(), "hcnse_process_events() failed");
                 abort();
             }
         }

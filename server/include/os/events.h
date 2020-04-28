@@ -16,9 +16,9 @@ hcnse_err_t hcnse_stop_process_events(void);
 
 
 /* Don't use this functions directly */
-void select_process_events(hcnse_conf_t *conf);
-void epoll_process_events(hcnse_conf_t *conf);
-void kqueue_process_events(hcnse_conf_t *conf);
-void iocp_process_events(hcnse_conf_t *conf);
+void hcnse_select_process_events(hcnse_conf_t *conf);
+void hcnse_epoll_process_events(hcnse_conf_t *conf);
+void hcnse_kqueue_process_events(hcnse_conf_t *conf);
+void hcnse_iocp_process_events(hcnse_conf_t *conf);
 
 #endif /* INCLUDED_OS_EVENTS_H */

@@ -3,10 +3,10 @@
 
 #include "server/errors.h"
 
-#define ERR_UNDEF_CODE 0
+#define HCNSE_ERR_END_LIST 0
 
 
-static const char *message_ok = "HCNSE_OK";
+static const char *message_ok = "OK";
 
 static const struct {
     hcnse_err_t code;
@@ -52,9 +52,9 @@ static const struct {
     {HCNSE_ERR_PROC_DAEMON,          "Failed to create server process"},
     {HCNSE_ERR_PROC_WORKDIR,         "Failed to set process workdir"},
 
-    {HCNSE_FAILED,                   "Default system error"},
+    {HCNSE_FAILED,                   "Default internal error"},
     /* End of error list */
-    {ERR_UNDEF_CODE,                 NULL}
+    {HCNSE_ERR_END_LIST,             "Undefined error code"}
 };
 
 
@@ -77,7 +77,7 @@ size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
     
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
-                    error_list[i].code == ERR_UNDEF_CODE) {
+                error_list[i].code == HCNSE_ERR_END_LIST) {
             len = strlen(error_list[i].message);
             if (len > bufsize) {
                 memmove(buf, error_list[i].message, bufsize);
@@ -88,6 +88,9 @@ size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
                 n = len;
             }
             break;
+        }
+        else {
+            continue;
         }
     }
     return n;
@@ -100,8 +103,11 @@ const char *hcnse_strerror(hcnse_err_t errcode)
     }
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
-                    error_list[i].code == ERR_UNDEF_CODE) {
+                error_list[i].code == HCNSE_ERR_END_LIST) {
             return error_list[i].message;
+        }
+        else {
+            continue;
         }
     }
     return NULL;

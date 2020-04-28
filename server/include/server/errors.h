@@ -10,7 +10,7 @@
 
 
 /* Error domain provides a unique value for all error codes */
-#define HCNSE_ERROR_DOMAIN_BASE       100
+#define HCNSE_ERROR_DOMAIN_BASE        1000
 #define HCNSE_ERROR_DOMAIN(domain) \
     (domain * HCNSE_ERROR_DOMAIN_BASE)
 #define HCNSE_SET_ERROR_DOMAIN(errcode) \

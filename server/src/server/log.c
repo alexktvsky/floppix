@@ -12,7 +12,7 @@
 #include "server/log.h"
 
 #define HCNSE_LOG_BUF_SIZE 32
-#define HCNSE_LOG_MSG_SIZE 100
+#define HCNSE_LOG_MSG_SIZE 300
 
 #define HCNSE_LOG_INIT_DELAY 500
 #define HCNSE_LOG_WORKER_DELAY 1000
@@ -270,22 +270,82 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
 
     msg = hcnse_log_try_write(log);
 
-    buf = msg->str;
+    va_start(args, fmt);
+    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
+    va_end(args);
 
-    if (hcnse_strerror(err)) {
-        len = snprintf(buf, HCNSE_LOG_MSG_SIZE, "Error %d: %s. ",
-            err, hcnse_strerror(err));
+    if (err != HCNSE_OK) {
+        if (HCNSE_LOG_MSG_SIZE > len) {
+            buf = (msg->str) + len;
+            snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
+                err, hcnse_strerror(err));
+        }
     }
-    else {
-        len = snprintf(buf, HCNSE_LOG_MSG_SIZE, "Error %d: %s. ",
-            err, hcnse_errno_strerror(err));
+
+    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
+    msg->level = level;
+    kill(log->pid, SIGALRM);
+}
+
+void
+hcnse_log_error1(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
+    const char *fmt, ...)
+{
+    char *buf;
+    size_t len;
+    hcnse_log_message_t *msg;
+    va_list args;
+
+    if (level > (log->level)) {
+        return;
     }
 
+    msg = hcnse_log_try_write(log);
 
-    if (HCNSE_LOG_MSG_SIZE > len) {
-        va_start(args, fmt);
-        vsnprintf(buf + len, HCNSE_LOG_MSG_SIZE - len, fmt, args);
-        va_end(args);
+    va_start(args, fmt);
+    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
+    va_end(args);
+
+    if (err != HCNSE_OK) {
+        if (HCNSE_LOG_MSG_SIZE > len) {
+            buf = (msg->str) + len;
+            snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
+                err, hcnse_errno_strerror(err));
+        }
+    }
+
+    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
+    msg->level = level;
+    kill(log->pid, SIGALRM);
+}
+
+void
+hcnse_log_error2(uint8_t level, hcnse_log_t *log, hcnse_err_t err1,
+    hcnse_errno_t err2, const char *fmt, ...)
+{
+    char *buf;
+    size_t len;
+    hcnse_log_message_t *msg;
+    va_list args;
+
+    if (level > (log->level)) {
+        return;
+    }
+
+    msg = hcnse_log_try_write(log);
+
+    va_start(args, fmt);
+    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
+    va_end(args);
+
+    if (err1 != HCNSE_OK || err2 != HCNSE_OK) {
+        if (HCNSE_LOG_MSG_SIZE > len) {
+            buf = (msg->str) + len;
+            snprintf(buf, HCNSE_LOG_MSG_SIZE,
+                " (%d: %s) (%d: %s)",
+                    err1, hcnse_strerror(err1),
+                        err2, hcnse_errno_strerror(err2));
+        }
     }
 
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));

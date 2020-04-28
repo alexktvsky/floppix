@@ -4,14 +4,14 @@
 hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
 {
 #if (HCNSE_HAVE_SELECT)
-    select_process_events(conf);
+    hcnse_select_process_events(conf);
 #else
 #if (HCNSE_LINUX)
-    epoll_process_events(conf);
+    hcnse_epoll_process_events(conf);
 #elif (HCNSE_FREEBSD)
-    kqueue_process_events(conf);
+    hcnse_kqueue_process_events(conf);
 #elif (HCNSE_WINDOWS)
-    iocp_process_events(conf);
+    hcnse_iocp_process_events(conf);
 #endif
 #endif
     return HCNSE_OK;

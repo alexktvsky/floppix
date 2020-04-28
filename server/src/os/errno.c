@@ -6,12 +6,12 @@
 
 
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
-const char *hcnse_errno_strerror(hcnse_err_t err)
+const char *hcnse_errno_strerror(hcnse_errno_t err)
 {
     return strerror(err);
 }
 
-size_t hcnse_errno_strerror_r(hcnse_err_t err, char *buf, size_t bufsize)
+size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
     char *strerr = strerror(err);
     size_t len = strlen(strerr);
@@ -29,14 +29,14 @@ size_t hcnse_errno_strerror_r(hcnse_err_t err, char *buf, size_t bufsize)
 
 
 #elif (HCNSE_WINDOWS)
-const char *hcnse_errno_strerror(hcnse_err_t err)
+const char *hcnse_errno_strerror(hcnse_errno_t err)
 {
     static _Thread_local char buf[1024];
     hcnse_errno_strerror_r(err, buf, sizeof(buf));
     return buf;
 }
 
-size_t hcnse_errno_strerror_r(hcnse_err_t err, char *buf, size_t bufsize)
+size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
 
     static DWORD lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
