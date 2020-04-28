@@ -27,17 +27,25 @@ void *hcnse_alloc(size_t size)
     void *mem;
 
     mem = malloc(size);
-    if (!mem) {
-
-    }
-    else {
+    if (mem) {
         total_mem += size;
     }
 
-    // ("memory allocation: %p:%zu", mem, size)
-
     return mem;
 }
+
+void *hcnse_calloc(size_t size)
+{
+    void *mem;
+
+    mem = hcnse_alloc(size);
+    if (!mem) {
+        return mem;
+    }
+    memset(mem, 0, size);
+    return mem;
+}
+
 
 void hcnse_free(void *mem)
 {

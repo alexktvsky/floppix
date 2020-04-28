@@ -17,6 +17,7 @@
 
 #include "server/errors.h"
 #include "os/errno.h"
+#include "os/time.h"
 #include "server/list.h"
 #include "server/connection.h"
 #include "server/log.h"
@@ -83,11 +84,15 @@ select_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
                             conf->free_connects, listener->connects);
     if (!connect) {
         err = HCNSE_ERR_MEM_ALLOC;
+        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
+                                "hcnse_try_use_already_exist_node() failed");
         goto failed;
     }
 
     err = hcnse_connection_accept(connect, listener);
     if (err != HCNSE_OK) {
+        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
+                                        "hcnse_connection_accept() failed");
         goto failed;
     }
 
@@ -148,6 +153,7 @@ failed:
 void
 select_process_events(hcnse_conf_t *conf)
 {
+    hcnse_msec_t timer = 10000;
     struct timeval tv;
     struct timeval *timeout;
     int flag;
@@ -162,24 +168,25 @@ select_process_events(hcnse_conf_t *conf)
         tv.tv_usec = 0;
         timeout = &tv;
 
-        // if (timer == 0) {
-        //     timeout = NULL;
-        // }
-        // else {
-        //     tv.tv_sec = (long) (timer / 1000);
-        //     tv.tv_usec = (long) ((timer % 1000) * 1000);
-        //     timeout = &tv;
-        // }
+        if (timer == 0) {
+            timeout = NULL;
+        }
+        else {
+            tv.tv_sec = (long) (timer / 1000);
+            tv.tv_usec = (long) ((timer % 1000) * 1000);
+            timeout = &tv;
+        }
 
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
-
         if (flag == -1) {
             if (hcnse_get_errno() != EINTR) {
-                fprintf(stderr, "select() failed\n");
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
+                                    hcnse_get_errno(), "select() failed");
                 abort();
             }
             else {
-                printf("interrupted by signal\n");
+                hcnse_log_debug(HCNSE_LOG_DEBUG, conf->log,
+                                            "interrupted by unknown signal");
             }
         }
         else if (!flag) {
@@ -188,9 +195,8 @@ select_process_events(hcnse_conf_t *conf)
         else {
             err = process_events(conf);
             if (err != HCNSE_OK) {
-                fprintf(stderr, "%s\n", "process_events() failed");
-                fprintf(stderr, "%s\n", hcnse_strerror(err));
-                fprintf(stderr, "%s\n", hcnse_errno_strerror(hcnse_get_errno()));
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
+                                                "process_events() failed");
                 abort();
             }
         }

@@ -141,8 +141,8 @@ int main(int argc, char *const argv[])
     }
 
     if (show_version) {
-        fprintf(stdout, "%s (%s, %s)\n", hcnse_version_info(),
-                                hcnse_system_name(), hcnse_build_time());
+        fprintf(stdout, "%s (%s)\n",
+                        hcnse_version_info(), hcnse_build_time());
         return 0;
     }
     if (show_help) {
@@ -193,21 +193,21 @@ int main(int argc, char *const argv[])
         }
     }
 
-
-
-    // err = hcnse_log_init(conf->logfile, conf->log);
-    // if (err != HCNSE_OK) {
-    //     fprintf(stderr, "%s\n", hcnse_strerror(err));
-    //     goto error2;
-    // }
+    err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level);
+    if (err != HCNSE_OK) {
+        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
+                                    hcnse_errno_strerror(hcnse_get_errno()));
+        goto error1;
+    }
 
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
-    // err = hcnse_process_daemon_init();
-    // if (err != HCNSE_OK) {
-    //     hcnse_log_error(LOG_EMERG, "Failed to initialization daemon process", err);
-    //     goto error3;
-    // }
+    err = hcnse_process_daemon_init();
+    if (err != HCNSE_OK) {
+        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
+                                    "hcnse_process_daemon_init() failed");
+        goto error2;
+    }
 
     /* TODO:
      * hcnse_signals_init
@@ -222,7 +222,8 @@ int main(int argc, char *const argv[])
 
     return 0;
 
-
+error2:
+    hcnse_log_fini(conf->log);
 error1:
     hcnse_config_fini(conf);
 error0:

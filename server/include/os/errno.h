@@ -5,16 +5,17 @@
 #include <stddef.h>
 #include <errno.h>
 
+#include "os/syshead.h"
 #include "server/errors.h"
 
 
-#if defined(__linux__) || defined(__gnu_linux__)
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <errno.h>
 
 #define hcnse_get_errno()             (errno)
 #define hcnse_set_errno(err)          (errno = err)
 
-#elif defined(__WIN32__) || defined(__WIN64__)
+#elif (HCNSE_WINDOWS)
 #include <errno.h>
 #include <windows.h> /* errhandlingapi.h */
 

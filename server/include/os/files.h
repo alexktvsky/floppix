@@ -26,8 +26,8 @@
 /* create */
 #define HCNSE_FILE_OPEN                0 // Don't open if already existing
 #define HCNSE_FILE_CREATE_OR_OPEN      O_CREAT
-#define HCNSE_FILE_TRUNCATE            (O_CREAT|O_TRUNC)
-#define HCNSE_FILE_APPEND              (O_WRONLY|O_APPEND)
+#define HCNSE_FILE_TRUNCATE            O_TRUNC
+#define HCNSE_FILE_APPEND              O_APPEND
 #define HCNSE_FILE_NONBLOCK            O_NONBLOCK
 
 /* access */
@@ -95,6 +95,8 @@ ssize_t hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
 
 ssize_t hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
     off_t offset);
+
+ssize_t hcnse_file_write1(hcnse_file_t *file, const char *buf, size_t size);
 
 ssize_t hcnse_file_size(hcnse_file_t *file);
 void hcnse_file_fini(hcnse_file_t *file);

@@ -9,7 +9,6 @@ hcnse_err_t
 hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
 {
-
     hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
         return HCNSE_FAILED;
@@ -176,6 +175,13 @@ hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
     return -1;
 }
 #endif
+
+ssize_t
+hcnse_file_write1(hcnse_file_t *file, const char *buf, size_t size)
+{
+    return hcnse_file_write(file, buf, size, file->offset);
+}
+
 
 ssize_t
 hcnse_write_stdout(const char *str)

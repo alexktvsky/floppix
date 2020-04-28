@@ -54,7 +54,7 @@ static const struct {
 
     {HCNSE_FAILED,                   "Default system error"},
     /* End of error list */
-    {ERR_UNDEF_CODE,                 "Undefined error code"}
+    {ERR_UNDEF_CODE,                 NULL}
 };
 
 
