@@ -20,12 +20,15 @@
 #define HCNSE_ERR_CONF                 HCNSE_ERROR_DOMAIN(1)
 #define HCNSE_ERR_CONF_REGEX           (HCNSE_ERR_CONF+1)
 
-#define HCNSE_ERR_NET                  HCNSE_ERROR_DOMAIN(2)
+#define HCNSE_ERR_LOG                  HCNSE_ERROR_DOMAIN(2)
+#define HCNSE_ERR_LOG_BIG              (HCNSE_ERR_LOG+1)
+
+#define HCNSE_ERR_NET                  HCNSE_ERROR_DOMAIN(3)
 #define HCNSE_ERR_NET_GAI              (HCNSE_ERR_NET+1)
 #define HCNSE_ERR_NET_GSN              (HCNSE_ERR_NET+2)
 #define HCNSE_ERR_NET_GPN              (HCNSE_ERR_NET+3)
 
-#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(3)
+#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(4)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
 
 

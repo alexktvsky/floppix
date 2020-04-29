@@ -42,6 +42,7 @@ typedef struct {
 struct hcnse_log_s {
     hcnse_file_t *file;
     uint8_t level;
+    size_t size;
     hcnse_shared_record_t *buf;
     uint32_t front;
     uint32_t rear;
@@ -61,7 +62,6 @@ hcnse_log_alarm_handler(int sig) {
     (void) sig;
     signal(SIGALRM, hcnse_log_alarm_handler);
 }
-
 
 static hcnse_log_message_t *
 hcnse_log_try_write(hcnse_log_t *log)
@@ -124,7 +124,6 @@ hcnse_log_worker(hcnse_log_t *log)
     size_t len;
     char buf[maxlen];
 
-
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
 
     while (1) {
@@ -133,6 +132,13 @@ hcnse_log_worker(hcnse_log_t *log)
         len = snprintf(buf, maxlen, "%s [%s] %s\n", 
                                 msg->time, prio[msg->level], msg->str);
 
+        /* TODO: Improve logs rotation */
+        if (log->size) {
+            if ((log->file->offset + len) > (log->size)) {
+                log->file->offset = 0;
+            }
+        }
+
         if (hcnse_file_write1(log->file, buf, len) == -1) {
             /* what need to do? */
         }
@@ -140,12 +146,13 @@ hcnse_log_worker(hcnse_log_t *log)
 }
 
 hcnse_err_t
-hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
+hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
 {
     hcnse_log_t *log = NULL;
     hcnse_file_t *file = NULL;
     hcnse_shared_record_t *buf;
     size_t mem_size;
+    ssize_t file_size;
     pid_t pid;
     hcnse_err_t err;
 
@@ -162,12 +169,23 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
         goto failed;
     }
 
-    err = hcnse_file_init(file, fname, HCNSE_FILE_RDWR,
-                    HCNSE_FILE_CREATE_OR_OPEN|HCNSE_FILE_APPEND,
+    err = hcnse_file_init(file, fname, HCNSE_FILE_WRONLY,
+                                    HCNSE_FILE_CREATE_OR_OPEN,
                                             HCNSE_FILE_OWNER_ACCESS);
     if (err != HCNSE_OK) {
         goto failed;
     }
+
+    file_size = hcnse_file_size(file);
+    if (file_size == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+    if (((size_t) file_size) >= size) {
+        err = HCNSE_ERR_LOG_BIG;
+        goto failed;
+    }
+    file->offset = file_size;
 
     mem_size = sizeof(hcnse_shared_record_t) * HCNSE_LOG_BUF_SIZE;
 
@@ -177,7 +195,6 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
         err = hcnse_get_errno();;
         goto failed;
     }
-
 
     pthread_mutexattr_t attr;
     if (pthread_mutexattr_init(&attr) || 
@@ -195,9 +212,9 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
         pthread_mutex_lock(&(buf[i].mutex_fetch));
     }
 
-
     log->file = file;
     log->level = level;
+    log->size = size;
     log->buf = buf;
 
     /* XXX: Init all log struct fields before run worker */

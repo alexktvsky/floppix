@@ -199,7 +199,7 @@ int main(int argc, char *const argv[])
         }
     }
 
-    err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level);
+    err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level, conf->log_size);
     if (err != HCNSE_OK) {
         fprintf(stderr, "%s: %s\n",
             "Failed to set open log", hcnse_strerror(err));
