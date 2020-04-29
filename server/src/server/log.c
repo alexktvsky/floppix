@@ -150,14 +150,14 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
     pid_t pid;
     hcnse_err_t err;
 
-    log = hcnse_alloc(sizeof(hcnse_log_t));
+    log = hcnse_malloc(sizeof(hcnse_log_t));
     if (!log) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;
     }
     memset(log, 0, sizeof(hcnse_log_t));
 
-    file = hcnse_alloc(sizeof(hcnse_file_t));
+    file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;

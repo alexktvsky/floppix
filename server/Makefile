@@ -40,23 +40,37 @@ build: override LDFLAGS += -static -static-libgcc
 CC = gcc
 
 ifeq ($(CC), gcc)
+	GCC_VER = $(shell $(CC) -v 2>&1 | grep 'gcc version' 2>&1 \
+		| sed -e 's/^.* version \(.*\)/\1/')
+	override CFLAGS += -DHCNSE_COMPILER="\"gcc $(GCC_VER)\""
 	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), clang)
+	CLANG_VER = $(shell $(CC) -v 2>&1 | grep 'version' 2>&1 \
+		| sed -n -e 's/^.*clang version \(.*\)/\1/p' \
+		-e 's/^.*LLVM version \(.*\)/\1/p')
+	override CFLAGS += -DHCNSE_COMPILER="\"clang $(CLANG_VER)\""
 	override CFLAGS += -Qunused-arguments
 	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
+	MINGW_VER = $(shell $(CC) -v 2>&1 | grep 'gcc version' 2>&1 \
+		| sed -e 's/^.* version \(.*\)/\1/')
+	override CFLAGS += -DHCNSE_COMPILER="\"mingw $(MINGW_VER)\""
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
+	MINGW_VER = $(shell $(CC) -v 2>&1 | grep 'gcc version' 2>&1 \
+		| sed -e 's/^.* version \(.*\)/\1/')
+	override CFLAGS += -DHCNSE_COMPILER="\"mingw $(MINGW_VER)\""
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
 endif
+
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);

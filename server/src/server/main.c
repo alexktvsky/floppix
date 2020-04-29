@@ -127,11 +127,21 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     }
 }
 
+static void hcnse_show_version_info(void)
+{
+    fprintf(stdout, "%s (%s)\n",
+                        hcnse_version_info(), hcnse_build_time());
+#ifdef HCNSE_COMPILER
+    fprintf(stdout, "Built by %s\n", HCNSE_COMPILER);
+#endif
+}
+
 
 int main(int argc, char *const argv[])
 {
     hcnse_listener_t *listener;
     hcnse_conf_t *conf;
+    hcnse_lnode_t *iter;
     hcnse_err_t err;
 
     err = hcnse_parse_argv(argc, argv);
@@ -141,15 +151,13 @@ int main(int argc, char *const argv[])
     }
 
     if (show_version) {
-        fprintf(stdout, "%s (%s)\n",
-                        hcnse_version_info(), hcnse_build_time());
+        hcnse_show_version_info();
         return 0;
     }
     if (show_help) {
         fprintf(stdout, "%s\n", "Some help info");
         return 0;
     }
-
 
 #if (HCNSE_WINDOWS)
     err = hcnse_winsock_init_v22();
@@ -180,10 +188,8 @@ int main(int argc, char *const argv[])
         goto error1;
     }
 
-    hcnse_lnode_t *iter;
     for (iter = hcnse_list_first(conf->listeners);
                                         iter; iter = hcnse_list_next(iter)) {
-
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
         err = hcnse_listener_start_listen(listener);
         if (err != HCNSE_OK) {

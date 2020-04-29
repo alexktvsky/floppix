@@ -23,7 +23,7 @@ const size_t hcnse_lnode_t_size = sizeof(hcnse_lnode_t);
 hcnse_list_t *
 hcnse_list_create(void)
 {
-    hcnse_list_t *new_list = hcnse_alloc(sizeof(hcnse_list_t));
+    hcnse_list_t *new_list = hcnse_malloc(sizeof(hcnse_list_t));
     if (!new_list) {
         return NULL;
     }
@@ -34,7 +34,7 @@ hcnse_list_create(void)
 hcnse_err_t
 hcnse_list_create1(hcnse_list_t **list)
 {
-    hcnse_list_t *new_list = hcnse_alloc(sizeof(hcnse_list_t));
+    hcnse_list_t *new_list = hcnse_malloc(sizeof(hcnse_list_t));
     if (!new_list) {
         return EXIT_FAILURE;
     }
@@ -151,7 +151,7 @@ hcnse_list_destroy(hcnse_list_t *list)
 hcnse_lnode_t *
 hcnse_list_create_node(size_t size)
 {
-    void *mem = hcnse_alloc(sizeof(hcnse_lnode_t) + size);
+    void *mem = hcnse_malloc(sizeof(hcnse_lnode_t) + size);
     if (!mem) {
         return NULL;
     }
@@ -163,7 +163,7 @@ hcnse_list_create_node(size_t size)
 hcnse_err_t
 hcnse_list_create_node1(hcnse_lnode_t **node, size_t size)
 {
-    void *mem = hcnse_alloc(sizeof(hcnse_lnode_t) + size);
+    void *mem = hcnse_malloc(sizeof(hcnse_lnode_t) + size);
     if (!mem) {
         return EXIT_FAILURE;
     }

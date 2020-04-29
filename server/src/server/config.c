@@ -91,12 +91,12 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
         goto failed;
     }
 
-    raw_data = hcnse_alloc(fsize * sizeof(char) + 1);
+    raw_data = hcnse_malloc(fsize * sizeof(char) + 1);
     if (!raw_data) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;
     }
-    data = hcnse_alloc(fsize * sizeof(char) + 1);
+    data = hcnse_malloc(fsize * sizeof(char) + 1);
     if (!data) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;
@@ -290,14 +290,14 @@ hcnse_err_t hcnse_config_init(hcnse_conf_t **in_conf, const char *fname)
     hcnse_list_t *free_connects = NULL;
     hcnse_err_t err;
 
-    conf = hcnse_alloc(sizeof(hcnse_conf_t));
+    conf = hcnse_malloc(sizeof(hcnse_conf_t));
     if (!conf) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;
     }
     memset(conf, 0, sizeof(hcnse_conf_t));
 
-    file = hcnse_alloc(sizeof(hcnse_file_t));
+    file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
         err = HCNSE_ERR_MEM_ALLOC;
         goto failed;

@@ -22,7 +22,7 @@ void hcnse_explicit_memzero(void *buf, size_t n)
     memory_barrier();
 }
 
-void *hcnse_alloc(size_t size)
+void *hcnse_malloc(size_t size)
 {
     void *mem;
 
@@ -38,7 +38,7 @@ void *hcnse_calloc(size_t size)
 {
     void *mem;
 
-    mem = hcnse_alloc(size);
+    mem = hcnse_malloc(size);
     if (!mem) {
         return mem;
     }

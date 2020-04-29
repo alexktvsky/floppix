@@ -135,7 +135,7 @@ epoll_init(hcnse_conf_t *conf)
         return HCNSE_FAILED;
     }
 
-    event_list = hcnse_alloc(sizeof(struct epoll_event) * max_events);
+    event_list = hcnse_malloc(sizeof(struct epoll_event) * max_events);
     if (!event_list) {
         return HCNSE_ERR_MEM_ALLOC;
     }
