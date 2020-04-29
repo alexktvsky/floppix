@@ -27,8 +27,7 @@ static int epfd = HCNSE_INVALID_SOCKET;
 
 
 static hcnse_err_t
-hcnse_epoll_add_listener(hcnse_conf_t *conf, hcnse_listener_t *listener,
-    int flags)
+hcnse_epoll_add_listener(hcnse_listener_t *listener, int flags)
 {
     struct epoll_event ee;
     int op = EPOLL_CTL_ADD; // When we need to use EPOLL_CTL_MOD?
@@ -37,17 +36,14 @@ hcnse_epoll_add_listener(hcnse_conf_t *conf, hcnse_listener_t *listener,
     ee.data.ptr = listener;
 
     if (epoll_ctl(epfd, op, listener->fd, &ee) == -1) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_ctl() failed");
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     return HCNSE_OK;
 }
 
 static hcnse_err_t
-hcnse_epoll_del_listener(hcnse_conf_t *conf, hcnse_listener_t *listener,
-    int flags)
+hcnse_epoll_del_listener(hcnse_listener_t *listener, int flags)
 {
     struct epoll_event ee;
     int op = EPOLL_CTL_DEL; // When we need to use EPOLL_CTL_MOD?
@@ -56,9 +52,7 @@ hcnse_epoll_del_listener(hcnse_conf_t *conf, hcnse_listener_t *listener,
     ee.data.ptr = listener;
 
     if (epoll_ctl(epfd, op, listener->fd, &ee) == -1) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_ctl() failed");
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     return HCNSE_OK;
@@ -74,16 +68,12 @@ hcnse_epoll_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
     connect = hcnse_try_use_already_exist_node(hcnse_connect_t,
                             conf->free_connects, listener->connects);
     if (!connect) {
-        err = HCNSE_ERR_MEM_ALLOC;
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                "hcnse_try_use_already_exist_node() failed");
+        err = hcnse_get_errno();
         goto failed;
     }
 
     err = hcnse_connection_accept(connect, listener);
     if (err != HCNSE_OK) {
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                        "hcnse_connection_accept() failed");
         goto failed;
     }
 
@@ -91,9 +81,7 @@ hcnse_epoll_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
     ee.data.ptr = connect;
 
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, connect->fd, &ee) == -1) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_ctl() failed");
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     return HCNSE_OK;
@@ -111,20 +99,18 @@ hcnse_epoll_del_connect(hcnse_conf_t *conf, hcnse_connect_t *connect)
     ee.data.ptr = NULL;
 
     if (epoll_ctl(epfd, EPOLL_CTL_DEL, connect->fd, &ee) == -1) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_ctl() failed");
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     hcnse_connection_cleanup(connect);
-    hcnse_list_reserve_node(connect,
-                                conf->free_connects, connect->owner->connects);
+    hcnse_list_reserve_node(connect, conf->free_connects,
+                                        connect->owner->connects);
 
     return HCNSE_OK;
 }
 
 static hcnse_err_t
-epoll_init(hcnse_conf_t *conf)
+hcnse_epoll_init(hcnse_conf_t *conf)
 {
     hcnse_err_t err;
 
@@ -132,21 +118,20 @@ epoll_init(hcnse_conf_t *conf)
 
     epfd = epoll_create1(0);
     if (epfd == -1) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     event_list = hcnse_malloc(sizeof(struct epoll_event) * max_events);
     if (!event_list) {
-        return HCNSE_ERR_MEM_ALLOC;
+        return hcnse_get_errno();
     }
-
 
     hcnse_lnode_t *iter1;
     hcnse_listener_t *listener;
     for (iter1 = hcnse_list_first(conf->listeners);
                                         iter1; iter1 = hcnse_list_next(iter1)) {
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter1);
-        err = hcnse_epoll_add_listener(conf, listener, EPOLLIN|EPOLLET);
+        err = hcnse_epoll_add_listener(listener, EPOLLIN|EPOLLET);
         if (err != HCNSE_OK) {
             return err;
         }
@@ -204,9 +189,10 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
     hcnse_msec_t timer = 10000;
     hcnse_err_t err;
 
-    if (epoll_init(conf) != HCNSE_OK) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_init() failed");
+    err = hcnse_epoll_init(conf);
+    if (err != HCNSE_OK) {
+        hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
+                                    err, "epoll_init() failed");
         abort();
     }
 
@@ -215,7 +201,7 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
         n = epoll_wait(epfd, event_list, max_events, (int) timer);
         if (n == -1) {
             if (hcnse_get_errno() != EINTR) {
-                hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
                                     hcnse_get_errno(), "epoll_wait() failed");
                 abort();
             }
@@ -234,8 +220,8 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
         else {
             err = hcnse_process_events(conf, n);
             if (err != HCNSE_OK) {
-                hcnse_log_error2(HCNSE_LOG_EMERG, conf->log,
-                        err, hcnse_get_errno(), "hcnse_process_events() failed");
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
+                        err, "hcnse_process_events() failed");
                 abort();
             }
         }

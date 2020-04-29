@@ -15,9 +15,8 @@
 #include <winsock2.h>
 #endif
 
-#include "server/errors.h"
-#include "os/errno.h"
 #include "os/time.h"
+#include "server/errors.h"
 #include "server/list.h"
 #include "server/connection.h"
 #include "server/log.h"
@@ -83,16 +82,12 @@ hcnse_select_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
     connect = hcnse_try_use_already_exist_node(hcnse_connect_t,
                             conf->free_connects, listener->connects);
     if (!connect) {
-        err = HCNSE_ERR_MEM_ALLOC;
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                "hcnse_try_use_already_exist_node() failed");
+        err = hcnse_get_errno();
         goto failed;
     }
 
     err = hcnse_connection_accept(connect, listener);
     if (err != HCNSE_OK) {
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                        "hcnse_connection_accept() failed");
         goto failed;
     }
 
@@ -180,12 +175,12 @@ hcnse_select_process_events(hcnse_conf_t *conf)
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
         if (flag == -1) {
             if (hcnse_get_errno() != EINTR) {
-                hcnse_log_error1(HCNSE_LOG_EMERG, conf->log,
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
                                     hcnse_get_errno(), "select() failed");
                 abort();
             }
             else {
-                hcnse_log_debug(HCNSE_LOG_DEBUG, conf->log,
+                hcnse_log_error(HCNSE_LOG_INFO, conf->log, HCNSE_OK,
                                             "interrupted by unknown signal");
             }
         }
@@ -195,8 +190,8 @@ hcnse_select_process_events(hcnse_conf_t *conf)
         else {
             err = hcnse_process_events(conf);
             if (err != HCNSE_OK) {
-                hcnse_log_error2(HCNSE_LOG_EMERG, conf->log,
-                        err, hcnse_get_errno(), "hcnse_process_events() failed");
+                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
+                                        err, "hcnse_process_events() failed");
                 abort();
             }
         }

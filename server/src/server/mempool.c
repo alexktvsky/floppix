@@ -153,7 +153,7 @@ hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent)
      * Allocate from stack or text section instead?
      */
     if (!pool) {
-        return HCNSE_ERR_MEM_INIT_POOL;
+        return hcnse_get_errno();
     }
     memset(pool, 0, SIZEOF_MEMPOOL_T);
 

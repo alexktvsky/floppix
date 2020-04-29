@@ -87,25 +87,25 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
 
     fsize = hcnse_file_size(conf->file);
     if (fsize == -1) {
-        err = HCNSE_ERR_CONF_SIZE;
+        err = hcnse_get_errno();
         goto failed;
     }
 
     raw_data = hcnse_malloc(fsize * sizeof(char) + 1);
     if (!raw_data) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
     data = hcnse_malloc(fsize * sizeof(char) + 1);
     if (!data) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
     ptr = data;
 
     bytes_read = hcnse_file_read(conf->file, (uint8_t *) raw_data, fsize, 0);
     if (bytes_read != fsize) {
-        err = HCNSE_ERR_CONF_READ;
+        err = hcnse_get_errno();
         goto failed;
     }
     raw_data[fsize] = '\0';
@@ -292,14 +292,14 @@ hcnse_err_t hcnse_config_init(hcnse_conf_t **in_conf, const char *fname)
 
     conf = hcnse_malloc(sizeof(hcnse_conf_t));
     if (!conf) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
     memset(conf, 0, sizeof(hcnse_conf_t));
 
     file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
 
@@ -312,9 +312,10 @@ hcnse_err_t hcnse_config_init(hcnse_conf_t **in_conf, const char *fname)
         goto failed;
     }
 
-    if (hcnse_file_init(file, fname, HCNSE_FILE_RDONLY,
-                    HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS) != HCNSE_OK) {
-        err = HCNSE_ERR_CONF_OPEN;
+    err = hcnse_file_init(file, fname, HCNSE_FILE_RDONLY,
+                    HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
+
+    if (err != HCNSE_OK) {
         goto failed;
     }
 

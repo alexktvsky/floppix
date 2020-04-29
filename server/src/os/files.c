@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "os/files.h"
+#include "server/errors.h"
 
 
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
@@ -11,7 +12,7 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
 {
     hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
     file->fd = fd;
     file->name = (char *) name;
@@ -96,7 +97,7 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     (void) access;
     hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
     file->fd = fd;
     file->name = (char *) name;

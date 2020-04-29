@@ -2,6 +2,7 @@
 #define INCLUDED_OS_SOCKETS_H
 
 #include "os/syshead.h"
+#include "server/errors.h"
 
 /* Some operating systems do not support a value more than 5 */
 #define HCNSE_MAX_CONNECT_QUEUELEN     5
@@ -53,13 +54,13 @@ typedef int hcnse_socket_t;
 #define hcnse_close_socket(s)          closesocket(s)
 typedef SOCKET hcnse_socket_t;
 
-int hcnse_winsock_init_v22(void);
+hcnse_err_t hcnse_winsock_init_v22(void);
 
 #endif
 
-int hcnse_tcp_nopush(hcnse_socket_t s);
-int hcnse_tcp_push(hcnse_socket_t s);
-int hcnse_socket_nonblocking(hcnse_socket_t s);
-int hcnse_socket_blocking(hcnse_socket_t s);
+hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s);
+hcnse_err_t hcnse_tcp_push(hcnse_socket_t s);
+hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s);
+hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s);
 
 #endif /* INCLUDED_OS_SOCKETS_H */

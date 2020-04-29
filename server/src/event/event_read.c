@@ -1,11 +1,9 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 
 #include "server/log.h"
+#include "server/errors.h" // HCNSE_EAGAIN
 #include "server/events.h"
-#include "os/errno.h" // EAGAIN
-
 
 hcnse_err_t event_read(hcnse_conf_t *conf, hcnse_connect_t *connect)
 {

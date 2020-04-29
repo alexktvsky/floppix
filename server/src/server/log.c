@@ -7,7 +7,6 @@
 #include "os/memory.h"
 #include "os/files.h"
 #include "os/time.h"
-#include "os/errno.h"
 #include "server/errors.h"
 #include "server/log.h"
 
@@ -152,21 +151,21 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
 
     log = hcnse_malloc(sizeof(hcnse_log_t));
     if (!log) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
     memset(log, 0, sizeof(hcnse_log_t));
 
     file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();
         goto failed;
     }
 
-    if (hcnse_file_init(file, fname, HCNSE_FILE_RDWR,
-                                        HCNSE_FILE_CREATE_OR_OPEN|HCNSE_FILE_APPEND,
-                                    HCNSE_FILE_OWNER_ACCESS) != HCNSE_OK) {
-        err = HCNSE_ERR_LOG_OPEN;
+    err = hcnse_file_init(file, fname, HCNSE_FILE_RDWR,
+                    HCNSE_FILE_CREATE_OR_OPEN|HCNSE_FILE_APPEND,
+                                            HCNSE_FILE_OWNER_ACCESS);
+    if (err != HCNSE_OK) {
         goto failed;
     }
 
@@ -175,7 +174,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
     buf = mmap(NULL, mem_size, PROT_READ|PROT_WRITE,
                                     MAP_SHARED|MAP_ANONYMOUS, -1, 0);
     if (buf == MAP_FAILED) {
-        err = HCNSE_ERR_MEM_ALLOC;
+        err = hcnse_get_errno();;
         goto failed;
     }
 
@@ -183,14 +182,14 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
     pthread_mutexattr_t attr;
     if (pthread_mutexattr_init(&attr) || 
         pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED)) {
-        err = HCNSE_FAILED;
+        err = hcnse_get_errno();
         goto failed;
     }
 
     for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
         if (pthread_mutex_init(&(buf[i].mutex_deposit), &attr) ||
             pthread_mutex_init(&(buf[i].mutex_fetch), &attr)) {
-            err = HCNSE_FAILED;
+            err = hcnse_get_errno();
             goto failed;
         }
         pthread_mutex_lock(&(buf[i].mutex_fetch));
@@ -205,7 +204,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level)
     pid = fork();
 
     if (pid == -1) {
-        err = HCNSE_FAILED;
+        err = hcnse_get_errno();
         goto failed;
     }
 
@@ -279,72 +278,6 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
             buf = (msg->str) + len;
             snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
                 err, hcnse_strerror(err));
-        }
-    }
-
-    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
-    msg->level = level;
-    kill(log->pid, SIGALRM);
-}
-
-void
-hcnse_log_error1(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
-    const char *fmt, ...)
-{
-    char *buf;
-    size_t len;
-    hcnse_log_message_t *msg;
-    va_list args;
-
-    if (level > (log->level)) {
-        return;
-    }
-
-    msg = hcnse_log_try_write(log);
-
-    va_start(args, fmt);
-    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
-    va_end(args);
-
-    if (err != HCNSE_OK) {
-        if (HCNSE_LOG_MSG_SIZE > len) {
-            buf = (msg->str) + len;
-            snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
-                err, hcnse_errno_strerror(err));
-        }
-    }
-
-    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
-    msg->level = level;
-    kill(log->pid, SIGALRM);
-}
-
-void
-hcnse_log_error2(uint8_t level, hcnse_log_t *log, hcnse_err_t err1,
-    hcnse_errno_t err2, const char *fmt, ...)
-{
-    char *buf;
-    size_t len;
-    hcnse_log_message_t *msg;
-    va_list args;
-
-    if (level > (log->level)) {
-        return;
-    }
-
-    msg = hcnse_log_try_write(log);
-
-    va_start(args, fmt);
-    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
-    va_end(args);
-
-    if (err1 != HCNSE_OK || err2 != HCNSE_OK) {
-        if (HCNSE_LOG_MSG_SIZE > len) {
-            buf = (msg->str) + len;
-            snprintf(buf, HCNSE_LOG_MSG_SIZE,
-                " (%d: %s) (%d: %s)",
-                    err1, hcnse_strerror(err1),
-                        err2, hcnse_errno_strerror(err2));
         }
     }
 

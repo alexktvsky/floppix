@@ -3,6 +3,7 @@
 
 #include "os/syshead.h"
 #include "os/process.h"
+#include "server/errors.h"
 
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <unistd.h>
@@ -19,7 +20,7 @@ hcnse_err_t hcnse_process_daemon_init(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
-        return HCNSE_ERR_PROC_DAEMON;
+        return hcnse_get_errno();
     }
     /* Parent terminates */
     if (pid) {
@@ -27,13 +28,13 @@ hcnse_err_t hcnse_process_daemon_init(void)
     }
     /* Become session leader */
     if (setsid() < 0) { 
-        return HCNSE_ERR_PROC_DAEMON;
+        return hcnse_get_errno();
     }
 
     signal(SIGHUP, SIG_IGN);
 
     if ((pid = fork()) < 0) {
-        return HCNSE_ERR_PROC_DAEMON;
+        return hcnse_get_errno();
     }
     /* 1th child terminates */
     if (pid) {
@@ -56,7 +57,7 @@ hcnse_err_t hcnse_process_daemon_init(void)
 hcnse_err_t hcnse_process_set_workdir(const char *workdir)
 {
     if ((chdir(workdir)) < 0) {
-        return HCNSE_ERR_PROC_WORKDIR;
+        return hcnse_get_errno();
     }
     return HCNSE_OK;
 }
@@ -71,7 +72,7 @@ hcnse_err_t hcnse_process_daemon_init(void)
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 
     if (FreeConsole() == 0) {
-        return HCNSE_ERR_PROC_DAEMON;
+        return hcnse_get_errno();
     }
 
     _close(STDIN_FILENO);
@@ -88,7 +89,7 @@ hcnse_err_t hcnse_process_daemon_init(void)
 hcnse_err_t hcnse_process_set_workdir(const char *workdir)
 {
     if (!SetCurrentDirectory(workdir)) {
-        return HCNSE_ERR_PROC_WORKDIR;
+        return hcnse_get_errno();
     }
     return HCNSE_OK;
 }

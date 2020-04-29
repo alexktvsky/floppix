@@ -57,29 +57,29 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     hints.ai_protocol = IPPROTO_TCP;
 
     if (getaddrinfo(ip, port, &hints, &result) != 0) {
-        err = HCNSE_ERR_NET_GAI;
+        err = hcnse_get_socket_errno();
         goto failed;
     }
 
     for (rp = result; rp; rp = rp->ai_next) {
         fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == HCNSE_INVALID_SOCKET) {
-            err = HCNSE_ERR_NET_SOCKET;
+            err = hcnse_get_socket_errno();
             continue;
         }
-        if (hcnse_tcp_nopush(fd) == -1) {
+        err = hcnse_tcp_nopush(fd);
+        if (err != HCNSE_OK) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_TCP_NOPUSH;
             continue;
         }
-        if (hcnse_socket_nonblocking(fd) == -1) {
+        err = hcnse_socket_nonblocking(fd);
+        if (err != HCNSE_OK) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_TCP_NONBLOCK;
             continue;
         }
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_BIND;
+            err = hcnse_get_socket_errno();
             continue;
         }
         /* Stop search, we found available address */
@@ -150,22 +150,22 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     for (rp = result; rp; rp = rp->ai_next) {
         fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (fd == HCNSE_INVALID_SOCKET) {
-            err = HCNSE_ERR_NET_SOCKET;
+            err = hcnse_get_socket_errno();
             continue;
         }
-        if (hcnse_tcp_nopush(fd) == -1) {
+        err = hcnse_tcp_nopush(fd);
+        if (err != HCNSE_OK) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_TCP_NOPUSH;
             continue;
         }
-        if (hcnse_socket_nonblocking(fd) == -1) {
+        err = hcnse_socket_nonblocking(fd);
+        if (err != HCNSE_OK) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_TCP_NONBLOCK;
             continue;
         }
         if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
             hcnse_close_socket(fd);
-            err = HCNSE_ERR_NET_BIND;
+            err = hcnse_get_socket_errno();
             continue;
         }
         /* Stop search, we found available address */
@@ -207,7 +207,7 @@ hcnse_err_t
 hcnse_listener_start_listen(hcnse_listener_t *listener)
 {
     if (listen(listener->fd, HCNSE_MAX_CONNECT_QUEUELEN) == -1) {
-        return HCNSE_ERR_NET_LISTEN;
+        return hcnse_get_socket_errno();
     }
     return HCNSE_OK;
 }
@@ -233,17 +233,19 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
 {
     hcnse_socket_t fd;
     socklen_t addr_len;
+    hcnse_err_t err;
 
     addr_len = sizeof(struct sockaddr_in);
     fd = accept(listener->fd,
                         (struct sockaddr *) &connect->sockaddr,
                                                     &addr_len);
     if (fd == HCNSE_INVALID_SOCKET) {
-        return HCNSE_ERR_NET_ACCEPT;
+        return hcnse_get_socket_errno();
     }
-    if (hcnse_socket_nonblocking(fd) == -1) {
+    err = hcnse_socket_nonblocking(fd);
+    if (err != HCNSE_OK) {
         hcnse_close_socket(fd);
-        return HCNSE_ERR_NET_TCP_NONBLOCK;
+        return err;
     }
     connect->identifier = HCNSE_CONNECTION_FLAG;
     connect->fd = fd;

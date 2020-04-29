@@ -29,11 +29,4 @@ void hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...);
 void hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...);
 
-/* For systems errors */
-void hcnse_log_error1(uint8_t level, hcnse_log_t *log, hcnse_errno_t err,
-    const char *fmt, ...);
-
-void hcnse_log_error2(uint8_t level, hcnse_log_t *log, hcnse_err_t err1,
-    hcnse_errno_t err2, const char *fmt, ...);
-
 #endif /* INCLUDED_LOG_H */

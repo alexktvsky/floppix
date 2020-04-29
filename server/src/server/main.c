@@ -162,16 +162,16 @@ int main(int argc, char *const argv[])
 #if (HCNSE_WINDOWS)
     err = hcnse_winsock_init_v22();
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n", "Failed to initialize Winsock 2.2",
-                                    hcnse_errno_strerror(hcnse_get_errno()));
+        fprintf(stderr, "%s: %s\n",
+            "Failed to initialize Winsock 2.2", hcnse_strerror(err));
         goto error0;
     }
 #endif
 
     err = hcnse_config_init(&conf, conf_file);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
-                                    hcnse_errno_strerror(hcnse_get_errno()));
+        fprintf(stderr, "%s: %s\n",
+            "Failed to initialize config", hcnse_strerror(err));
         goto error0;
     }
 
@@ -183,8 +183,8 @@ int main(int argc, char *const argv[])
 
     err = hcnse_process_set_workdir(conf->workdir);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
-                                    hcnse_errno_strerror(hcnse_get_errno()));
+        fprintf(stderr, "%s: %s\n",
+            "Failed to set workdir", hcnse_strerror(err));
         goto error1;
     }
 
@@ -193,16 +193,16 @@ int main(int argc, char *const argv[])
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
         err = hcnse_listener_start_listen(listener);
         if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
-                                    hcnse_errno_strerror(hcnse_get_errno()));
-            goto error1;
+        fprintf(stderr, "%s: %s\n",
+            "Failed to create listening socket", hcnse_strerror(err));
+        goto error1;
         }
     }
 
     err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n", hcnse_strerror(err),
-                                    hcnse_errno_strerror(hcnse_get_errno()));
+        fprintf(stderr, "%s: %s\n",
+            "Failed to set open log", hcnse_strerror(err));
         goto error1;
     }
 
@@ -211,7 +211,7 @@ int main(int argc, char *const argv[])
     err = hcnse_process_daemon_init();
     if (err != HCNSE_OK) {
         hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                    "hcnse_process_daemon_init() failed");
+                                    "Failed to create server process");
         goto error2;
     }
 
