@@ -3,6 +3,9 @@
 #include <string.h>
 
 #include "os/syshead.h"
+#include "os/memory.h"
+#include "os/threads.h"
+#include "server/mempool.h"
 
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <unistd.h>
@@ -12,10 +15,6 @@
 #elif (HCNSE_WINDOWS)
 #include <windows.h>
 #endif
-
-#include "os/memory.h"
-#include "os/threads.h"
-#include "server/mempool.h"
 
 
 /* Alignment macros is only to be used to align on a power of 2 boundary */

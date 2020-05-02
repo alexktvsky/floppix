@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "server/log.h"
 #include "server/events.h"
+#include "server/log.h"
 
 
 hcnse_err_t event_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)

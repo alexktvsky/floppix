@@ -1,6 +1,5 @@
 #include <string.h>
 
-#include "server/errors.h"
 #include "os/threads.h"
 
 
@@ -177,7 +176,9 @@ hcnse_err_t
 hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
     int prio, hcnse_thread_function_t start_routine, void *arg)
 {
+    (void) flags;
     HANDLE *t;
+    
     t = CreateThread(NULL, stack_size, start_routine, arg, 0, NULL);
     if (t == NULL) {
         return hcnse_get_errno();
@@ -222,7 +223,10 @@ hcnse_thread_destroy(hcnse_thread_t *thread)
 hcnse_err_t
 hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
 {
-    HANDLE m = CreateMutex(NULL, FALSE, NULL);
+    (void) flags;
+    HANDLE m;
+
+    m = CreateMutex(NULL, FALSE, NULL);
     if (m == NULL) {
         return hcnse_get_errno();
     }
@@ -242,7 +246,7 @@ hcnse_mutex_lock(hcnse_mutex_t *mutex)
 hcnse_err_t
 hcnse_mutex_trylock(hcnse_mutex_t *mutex)
 {
-    if (WaitForSingleObject(mutex->handler, INFINITE) != WAIT_OBJECT_0) {
+    if (WaitForSingleObject(mutex->handler, 0) != WAIT_OBJECT_0) {
         return HCNSE_BUSY;
     }
     return HCNSE_OK;

@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "server/events.h"
 #include "server/log.h"
 #include "server/errors.h" // HCNSE_EAGAIN
-#include "server/events.h"
 
 
 hcnse_err_t event_write(hcnse_conf_t *conf, hcnse_connect_t *connect)

@@ -2,7 +2,6 @@
 #define INCLUDED_OS_SOCKETS_H
 
 #include "os/syshead.h"
-#include "server/errors.h"
 
 /* Some operating systems do not support a value more than 5 */
 #define HCNSE_MAX_CONNECT_QUEUELEN     5
@@ -47,6 +46,10 @@ typedef int hcnse_socket_t;
 #include <ws2tcpip.h>
 #include <ws2ipdef.h>
 #include <windows.h>
+
+/* Need here to include winsock2.h before windows.h */
+#include "server/errors.h"
+
 #define HCNSE_SHUT_RD                  SD_RECEIVE
 #define HCNSE_SHUT_WR                  SD_SEND
 #define HCNSE_SHUT_RDWR                SD_BOTH
@@ -57,6 +60,8 @@ typedef SOCKET hcnse_socket_t;
 hcnse_err_t hcnse_winsock_init_v22(void);
 
 #endif
+
+#include "server/errors.h"
 
 hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s);
 hcnse_err_t hcnse_tcp_push(hcnse_socket_t s);

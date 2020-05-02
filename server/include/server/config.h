@@ -5,10 +5,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include "server/connection.h"
 #include "server/errors.h"
 #include "server/mempool.h"
 #include "server/list.h"
-#include "server/connection.h"
 #include "server/log.h"
 #include "os/files.h"
 

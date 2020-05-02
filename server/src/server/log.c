@@ -1,8 +1,15 @@
 #include <string.h>
-#include <signal.h>
 #include <stdarg.h>
 
 #include "os/syshead.h"
+#include "os/memory.h"
+#include "os/files.h"
+#include "os/threads.h"
+#include "os/time.h"
+#include "os/signals.h"
+#include "server/errors.h"
+#include "server/log.h"
+
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #if (HCNSE_HAVE_MMAP)
 #include <sys/mman.h>
@@ -10,13 +17,6 @@
 #elif (HCNSE_WINDOWS)
 #include <windows.h>
 #endif
-
-#include "os/memory.h"
-#include "os/files.h"
-#include "os/threads.h"
-#include "os/time.h"
-#include "server/errors.h"
-#include "server/log.h"
 
 #include <stdio.h>
 
@@ -65,11 +65,13 @@ static const char *prio[] = {
     "debug"
 };
 
+#if !(HCNSE_WINDOWS)
 static void
-hcnse_log_alarm_handler(int sig) {
+hcnse_log_sigalrm_handler(int sig) {
     (void) sig;
-    signal(SIGALRM, hcnse_log_alarm_handler);
+    signal(SIGALRM, hcnse_log_sigalrm_handler);
 }
+#endif
 
 static hcnse_log_message_t *
 hcnse_log_try_write(hcnse_log_t *log)
@@ -79,7 +81,7 @@ hcnse_log_try_write(hcnse_log_t *log)
 
     while (1) {
         for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-            if (hcnse_mutex_trylock(&(buf[i].mutex_deposit)) != HCNSE_BUSY) {
+            if (hcnse_mutex_trylock(&(buf[i].mutex_deposit)) == HCNSE_OK) {
 
                 msg = &(buf[log->rear].message);
                 log->rear = ((log->rear) + 1) % HCNSE_LOG_BUF_SIZE;
@@ -103,7 +105,7 @@ hcnse_try_log_read(hcnse_log_t *log)
 
     while (1) {
         for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-            if (hcnse_mutex_trylock(&(buf[i].mutex_fetch)) != HCNSE_BUSY) {
+            if (hcnse_mutex_trylock(&(buf[i].mutex_fetch)) == HCNSE_OK) {
 
                 msg = &(buf[log->front].message);
                 log->front = ((log->front) + 1) % HCNSE_LOG_BUF_SIZE;
@@ -117,7 +119,7 @@ hcnse_try_log_read(hcnse_log_t *log)
         }
         sleep_counter += 1;
         if (sleep_counter == HCNSE_LOG_SLEEP_COUNTER) {
-            hcnse_msleep(HCNSE_LOG_SLEEP_TIME);
+            hcnse_wait_wakeup_signal(HCNSE_LOG_SLEEP_TIME);
             sleep_counter = 0;
         }
     }
@@ -238,7 +240,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     }
 
     if (!pid) {
-        signal(SIGALRM, hcnse_log_alarm_handler);
+        signal(SIGALRM, hcnse_log_sigalrm_handler);
         hcnse_log_worker(log);
     }
     else {
@@ -342,7 +344,9 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     log->buf = buf;
     log->tid = tid;
 
-    signal(SIGALRM, hcnse_log_alarm_handler);
+#if !(HCNSE_WINDOWS)
+    signal(SIGALRM, hcnse_log_sigalrm_handler);
+#endif
 
     err = hcnse_thread_create(tid,
         HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_JOINABLE,
@@ -380,10 +384,6 @@ failed:
 
 
 
-
-
-
-
 void
 hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
 {
@@ -403,9 +403,9 @@ hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
     msg->level = level;
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
-    kill(log->pid, SIGALRM);
+    hcnse_send_wakeup_signal1(log->pid);
 #else
-    kill(getpid(), SIGALRM);
+    hcnse_send_wakeup_signal(log->tid);
 #endif
 }
 
@@ -439,9 +439,9 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
     msg->level = level;
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
-    kill(log->pid, SIGALRM);
+    hcnse_send_wakeup_signal1(log->pid);
 #else
-    kill(getpid(), SIGALRM);
+    hcnse_send_wakeup_signal(log->tid);
 #endif
 }
 

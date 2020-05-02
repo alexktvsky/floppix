@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "server/errors.h"
+
 /* Thread specific flags */
 #define HCNSE_THREAD_SCOPE_SYSTEM        0x01
 #define HCNSE_THREAD_SCOPE_PROCESS       0x02
@@ -67,16 +69,17 @@ typedef struct {
 
 typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
 
-int hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
-    int prio, hcnse_thread_function_t start_routine, void *arg);
-int hcnse_thread_join(hcnse_thread_t *thread);
-int hcnse_thread_cancel(hcnse_thread_t *thread);
-int hcnse_thread_destroy(hcnse_thread_t *thread);
+hcnse_err_t hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags,
+    size_t stack_size, int prio, hcnse_thread_function_t start_routine,
+    void *arg);
+hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);
+hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
+hcnse_err_t hcnse_thread_destroy(hcnse_thread_t *thread);
 
-int hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags);
-int hcnse_mutex_lock(hcnse_mutex_t *mutex);
-int hcnse_mutex_trylock(hcnse_mutex_t *mutex);
-int hcnse_mutex_unlock(hcnse_mutex_t *mutex);
-int hcnse_mutex_fini(hcnse_mutex_t *mutex);
+hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags);
+hcnse_err_t hcnse_mutex_lock(hcnse_mutex_t *mutex);
+hcnse_err_t hcnse_mutex_trylock(hcnse_mutex_t *mutex);
+hcnse_err_t hcnse_mutex_unlock(hcnse_mutex_t *mutex);
+hcnse_err_t hcnse_mutex_fini(hcnse_mutex_t *mutex);
 
 #endif /* INCLUDED_THREADS_H */
