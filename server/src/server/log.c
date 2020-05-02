@@ -1,29 +1,24 @@
 #include <string.h>
 #include <sys/mman.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
 
 #include "os/memory.h"
 #include "os/files.h"
+#include "os/threads.h"
 #include "os/time.h"
 #include "server/errors.h"
 #include "server/log.h"
 
-#define HCNSE_LOG_BUF_SIZE 32
-#define HCNSE_LOG_MSG_SIZE 300
 
-#define HCNSE_LOG_INIT_DELAY 500
-#define HCNSE_LOG_WORKER_DELAY 1000
+#define HCNSE_LOG_BUF_SIZE             32
+#define HCNSE_LOG_MSG_SIZE             300
 
-#define HCNSE_LOG_SLEEP_COUNTER 3
-#define HCNSE_LOG_SLEEP_TIME 5000
+#define HCNSE_LOG_INIT_DELAY           500
+#define HCNSE_LOG_WORKER_DELAY         1000
 
-/*
- * TODO:
- * - LOG MUST BE NONBLOCKING
- * - Save to log server configuration
- */
+#define HCNSE_LOG_SLEEP_COUNTER        3
+#define HCNSE_LOG_SLEEP_TIME           5000
 
 
 typedef struct {
@@ -33,8 +28,8 @@ typedef struct {
 } hcnse_log_message_t;
 
 typedef struct {
-    pthread_mutex_t mutex_deposit;
-    pthread_mutex_t mutex_fetch;
+    hcnse_mutex_t mutex_deposit;
+    hcnse_mutex_t mutex_fetch;
     hcnse_log_message_t message;
 } hcnse_shared_record_t;
 
@@ -71,12 +66,12 @@ hcnse_log_try_write(hcnse_log_t *log)
 
     while (1) {
         for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-            if (pthread_mutex_trylock(&(buf[i].mutex_deposit)) == 0) {
+            if (hcnse_mutex_trylock(&(buf[i].mutex_deposit)) != HCNSE_BUSY) {
 
                 msg = &(buf[log->rear].message);
                 log->rear = ((log->rear) + 1) % HCNSE_LOG_BUF_SIZE;
 
-                pthread_mutex_unlock(&(buf[i].mutex_fetch));
+                hcnse_mutex_unlock(&(buf[i].mutex_fetch));
                 return msg;
             }
             else {
@@ -95,12 +90,12 @@ hcnse_try_log_read(hcnse_log_t *log)
 
     while (1) {
         for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-            if (pthread_mutex_trylock(&(buf[i].mutex_fetch)) == 0) {
+            if (hcnse_mutex_trylock(&(buf[i].mutex_fetch)) != HCNSE_BUSY) {
 
                 msg = &(buf[log->front].message);
                 log->front = ((log->front) + 1) % HCNSE_LOG_BUF_SIZE;
 
-                pthread_mutex_unlock(&(buf[i].mutex_deposit));
+                hcnse_mutex_unlock(&(buf[i].mutex_deposit));
                 return msg;
             }
             else {
@@ -153,6 +148,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     hcnse_shared_record_t *buf;
     size_t mem_size;
     ssize_t file_size;
+    uint32_t mutex_flags = HCNSE_MUTEX_PROCESS_SHARED;
     pid_t pid;
     hcnse_err_t err;
 
@@ -192,24 +188,20 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     buf = mmap(NULL, mem_size, PROT_READ|PROT_WRITE,
                                     MAP_SHARED|MAP_ANONYMOUS, -1, 0);
     if (buf == MAP_FAILED) {
-        err = hcnse_get_errno();;
-        goto failed;
-    }
-
-    pthread_mutexattr_t attr;
-    if (pthread_mutexattr_init(&attr) || 
-        pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED)) {
         err = hcnse_get_errno();
         goto failed;
     }
 
     for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-        if (pthread_mutex_init(&(buf[i].mutex_deposit), &attr) ||
-            pthread_mutex_init(&(buf[i].mutex_fetch), &attr)) {
-            err = hcnse_get_errno();
+        err = hcnse_mutex_init(&(buf[i].mutex_deposit), mutex_flags);
+        if (err != HCNSE_OK) {
             goto failed;
         }
-        pthread_mutex_lock(&(buf[i].mutex_fetch));
+        err = hcnse_mutex_init(&(buf[i].mutex_fetch), mutex_flags);
+        if (err != HCNSE_OK) {
+            goto failed;
+        }
+        hcnse_mutex_lock(&(buf[i].mutex_fetch));
     }
 
     log->file = file;
@@ -312,8 +304,8 @@ hcnse_log_fini(hcnse_log_t *log)
     hcnse_file_fini(log->file);
 
     for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
-        pthread_mutex_destroy(&(buf[i].mutex_deposit));
-        pthread_mutex_destroy(&(buf[i].mutex_fetch));
+        hcnse_mutex_fini(&(buf[i].mutex_deposit));
+        hcnse_mutex_fini(&(buf[i].mutex_fetch));
     }
 
     /* kill child process */

@@ -208,12 +208,14 @@ int main(int argc, char *const argv[])
 
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
+#if !(HCNSE_NO_DAEMON)
     err = hcnse_process_daemon_init();
     if (err != HCNSE_OK) {
         hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
                                     "Failed to create server process");
         goto error2;
     }
+#endif
 
     /* TODO:
      * hcnse_signals_init

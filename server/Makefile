@@ -14,6 +14,7 @@ SRC_FILES += errno.c
 SRC_FILES += process.c
 SRC_FILES += sockets.c
 SRC_FILES += time.c
+SRC_FILES += threads.c
 SRC_FILES += events.c
 SRC_FILES += select.c
 SRC_FILES += epoll.c
