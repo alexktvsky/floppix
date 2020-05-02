@@ -1,7 +1,15 @@
 #include <string.h>
-#include <sys/mman.h>
 #include <signal.h>
 #include <stdarg.h>
+
+#include "os/syshead.h"
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
+#if (HCNSE_HAVE_MMAP)
+#include <sys/mman.h>
+#endif
+#elif (HCNSE_WINDOWS)
+#include <windows.h>
+#endif
 
 #include "os/memory.h"
 #include "os/files.h"
@@ -9,6 +17,8 @@
 #include "os/time.h"
 #include "server/errors.h"
 #include "server/log.h"
+
+#include <stdio.h>
 
 
 #define HCNSE_LOG_BUF_SIZE             32
@@ -33,7 +43,6 @@ typedef struct {
     hcnse_log_message_t message;
 } hcnse_shared_record_t;
 
-
 struct hcnse_log_s {
     hcnse_file_t *file;
     uint8_t level;
@@ -41,7 +50,11 @@ struct hcnse_log_s {
     hcnse_shared_record_t *buf;
     uint32_t front;
     uint32_t rear;
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
     pid_t pid;
+#else
+    hcnse_thread_t *tid;
+#endif
 };
 
 static const char *prio[] = {
@@ -111,15 +124,18 @@ hcnse_try_log_read(hcnse_log_t *log)
     return NULL;
 }
 
-static void
-hcnse_log_worker(hcnse_log_t *log)
+static hcnse_thread_value_t
+hcnse_log_worker(void *arg)
 {
+    hcnse_log_t *log = (hcnse_log_t *) arg;
     hcnse_log_message_t *msg;
     size_t maxlen = HCNSE_TIMESTRLEN + HCNSE_LOG_MSG_SIZE + sizeof(prio[0]);
     size_t len;
     char buf[maxlen];
 
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
+
+    printf("hcnse_log_worker()\n");
 
     while (1) {
         msg = hcnse_try_log_read(log);
@@ -137,15 +153,20 @@ hcnse_log_worker(hcnse_log_t *log)
         if (hcnse_file_write1(log->file, buf, len) == -1) {
             /* what need to do? */
         }
+
+        printf("%s", buf);
     }
+    return 0;
 }
 
+/* Version for UNIX-like systems with mmap */
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
 hcnse_err_t
 hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
 {
     hcnse_log_t *log = NULL;
     hcnse_file_t *file = NULL;
-    hcnse_shared_record_t *buf;
+    hcnse_shared_record_t *buf = MAP_FAILED;
     size_t mem_size;
     ssize_t file_size;
     uint32_t mutex_flags = HCNSE_MUTEX_PROCESS_SHARED;
@@ -211,7 +232,6 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
 
     /* XXX: Init all log struct fields before run worker */
     pid = fork();
-
     if (pid == -1) {
         err = hcnse_get_errno();
         goto failed;
@@ -239,8 +259,130 @@ failed:
         hcnse_file_fini(file);
     }
 
+    if (buf != MAP_FAILED) {
+        munmap(buf, sizeof(hcnse_shared_record_t) * HCNSE_LOG_BUF_SIZE);
+    }
+
     return err;
 }
+#else
+hcnse_err_t
+hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
+{
+    hcnse_log_t *log = NULL;
+    hcnse_file_t *file = NULL;
+    hcnse_shared_record_t *buf = NULL;
+    size_t mem_size;
+    ssize_t file_size;
+    uint32_t mutex_flags = 0;
+    hcnse_thread_t *tid = NULL;
+    hcnse_err_t err;
+
+    log = hcnse_malloc(sizeof(hcnse_log_t));
+    if (!log) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+    memset(log, 0, sizeof(hcnse_log_t));
+
+    tid = hcnse_malloc(sizeof(hcnse_thread_t));
+    if (!tid) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+    memset(tid, 0, sizeof(hcnse_thread_t));
+
+    file = hcnse_malloc(sizeof(hcnse_file_t));
+    if (!file) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    err = hcnse_file_init(file, fname, HCNSE_FILE_WRONLY,
+                                    HCNSE_FILE_CREATE_OR_OPEN,
+                                            HCNSE_FILE_OWNER_ACCESS);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    file_size = hcnse_file_size(file);
+    if (file_size == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+    if (((size_t) file_size) >= size) {
+        err = HCNSE_ERR_LOG_BIG;
+        goto failed;
+    }
+    file->offset = file_size;
+
+    mem_size = sizeof(hcnse_shared_record_t) * HCNSE_LOG_BUF_SIZE;
+
+    buf = hcnse_malloc(mem_size);
+    if (buf == NULL) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    for (size_t i = 0; i < HCNSE_LOG_BUF_SIZE; i++) {
+        err = hcnse_mutex_init(&(buf[i].mutex_deposit), mutex_flags);
+        if (err != HCNSE_OK) {
+            goto failed;
+        }
+        err = hcnse_mutex_init(&(buf[i].mutex_fetch), mutex_flags);
+        if (err != HCNSE_OK) {
+            goto failed;
+        }
+        hcnse_mutex_lock(&(buf[i].mutex_fetch));
+    }
+
+    log->file = file;
+    log->level = level;
+    log->size = size;
+    log->buf = buf;
+    log->tid = tid;
+
+    signal(SIGALRM, hcnse_log_alarm_handler);
+
+    err = hcnse_thread_create(tid,
+        HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_JOINABLE,
+        0, HCNSE_THREAD_PRIORITY_NORMAL, hcnse_log_worker, (void *) log);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    *in_log = log;
+
+    hcnse_msleep(HCNSE_LOG_INIT_DELAY);
+
+    return HCNSE_OK;
+
+failed:
+    if (log) {
+        hcnse_free(log);
+    }
+    if (tid) {
+        hcnse_free(tid);
+    }
+    if (file) {
+        hcnse_file_fini(file);
+    }
+
+    if (buf) {
+        hcnse_free(buf);
+    }
+
+    return err;
+}
+#endif
+
+
+
+
+
+
+
+
 
 void
 hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
@@ -260,7 +402,11 @@ hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
 
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
     msg->level = level;
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
     kill(log->pid, SIGALRM);
+#else
+    kill(getpid(), SIGALRM);
+#endif
 }
 
 void
@@ -292,7 +438,11 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
 
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
     msg->level = level;
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
     kill(log->pid, SIGALRM);
+#else
+    kill(getpid(), SIGALRM);
+#endif
 }
 
 void
@@ -308,9 +458,14 @@ hcnse_log_fini(hcnse_log_t *log)
         hcnse_mutex_fini(&(buf[i].mutex_fetch));
     }
 
-    /* kill child process */
+#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
     kill(log->pid, SIGKILL);
     munmap(buf, sizeof(hcnse_shared_record_t) * HCNSE_LOG_BUF_SIZE);
-
+#else
+    hcnse_thread_cancel(log->tid);
+    hcnse_thread_destroy(log->tid);
+    hcnse_free(buf);
+    hcnse_free(log->tid);
+#endif
     hcnse_free(log);
 }

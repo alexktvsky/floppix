@@ -18,7 +18,7 @@
 
 #elif (HCNSE_WINDOWS)
 #include <errno.h>
-#include <windows.h> /* errhandlingapi.h */
+#include <errhandlingapi.h>
 
 #define hcnse_get_errno()              GetLastError()
 #define hcnse_set_errno(err)           SetLastError(err)

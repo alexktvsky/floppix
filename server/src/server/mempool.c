@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,18 +6,15 @@
 
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
 #include <unistd.h>
+#if (HCNSE_HAVE_MMAP)
+#include <sys/mman.h>
+#endif
 #elif (HCNSE_WINDOWS)
 #include <windows.h>
 #endif
 
-#if (HCNSE_HAVE_MMAP)
-#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
-#include <sys/mman.h>
-#elif (HCNSE_WINDOWS)
-#error "Allocate with mmap not supported on Windows!"
-#endif
-#endif
-
+#include "os/memory.h"
+#include "os/threads.h"
 #include "server/mempool.h"
 
 
@@ -67,9 +63,7 @@ struct hcnse_mempool_s {
     hcnse_mempool_t *brother;
     hcnse_mempool_t *child;
 
-#ifdef _PTHREAD_H
-    pthread_mutex_t mutex;
-#endif
+    // hcnse_mutex_t mutex;
 };
 
 
@@ -129,8 +123,8 @@ memnode_allocate_and_init(size_t in_size)
         return NULL;
     }
 #else
-    node = malloc(in_size);
-    if (!node) {
+    node = hcnse_malloc(in_size);
+    if (node == NULL) {
         return NULL;
     }
 #endif
@@ -148,7 +142,7 @@ memnode_allocate_and_init(size_t in_size)
 hcnse_err_t
 hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent)
 {
-    hcnse_mempool_t *pool = malloc(SIZEOF_MEMPOOL_T);
+    hcnse_mempool_t *pool = hcnse_malloc(SIZEOF_MEMPOOL_T);
     /* XXX: Can we do smth if malloc return NULL?
      * Allocate from stack or text section instead?
      */
@@ -345,10 +339,10 @@ hcnse_mempool_destroy(hcnse_mempool_t *pool)
 #if (HCNSE_HAVE_MMAP)
             munmap(temp, PAGE_SIZE * (i + 1));
 #else
-            free(temp);
+            hcnse_free(temp);
 #endif
         }
     }
-    free(pool);
+    hcnse_free(pool);
     return;
 }
