@@ -47,7 +47,6 @@ void *hcnse_calloc(size_t size)
 void hcnse_free(void *mem)
 {
     free(mem);
-    // ("free memory: %p:", mem)
 }
 
 size_t hcnse_total_mem_usage(void)

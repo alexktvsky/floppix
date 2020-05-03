@@ -1,7 +1,7 @@
-#if (HCNSE_HAVE_EPOLL)
-
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
+
+#if (HCNSE_HAVE_EPOLL && HCNSE_LINUX)
 
 static struct epoll_event *event_list;
 static int max_events;
@@ -210,4 +210,4 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
     } /* while (1) */
 }
 
-#endif /* HCNSE_HAVE_EPOLL */
+#endif /* HCNSE_HAVE_EPOLL && HCNSE_LINUX */

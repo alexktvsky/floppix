@@ -1,7 +1,7 @@
-#if (HCNSE_HAVE_SELECT)
-
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
+
+#if (HCNSE_HAVE_SELECT)
 
 static fd_set rfds;
 static fd_set wfds;
