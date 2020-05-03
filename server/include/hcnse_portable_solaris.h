@@ -1,0 +1,8 @@
+#ifndef INCLUDED_HCNSE_PORTABLE_SOLARIS_H
+#define INCLUDED_HCNSE_PORTABLE_SOLARIS_H
+
+
+#include <sys/ioctl.h>
+
+
+#endif /* INCLUDED_HCNSE_PORTABLE_SOLARIS_H */

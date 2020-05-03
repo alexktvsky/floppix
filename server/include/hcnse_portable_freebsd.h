@@ -1,0 +1,9 @@
+#ifndef HCNSE_INCLUDED_PORTABLE_FREEBSD_H
+#define HCNSE_INCLUDED_PORTABLE_FREEBSD_H
+
+
+#include <sys/ioctl.h>
+
+
+
+#endif /* HCNSE_INCLUDED_PORTABLE_FREEBSD_H */

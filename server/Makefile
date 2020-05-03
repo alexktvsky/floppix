@@ -1,33 +1,32 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += errors.c
-SRC_FILES += cycle.c
-SRC_FILES += log.c
-SRC_FILES += config.c
-SRC_FILES += connection.c
-SRC_FILES += mempool.c
-SRC_FILES += list.c
-SRC_FILES += memory.c
-SRC_FILES += files.c
-SRC_FILES += errno.c
-SRC_FILES += process.c
-SRC_FILES += sockets.c
-SRC_FILES += time.c
-SRC_FILES += threads.c
-SRC_FILES += signals.c
-SRC_FILES += events.c
-SRC_FILES += select.c
-SRC_FILES += epoll.c
-SRC_FILES += event_connect.c
-SRC_FILES += event_read.c
-SRC_FILES += event_write.c
-SRC_FILES += event_timer.c
+SRC_FILES += hcnse_errors.c
+SRC_FILES += hcnse_cycle.c
+SRC_FILES += hcnse_log.c
+SRC_FILES += hcnse_config.c
+SRC_FILES += hcnse_connection.c
+SRC_FILES += hcnse_mempool.c
+SRC_FILES += hcnse_list.c
+SRC_FILES += hcnse_memory.c
+SRC_FILES += hcnse_files.c
+SRC_FILES += hcnse_errno.c
+SRC_FILES += hcnse_process.c
+SRC_FILES += hcnse_sockets.c
+SRC_FILES += hcnse_time.c
+SRC_FILES += hcnse_threads.c
+SRC_FILES += hcnse_signals.c
+SRC_FILES += hcnse_events.c
+SRC_FILES += hcnse_select.c
+SRC_FILES += hcnse_epoll.c
+SRC_FILES += hcnse_event_connect.c
+SRC_FILES += hcnse_event_read.c
+SRC_FILES += hcnse_event_write.c
+SRC_FILES += hcnse_event_timer.c
 
-VPATH += src/server
-VPATH += src/event
+VPATH += src/core
+VPATH += src/events
 VPATH += src/os
-VPATH += src/os/events
 
 INSTALL_DIR = /usr/local/bin
 
