@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_SIGNALS_H
-#define INCLUDED_HCNSE_SIGNALS_H
+#ifndef INCLUDED_HCNSE_SIGNAL_H
+#define INCLUDED_HCNSE_SIGNAL_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -13,4 +13,4 @@ hcnse_err_t hcnse_send_wakeup_signal1(pid_t pid);
 hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid);
 hcnse_err_t hcnse_wait_wakeup_signal(hcnse_msec_t ms);
 
-#endif /* INCLUDED_HCNSE_SIGNALS_H */
+#endif /* INCLUDED_HCNSE_SIGNAL_H */

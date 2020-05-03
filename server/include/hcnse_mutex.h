@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_MUTEXES_H
-#define INCLUDED_HCNSE_MUTEXES_H
+#ifndef INCLUDED_HCNSE_MUTEX_H
+#define INCLUDED_HCNSE_MUTEX_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -31,4 +31,4 @@ hcnse_err_t hcnse_mutex_trylock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_unlock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_fini(hcnse_mutex_t *mutex);
 
-#endif /* INCLUDED_HCNSE_MUTEXES_H */
+#endif /* INCLUDED_HCNSE_MUTEX_H */

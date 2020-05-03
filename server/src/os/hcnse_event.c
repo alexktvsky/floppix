@@ -16,6 +16,9 @@ hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
 #elif (HCNSE_HAVE_IOCP && HCNSE_WINDOWS)
     hcnse_iocp_process_events(conf);
 
+#else
+#error "Events handler should have been selected"
+
 #endif
     return HCNSE_OK;
 }

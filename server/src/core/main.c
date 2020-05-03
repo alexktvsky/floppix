@@ -223,5 +223,8 @@ error2:
 error1:
     hcnse_config_fini(conf);
 error0:
+#if (HCNSE_WINDOWS)
+    system("pause");
+#endif
     return 1;
 }

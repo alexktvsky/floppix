@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t event_timer(hcnse_conf_t *conf)
+hcnse_err_t hcnse_event_timer(hcnse_conf_t *conf)
 {
     (void) conf;
 

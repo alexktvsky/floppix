@@ -66,24 +66,6 @@ hcnse_align_allocation(size_t in_size)
     return size;
 }
 
-
-static size_t
-hcnse_get_page_size(void)
-{
-    size_t page_size;
-#if defined(_SC_PAGESIZE)
-    page_size = sysconf(_SC_PAGESIZE);
-#elif (HCNSE_WINDOWS)
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    page_size = si.dwPageSize;
-#else
-#error "Failed to determine page size"
-#endif
-    return page_size;
-}
-
-
 static size_t
 hcnse_get_npages(size_t in_size)
 {
@@ -95,7 +77,6 @@ hcnse_get_npages(size_t in_size)
         return ((size / HCNSE_PAGE_SIZE) + 1);
     }
 }
-
 
 static hcnse_memnode_t *
 hcnse_memnode_allocate_and_init(size_t in_size)
@@ -123,7 +104,6 @@ hcnse_memnode_allocate_and_init(size_t in_size)
     node->free_size = HCNSE_MAX_MEMNODE_SIZE(node);
     return node;
 }
-
 
 hcnse_err_t
 hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent)
@@ -159,7 +139,6 @@ hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent)
     *newpool = pool;
     return HCNSE_OK;
 }
-
 
 void *
 hcnse_palloc(hcnse_mempool_t *pool, size_t in_size)
@@ -216,7 +195,6 @@ hcnse_palloc(hcnse_mempool_t *pool, size_t in_size)
     return mem;
 }
 
-
 void *
 hcnse_pcalloc(hcnse_mempool_t *pool, size_t in_size)
 {
@@ -226,7 +204,6 @@ hcnse_pcalloc(hcnse_mempool_t *pool, size_t in_size)
     }
     return mem;
 }
-
 
 size_t
 hcnse_get_mempool_size(hcnse_mempool_t *pool)
@@ -243,7 +220,6 @@ hcnse_get_mempool_size(hcnse_mempool_t *pool)
     return size;
 }
 
-
 size_t
 hcnse_get_mempool_free_size(hcnse_mempool_t *pool)
 {
@@ -259,7 +235,6 @@ hcnse_get_mempool_free_size(hcnse_mempool_t *pool)
     return size;
 }
 
-
 size_t
 hcnse_get_mempool_total_size(hcnse_mempool_t *pool)
 {
@@ -274,7 +249,6 @@ hcnse_get_mempool_total_size(hcnse_mempool_t *pool)
     }
     return size;
 }
-
 
 void
 hcnse_mempool_clear(hcnse_mempool_t *pool)
@@ -300,7 +274,6 @@ hcnse_mempool_clear(hcnse_mempool_t *pool)
     }
     return;
 }
-
 
 void
 hcnse_mempool_destroy(hcnse_mempool_t *pool)

@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_SEMAPHORES_H
-#define INCLUDED_HCNSE_SEMAPHORES_H
+#ifndef INCLUDED_HCNSE_SEMAPHORE_H
+#define INCLUDED_HCNSE_SEMAPHORE_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -29,4 +29,4 @@ int hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore);
 int hcnse_semaphore_post(hcnse_semaphore_t *semaphore);
 int hcnse_semaphore_fini(hcnse_semaphore_t *semaphore);
 
-#endif /* INCLUDED_HCNSE_SEMAPHORES_H */
+#endif /* INCLUDED_HCNSE_SEMAPHORE_H */

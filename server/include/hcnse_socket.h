@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_SOCKETS_H
-#define INCLUDED_HCNSE_SOCKETS_H
+#ifndef INCLUDED_HCNSE_SOCKET_H
+#define INCLUDED_HCNSE_SOCKET_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -48,4 +48,4 @@ hcnse_err_t hcnse_tcp_push(hcnse_socket_t s);
 hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s);
 hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s);
 
-#endif /* INCLUDED_HCNSE_SOCKETS_H */
+#endif /* INCLUDED_HCNSE_SOCKET_H */

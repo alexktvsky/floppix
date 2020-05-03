@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_FILES_H
-#define INCLUDED_HCNSE_FILES_H
+#ifndef INCLUDED_HCNSE_FILE_H
+#define INCLUDED_HCNSE_FILE_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -97,4 +97,4 @@ ssize_t hcnse_write_stdout(const char *str);
 ssize_t hcnse_write_stderr(const char *str);
 
 
-#endif /* INCLUDED_HCNSE_FILES_H */
+#endif /* INCLUDED_HCNSE_FILE_H */

@@ -134,7 +134,7 @@ hcnse_process_events(hcnse_conf_t *conf, int n)
             if (err != HCNSE_OK) {
                 goto failed;
             }
-            err = event_connect(conf, event_list[i].data.ptr);
+            err = hcnse_event_connect(conf, event_list[i].data.ptr);
             if (err != HCNSE_OK) {
                 goto failed;
             }
@@ -142,14 +142,14 @@ hcnse_process_events(hcnse_conf_t *conf, int n)
         else {
             flags = event_list[i].events;
             if (flags & EPOLLIN) {
-                err = event_read(conf, event_list[i].data.ptr);
+                err = hcnse_event_read(conf, event_list[i].data.ptr);
                 if (err != HCNSE_OK) {
                     goto failed;
                 }
             }
             if (flags & EPOLLOUT) {
                 if (((hcnse_connect_t *) event_list[i].data.ptr)->want_to_write) {
-                    err = event_write(conf, event_list[i].data.ptr);
+                    err = hcnse_event_write(conf, event_list[i].data.ptr);
                     if (err != HCNSE_OK) {
                         goto failed;
                     }
@@ -197,7 +197,7 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
             }
         }
         else if (!n) {
-            event_timer(conf);
+            hcnse_event_timer(conf);
         }
         else {
             err = hcnse_process_events(conf, n);

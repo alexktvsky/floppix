@@ -67,6 +67,7 @@ hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
     uint32_t flags)
 {
+    (void) flags;
     HANDLE s;
     int shared = 1;
     SECURITY_ATTRIBUTES attr;

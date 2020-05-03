@@ -10,14 +10,8 @@
 /* TODO: etc */
 #endif
 
-
 static size_t total_mem = 0;
 
-void hcnse_explicit_memzero(void *buf, size_t n)
-{
-    memset(buf, 0, n);
-    memory_barrier();
-}
 
 void *hcnse_malloc(size_t size)
 {
@@ -52,4 +46,25 @@ void hcnse_free(void *mem)
 size_t hcnse_total_mem_usage(void)
 {
     return total_mem;
+}
+
+void hcnse_explicit_memzero(void *buf, size_t n)
+{
+    memset(buf, 0, n);
+    memory_barrier();
+}
+
+size_t hcnse_get_page_size(void)
+{
+    size_t page_size;
+#if defined(_SC_PAGESIZE)
+    page_size = sysconf(_SC_PAGESIZE);
+#elif (HCNSE_WINDOWS)
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    page_size = si.dwPageSize;
+#else
+#error "Failed to determine page size"
+#endif
+    return page_size;
 }

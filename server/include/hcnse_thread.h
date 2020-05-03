@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_THREADS_H
-#define INCLUDED_HCNSE_THREADS_H
+#ifndef INCLUDED_HCNSE_THREAD_H
+#define INCLUDED_HCNSE_THREAD_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -55,4 +55,4 @@ hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);
 hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
 hcnse_err_t hcnse_thread_destroy(hcnse_thread_t *thread);
 
-#endif /* INCLUDED_HCNSE_THREADS_H */
+#endif /* INCLUDED_HCNSE_THREAD_H */

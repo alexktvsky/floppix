@@ -1,7 +1,7 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += hcnse_errors.c
+SRC_FILES += hcnse_error.c
 SRC_FILES += hcnse_cycle.c
 SRC_FILES += hcnse_log.c
 SRC_FILES += hcnse_config.c
@@ -9,16 +9,16 @@ SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_mempool.c
 SRC_FILES += hcnse_list.c
 SRC_FILES += hcnse_memory.c
-SRC_FILES += hcnse_files.c
+SRC_FILES += hcnse_file.c
 SRC_FILES += hcnse_errno.c
 SRC_FILES += hcnse_process.c
-SRC_FILES += hcnse_sockets.c
+SRC_FILES += hcnse_socket.c
 SRC_FILES += hcnse_time.c
-SRC_FILES += hcnse_threads.c
-SRC_FILES += hcnse_mutexes.c
-SRC_FILES += hcnse_semaphores.c
-SRC_FILES += hcnse_signals.c
-SRC_FILES += hcnse_events.c
+SRC_FILES += hcnse_thread.c
+SRC_FILES += hcnse_mutex.c
+SRC_FILES += hcnse_semaphore.c
+SRC_FILES += hcnse_signal.c
+SRC_FILES += hcnse_event.c
 SRC_FILES += hcnse_select.c
 SRC_FILES += hcnse_epoll.c
 SRC_FILES += hcnse_event_connect.c
@@ -27,15 +27,15 @@ SRC_FILES += hcnse_event_write.c
 SRC_FILES += hcnse_event_timer.c
 
 VPATH += src/core
-VPATH += src/events
+VPATH += src/event
 VPATH += src/os
 
 INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra -Wuninitialized -pipe
-build: override CFLAGS += -g0 -s -O3 -DNDEBUG
-debug: override CFLAGS += -g3 -ggdb3 -O0 -DDEBUG
+build: override CFLAGS += -g0 -s -O3 -DHCNSE_NDEBUG
+debug: override CFLAGS += -g3 -ggdb3 -O0 -DHCNSE_DEBUG
 
 override LDFLAGS += -lpcre
 build: override LDFLAGS += -static -static-libgcc

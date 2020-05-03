@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_ERRORS_H
-#define INCLUDED_HCNSE_ERRORS_H
+#ifndef INCLUDED_HCNSE_ERROR_H
+#define INCLUDED_HCNSE_ERROR_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -21,4 +21,4 @@ typedef int hcnse_errno_t;
 const char *hcnse_errno_strerror(hcnse_errno_t err);
 size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize);
 
-#endif /* INCLUDED_HCNSE_ERRORS_H */
+#endif /* INCLUDED_HCNSE_ERROR_H */

@@ -1,8 +1,8 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_LOG_BUF_SIZE             32
 #define HCNSE_LOG_MSG_SIZE             300
+#define HCNSE_LOG_BUF_SIZE             32
 
 #define HCNSE_LOG_INIT_DELAY           500
 #define HCNSE_LOG_WORKER_DELAY         1000
@@ -19,18 +19,17 @@ struct hcnse_log_s {
     uint8_t level;
     size_t size;
     hcnse_log_message_t *messages;
-    uint32_t front;
-    uint32_t rear;
-    hcnse_semaphore_t *empty;
-    hcnse_semaphore_t *full;
-    hcnse_mutex_t *mutex_deposit;
-    hcnse_mutex_t *mutex_fetch;
-
 #if (HCNSE_UNIX && HCNSE_HAVE_MMAP)
     pid_t pid;
 #else
     hcnse_thread_t *tid;
 #endif
+    uint32_t front;
+    uint32_t rear;
+    hcnse_semaphore_t *sem_empty;
+    hcnse_semaphore_t *sem_full;
+    hcnse_mutex_t *mutex_deposit;
+    hcnse_mutex_t *mutex_fetch;
 };
 
 static const char *prio[] = {
@@ -54,10 +53,8 @@ hcnse_log_worker(void *arg)
 
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
 
-    printf("hcnse_log_worker()\n");
-
     while (1) {
-        hcnse_semaphore_wait(log->full);
+        hcnse_semaphore_wait(log->sem_full);
 
         hcnse_mutex_lock(log->mutex_fetch);
 
@@ -76,13 +73,15 @@ hcnse_log_worker(void *arg)
         }
 
         if (hcnse_file_write1(log->file, buf, len) == -1) {
-            /* what need to do? */
+            /* What need to do? */
         }
 
-        printf("%s", buf);
+#if (HCNSE_NO_DAEMON)
+        fprintf(stdout, "%s", buf);
+#endif
 
         hcnse_mutex_unlock(log->mutex_fetch);
-        hcnse_semaphore_post(log->empty);
+        hcnse_semaphore_post(log->sem_empty);
     }
     return 0;
 }
@@ -94,8 +93,8 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
-    hcnse_semaphore_t *empty;
-    hcnse_semaphore_t *full;
+    hcnse_semaphore_t *sem_empty;
+    hcnse_semaphore_t *sem_full;
     void *ptr;
 
     hcnse_log_t *log = NULL;
@@ -157,18 +156,18 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     mutex_fetch = (hcnse_mutex_t *) ptr;
     ptr += sizeof(hcnse_mutex_t);
 
-    empty = (hcnse_semaphore_t *) ptr;
+    sem_empty = (hcnse_semaphore_t *) ptr;
     ptr += sizeof(hcnse_semaphore_t);
 
-    full = (hcnse_semaphore_t *) ptr;
+    sem_full = (hcnse_semaphore_t *) ptr;
 
-    err = hcnse_semaphore_init(empty, HCNSE_LOG_BUF_SIZE,
+    err = hcnse_semaphore_init(sem_empty, HCNSE_LOG_BUF_SIZE,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    err = hcnse_semaphore_init(full, 0,
+    err = hcnse_semaphore_init(sem_full, 0,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
@@ -184,16 +183,16 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         goto failed;
     }
 
+    /* XXX: Init all log struct fields before run worker */
     log->file = file;
     log->level = level;
     log->size = size;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
-    log->empty = empty;
-    log->full = full;
+    log->sem_empty = sem_empty;
+    log->sem_full = sem_full;
 
-    /* XXX: Init all log struct fields before run worker */
     pid = fork();
     if (pid == -1) {
         err = hcnse_get_errno();
@@ -234,8 +233,8 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
-    hcnse_semaphore_t *empty;
-    hcnse_semaphore_t *full;
+    hcnse_semaphore_t *sem_empty;
+    hcnse_semaphore_t *sem_full;
     void *ptr;
 
     hcnse_log_t *log = NULL;
@@ -304,18 +303,18 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
     mutex_fetch = (hcnse_mutex_t *) ptr;
     ptr += sizeof(hcnse_mutex_t);
 
-    empty = (hcnse_semaphore_t *) ptr;
+    sem_empty = (hcnse_semaphore_t *) ptr;
     ptr += sizeof(hcnse_semaphore_t);
 
-    full = (hcnse_semaphore_t *) ptr;
+    sem_full = (hcnse_semaphore_t *) ptr;
 
-    err = hcnse_semaphore_init(empty, HCNSE_LOG_BUF_SIZE,
+    err = hcnse_semaphore_init(sem_empty, HCNSE_LOG_BUF_SIZE,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    err = hcnse_semaphore_init(full, 0,
+    err = hcnse_semaphore_init(sem_full, 0,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
@@ -331,15 +330,15 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         goto failed;
     }
 
-
+    /* XXX: Init all log struct fields before run worker */
     log->file = file;
     log->level = level;
     log->size = size;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
-    log->empty = empty;
-    log->full = full;
+    log->sem_empty = sem_empty;
+    log->sem_full = sem_full;
     log->tid = tid;
 
     err = hcnse_thread_create(tid,
@@ -374,10 +373,6 @@ failed:
 }
 #endif
 
-
-
-
-
 void
 hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
 {
@@ -389,7 +384,7 @@ hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
         return;
     }
 
-    hcnse_semaphore_wait(log->empty);
+    hcnse_semaphore_wait(log->sem_empty);
     hcnse_mutex_lock(log->mutex_deposit);
 
     msg = &(messages[log->rear]);
@@ -403,7 +398,7 @@ hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
     msg->level = level;
 
     hcnse_mutex_unlock(log->mutex_deposit);
-    hcnse_semaphore_post(log->full);
+    hcnse_semaphore_post(log->sem_full);
 }
 
 void
@@ -420,7 +415,7 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
         return;
     }
 
-    hcnse_semaphore_wait(log->empty);
+    hcnse_semaphore_wait(log->sem_empty);
     hcnse_mutex_lock(log->mutex_deposit);
 
     msg = &(messages[log->rear]);
@@ -442,22 +437,21 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     msg->level = level;
 
     hcnse_mutex_unlock(log->mutex_deposit);
-    hcnse_semaphore_post(log->full);
+    hcnse_semaphore_post(log->sem_full);
 }
 
 void
 hcnse_log_fini(hcnse_log_t *log)
 {
-
     hcnse_log_message_t *messages = log->messages;
 
     hcnse_file_fini(log->file);
     hcnse_mutex_fini(log->mutex_deposit);
     hcnse_mutex_fini(log->mutex_fetch);
-    hcnse_semaphore_fini(log->full);
-    hcnse_semaphore_fini(log->empty);
+    hcnse_semaphore_fini(log->sem_full);
+    hcnse_semaphore_fini(log->sem_empty);
 
-#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS) && (HCNSE_HAVE_MMAP)
+#if (HCNSE_UNIX && HCNSE_HAVE_MMAP)
     kill(log->pid, SIGKILL);
     munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
 #else

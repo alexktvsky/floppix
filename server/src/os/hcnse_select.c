@@ -95,7 +95,7 @@ hcnse_process_events(hcnse_conf_t *conf)
             if (err != HCNSE_OK) {
                 goto failed;
             }
-            err = event_connect(conf, listener);
+            err = hcnse_event_connect(conf, listener);
             if (err != HCNSE_OK) {
                 goto failed;
             }
@@ -105,13 +105,13 @@ hcnse_process_events(hcnse_conf_t *conf)
                                     iter2; iter2 = hcnse_list_next(iter2)) {
             connect = hcnse_list_cast_ptr(hcnse_connect_t, iter2);
             if (FD_ISSET(connect->fd, &rfds)) {
-                err = event_read(conf, connect);
+                err = hcnse_event_read(conf, connect);
                 if (err != HCNSE_OK) {
                     goto failed;
                 }
             }
             if (FD_ISSET(connect->fd, &wfds)) {
-                err = event_write(conf, connect);
+                err = hcnse_event_write(conf, connect);
                 if (err != HCNSE_OK) {
                     goto failed;
                 }
@@ -165,7 +165,7 @@ hcnse_select_process_events(hcnse_conf_t *conf)
             }
         }
         else if (!flag) {
-            event_timer(conf);
+            hcnse_event_timer(conf);
         }
         else {
             err = hcnse_process_events(conf);

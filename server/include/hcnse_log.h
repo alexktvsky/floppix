@@ -10,8 +10,12 @@
 #define HCNSE_LOG_INFO    3
 #define HCNSE_LOG_DEBUG   4
 
+#if (HCNSE_DEBUG)
 #define hcnse_log_debug(level, log, ...) \
     hcnse_log_msg(level, log, __VA_ARGS__)
+#else
+#define hcnse_log_debug(level, log, ...)
+#endif
 
 typedef struct hcnse_log_s hcnse_log_t;
 
