@@ -192,8 +192,8 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
             //     sighup_caught = 0;
             // }
             else {
-                hcnse_log_debug(HCNSE_LOG_DEBUG, conf->log,
-                                            "interrupted by unknown signal");
+                hcnse_log_error(HCNSE_LOG_INFO, conf->log, HCNSE_OK, 
+                                            "Interrupted by unknown signal");
             }
         }
         else if (!n) {

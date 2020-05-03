@@ -18,7 +18,8 @@
 #include "hcnse_process.h"
 #include "hcnse_release.h"
 #include "hcnse_signals.h"
-
+#include "hcnse_mutexes.h"
+#include "hcnse_semaphores.h"
 
 
 

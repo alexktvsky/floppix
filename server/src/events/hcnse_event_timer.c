@@ -5,7 +5,7 @@
 hcnse_err_t event_timer(hcnse_conf_t *conf)
 {
     (void) conf;
-    hcnse_log_debug(HCNSE_LOG_INFO, conf->log, "Timeout");
 
+    hcnse_log_error(HCNSE_LOG_INFO, conf->log, HCNSE_OK, "Timeout");
     return HCNSE_OK;
 }
