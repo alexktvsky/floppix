@@ -9,7 +9,7 @@
 #define HCNSE_THIRD_SUBSTR             (raw_data + vector[8])
 #define HCNSE_THIRD_SUBSTR_LEN         (vector[9] - vector[8])
 
-#define HCNSE_COMMIT_BEFORE            "^(?!#)"
+#define HCNSE_COMMIT_BEFORE            "^(?!#)\\s*"
 #define HCNSE_COMMIT_AFTER             "([\\s]*|[\\s]+#.*)"
 #define HCNSE_LF                       "\n"
 #define HCNSE_REGEX_STR(str) \
