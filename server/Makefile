@@ -34,8 +34,9 @@ INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra -Wuninitialized -pipe
-build: override CFLAGS += -g0 -s -O3 -DHCNSE_NDEBUG
-debug: override CFLAGS += -g3 -ggdb3 -O0 -DHCNSE_DEBUG
+build: override CFLAGS += -g0 -s -O3
+debug: override CFLAGS += -g3 -ggdb3 -O0
+debug: override CFLAGS +=  -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 
 override LDFLAGS += -lpcre
 build: override LDFLAGS += -static -static-libgcc
