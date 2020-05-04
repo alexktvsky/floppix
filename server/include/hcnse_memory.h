@@ -4,6 +4,13 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
+/* Alignment macros is only to be used to align on a power of 2 boundary */
+#define HCNSE_ALIGN_SIZE sizeof(uintptr_t)
+#define HCNSE_ALIGN(p, b) \
+    (((p) + ((b) - 1)) & ~((b) - 1))
+#define HCNSE_ALIGN_DEFAULT(p) HCNSE_ALIGN(p, HCNSE_ALIGN_SIZE)
+
+
 void *hcnse_malloc(size_t size);
 void *hcnse_calloc(size_t size);
 void hcnse_free(void *mem);

@@ -52,7 +52,7 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->workdir = "/";
     conf->log_file = "server.log";
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
     conf->workdir = "C:\\";
     conf->log_file = "server.log";
 #endif

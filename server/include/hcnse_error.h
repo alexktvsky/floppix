@@ -9,7 +9,7 @@
 #define hcnse_set_errno(err)           (errno = err)
 #define hcnse_get_socket_errno()       (errno)
 #define hcnse_set_socket_errno()       (errno = err)
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 #define hcnse_get_errno()              GetLastError()
 #define hcnse_set_errno(err)           SetLastError(err)
 #define hcnse_get_socket_errno()       WSAGetLastError()

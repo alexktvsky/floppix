@@ -59,7 +59,7 @@ size_t hcnse_get_page_size(void)
     size_t page_size;
 #if defined(_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
     SYSTEM_INFO si;
     GetSystemInfo(&si);
     page_size = si.dwPageSize;

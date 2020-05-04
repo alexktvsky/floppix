@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 hcnse_err_t
 hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
     int prio, hcnse_thread_function_t start_routine, void *arg)
@@ -95,7 +95,7 @@ hcnse_thread_destroy(hcnse_thread_t *thread)
     return HCNSE_OK;
 }
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 hcnse_err_t
 hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
     int prio, hcnse_thread_function_t start_routine, void *arg)

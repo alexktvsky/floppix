@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 hcnse_err_t
 hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
@@ -86,7 +86,7 @@ hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t n)
 }
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 hcnse_err_t
 hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)

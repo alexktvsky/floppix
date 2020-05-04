@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 hcnse_err_t hcnse_process_daemon_init(void)
 {
     pid_t pid;
@@ -53,7 +53,7 @@ hcnse_err_t hcnse_process_set_workdir(const char *workdir)
 
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 hcnse_err_t hcnse_process_daemon_init(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);

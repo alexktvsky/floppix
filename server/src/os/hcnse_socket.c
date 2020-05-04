@@ -120,7 +120,7 @@ hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
 }
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
 {
     /* XXX: do smth */

@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 const char *hcnse_errno_strerror(hcnse_errno_t err)
 {
     return strerror(err);
@@ -25,7 +25,7 @@ size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 }
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 const char *hcnse_errno_strerror(hcnse_errno_t err)
 {
     static _Thread_local char buf[1024];

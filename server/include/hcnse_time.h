@@ -8,7 +8,7 @@
 
 typedef uintptr_t                      hcnse_msec_t;
 
-#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
+#if (HCNSE_POSIX)
 
 typedef struct tm                      hcnse_tm_t;
 
@@ -32,7 +32,7 @@ typedef struct tm                      hcnse_tm_t;
 #define hcnse_pause()                  pause()
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 typedef SYSTEMTIME                     hcnse_tm_t;
 

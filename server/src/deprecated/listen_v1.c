@@ -80,7 +80,7 @@ static hcnse_err_t init_listen_tcp6(listen_unit_t *unit)
     return HCNSE_OK;
 }
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 static hcnse_err_t init_listen_tcp6(listen_unit_t *unit)
 {
     (void) unit;

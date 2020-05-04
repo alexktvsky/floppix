@@ -19,7 +19,7 @@ struct hcnse_log_s {
     uint8_t level;
     size_t size;
     hcnse_log_message_t *messages;
-#if (HCNSE_UNIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     pid_t pid;
 #else
     hcnse_thread_t *tid;
@@ -87,7 +87,7 @@ hcnse_log_worker(void *arg)
 }
 
 /* Version for UNIX-like systems with mmap */
-#if (HCNSE_UNIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
 hcnse_err_t
 hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
 {
@@ -451,7 +451,7 @@ hcnse_log_fini(hcnse_log_t *log)
     hcnse_semaphore_fini(log->sem_full);
     hcnse_semaphore_fini(log->sem_empty);
 
-#if (HCNSE_UNIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     kill(log->pid, SIGKILL);
     munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
 #else

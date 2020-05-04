@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 
 hcnse_err_t
 hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
@@ -79,7 +79,7 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 }
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 hcnse_err_t
 hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)

@@ -10,7 +10,7 @@
 #include "mempool.h"
 #include "config.h"
 
-#if (HCNSE_WINDOWS)
+#if (HCNSE_WIN32)
 #define PCRE_STATIC
 #endif
 #include <pcre.h>

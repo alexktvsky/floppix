@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_PORTABLE_WINDOWS_H
-#define INCLUDED_HCNSE_PORTABLE_WINDOWS_H
+#ifndef INCLUDED_HCNSE_PORTABLE_WIN32_H
+#define INCLUDED_HCNSE_PORTABLE_WIN32_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -24,4 +24,4 @@
 #include <pcre.h>
 #endif
 
-#endif /* INCLUDED_HCNSE_PORTABLE_WINDOWS_H */
+#endif /* INCLUDED_HCNSE_PORTABLE_WIN32_H */

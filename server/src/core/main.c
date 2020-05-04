@@ -147,7 +147,7 @@ int main(int argc, char *const argv[])
         return 0;
     }
 
-#if (HCNSE_WINDOWS)
+#if (HCNSE_WIN32)
     err = hcnse_winsock_init_v22();
     if (err != HCNSE_OK) {
         fprintf(stderr, "%s: %s\n",
@@ -223,7 +223,7 @@ error2:
 error1:
     hcnse_config_fini(conf);
 error0:
-#if (HCNSE_WINDOWS)
+#if (HCNSE_WIN32)
     system("pause");
 #endif
     return 1;

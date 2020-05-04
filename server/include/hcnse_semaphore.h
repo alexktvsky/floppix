@@ -8,13 +8,13 @@
 #define HCNSE_SEMAPHORE_PRIVATE        0x01
 #define HCNSE_SEMAPHORE_SHARED         0x02
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 
 typedef struct {
     sem_t handler;
 } hcnse_semaphore_t;
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 typedef struct {
     HANDLE handler;

@@ -1,13 +1,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-
-/* Alignment macros is only to be used to align on a power of 2 boundary */
-#define HCNSE_ALIGN_SIZE sizeof(uintptr_t)
-#define HCNSE_ALIGN(p, b) \
-    (((p) + ((b) - 1)) & ~((b) - 1))
-#define HCNSE_ALIGN_DEFAULT(p) HCNSE_ALIGN(p, HCNSE_ALIGN_SIZE)
-
 #define HCNSE_MIN_ORDER 1
 #define HCNSE_MIN_ALLOC (HCNSE_ALIGN_SIZE << HCNSE_MIN_ORDER)
 
@@ -20,7 +13,9 @@
     HCNSE_ALIGN_DEFAULT(sizeof(hcnse_mempool_t))
 
 #define HCNSE_MAX_MEMNODE_SIZE(node) \
-    ((size_t) (uintptr_t) node->endp - (uintptr_t) node->startp);
+    ((size_t) (((uintptr_t) node->endp) - ((uintptr_t) node->startp)))
+
+#define HCNSE_PAGE_SIZE (hcnse_get_page_size())
 
 /* slot  0: size  4096
  * slot  1: size  8192
@@ -29,8 +24,6 @@
  * slot 19: size 81920
  * slot 20: nodes larger than 81920 */
 #define HCNSE_MAX_INDEX 20
-
-#define HCNSE_PAGE_SIZE (hcnse_get_page_size())
 
 
 typedef struct hcnse_memnode_s hcnse_memnode_t;
@@ -90,7 +83,7 @@ hcnse_memnode_allocate_and_init(size_t in_size)
         return NULL;
     }
 #else
-    node = hcnse_malloc(in_size);
+    node = malloc(in_size);
     if (node == NULL) {
         return NULL;
     }
@@ -298,7 +291,7 @@ hcnse_mempool_destroy(hcnse_mempool_t *pool)
 #if (HCNSE_HAVE_MMAP)
             munmap(temp, HCNSE_PAGE_SIZE * (i + 1));
 #else
-            hcnse_free(temp);
+            free(temp);
 #endif
         }
     }

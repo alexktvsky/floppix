@@ -20,7 +20,7 @@ void hcnse_epoll_process_events(hcnse_conf_t *conf);
 void hcnse_kqueue_process_events(hcnse_conf_t *conf);
 #endif
 
-#if (HCNSE_HAVE_IOCP && HCNSE_WINDOWS)
+#if (HCNSE_HAVE_IOCP && HCNSE_WIN32)
 void hcnse_iocp_process_events(hcnse_conf_t *conf);
 #endif
 

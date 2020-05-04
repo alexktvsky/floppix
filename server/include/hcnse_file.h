@@ -37,7 +37,7 @@
 typedef int hcnse_fd_t;
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 #define HCNSE_STDIN                    GetStdHandle(STD_INPUT_HANDLE)
 #define HCNSE_STDOUT                   GetStdHandle(STD_OUTPUT_HANDLE)

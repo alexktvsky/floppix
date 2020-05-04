@@ -30,7 +30,7 @@ typedef int hcnse_socket_t;
 typedef int hcnse_socket_t;
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 #define HCNSE_SHUT_RD                  SD_RECEIVE
 #define HCNSE_SHUT_WR                  SD_SEND

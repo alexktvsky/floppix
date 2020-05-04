@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
@@ -61,7 +61,7 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
     return HCNSE_OK;
 }
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,

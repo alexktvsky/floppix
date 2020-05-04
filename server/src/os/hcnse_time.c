@@ -12,7 +12,7 @@
 // };
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 void hcnse_gettimeofday(struct timeval *tv)
 {
     gettimeofday(tv, NULL);
@@ -26,7 +26,7 @@ void hcnse_localtime(time_t sec, hcnse_tm_t *tm)
 }
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 void hcnse_gettimeofday(struct timeval *tv)
 {
 

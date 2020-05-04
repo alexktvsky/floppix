@@ -9,7 +9,7 @@
 #define HCNSE_MUTEX_PRIVATE            0x02
 
 
-#if (HCNSE_UNIX)
+#if (HCNSE_POSIX)
 
 typedef struct {
     pthread_mutex_t handler;
@@ -17,7 +17,7 @@ typedef struct {
 } hcnse_mutex_t;
 
 
-#elif (HCNSE_WINDOWS)
+#elif (HCNSE_WIN32)
 
 typedef struct {
     HANDLE handler;

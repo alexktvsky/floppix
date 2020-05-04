@@ -13,7 +13,7 @@ hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
 #elif (HCNSE_HAVE_KQUEUE && HCNSE_FREEBSD)
     hcnse_kqueue_process_events(conf);
 
-#elif (HCNSE_HAVE_IOCP && HCNSE_WINDOWS)
+#elif (HCNSE_HAVE_IOCP && HCNSE_WIN32)
     hcnse_iocp_process_events(conf);
 
 #else
