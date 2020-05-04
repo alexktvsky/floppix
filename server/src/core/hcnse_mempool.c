@@ -108,7 +108,7 @@ hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent)
     if (!pool) {
         return hcnse_get_errno();
     }
-    memset(pool, 0, HCNSE_SIZEOF_MEMPOOL_T);
+    hcnse_memset(pool, 0, HCNSE_SIZEOF_MEMPOOL_T);
 
     if (parent) {
         pool->parent = parent;
@@ -193,7 +193,7 @@ hcnse_pcalloc(hcnse_mempool_t *pool, size_t in_size)
 {
     void *mem;
     if ((mem = hcnse_palloc(pool, in_size)) != NULL) {
-        memset(mem, 0, in_size);
+        hcnse_memset(mem, 0, in_size);
     }
     return mem;
 }

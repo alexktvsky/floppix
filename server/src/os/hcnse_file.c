@@ -184,13 +184,13 @@ hcnse_file_write1(hcnse_file_t *file, const char *buf, size_t size)
 ssize_t
 hcnse_write_stdout(const char *str)
 {
-    return hcnse_write_fd(HCNSE_STDOUT, (void *) str, strlen(str));
+    return hcnse_write_fd(HCNSE_STDOUT, (void *) str, hcnse_strlen(str));
 }
 
 ssize_t
 hcnse_write_stderr(const char *str)
 {
-    return hcnse_write_fd(HCNSE_STDERR, (void *) str, strlen(str));
+    return hcnse_write_fd(HCNSE_STDERR, (void *) str, hcnse_strlen(str));
 }
 
 void

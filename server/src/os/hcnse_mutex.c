@@ -37,7 +37,7 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
         return hcnse_get_errno();
     }
 
-    memmove(&(mutex->attr), &attr, sizeof(pthread_mutexattr_t));
+    hcnse_memmove(&(mutex->attr), &attr, sizeof(pthread_mutexattr_t));
 
     return HCNSE_OK;
 }

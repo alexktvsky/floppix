@@ -23,7 +23,7 @@ hcnse_list_create(void)
     if (!new_list) {
         return NULL;
     }
-    memset(new_list, 0, sizeof(hcnse_list_t));
+    hcnse_memset(new_list, 0, sizeof(hcnse_list_t));
     return new_list;
 }
 
@@ -32,11 +32,11 @@ hcnse_list_create1(hcnse_list_t **list)
 {
     hcnse_list_t *new_list = hcnse_malloc(sizeof(hcnse_list_t));
     if (!new_list) {
-        return EXIT_FAILURE;
+        return hcnse_get_errno();
     }
-    memset(new_list, 0, sizeof(hcnse_list_t));
+    hcnse_memset(new_list, 0, sizeof(hcnse_list_t));
     *list = new_list;
-    return EXIT_SUCCESS;
+    return HCNSE_OK;
 }
 
 hcnse_err_t
@@ -56,7 +56,7 @@ hcnse_list_append(hcnse_list_t *list, hcnse_lnode_t *in_node)
     in_node->next = NULL;
     list->size += 1;
 
-    return EXIT_SUCCESS;
+    return HCNSE_OK;
 }
 
 hcnse_err_t
@@ -72,7 +72,7 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
         list->head = list->head->next;
         // hcnse_free(temp1);
         list->size -= 1;
-        return EXIT_SUCCESS;
+        return HCNSE_OK;
     }
     /* If the last element */
     else if (list->tail == in_node) {
@@ -82,21 +82,21 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
         list->tail = list->tail->prev;
         // hcnse_free(temp2);
         list->size -= 1;
-        return EXIT_SUCCESS;
+        return HCNSE_OK;
     }
     else {
         temp1 = temp1->next;
         while (temp1 != in_node) {
             temp1 = temp1->next;
             if (temp1 == list->tail) {
-                return EXIT_FAILURE;
+                return HCNSE_FAILED;
             }
         }
         temp1->next->prev = temp1->prev;
         temp1->prev->next = temp1->next;
         // hcnse_free(temp1);
         list->size -= 1;
-        return EXIT_SUCCESS;
+        return HCNSE_OK;
     }
 }
 
@@ -133,8 +133,7 @@ hcnse_list_size(hcnse_list_t *list)
 void
 hcnse_list_clean(hcnse_list_t *list)
 {
-    memset(list, 0, sizeof(hcnse_list_t));
-    return;
+    hcnse_memset(list, 0, sizeof(hcnse_list_t));
 }
 
 void
@@ -142,7 +141,6 @@ hcnse_list_destroy(hcnse_list_t *list)
 {
     hcnse_free(list);
 }
-
 
 hcnse_lnode_t *
 hcnse_list_create_node(size_t size)
@@ -161,19 +159,18 @@ hcnse_list_create_node1(hcnse_lnode_t **node, size_t size)
 {
     void *mem = hcnse_malloc(sizeof(hcnse_lnode_t) + size);
     if (!mem) {
-        return EXIT_FAILURE;
+        return hcnse_get_errno();
     }
     ((hcnse_lnode_t *) mem)->next = NULL;
     ((hcnse_lnode_t *) mem)->prev = NULL;
     *node = mem;
-    return EXIT_SUCCESS;
+    return HCNSE_OK;
 }
 
 void
 hcnse_list_destroy_node(hcnse_lnode_t *node)
 {
     hcnse_free(node);
-    return;
 }
 
 hcnse_lnode_t *
@@ -183,7 +180,7 @@ hcnse_list_create_node_and_append1(size_t size, hcnse_list_t *list)
     if (!node) {
         return NULL;
     }
-    if (hcnse_list_append(list, node) != EXIT_SUCCESS) {
+    if (hcnse_list_append(list, node) != HCNSE_OK) {
         hcnse_list_destroy_node(node);
         return NULL;
     }

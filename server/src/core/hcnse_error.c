@@ -36,11 +36,11 @@ size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
     size_t n;
 
     if (errcode == HCNSE_OK) {
-        n = strlen(message_ok);
+        n = hcnse_strlen(message_ok);
         if (n > bufsize) {
             n = bufsize;
         }
-        memmove(buf, message_ok, n);
+        hcnse_memmove(buf, message_ok, n);
         return n;
     }
 
@@ -51,11 +51,11 @@ size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
                 error_list[i].code == HCNSE_ERR_END_LIST) {
-            n = strlen(error_list[i].message);
+            n = hcnse_strlen(error_list[i].message);
             if (n > bufsize) {
                 n = bufsize;
             }
-            memmove(buf, error_list[i].message, n);
+            hcnse_memmove(buf, error_list[i].message, n);
             break;
         }
         else {

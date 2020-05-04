@@ -196,14 +196,14 @@ hcnse_err_t parse_config(void)
     listen_unit_t *temp2 = NULL;
 
     while (pstr) {
-        memset(pstr, 0, MAX_SIZE_LINE);
+        hcnse_memset(pstr, 0, MAX_SIZE_LINE);
         pstr = fgets(pstr, MAX_SIZE_LINE, conf_file);
         if (pstr) {
             for (size_t i = 0; i < SIZE; i++) {
                 int offset = 0;
                 int ovector[100];
                 while (1) {
-                    int count = pcre_exec(pcre_array[i], NULL, pstr, strlen(pstr),
+                    int count = pcre_exec(pcre_array[i], NULL, pstr, hcnse_strlen(pstr),
                                           offset, 0, ovector, 100);
                     if (count < 0) {
                         break;
@@ -230,9 +230,9 @@ hcnse_err_t parse_config(void)
                                 /* Error of syntax configure file */
                                 return CONF_SYNTAX_ERROR;
                             }
-                            memset(last_interface, 0, MAX_SIZE_LINE);
-                            string_len = strlen(stringlist[0]);
-                            memmove(last_interface, stringlist[0], string_len);
+                            hcnse_memset(last_interface, 0, MAX_SIZE_LINE);
+                            string_len = hcnse_strlen(stringlist[0]);
+                            hcnse_memmove(last_interface, stringlist[0], string_len);
                             last_interface[string_len] = '\0';
                             sections[section_counter] = SECTION_INTERFACE;
                             SafeIncSectionCounter();
@@ -264,13 +264,13 @@ hcnse_err_t parse_config(void)
                                 temp2->next = temp1;
                             }
 
-                            string_len = strlen(last_interface);
+                            string_len = hcnse_strlen(last_interface);
 
                             temp1->netface = hcnse_palloc(config.pool, string_len + 1);
                             if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
-                            memmove(temp1->netface, last_interface, string_len);
+                            hcnse_memmove(temp1->netface, last_interface, string_len);
                             (temp1->netface)[string_len] = '\0';
                             temp1->port = atoi(stringlist[0]);
                             temp1->protocol = LISTEN_TCP;
@@ -303,13 +303,13 @@ hcnse_err_t parse_config(void)
                                 temp2->next = temp1;
                             }
 
-                            string_len = strlen(last_interface);
+                            string_len = hcnse_strlen(last_interface);
 
                             temp1->netface = hcnse_palloc(config.pool, string_len + 1);
                             if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
-                            memmove(temp1->netface, last_interface, string_len);
+                            hcnse_memmove(temp1->netface, last_interface, string_len);
                             (temp1->netface)[string_len] = '\0';
                             temp1->port = atoi(stringlist[0]);
                             temp1->protocol = LISTEN_TCP6;
@@ -336,10 +336,10 @@ hcnse_err_t parse_config(void)
                                 return CONF_SYNTAX_ERROR;
                             }
 
-                            string_len = strlen(stringlist[0]);
+                            string_len = hcnse_strlen(stringlist[0]);
 
                             config.logfile = hcnse_palloc(config.pool, string_len + 1);
-                            memmove(config.logfile, stringlist[0], string_len);
+                            hcnse_memmove(config.logfile, stringlist[0], string_len);
                             config.logfile[string_len] = '\0';
                             break;
 

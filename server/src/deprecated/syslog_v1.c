@@ -35,8 +35,8 @@ static const char *priorities[] = {
 
 int init_log(char *filename, int level)
 {
-    memmove(logname, filename, strlen(filename));
-    logname[strlen(filename)] = '\0';
+    hcnse_memmove(logname, filename, hcnse_strlen(filename));
+    logname[hcnse_strlen(filename)] = '\0';
     log_level = level;
     logfile = fopen(filename, "a");
     if (!logfile) {

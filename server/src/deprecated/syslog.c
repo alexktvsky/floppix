@@ -76,7 +76,7 @@ hcnse_err_t log_msg_ex(FILE *in_openfile, int in_level, const char *message)
                    "[%d.%m.%Y] [%H:%M:%S]", localtime(&timer));
     strtime[timelen] = '\0';
 
-    size_t msglen = strlen(message);
+    size_t msglen = hcnse_strlen(message);
     if (msglen > MAX_STRLEN_MESSAGE) {
         msglen = MAX_STRLEN_MESSAGE;
     }

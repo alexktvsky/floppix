@@ -40,14 +40,14 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     hcnse_list_t *connects = NULL;
     hcnse_err_t err;
 
-    memset(listener, 0, sizeof(hcnse_listener_t));
+    hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
 
     err = hcnse_list_create1(&connects);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    memset(&hints, 0, sizeof(struct addrinfo));
+    hcnse_memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
@@ -126,14 +126,14 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     hcnse_err_t err;
 
 
-    memset(listener, 0, sizeof(hcnse_listener_t));
+    hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
 
     err = hcnse_list_create1(&connects);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    memset(&hints, 0, sizeof(struct addrinfo));
+    hcnse_memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;

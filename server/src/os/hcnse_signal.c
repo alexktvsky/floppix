@@ -31,7 +31,7 @@ hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid)
 hcnse_err_t hcnse_wait_wakeup_signal(hcnse_msec_t ms)
 {
     MSG msg;
-    memset(&msg, 0, sizeof(MSG));
+    hcnse_memset(&msg, 0, sizeof(MSG));
 
     if (SetTimer(0, 0, ms, NULL) == 0) {
         return hcnse_get_errno();

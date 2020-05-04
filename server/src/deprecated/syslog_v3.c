@@ -107,13 +107,13 @@ static void *loger(void *data)
 
 status_t init_log(char *in_filename, int in_level_boundary)
 {
-    size_t strlen_filename = strlen(in_filename) + 1;
-    if (strlen_filename > MAX_STR_FILENAME) {
+    size_t hcnse_strlen_filename = hcnse_strlen(in_filename) + 1;
+    if (hcnse_strlen_filename > MAX_STR_FILENAME) {
         return 1;
     }
     else {
-        memmove(filename, in_filename, strlen_filename);
-        (filename)[strlen_filename] = '\0';
+        hcnse_memmove(filename, in_filename, hcnse_strlen_filename);
+        (filename)[hcnse_strlen_filename] = '\0';
     }
 
     level_boundary = in_level_boundary;
@@ -146,7 +146,7 @@ status_t log_message(int level, char *message)
     timelen = strftime(strtime, MAX_STRLEN_TIME,
                    "[%d.%m.%Y] [%H:%M:%S]", localtime(&timer));
 
-    size_t msglen = strlen(message);
+    size_t msglen = hcnse_strlen(message);
     if (msglen > MAX_STRLEN_MESSAGE) {
         msglen = MAX_STRLEN_MESSAGE;
     }
@@ -156,8 +156,8 @@ status_t log_message(int level, char *message)
     pthread_mutex_lock(&mutex_deposit);
 
     /* Set data */
-    memmove(buf[rear].strtime, strtime, timelen);
-    memmove(buf[rear].message, message, msglen);
+    hcnse_memmove(buf[rear].strtime, strtime, timelen);
+    hcnse_memmove(buf[rear].message, message, msglen);
     buf[rear].level = level;
 
     /* Go to next element */

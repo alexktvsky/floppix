@@ -62,7 +62,7 @@ hcnse_log_worker(void *arg)
         log->front = ((log->front) + 1) % HCNSE_LOG_BUF_SIZE;
 
 
-        len = snprintf(buf, maxlen, "%s [%s] %s\n", 
+        len = hcnse_snprintf(buf, maxlen, "%s [%s] %s\n", 
                                 msg->time, prio[msg->level], msg->str);
 
         /* TODO: Improve logs rotation */
@@ -110,7 +110,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         err = hcnse_get_errno();
         goto failed;
     }
-    memset(log, 0, sizeof(hcnse_log_t));
+    hcnse_memset(log, 0, sizeof(hcnse_log_t));
 
     file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
@@ -251,14 +251,14 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         err = hcnse_get_errno();
         goto failed;
     }
-    memset(log, 0, sizeof(hcnse_log_t));
+    hcnse_memset(log, 0, sizeof(hcnse_log_t));
 
     tid = hcnse_malloc(sizeof(hcnse_thread_t));
     if (!tid) {
         err = hcnse_get_errno();
         goto failed;
     }
-    memset(tid, 0, sizeof(hcnse_thread_t));
+    hcnse_memset(tid, 0, sizeof(hcnse_thread_t));
 
     file = hcnse_malloc(sizeof(hcnse_file_t));
     if (!file) {
@@ -391,7 +391,7 @@ hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
     log->rear = ((log->rear) + 1) % HCNSE_LOG_BUF_SIZE;
 
     va_start(args, fmt);
-    vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
+    hcnse_vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
     va_end(args);
 
     hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
@@ -422,13 +422,13 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     log->rear = ((log->rear) + 1) % HCNSE_LOG_BUF_SIZE;
 
     va_start(args, fmt);
-    len = vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
+    len = hcnse_vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
     va_end(args);
 
     if (err != HCNSE_OK) {
         if (HCNSE_LOG_MSG_SIZE > len) {
             buf = (msg->str) + len;
-            snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
+            hcnse_snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
                 err, hcnse_strerror(err));
         }
     }

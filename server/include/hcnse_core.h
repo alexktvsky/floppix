@@ -1,6 +1,7 @@
 #ifndef INCLUDED_HCNSE_CORE_H
 #define INCLUDED_HCNSE_CORE_H
 
+#include "hcnse_string.h"
 #include "hcnse_errno.h"
 #include "hcnse_error.h"
 #include "hcnse_time.h"

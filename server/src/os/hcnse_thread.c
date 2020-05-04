@@ -64,7 +64,7 @@ hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
         return hcnse_get_errno();
     }
 
-    memmove(&(thread->attr), &attr, sizeof(pthread_attr_t));
+    hcnse_memmove(&(thread->attr), &attr, sizeof(pthread_attr_t));
 
 
     return HCNSE_OK;

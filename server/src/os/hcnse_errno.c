@@ -11,14 +11,14 @@ const char *hcnse_errno_strerror(hcnse_errno_t err)
 size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
     char *strerr = strerror(err);
-    size_t len = strlen(strerr);
+    size_t len = hcnse_strlen(strerr);
     size_t n;
     if (len > bufsize) {
-        memmove(buf, strerr, bufsize);
+        hcnse_memmove(buf, strerr, bufsize);
         n = bufsize;
     }
     else {
-        memmove(buf, strerr, len);
+        hcnse_memmove(buf, strerr, len);
         n = len;
     }
     return n;

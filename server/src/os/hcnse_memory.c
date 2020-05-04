@@ -33,7 +33,7 @@ void *hcnse_calloc(size_t size)
     if (!mem) {
         return mem;
     }
-    memset(mem, 0, size);
+    hcnse_memset(mem, 0, size);
     return mem;
 }
 
@@ -50,7 +50,7 @@ size_t hcnse_total_mem_usage(void)
 
 void hcnse_explicit_memzero(void *buf, size_t n)
 {
-    memset(buf, 0, n);
+    hcnse_memset(buf, 0, n);
     memory_barrier();
 }
 

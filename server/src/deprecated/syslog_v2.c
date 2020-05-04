@@ -104,11 +104,11 @@ static void *logger(void *filename)
 
 status_t init_log(char *filename, int level_boundary)
 {
-    int len_name = strlen(filename);
+    int len_name = hcnse_strlen(filename);
     if (len_name > MAX_STRLEN_LOGNAME) {
         return 1;
     }
-    memmove(logname, filename, len_name);
+    hcnse_memmove(logname, filename, len_name);
     logname[len_name] = '\0';
     minlevel = level_boundary;
 
@@ -143,14 +143,14 @@ status_t log_message(int level, char *message)
 
     message_unit_s *node = hcnse_palloc(pool, sizeof(message_unit_s));
     pthread_mutex_lock(&mutex);
-    memmove(node->time, strtime, timelen);
+    hcnse_memmove(node->time, strtime, timelen);
     (node->time)[timelen] = '\0';
     node->level = level;
-    msglen = strlen(message);
+    msglen = hcnse_strlen(message);
     if (msglen > MAX_STRLEN_MESSAGE) {
         msglen = MAX_STRLEN_MESSAGE;
     }
-    memmove(node->message, message, msglen);
+    hcnse_memmove(node->message, message, msglen);
     (node->message)[msglen] = '\0';
     node->next = NULL;
 
