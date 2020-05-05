@@ -31,24 +31,18 @@
 #define HCNSE_ERR_CONF                 HCNSE_ERROR_DOMAIN(1)
 #define HCNSE_ERR_CONF_REGEX           (HCNSE_ERR_CONF+1)
 
-#define HCNSE_ERR_LOG                  HCNSE_ERROR_DOMAIN(2)
-#define HCNSE_ERR_LOG_BIG              (HCNSE_ERR_LOG+1)
-
-#define HCNSE_ERR_NET                  HCNSE_ERROR_DOMAIN(3)
+#define HCNSE_ERR_NET                  HCNSE_ERROR_DOMAIN(2)
 #define HCNSE_ERR_NET_GAI              (HCNSE_ERR_NET+1)
 #define HCNSE_ERR_NET_GSN              (HCNSE_ERR_NET+2)
 #define HCNSE_ERR_NET_GPN              (HCNSE_ERR_NET+3)
 
-#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(4)
+#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(3)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
-
-
 
 
 const char *hcnse_strerror(hcnse_err_t errcode);
 size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize);
 const char *hcnse_errno_strerror(hcnse_errno_t err);
 size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize);
-
 
 #endif /* INCLUDED_HCNSE_ERRNO_H */

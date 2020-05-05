@@ -14,9 +14,6 @@ static const struct {
     /* HCNSE_ERR_CONF domain */
     {HCNSE_ERR_CONF_REGEX,           "Failed to compile regular expressions"},
 
-    /* HCNSE_ERR_LOG domain */
-    {HCNSE_ERR_LOG_BIG,              "Log file already exist and too bigger than limit"},
-
     /* HCNSE_ERR_NET domain */
     {HCNSE_ERR_NET_GAI,              "Failed to translate network address"},
     {HCNSE_ERR_NET_GSN,              "Failed to get address to which the socket is bound"},

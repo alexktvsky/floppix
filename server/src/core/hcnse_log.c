@@ -131,10 +131,11 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
     if (((size_t) file_size) >= conf->log_size) {
-        err = HCNSE_ERR_LOG_BIG;
-        goto failed;
+        file->offset = 0;
     }
-    file->offset = file_size;
+    else {
+        file->offset = file_size;
+    }
 
     mem_size += sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE;
     mem_size += sizeof(hcnse_mutex_t) * 2;
@@ -279,10 +280,11 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
     if (((size_t) file_size) >= conf->log_size) {
-        err = HCNSE_ERR_LOG_BIG;
-        goto failed;
+        file->offset = 0;
     }
-    file->offset = file_size;
+    else {
+        file->offset = file_size;
+    }
 
     mem_size += sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE;
     mem_size += sizeof(hcnse_mutex_t) * 2;

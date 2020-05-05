@@ -108,16 +108,16 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     for (iter = hcnse_list_first(conf->listeners);
                                         iter; iter = hcnse_list_next(iter)) {
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
-        hcnse_fprintf(HCNSE_STDOUT, "listen: %s:%s\n",
-            hcnse_listener_get_addr(str_ip, &(listener->sockaddr)),
-            hcnse_listener_get_port(str_port, &(listener->sockaddr)));
+        hcnse_listener_get_addr(str_ip, &(listener->sockaddr));
+        hcnse_listener_get_port(str_port, &(listener->sockaddr));
+        hcnse_fprintf(HCNSE_STDOUT, "listen: %s:%s\n", str_ip, str_port);
     }
 }
 
 static void hcnse_show_version_info(void)
 {
     hcnse_fprintf(HCNSE_STDOUT, "%s (%s)\n",
-                        hcnse_version_info(), hcnse_build_time());
+        hcnse_version_info(), hcnse_build_time());
 #ifdef HCNSE_COMPILER
     hcnse_fprintf(HCNSE_STDOUT, "Built by %s\n", HCNSE_COMPILER);
 #endif
@@ -180,8 +180,8 @@ int main(int argc, char *const argv[])
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
         err = hcnse_listener_start_listen(listener);
         if (err != HCNSE_OK) {
-        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
-            "Failed to create listening socket", hcnse_strerror(err));
+            hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
+                "Failed to create listening socket", hcnse_strerror(err));
         goto failed;
         }
     }
@@ -199,7 +199,7 @@ int main(int argc, char *const argv[])
     err = hcnse_process_daemon_init();
     if (err != HCNSE_OK) {
         hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-                                    "Failed to create server process");
+            "Failed to create server process");
         goto failed;
     }
 #endif
@@ -212,6 +212,11 @@ int main(int argc, char *const argv[])
      * hcnse_master_process_cycle(conf);
      * 
      */
+
+    if (!(conf->ssl_on)) {
+        hcnse_log_error(HCNSE_LOG_WARN, conf->log, HCNSE_OK, "SSL is disable");
+    }
+
 
     hcnse_single_process_cycle(conf);
 
