@@ -12,7 +12,6 @@ typedef struct hcnse_mempool_s         hcnse_mempool_t;
 
 #include "hcnse_config.h"
 #include "hcnse_errno.h"
-#include "hcnse_error.h"
 #include "hcnse_time.h"
 #include "hcnse_socket.h"
 #include "hcnse_file.h"

@@ -1,7 +1,6 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += hcnse_error.c
 SRC_FILES += hcnse_cycle.c
 SRC_FILES += hcnse_log.c
 SRC_FILES += hcnse_config.c
