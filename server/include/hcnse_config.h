@@ -12,7 +12,7 @@ struct hcnse_config_s {
     hcnse_list_t *free_connects; // Linked list with free and available connections
     char *workdir;
     hcnse_log_t *log;
-    char *log_file;
+    char *log_fname;
     uint8_t log_level;
     size_t log_size;
     bool ssl_on;

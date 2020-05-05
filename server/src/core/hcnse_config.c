@@ -18,7 +18,7 @@
 #define HCNSE_PATTERN_LISTEN           0
 #define HCNSE_PATTERN_LISTEN4          1
 #define HCNSE_PATTERN_LISTEN6          2
-#define HCNSE_PATTERN_LOG_FILE         3
+#define HCNSE_PATTERN_log_fname         3
 #define HCNSE_PATTERN_LOG_LEVEL        4
 #define HCNSE_PATTERN_LOG_SIZE         5
 #define HCNSE_PATTERN_WORKDIR          6
@@ -49,11 +49,11 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 {
 #if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
     conf->workdir = "/";
-    conf->log_file = "server.log";
+    conf->log_fname = "server.log";
 
 #elif (HCNSE_WIN32)
     conf->workdir = "C:\\";
-    conf->log_file = "server.log";
+    conf->log_fname = "server.log";
 #endif
 
     conf->log_size = 0;
@@ -185,11 +185,11 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
                 break;
 
-            case HCNSE_PATTERN_LOG_FILE:
+            case HCNSE_PATTERN_log_fname:
                 hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
-                conf->log_file = ptr;
+                conf->log_fname = ptr;
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;

@@ -73,11 +73,11 @@ hcnse_log_worker(void *arg)
         }
 
         if (hcnse_file_write1(log->file, buf, len) == -1) {
-            /* What need to do? */
+            /* What we need to do? */
         }
 
 #if (HCNSE_NO_DAEMON)
-        fprintf(stdout, "%s", buf);
+        hcnse_fprintf(HCNSE_STDOUT, "%s", buf);
 #endif
 
         hcnse_mutex_unlock(log->mutex_fetch);
@@ -89,7 +89,7 @@ hcnse_log_worker(void *arg)
 /* Version for UNIX-like systems with mmap */
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
 hcnse_err_t
-hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
+hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
@@ -118,7 +118,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         goto failed;
     }
 
-    err = hcnse_file_init(file, fname, HCNSE_FILE_WRONLY,
+    err = hcnse_file_init(file, conf->log_fname, HCNSE_FILE_WRONLY,
                                     HCNSE_FILE_CREATE_OR_OPEN,
                                             HCNSE_FILE_OWNER_ACCESS);
     if (err != HCNSE_OK) {
@@ -130,7 +130,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         err = hcnse_get_errno();
         goto failed;
     }
-    if (((size_t) file_size) >= size) {
+    if (((size_t) file_size) >= conf->log_size) {
         err = HCNSE_ERR_LOG_BIG;
         goto failed;
     }
@@ -185,8 +185,8 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
 
     /* XXX: Init all log struct fields before run worker */
     log->file = file;
-    log->level = level;
-    log->size = size;
+    log->level = conf->log_level;
+    log->size = conf->log_size;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
@@ -229,7 +229,7 @@ failed:
 
 #else
 hcnse_err_t
-hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t size)
+hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
@@ -266,7 +266,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         goto failed;
     }
 
-    err = hcnse_file_init(file, fname, HCNSE_FILE_WRONLY,
+    err = hcnse_file_init(file, conf->log_fname, HCNSE_FILE_WRONLY,
                                     HCNSE_FILE_CREATE_OR_OPEN,
                                             HCNSE_FILE_OWNER_ACCESS);
     if (err != HCNSE_OK) {
@@ -278,7 +278,7 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
         err = hcnse_get_errno();
         goto failed;
     }
-    if (((size_t) file_size) >= size) {
+    if (((size_t) file_size) >= conf->log_size) {
         err = HCNSE_ERR_LOG_BIG;
         goto failed;
     }
@@ -332,8 +332,8 @@ hcnse_log_init(hcnse_log_t **in_log, const char *fname, uint8_t level, size_t si
 
     /* XXX: Init all log struct fields before run worker */
     log->file = file;
-    log->level = level;
-    log->size = size;
+    log->level = conf->log_level;
+    log->size = conf->log_size;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;

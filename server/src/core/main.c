@@ -22,23 +22,11 @@ static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
                 show_version = true;
                 break;
 
-            case 'V':
-                show_version = true;
-                break;
-
             case 'h':
                 show_help = true;
                 break;
 
-            case 'H':
-                show_help = true;
-                break;
-
             case 't':
-                test_config = true;
-                break;
-
-            case 'T':
                 test_config = true;
                 break;
 
@@ -47,15 +35,6 @@ static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
                 break;
 
             case 'c':
-                if (argv[i++]) {
-                    conf_file = argv[i];
-                }
-                else {
-                    return HCNSE_FAILED;
-                }
-                break;
-
-            case 'C':
                 if (argv[i++]) {
                     conf_file = argv[i];
                 }
@@ -81,7 +60,7 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     char str_port[NI_MAXSERV];
 
     hcnse_fprintf(HCNSE_STDOUT, "conf_file: \"%s\"\n", conf->file->name);
-    hcnse_fprintf(HCNSE_STDOUT, "log_file: \"%s\"\n", conf->log_file);
+    hcnse_fprintf(HCNSE_STDOUT, "log_file: \"%s\"\n", conf->log_fname);
     hcnse_fprintf(HCNSE_STDOUT, "log_level: %u\n", conf->log_level);
     hcnse_fprintf(HCNSE_STDOUT, "log_size: %zu\n", conf->log_size);
     hcnse_fprintf(HCNSE_STDOUT, "workdir: \"%s\"\n", conf->workdir);
@@ -90,16 +69,20 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     if (conf->ssl_on) {
         hcnse_fprintf(HCNSE_STDOUT, "ssl: on\n");
         if (conf->ssl_certfile) {
-            hcnse_fprintf(HCNSE_STDOUT, "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
+            hcnse_fprintf(HCNSE_STDOUT,
+                "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
         }
         else {
-            hcnse_fprintf(HCNSE_STDOUT, "WARNING: SSL certificate file is undefined\n");
+            hcnse_fprintf(HCNSE_STDOUT,
+                "WARNING: SSL certificate file is undefined\n");
         }
         if (conf->ssl_keyfile) {
-            hcnse_fprintf(HCNSE_STDOUT, "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
+            hcnse_fprintf(HCNSE_STDOUT,
+                "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
         }
         else {
-            hcnse_fprintf(HCNSE_STDOUT, "WARNING: SSL key file is undefined\n");
+            hcnse_fprintf(HCNSE_STDOUT,
+                "WARNING: SSL key file is undefined\n");
         }
     }
     else {
@@ -135,7 +118,7 @@ int main(int argc, char *const argv[])
     err = hcnse_parse_argv(argc, argv);
     if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s\n", "Invalid input parameters");
-        goto error0;
+        goto failed;
     }
 
     if (show_version) {
@@ -152,7 +135,7 @@ int main(int argc, char *const argv[])
     if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to initialize Winsock 2.2", hcnse_strerror(err));
-        goto error0;
+        goto failed;
     }
 #endif
 
@@ -160,7 +143,7 @@ int main(int argc, char *const argv[])
     if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to initialize config", hcnse_strerror(err));
-        goto error0;
+        goto failed;
     }
 
     if (test_config) {
@@ -173,7 +156,7 @@ int main(int argc, char *const argv[])
     if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to set workdir", hcnse_strerror(err));
-        goto error1;
+        goto failed;
     }
 
     for (iter = hcnse_list_first(conf->listeners);
@@ -183,15 +166,15 @@ int main(int argc, char *const argv[])
         if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to create listening socket", hcnse_strerror(err));
-        goto error1;
+        goto failed;
         }
     }
 
-    err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level, conf->log_size);
+    err = hcnse_log_init(&(conf->log), conf);
     if (err != HCNSE_OK) {
         hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to set open log", hcnse_strerror(err));
-        goto error1;
+        goto failed;
     }
 
     /* Now log file is available and server can write error mesages in it, so
@@ -201,7 +184,7 @@ int main(int argc, char *const argv[])
     if (err != HCNSE_OK) {
         hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
                                     "Failed to create server process");
-        goto error2;
+        goto failed;
     }
 #endif
 
@@ -218,11 +201,7 @@ int main(int argc, char *const argv[])
 
     return 0;
 
-error2:
-    hcnse_log_fini(conf->log);
-error1:
-    hcnse_config_fini(conf);
-error0:
+failed:
 #if (HCNSE_WIN32)
     system("pause");
 #endif

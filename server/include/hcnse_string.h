@@ -5,7 +5,7 @@
 #define HCNSE_CR                       "\015"
 #define HCNSE_CRLF                     "\015\012"
 
-#define HCNSE_MAX_STRING_SIZE          500 
+#define HCNSE_MAX_STRING_SIZE          1000 
 
 #define hcnse_strlen(str)              strlen(str)
 #define hcnse_memset(buf, c, n)        memset(buf, c, n)
