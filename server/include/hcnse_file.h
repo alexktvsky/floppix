@@ -4,7 +4,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
+#if (HCNSE_POSIX)
 
 #define HCNSE_STDIN                    STDIN_FILENO
 #define HCNSE_STDOUT                   STDOUT_FILENO
@@ -89,6 +89,5 @@ void hcnse_file_fini(hcnse_file_t *file);
 ssize_t hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size);
 ssize_t hcnse_write_stdout(const char *str);
 ssize_t hcnse_write_stderr(const char *str);
-
 
 #endif /* INCLUDED_HCNSE_FILE_H */

@@ -51,7 +51,6 @@
 #endif
 
 void hcnse_gettimeofday(struct timeval *tv);
-
 void hcnse_localtime(time_t sec, hcnse_tm_t *tm);
 const char *hcnse_timestr(char *buf, size_t len, time_t sec);
 

@@ -52,4 +52,11 @@
 
 #endif
 
+typedef int                            hcnse_errno_t;
+typedef uintptr_t                      hcnse_msec_t;
+typedef struct hcnse_file_s            hcnse_file_t;
+typedef struct hcnse_thread_s          hcnse_thread_t;
+typedef struct hcnse_mutex_s           hcnse_mutex_t;
+typedef struct hcnse_semaphore_s       hcnse_semaphore_t;
+
 #endif /* INCLUDED_HCNSE_PORTABLE_H */
