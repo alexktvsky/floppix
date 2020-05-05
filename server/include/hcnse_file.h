@@ -34,9 +34,6 @@
 #define hcnse_close_file(fd)           close(fd)
 #define hcnse_delete_file(name)        unlink((const char *) name)
 
-typedef int hcnse_fd_t;
-
-
 #elif (HCNSE_WIN32)
 
 #define HCNSE_STDIN                    GetStdHandle(STD_INPUT_HANDLE)
@@ -67,16 +64,13 @@ typedef int hcnse_fd_t;
 #define hcnse_close_file(fd)           CloseHandle(fd)
 #define hcnse_delete_file(name)        DeleteFile((const char *) name)
 
-typedef HANDLE hcnse_fd_t;
-
 #endif
 
-typedef struct hcnse_file_s {
+struct hcnse_file_s {
     hcnse_fd_t fd;
     char *name;
     off_t offset;
-} hcnse_file_t;
-
+};
 
 hcnse_err_t hcnse_file_init(hcnse_file_t *file, const char *fname, int mode,
     int create, int access);

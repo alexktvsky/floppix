@@ -5,8 +5,6 @@
 #include "hcnse_core.h"
 
 
-typedef struct hcnse_config_s hcnse_conf_t;
-
 struct hcnse_config_s {
     hcnse_file_t *file;
     char *data;

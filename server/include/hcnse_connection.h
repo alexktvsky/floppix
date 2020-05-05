@@ -7,10 +7,6 @@
 #define hcnse_listener_get_addr hcnse_connection_get_addr
 #define hcnse_listener_get_port hcnse_connection_get_port
 
-
-typedef struct hcnse_listener_s hcnse_listener_t;
-typedef struct hcnse_connect_s hcnse_connect_t;
-
 struct hcnse_listener_s {
     int8_t identifier;
     hcnse_socket_t fd;

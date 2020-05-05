@@ -11,17 +11,16 @@
 
 #if (HCNSE_POSIX)
 
-typedef struct {
+struct hcnse_mutex_s {
     pthread_mutex_t handler;
     pthread_mutexattr_t attr;
-} hcnse_mutex_t;
-
+};
 
 #elif (HCNSE_WIN32)
 
-typedef struct {
+struct hcnse_mutex_s {
     HANDLE handler;
-} hcnse_mutex_t;
+};
 
 #endif
 

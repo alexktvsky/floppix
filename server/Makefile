@@ -9,6 +9,7 @@ SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_mempool.c
 SRC_FILES += hcnse_list.c
 SRC_FILES += hcnse_memory.c
+SRC_FILES += hcnse_string.c
 SRC_FILES += hcnse_file.c
 SRC_FILES += hcnse_errno.c
 SRC_FILES += hcnse_process.c

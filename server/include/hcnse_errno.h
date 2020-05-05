@@ -32,10 +32,6 @@
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
 
 
-
-
-typedef int hcnse_err_t;
-
 const char *hcnse_strerror(hcnse_err_t errcode);
 size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize);
 

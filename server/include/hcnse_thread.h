@@ -21,12 +21,10 @@
 
 #define hcnse_thread_exit(retval) pthread_exit((hcnse_thread_value_t) retval)
 
-typedef void * hcnse_thread_value_t;
-
-typedef struct {
+struct hcnse_thread_s {
     pthread_t handler;
     pthread_attr_t attr;
-} hcnse_thread_t;
+};
 
 #elif (HCNSE_WIN32)
 
@@ -38,11 +36,9 @@ typedef struct {
 
 #define hcnse_thread_exit(retval) ExitThread((hcnse_thread_value_t) retval)
 
-typedef DWORD hcnse_thread_value_t;
-
-typedef struct {
+struct hcnse_thread_s {
     HANDLE handler;
-} hcnse_thread_t;
+};
 
 #endif
 

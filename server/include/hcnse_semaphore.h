@@ -10,15 +10,15 @@
 
 #if (HCNSE_POSIX)
 
-typedef struct {
+struct hcnse_semaphore_s {
     sem_t handler;
-} hcnse_semaphore_t;
+};
 
 #elif (HCNSE_WIN32)
 
-typedef struct {
+struct hcnse_semaphore_s {
     HANDLE handler;
-} hcnse_semaphore_t;
+};
 
 #endif
 

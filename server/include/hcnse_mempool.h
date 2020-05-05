@@ -4,8 +4,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-typedef struct hcnse_mempool_s hcnse_mempool_t;
-
 hcnse_err_t hcnse_mempool_create(hcnse_mempool_t **newpool, hcnse_mempool_t *parent);
 void *hcnse_palloc(hcnse_mempool_t *pool, size_t in_size);
 void *hcnse_pcalloc(hcnse_mempool_t *pool, size_t in_size);

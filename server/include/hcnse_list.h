@@ -24,10 +24,6 @@
 
 #define hcnse_list_push_back hcnse_list_append
 
-
-typedef struct hcnse_list_s hcnse_list_t;
-typedef struct hcnse_lnode_s hcnse_lnode_t;
-
 extern const size_t hcnse_lnode_t_size;
 
 hcnse_list_t *hcnse_list_create(void);

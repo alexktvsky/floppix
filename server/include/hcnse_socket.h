@@ -13,31 +13,25 @@
 #define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
 #define hcnse_close_socket(s)          close(s)
-typedef int hcnse_socket_t;
 
 
 #elif (HCNSE_FREEBSD)
 /* Details for FreeBSD */
 #define HCNSE_INVALID_SOCKET           -1
 #define hcnse_close_socket(s)          close(s)
-typedef int hcnse_socket_t;
 
 
 #elif (HCNSE_SOLARIS)
 /* Details for Solaris */
 #define HCNSE_INVALID_SOCKET           -1
 #define hcnse_close_socket(s)          close(s)
-typedef int hcnse_socket_t;
-
 
 #elif (HCNSE_WIN32)
-
 #define HCNSE_SHUT_RD                  SD_RECEIVE
 #define HCNSE_SHUT_WR                  SD_SEND
 #define HCNSE_SHUT_RDWR                SD_BOTH
 #define HCNSE_INVALID_SOCKET           INVALID_SOCKET
 #define hcnse_close_socket(s)          closesocket(s)
-typedef SOCKET hcnse_socket_t;
 
 hcnse_err_t hcnse_winsock_init_v22(void);
 

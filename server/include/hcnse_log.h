@@ -17,8 +17,6 @@
 #define hcnse_log_debug(level, log, ...)
 #endif
 
-typedef struct hcnse_log_s hcnse_log_t;
-
 hcnse_err_t hcnse_log_init(hcnse_log_t **in_log, const char *fname,
     uint8_t level, size_t size);
 

@@ -69,7 +69,8 @@ const char *hcnse_timestr(char *buf, size_t len, time_t sec)
 
     hcnse_localtime(sec, &tm);
 
-    sprintf(buf, "[%02d.%02d.%02d] [%02d:%02d:%02d]",
+    hcnse_snprintf(buf, HCNSE_TIMESTRLEN,
+        "[%02d.%02d.%02d] [%02d:%02d:%02d]",
         tm.hcnse_tm_mday, tm.hcnse_tm_mon, tm.hcnse_tm_year,
         tm.hcnse_tm_hour, tm.hcnse_tm_min, tm.hcnse_tm_sec);
 

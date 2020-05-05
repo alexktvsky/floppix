@@ -6,11 +6,7 @@
 
 #define HCNSE_TIMESTRLEN               24
 
-typedef uintptr_t                      hcnse_msec_t;
-
 #if (HCNSE_POSIX)
-
-typedef struct tm                      hcnse_tm_t;
 
 #define hcnse_tm_sec                   tm_sec
 #define hcnse_tm_min                   tm_min
@@ -33,8 +29,6 @@ typedef struct tm                      hcnse_tm_t;
 
 
 #elif (HCNSE_WIN32)
-
-typedef SYSTEMTIME                     hcnse_tm_t;
 
 #define hcnse_tm_sec                   wSecond
 #define hcnse_tm_min                   wMinute

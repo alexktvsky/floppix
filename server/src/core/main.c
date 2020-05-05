@@ -80,36 +80,36 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
 
-    fprintf(stdout, "conf_file: \"%s\"\n", conf->file->name);
-    fprintf(stdout, "log_file: \"%s\"\n", conf->log_file);
-    fprintf(stdout, "log_level: %u\n", conf->log_level);
-    fprintf(stdout, "log_size: %zu\n", conf->log_size);
-    fprintf(stdout, "workdir: \"%s\"\n", conf->workdir);
-    fprintf(stdout, "priority: %d\n", conf->priority);
+    hcnse_fprintf(HCNSE_STDOUT, "conf_file: \"%s\"\n", conf->file->name);
+    hcnse_fprintf(HCNSE_STDOUT, "log_file: \"%s\"\n", conf->log_file);
+    hcnse_fprintf(HCNSE_STDOUT, "log_level: %u\n", conf->log_level);
+    hcnse_fprintf(HCNSE_STDOUT, "log_size: %zu\n", conf->log_size);
+    hcnse_fprintf(HCNSE_STDOUT, "workdir: \"%s\"\n", conf->workdir);
+    hcnse_fprintf(HCNSE_STDOUT, "priority: %d\n", conf->priority);
 
     if (conf->ssl_on) {
-        fprintf(stdout, "ssl: on\n");
+        hcnse_fprintf(HCNSE_STDOUT, "ssl: on\n");
         if (conf->ssl_certfile) {
-            fprintf(stdout, "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
+            hcnse_fprintf(HCNSE_STDOUT, "ssl_certfile: \"%s\"\n", conf->ssl_certfile);
         }
         else {
-            fprintf(stdout, "WARNING: SSL certificate file is undefined\n");
+            hcnse_fprintf(HCNSE_STDOUT, "WARNING: SSL certificate file is undefined\n");
         }
         if (conf->ssl_keyfile) {
-            fprintf(stdout, "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
+            hcnse_fprintf(HCNSE_STDOUT, "ssl_keyfile: \"%s\"\n", conf->ssl_keyfile);
         }
         else {
-            fprintf(stdout, "WARNING: SSL key file is undefined\n");
+            hcnse_fprintf(HCNSE_STDOUT, "WARNING: SSL key file is undefined\n");
         }
     }
     else {
-        fprintf(stdout, "ssl: off\nWARNING: SSL is disable\n");
+        hcnse_fprintf(HCNSE_STDOUT, "ssl: off\nWARNING: SSL is disable\n");
     }
 
     for (iter = hcnse_list_first(conf->listeners);
                                         iter; iter = hcnse_list_next(iter)) {
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
-        fprintf(stdout, "listen: %s:%s\n",
+        hcnse_fprintf(HCNSE_STDOUT, "listen: %s:%s\n",
             hcnse_listener_get_addr(str_ip, &(listener->sockaddr)),
             hcnse_listener_get_port(str_port, &(listener->sockaddr)));
     }
@@ -117,10 +117,10 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
 
 static void hcnse_show_version_info(void)
 {
-    fprintf(stdout, "%s (%s)\n",
+    hcnse_fprintf(HCNSE_STDOUT, "%s (%s)\n",
                         hcnse_version_info(), hcnse_build_time());
 #ifdef HCNSE_COMPILER
-    fprintf(stdout, "Built by %s\n", HCNSE_COMPILER);
+    hcnse_fprintf(HCNSE_STDOUT, "Built by %s\n", HCNSE_COMPILER);
 #endif
 }
 
@@ -134,7 +134,7 @@ int main(int argc, char *const argv[])
 
     err = hcnse_parse_argv(argc, argv);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s\n", "Invalid input parameters");
+        hcnse_fprintf(HCNSE_STDERR, "%s\n", "Invalid input parameters");
         goto error0;
     }
 
@@ -143,14 +143,14 @@ int main(int argc, char *const argv[])
         return 0;
     }
     if (show_help) {
-        fprintf(stdout, "%s\n", "Some help info");
+        hcnse_fprintf(HCNSE_STDOUT, "%s\n", "Some help info");
         return 0;
     }
 
 #if (HCNSE_WIN32)
     err = hcnse_winsock_init_v22();
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n",
+        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to initialize Winsock 2.2", hcnse_strerror(err));
         goto error0;
     }
@@ -158,7 +158,7 @@ int main(int argc, char *const argv[])
 
     err = hcnse_config_init(&conf, conf_file);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n",
+        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to initialize config", hcnse_strerror(err));
         goto error0;
     }
@@ -171,7 +171,7 @@ int main(int argc, char *const argv[])
 
     err = hcnse_process_set_workdir(conf->workdir);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n",
+        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to set workdir", hcnse_strerror(err));
         goto error1;
     }
@@ -181,7 +181,7 @@ int main(int argc, char *const argv[])
         listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
         err = hcnse_listener_start_listen(listener);
         if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n",
+        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to create listening socket", hcnse_strerror(err));
         goto error1;
         }
@@ -189,7 +189,7 @@ int main(int argc, char *const argv[])
 
     err = hcnse_log_init(&(conf->log), conf->log_file, conf->log_level, conf->log_size);
     if (err != HCNSE_OK) {
-        fprintf(stderr, "%s: %s\n",
+        hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",
             "Failed to set open log", hcnse_strerror(err));
         goto error1;
     }
