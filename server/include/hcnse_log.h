@@ -11,8 +11,7 @@
 #define HCNSE_LOG_DEBUG   4
 
 #if (HCNSE_DEBUG)
-#define hcnse_log_debug(level, log, ...) \
-    hcnse_log_msg(level, log, __VA_ARGS__)
+#define hcnse_log_debug(level, log, ...) hcnse_log_msg(level, log, __VA_ARGS__)
 #else
 #define hcnse_log_debug(level, log, ...)
 #endif

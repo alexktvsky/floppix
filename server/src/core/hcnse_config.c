@@ -18,30 +18,46 @@
 #define HCNSE_PATTERN_LISTEN           0
 #define HCNSE_PATTERN_LISTEN4          1
 #define HCNSE_PATTERN_LISTEN6          2
-#define HCNSE_PATTERN_log_fname         3
-#define HCNSE_PATTERN_LOG_LEVEL        4
-#define HCNSE_PATTERN_LOG_SIZE         5
-#define HCNSE_PATTERN_WORKDIR          6
-#define HCNSE_PATTERN_SSL_ON           7
-#define HCNSE_PATTERN_SSL_OFF          8
-#define HCNSE_PATTERN_SSL_CERTFILE     9
-#define HCNSE_PATTERN_SSL_KEYFILE      10
+
+#define HCNSE_PATTERN_LOG_FILE         3
+#define HCNSE_PATTERN_LOG_SIZE         4
+/* Log level */
+#define HCNSE_PATTERN_LOG_EMERG        5
+#define HCNSE_PATTERN_LOG_ERROR        6
+#define HCNSE_PATTERN_LOG_WARN         7
+#define HCNSE_PATTERN_LOG_INFO         8
+#define HCNSE_PATTERN_LOG_DEBUG        9
+
+#define HCNSE_PATTERN_WORKDIR          10
 #define HCNSE_PATTERN_PRIORITY         11
+
+#define HCNSE_PATTERN_SSL_ON           12
+#define HCNSE_PATTERN_SSL_OFF          13
+#define HCNSE_PATTERN_SSL_CERTFILE     14
+#define HCNSE_PATTERN_SSL_KEYFILE      15
+
 
 
 static const char *patterns[] = {
     HCNSE_REGEX_STR("(listen)\\s+([0-9]+)(?!\\.)"),
     HCNSE_REGEX_STR("(listen)\\s+([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)"),
     HCNSE_REGEX_STR("(listen)\\s+\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)"),
+
     HCNSE_REGEX_STR("(log_file)\\s+([\\S]+)"),
-    HCNSE_REGEX_STR("(log_level)\\s+([0-9]+)"),
     HCNSE_REGEX_STR("(log_size)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(emerg)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(error)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(warn)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(info)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(debug)"),
+
     HCNSE_REGEX_STR("(workdir)\\s+([\\S]+)"),
+    HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)"),  // signed value
+
     HCNSE_REGEX_STR("(ssl)\\s+(on)"),
     HCNSE_REGEX_STR("(ssl)\\s+(off)"),
     HCNSE_REGEX_STR("(ssl_certfile)\\s+([\\S]+)"),
-    HCNSE_REGEX_STR("(ssl_keyfile)\\s+([\\S]+)"),
-    HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)")  // signed value
+    HCNSE_REGEX_STR("(ssl_keyfile)\\s+([\\S]+)")
 };
 
 
@@ -57,7 +73,7 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 #endif
 
     conf->log_size = 0;
-    conf->log_level = 1;
+    conf->log_level = HCNSE_LOG_ERROR;
     conf->priority = 0;
 }
 
@@ -185,20 +201,11 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
                 break;
 
-            case HCNSE_PATTERN_log_fname:
+            case HCNSE_PATTERN_LOG_FILE:
                 hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
                 conf->log_fname = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LOG_LEVEL:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->log_level = (uint8_t) atoi(ptr);
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
@@ -212,11 +219,40 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
 
+            case HCNSE_PATTERN_LOG_EMERG:
+                conf->log_level = HCNSE_LOG_EMERG;
+                break;
+
+            case HCNSE_PATTERN_LOG_ERROR:
+                conf->log_level = HCNSE_LOG_ERROR;
+                break;
+
+            case HCNSE_PATTERN_LOG_WARN:
+                conf->log_level = HCNSE_LOG_WARN;
+                break;
+
+            case HCNSE_PATTERN_LOG_INFO:
+                conf->log_level = HCNSE_LOG_INFO;
+                break;
+
+            case HCNSE_PATTERN_LOG_DEBUG:
+                conf->log_level = HCNSE_LOG_DEBUG;
+                break;
+
             case HCNSE_PATTERN_WORKDIR:
                 hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
                 conf->workdir = ptr;
+
+                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_PRIORITY:
+                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+                conf->priority = (int8_t) atoi(ptr);
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
@@ -243,15 +279,6 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
                 conf->ssl_keyfile = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_PRIORITY:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->priority = (int8_t) atoi(ptr);
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;

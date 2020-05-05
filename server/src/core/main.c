@@ -61,8 +61,24 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
 
     hcnse_fprintf(HCNSE_STDOUT, "conf_file: \"%s\"\n", conf->file->name);
     hcnse_fprintf(HCNSE_STDOUT, "log_file: \"%s\"\n", conf->log_fname);
-    hcnse_fprintf(HCNSE_STDOUT, "log_level: %u\n", conf->log_level);
     hcnse_fprintf(HCNSE_STDOUT, "log_size: %zu\n", conf->log_size);
+    switch (conf->log_level) {
+    case HCNSE_LOG_EMERG:
+        hcnse_fprintf(HCNSE_STDOUT, "log_level: emerg\n");
+        break;
+    case HCNSE_LOG_ERROR:
+        hcnse_fprintf(HCNSE_STDOUT, "log_level: error\n");
+        break;
+    case HCNSE_LOG_WARN:
+        hcnse_fprintf(HCNSE_STDOUT, "log_level: warn\n");
+        break;
+    case HCNSE_LOG_INFO:
+        hcnse_fprintf(HCNSE_STDOUT, "log_level: info\n");
+        break;
+    case HCNSE_LOG_DEBUG:
+        hcnse_fprintf(HCNSE_STDOUT, "log_level: debug\n");
+        break;
+    }
     hcnse_fprintf(HCNSE_STDOUT, "workdir: \"%s\"\n", conf->workdir);
     hcnse_fprintf(HCNSE_STDOUT, "priority: %d\n", conf->priority);
 

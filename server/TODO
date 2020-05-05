@@ -1,0 +1,10 @@
+TODO
+====
+
+Add IOCP handler for Win32
+Add handler selection in config file [epoll|kqueue|iocp|/dev/poll|select]
+Choose target protocol
+
+
+
+
