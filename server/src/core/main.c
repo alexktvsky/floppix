@@ -62,6 +62,14 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     hcnse_fprintf(HCNSE_STDOUT, "conf_file: \"%s\"\n", conf->file->name);
     hcnse_fprintf(HCNSE_STDOUT, "log_file: \"%s\"\n", conf->log_fname);
     hcnse_fprintf(HCNSE_STDOUT, "log_size: %zu\n", conf->log_size);
+
+    if (conf->log_rewrite) {
+        hcnse_fprintf(HCNSE_STDOUT, "log_rewrite: on\n"); 
+    }
+    else {
+        hcnse_fprintf(HCNSE_STDOUT, "log_rewrite: off\n"); 
+    }
+
     switch (conf->log_level) {
     case HCNSE_LOG_EMERG:
         hcnse_fprintf(HCNSE_STDOUT, "log_level: emerg\n");

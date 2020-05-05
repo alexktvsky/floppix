@@ -18,6 +18,7 @@ struct hcnse_log_s {
     hcnse_file_t *file;
     uint8_t level;
     size_t size;
+    bool rewrite;
     hcnse_log_message_t *messages;
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     pid_t pid;
@@ -130,7 +131,7 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
         err = hcnse_get_errno();
         goto failed;
     }
-    if (((size_t) file_size) >= conf->log_size) {
+    if (((size_t) file_size) >= conf->log_size || conf->log_rewrite) {
         file->offset = 0;
     }
     else {
@@ -188,6 +189,7 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
     log->file = file;
     log->level = conf->log_level;
     log->size = conf->log_size;
+    log->rewrite = conf->log_rewrite;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
@@ -279,7 +281,7 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
         err = hcnse_get_errno();
         goto failed;
     }
-    if (((size_t) file_size) >= conf->log_size) {
+    if (((size_t) file_size) >= conf->log_size || conf->log_rewrite) {
         file->offset = 0;
     }
     else {

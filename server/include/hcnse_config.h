@@ -10,15 +10,19 @@ struct hcnse_config_s {
     char *data;
     hcnse_list_t *listeners;
     hcnse_list_t *free_connects; // Linked list with free and available connections
-    char *workdir;
+
     hcnse_log_t *log;
     char *log_fname;
-    uint8_t log_level;
     size_t log_size;
+    bool log_rewrite;
+    uint8_t log_level;
+
+    char *workdir;
+    int8_t priority; // XXX: Signed value
+
     bool ssl_on;
     char *ssl_certfile;
     char *ssl_keyfile;
-    int8_t priority; // XXX: Signed value
 };
 
 

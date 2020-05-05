@@ -14,28 +14,31 @@
 #define HCNSE_REGEX_STR(str) \
     (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF)
 
+typedef enum hcnse_pattern_number_t {
+    HCNSE_PATTERN_LISTEN,
+    HCNSE_PATTERN_LISTEN4,
+    HCNSE_PATTERN_LISTEN6,
 
-#define HCNSE_PATTERN_LISTEN           0
-#define HCNSE_PATTERN_LISTEN4          1
-#define HCNSE_PATTERN_LISTEN6          2
+    HCNSE_PATTERN_LOG_FILE,
+    HCNSE_PATTERN_LOG_SIZE,
+    HCNSE_PATTERN_LOG_REWRITE_ON,
+    HCNSE_PATTERN_LOG_REWRITE_OFF,
 
-#define HCNSE_PATTERN_LOG_FILE         3
-#define HCNSE_PATTERN_LOG_SIZE         4
-/* Log level */
-#define HCNSE_PATTERN_LOG_EMERG        5
-#define HCNSE_PATTERN_LOG_ERROR        6
-#define HCNSE_PATTERN_LOG_WARN         7
-#define HCNSE_PATTERN_LOG_INFO         8
-#define HCNSE_PATTERN_LOG_DEBUG        9
+    /* Log level */
+    HCNSE_PATTERN_LOG_EMERG,
+    HCNSE_PATTERN_LOG_ERROR,
+    HCNSE_PATTERN_LOG_WARN,
+    HCNSE_PATTERN_LOG_INFO,
+    HCNSE_PATTERN_LOG_DEBUG,
 
-#define HCNSE_PATTERN_WORKDIR          10
-#define HCNSE_PATTERN_PRIORITY         11
+    HCNSE_PATTERN_WORKDIR,
+    HCNSE_PATTERN_PRIORITY,
 
-#define HCNSE_PATTERN_SSL_ON           12
-#define HCNSE_PATTERN_SSL_OFF          13
-#define HCNSE_PATTERN_SSL_CERTFILE     14
-#define HCNSE_PATTERN_SSL_KEYFILE      15
-
+    HCNSE_PATTERN_SSL_ON,
+    HCNSE_PATTERN_SSL_OFF,
+    HCNSE_PATTERN_SSL_CERTFILE,
+    HCNSE_PATTERN_SSL_KEYFILE,
+} hcnse_pattern_number_t;
 
 
 static const char *patterns[] = {
@@ -45,6 +48,9 @@ static const char *patterns[] = {
 
     HCNSE_REGEX_STR("(log_file)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(log_size)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(log_rewrite)\\s+(on)"),
+    HCNSE_REGEX_STR("(log_rewrite)\\s+(off)"),
+
     HCNSE_REGEX_STR("(log_level)\\s+(emerg)"),
     HCNSE_REGEX_STR("(log_level)\\s+(error)"),
     HCNSE_REGEX_STR("(log_level)\\s+(warn)"),
@@ -74,6 +80,8 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 
     conf->log_size = 0;
     conf->log_level = HCNSE_LOG_ERROR;
+    conf->log_rewrite = false;
+
     conf->priority = 0;
 }
 
@@ -125,13 +133,15 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
 
     for (size_t pattern = 0; pattern < number_of_patterns; pattern++) {
         offset = 0;
-        re = pcre_compile(patterns[pattern], PCRE_MULTILINE, &error, &erroffset, 0);
+        re = pcre_compile(patterns[pattern], PCRE_MULTILINE, &error,
+            &erroffset, 0);
         if (!re) {
             err = HCNSE_ERR_CONF_REGEX;
             goto failed;
         }
         while (1) {
-            rc = pcre_exec(re, 0, raw_data, fsize, offset, 0, vector, vector_size);
+            rc = pcre_exec(re, 0, raw_data, fsize, offset, 0, vector,
+                vector_size);
             if (rc < 0) {
                 break;
             }
@@ -142,7 +152,7 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
                 listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                                                                conf->listeners);
+                    conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
@@ -165,7 +175,7 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
                 listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                                                                conf->listeners);
+                    conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
@@ -188,7 +198,7 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
                 listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                                                                conf->listeners);
+                    conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
@@ -217,6 +227,14 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 conf->log_size = (size_t) atoi(ptr);
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_LOG_REWRITE_ON:
+                conf->log_rewrite = true;
+                break;
+
+            case HCNSE_PATTERN_LOG_REWRITE_OFF:
+                conf->log_rewrite = false;
                 break;
 
             case HCNSE_PATTERN_LOG_EMERG:
