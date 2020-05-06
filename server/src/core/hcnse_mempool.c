@@ -8,9 +8,9 @@
 #define HCNSE_SIZEOF_MEMPOOL_T (sizeof(hcnse_mempool_t))
 
 #define HCNSE_SIZEOF_MEMNODE_T_ALIGN \
-    HCNSE_ALIGN_DEFAULT(sizeof(hcnse_memnode_t))
+    hcnse_align_default(sizeof(hcnse_memnode_t))
 #define HCNSE_SIZEOF_MEMPOOL_T_ALIGN \
-    HCNSE_ALIGN_DEFAULT(sizeof(hcnse_mempool_t))
+    hcnse_align_default(sizeof(hcnse_mempool_t))
 
 #define HCNSE_MAX_MEMNODE_SIZE(node) \
     ((size_t) (((uintptr_t) node->endp) - ((uintptr_t) node->startp)))
@@ -49,7 +49,7 @@ struct hcnse_mempool_s {
 static size_t
 hcnse_align_allocation(size_t in_size)
 {
-    size_t size = HCNSE_ALIGN_DEFAULT(in_size);
+    size_t size = hcnse_align_default(in_size);
     if (size < in_size) {
         return 0;
     }
