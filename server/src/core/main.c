@@ -96,6 +96,18 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
         hcnse_fprintf(HCNSE_STDOUT, "daemon: off\n");
     }
     hcnse_fprintf(HCNSE_STDOUT, "timer: %lu\n", conf->timer);
+    if (conf->user) {
+        hcnse_fprintf(HCNSE_STDOUT, "user: \"%s\"\n", conf->user);
+    }
+    else {
+        hcnse_fprintf(HCNSE_STDOUT, "WARNING: user is undefined\n");
+    }
+    if (conf->group) {
+        hcnse_fprintf(HCNSE_STDOUT, "group: \"%s\"\n", conf->group);
+    }
+    else {
+        hcnse_fprintf(HCNSE_STDOUT, "WARNING: group is undefined\n");
+    }
 
     if (conf->ssl_on) {
         hcnse_fprintf(HCNSE_STDOUT, "ssl: on\n");

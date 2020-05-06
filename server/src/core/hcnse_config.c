@@ -36,6 +36,8 @@ typedef enum hcnse_pattern_number_t {
     HCNSE_PATTERN_DAEMON_ON,
     HCNSE_PATTERN_DAEMON_OFF,
     HCNSE_PATTERN_TIMER,
+    HCNSE_PATTERN_USER,
+    HCNSE_PATTERN_GROUP,
 
     HCNSE_PATTERN_SSL_ON,
     HCNSE_PATTERN_SSL_OFF,
@@ -65,6 +67,8 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(daemon)\\s+(on)"),
     HCNSE_REGEX_STR("(daemon)\\s+(off)"),
     HCNSE_REGEX_STR("(timer)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(user)\\s+([\\S]+)"),
+    HCNSE_REGEX_STR("(group)\\s+([\\S]+)"),
 
     HCNSE_REGEX_STR("(ssl)\\s+(on)"),
     HCNSE_REGEX_STR("(ssl)\\s+(off)"),
@@ -90,6 +94,7 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 
     conf->priority = 0;
     conf->daemon_on = true;
+    conf->timer = 30000;
 }
 
 static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
@@ -299,7 +304,23 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
 
+            case HCNSE_PATTERN_USER:
+                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
+                conf->user = ptr;
+
+                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_GROUP:
+                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+                conf->group = ptr;
+
+                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
 
             case HCNSE_PATTERN_SSL_ON:
                 conf->ssl_on = true;

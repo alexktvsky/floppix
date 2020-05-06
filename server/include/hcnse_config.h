@@ -21,6 +21,8 @@ struct hcnse_config_s {
     int8_t priority; // XXX: Signed value
     bool daemon_on;
     hcnse_msec_t timer;
+    char *user;
+    char *group;
 
     bool ssl_on;
     char *ssl_certfile;
