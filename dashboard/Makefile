@@ -1,4 +1,4 @@
-BIN_FILE = client
+BIN_FILE = dashboard
 
 SRC_FILES += main.cpp
 SRC_FILES += 

@@ -43,7 +43,7 @@ void hcnse_free(void *mem)
     free(mem);
 }
 
-size_t hcnse_total_mem_usage(void)
+size_t hcnse_get_total_mem_usage(void)
 {
     return total_mem;
 }
