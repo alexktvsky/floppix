@@ -151,8 +151,8 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
-                listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                    conf->listeners);
+                listener = hcnse_list_create_node_and_append(
+                    sizeof(hcnse_listener_t), conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
@@ -174,8 +174,8 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
-                listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                    conf->listeners);
+                listener = hcnse_list_create_node_and_append(
+                    sizeof(hcnse_listener_t), conf->listeners);
                 if (!listener) {
                     goto failed;
                 }
@@ -197,8 +197,8 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
-                listener = hcnse_list_create_node_and_append(hcnse_listener_t,
-                    conf->listeners);
+                listener = hcnse_list_create_node_and_append(
+                    sizeof(hcnse_listener_t), conf->listeners);
                 if (!listener) {
                     goto failed;
                 }

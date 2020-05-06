@@ -55,7 +55,6 @@ static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
 static void hcnse_show_config_info(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
-    hcnse_lnode_t *iter;
     char str_ip[NI_MAXHOST];
     char str_port[NI_MAXSERV];
 
@@ -113,9 +112,8 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
         hcnse_fprintf(HCNSE_STDOUT, "ssl: off\nWARNING: SSL is disable\n");
     }
 
-    for (iter = hcnse_list_first(conf->listeners);
-                                        iter; iter = hcnse_list_next(iter)) {
-        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
+    for (listener = hcnse_list_first(conf->listeners);
+                            listener; listener = hcnse_list_next(listener)) {
         hcnse_listener_get_addr(str_ip, &(listener->sockaddr));
         hcnse_listener_get_port(str_port, &(listener->sockaddr));
         hcnse_fprintf(HCNSE_STDOUT, "listen: %s:%s\n", str_ip, str_port);
@@ -136,7 +134,6 @@ int main(int argc, char *const argv[])
 {
     hcnse_listener_t *listener;
     hcnse_conf_t *conf;
-    hcnse_lnode_t *iter;
     hcnse_err_t err;
 
     err = hcnse_parse_argv(argc, argv);
@@ -183,9 +180,8 @@ int main(int argc, char *const argv[])
         goto failed;
     }
 
-    for (iter = hcnse_list_first(conf->listeners);
-                                        iter; iter = hcnse_list_next(iter)) {
-        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter);
+    for (listener = hcnse_list_first(conf->listeners);
+                            listener; listener = hcnse_list_next(listener)) {
         err = hcnse_listener_start_listen(listener);
         if (err != HCNSE_OK) {
             hcnse_fprintf(HCNSE_STDERR, "%s: %s\n",

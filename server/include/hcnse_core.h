@@ -7,7 +7,6 @@ typedef struct hcnse_log_s             hcnse_log_t;
 typedef struct hcnse_listener_s        hcnse_listener_t;
 typedef struct hcnse_connect_s         hcnse_connect_t;
 typedef struct hcnse_list_s            hcnse_list_t;
-typedef struct hcnse_lnode_s           hcnse_lnode_t;
 typedef struct hcnse_mempool_s         hcnse_mempool_t;
 
 #include "hcnse_config.h"

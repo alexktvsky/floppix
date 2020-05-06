@@ -12,34 +12,29 @@ hcnse_set_events(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
     hcnse_connect_t *connect;
-    hcnse_lnode_t *iter1;
-    hcnse_lnode_t *iter2;
     hcnse_socket_t fd;
     hcnse_socket_t fdmax = 0;
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
 
-    for (iter1 = hcnse_list_first(conf->listeners);
-                                    iter1; iter1 = hcnse_list_next(iter1)) {
+    for (listener = hcnse_list_first(conf->listeners);
+                            listener; listener = hcnse_list_next(listener)) {
         /* Add listening sockets to read array */
-        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter1);
         fd = listener->fd;
         FD_SET(fd, &rfds);
         if (fdmax < fd) {
             fdmax = fd;
         }
 
-        for (iter2 = hcnse_list_first(listener->connects);
-                                    iter2; iter2 = hcnse_list_next(iter2)) {
+        for (connect = hcnse_list_first(listener->connects);
+                                connect; connect = hcnse_list_next(connect)) {
             /* Add clients sockets to read array */
-            connect = hcnse_list_cast_ptr(hcnse_connect_t, iter2);
             fd = connect->fd;
             FD_SET(fd, &rfds);
             if (fdmax < fd) {
                 fdmax = fd;
             }
-
             /* Add clients sockets to write array */
             if (!connect->want_to_write) {
                 continue;
@@ -59,7 +54,7 @@ hcnse_select_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
 {
     hcnse_connect_t *connect;
     hcnse_err_t err;
-    connect = hcnse_try_use_already_exist_node(hcnse_connect_t,
+    connect = hcnse_try_use_already_exist_node(sizeof(hcnse_connect_t),
                             conf->free_connects, listener->connects);
     if (!connect) {
         err = hcnse_get_errno();
@@ -82,14 +77,11 @@ hcnse_process_events(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
     hcnse_connect_t *connect;
-    hcnse_lnode_t *iter1;
-    hcnse_lnode_t *iter2;
     hcnse_err_t err;
 
-    for (iter1 = hcnse_list_first(conf->listeners);
-                                    iter1; iter1 = hcnse_list_next(iter1)) {
+    for (listener = hcnse_list_first(conf->listeners);
+                            listener; listener = hcnse_list_next(listener)) {
         /* Search listeners */
-        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter1);
         if (FD_ISSET(listener->fd, &rfds)) {
             err = hcnse_select_add_connect(conf, listener);
             if (err != HCNSE_OK) {
@@ -101,9 +93,8 @@ hcnse_process_events(hcnse_conf_t *conf)
             }
         }
         /* Search new input connections */
-        for (iter2 = hcnse_list_first(listener->connects);
-                                    iter2; iter2 = hcnse_list_next(iter2)) {
-            connect = hcnse_list_cast_ptr(hcnse_connect_t, iter2);
+        for (connect = hcnse_list_first(listener->connects);
+                            connect; connect = hcnse_list_next(connect)) {
             if (FD_ISSET(connect->fd, &rfds)) {
                 err = hcnse_event_read(conf, connect);
                 if (err != HCNSE_OK) {

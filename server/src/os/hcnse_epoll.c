@@ -47,7 +47,7 @@ hcnse_epoll_add_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
     hcnse_connect_t *connect;
     hcnse_err_t err;
 
-    connect = hcnse_try_use_already_exist_node(hcnse_connect_t,
+    connect = hcnse_try_use_already_exist_node(sizeof(hcnse_connect_t),
                             conf->free_connects, listener->connects);
     if (!connect) {
         err = hcnse_get_errno();
@@ -108,11 +108,9 @@ hcnse_epoll_init(hcnse_conf_t *conf)
         return hcnse_get_errno();
     }
 
-    hcnse_lnode_t *iter1;
     hcnse_listener_t *listener;
-    for (iter1 = hcnse_list_first(conf->listeners);
-                                        iter1; iter1 = hcnse_list_next(iter1)) {
-        listener = hcnse_list_cast_ptr(hcnse_listener_t, iter1);
+    for (listener = hcnse_list_first(conf->listeners);
+                            listener; listener = hcnse_list_next(listener)) {
         err = hcnse_epoll_add_listener(listener, EPOLLIN|EPOLLET);
         if (err != HCNSE_OK) {
             return err;
@@ -148,7 +146,7 @@ hcnse_process_events(hcnse_conf_t *conf, int n)
                 }
             }
             if (flags & EPOLLOUT) {
-                if (((hcnse_connect_t *) event_list[i].data.ptr)->want_to_write) {
+                if (((hcnse_connect_t *)event_list[i].data.ptr)->want_to_write) {
                     err = hcnse_event_write(conf, event_list[i].data.ptr);
                     if (err != HCNSE_OK) {
                         goto failed;

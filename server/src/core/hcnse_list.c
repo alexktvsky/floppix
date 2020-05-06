@@ -1,20 +1,25 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
+#define hcnse_list_cast_ptr(node) \
+    (((void *) node) + sizeof(hcnse_listnode_t))
+
+#define hcnse_list_cast_node_by_ptr(addr) \
+    ((hcnse_listnode_t *) (((void *) addr) - sizeof(hcnse_listnode_t)))
+
+
+typedef struct hcnse_listnode_s hcnse_listnode_t;
+
 struct hcnse_list_s {
     size_t size;
-    hcnse_lnode_t *head;
-    hcnse_lnode_t *tail;
+    hcnse_listnode_t *head;
+    hcnse_listnode_t *tail;
 };
 
-struct hcnse_lnode_s {
-    hcnse_lnode_t *next;
-    hcnse_lnode_t *prev;
+struct hcnse_listnode_s {
+    hcnse_listnode_t *next;
+    hcnse_listnode_t *prev;
 };
-
-
-const size_t hcnse_lnode_t_size = sizeof(hcnse_lnode_t);
-
 
 hcnse_list_t *
 hcnse_list_create(void)
@@ -40,32 +45,34 @@ hcnse_list_create1(hcnse_list_t **list)
 }
 
 hcnse_err_t
-hcnse_list_append(hcnse_list_t *list, hcnse_lnode_t *in_node)
+hcnse_list_append(hcnse_list_t *list, void *ptr)
 {
+    hcnse_listnode_t *node = hcnse_list_cast_node_by_ptr(ptr);
     /* If list is empty */
     if (!list->head) {
-        list->head = in_node;
-        in_node->prev = NULL;
+        list->head = node;
+        node->prev = NULL;
     }
     else {
-        list->tail->next = in_node;
-        in_node->prev = list->tail;
+        list->tail->next = node;
+        node->prev = list->tail;
     }
-    list->tail = in_node;
+    list->tail = node;
 
-    in_node->next = NULL;
+    node->next = NULL;
     list->size += 1;
 
     return HCNSE_OK;
 }
 
 hcnse_err_t
-hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
+hcnse_list_remove(hcnse_list_t *list, void *ptr)
 {
-    hcnse_lnode_t *temp1 = list->head;
+    hcnse_listnode_t *temp1 = list->head;
+    hcnse_listnode_t *node = hcnse_list_cast_node_by_ptr(ptr);
 
     /* If first element */
-    if (list->head == in_node) {
+    if (list->head == node) {
         if (list->head->next) {
             list->head->next->prev = NULL;
         }
@@ -75,7 +82,7 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
         return HCNSE_OK;
     }
     /* If the last element */
-    else if (list->tail == in_node) {
+    else if (list->tail == node) {
         if (list->tail->prev) {
             list->tail->prev->next = NULL;
         }
@@ -86,7 +93,7 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
     }
     else {
         temp1 = temp1->next;
-        while (temp1 != in_node) {
+        while (temp1 != node) {
             temp1 = temp1->next;
             if (temp1 == list->tail) {
                 return HCNSE_FAILED;
@@ -100,28 +107,52 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_lnode_t *in_node)
     }
 }
 
-hcnse_lnode_t *
+void *
 hcnse_list_first(hcnse_list_t *list)
 {
-    return list->head;
+    if (list->head) {
+        return hcnse_list_cast_ptr(list->head);
+    }
+    else {
+        return NULL;
+    }
 }
 
-hcnse_lnode_t *
+void *
 hcnse_list_last(hcnse_list_t *list)
 {
-    return list->tail;
+    if (list->tail) {
+        return hcnse_list_cast_ptr(list->tail);
+    }
+    else {
+        return NULL;
+    }
 }
 
-hcnse_lnode_t *
-hcnse_list_next(hcnse_lnode_t *node)
+void *
+hcnse_list_next(void *ptr)
 {
-    return node->next;
+    hcnse_listnode_t *node;
+    node = hcnse_list_cast_node_by_ptr(ptr);
+    if (node->next) {
+        return hcnse_list_cast_ptr(node->next);
+    }
+    else {
+        return NULL;        
+    }
 }
 
-hcnse_lnode_t *
-hcnse_list_prev(hcnse_lnode_t *node)
+void *
+hcnse_list_prev(void *ptr)
 {
-    return node->prev;
+    hcnse_listnode_t *node;
+    node = hcnse_list_cast_node_by_ptr(ptr);
+    if (node->prev) {
+        return hcnse_list_cast_ptr(node->prev);
+    }
+    else {
+        return NULL;
+    }
 }
 
 size_t
@@ -142,83 +173,83 @@ hcnse_list_destroy(hcnse_list_t *list)
     hcnse_free(list);
 }
 
-hcnse_lnode_t *
+void *
 hcnse_list_create_node(size_t size)
 {
-    void *mem = hcnse_malloc(sizeof(hcnse_lnode_t) + size);
-    if (!mem) {
+    void *node = hcnse_malloc(sizeof(hcnse_listnode_t) + size);
+    if (!node) {
         return NULL;
     }
-    ((hcnse_lnode_t *) mem)->next = NULL;
-    ((hcnse_lnode_t *) mem)->prev = NULL;
-    return mem;
+    ((hcnse_listnode_t *) node)->next = NULL;
+    ((hcnse_listnode_t *) node)->prev = NULL;
+    return hcnse_list_cast_ptr(node);
 }
 
 hcnse_err_t
-hcnse_list_create_node1(hcnse_lnode_t **node, size_t size)
+hcnse_list_create_node1(void **ptr, size_t size)
 {
-    void *mem = hcnse_malloc(sizeof(hcnse_lnode_t) + size);
-    if (!mem) {
+    hcnse_listnode_t *node = hcnse_malloc(sizeof(hcnse_listnode_t) + size);
+    if (!node) {
         return hcnse_get_errno();
     }
-    ((hcnse_lnode_t *) mem)->next = NULL;
-    ((hcnse_lnode_t *) mem)->prev = NULL;
-    *node = mem;
+    ((hcnse_listnode_t *) node)->next = NULL;
+    ((hcnse_listnode_t *) node)->prev = NULL;
+    *ptr = hcnse_list_cast_ptr(node);
     return HCNSE_OK;
 }
 
 void
-hcnse_list_destroy_node(hcnse_lnode_t *node)
+hcnse_list_destroy_node(void *ptr)
 {
-    hcnse_free(node);
+    hcnse_free(hcnse_list_cast_node_by_ptr(ptr));
 }
 
-hcnse_lnode_t *
-hcnse_list_create_node_and_append1(size_t size, hcnse_list_t *list)
+void *
+hcnse_list_create_node_and_append(size_t size, hcnse_list_t *list)
 {
-    hcnse_lnode_t *node = hcnse_list_create_node(size);
-    if (!node) {
+    hcnse_listnode_t *ptr = hcnse_list_create_node(size);
+    if (!ptr) {
         return NULL;
     }
-    if (hcnse_list_append(list, node) != HCNSE_OK) {
-        hcnse_list_destroy_node(node);
+    if (hcnse_list_append(list, ptr) != HCNSE_OK) {
+        hcnse_list_destroy_node(ptr);
         return NULL;
     }
-    return node;
+    return ptr;
 }
 
 void
-hcnse_list_remove_and_destroy_node(hcnse_list_t *list, hcnse_lnode_t *node)
+hcnse_list_remove_and_destroy_node(hcnse_list_t *list, void *ptr)
 {
-    hcnse_list_remove(list, node);
-    hcnse_list_destroy_node(node);
+    hcnse_list_remove(list, ptr);
+    hcnse_list_destroy_node(ptr);
     return;
 }
 
-hcnse_lnode_t *
-hcnse_try_use_already_exist_node1(size_t size, hcnse_list_t *free_nodes,
+void *
+hcnse_try_use_already_exist_node(size_t size, hcnse_list_t *free_nodes,
     hcnse_list_t *list)
 {
-    hcnse_lnode_t *node;
+    void *ptr;
 
     /* Check for empty already exist node */
-    node = hcnse_list_first(free_nodes);
+    ptr = hcnse_list_first(free_nodes);
 
     /* Use already exist node */
-    if (node) {
-        hcnse_list_remove(free_nodes, node);
-        hcnse_list_append(list, node);
+    if (ptr) {
+        hcnse_list_remove(free_nodes, ptr);
+        hcnse_list_append(list, ptr);
     }
     /* If there are not empty nodes, create new */
     else {
-        node = hcnse_list_create_node(size);
-        if (!node) {
+        ptr = hcnse_list_create_node(size);
+        if (!ptr) {
             goto failed;
         }
-        hcnse_list_append(list, node);
+        hcnse_list_append(list, ptr);
     }
 
-    return node;
+    return ptr;
 
 failed:
     return NULL;
@@ -228,8 +259,9 @@ void
 hcnse_list_reserve_node(void *instance, hcnse_list_t *free_nodes,
     hcnse_list_t *list)
 {
-    hcnse_lnode_t *node;
-    node = hcnse_list_cast_node_by_ptr(instance);
-    hcnse_list_remove(list, node);
-    hcnse_list_append(free_nodes, node);
+    void *ptr;
+    ptr = hcnse_list_cast_node_by_ptr(instance);
+    hcnse_list_remove(list, ptr);
+    hcnse_list_append(free_nodes, ptr);
+    return;
 }
