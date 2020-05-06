@@ -1,7 +1,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_LOG_MSG_SIZE             300
+#define HCNSE_LOG_MSG_SIZE             500
 #define HCNSE_LOG_BUF_SIZE             32
 
 #define HCNSE_LOG_INIT_DELAY           500
@@ -19,7 +19,6 @@ struct hcnse_log_s {
     uint8_t level;
     size_t size;
     bool rewrite;
-    bool write_to_stdout;
     hcnse_log_message_t *messages;
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     pid_t pid;
@@ -74,13 +73,13 @@ hcnse_log_worker(void *arg)
             }
         }
 
-        if (hcnse_file_write1(log->file, buf, len) == -1) {
+        if (hcnse_write_fd(log->file->fd, buf, len) == -1) {
             /* What we need to do? */
         }
 
-        if (log->write_to_stdout) {
-            hcnse_fprintf(HCNSE_STDOUT, "%s", buf);
-        }
+#if (HCNSE_DEBUG && HCNSE_NO_DAEMON)
+        hcnse_write_fd(HCNSE_STDOUT, buf, len);
+#endif
 
         hcnse_mutex_unlock(log->mutex_fetch);
         hcnse_semaphore_post(log->sem_empty);
@@ -204,7 +203,6 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
     log->level = conf->log_level;
     log->size = conf->log_size;
     log->rewrite = conf->log_rewrite;
-    log->write_to_stdout = !(conf->daemon_on);
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
@@ -270,34 +268,6 @@ failed:
 }
 
 void
-hcnse_log_msg(uint8_t level, hcnse_log_t *log, const char *fmt, ...)
-{
-    hcnse_log_message_t *messages = log->messages;
-    hcnse_log_message_t *msg;
-    va_list args;
-
-    if (level > (log->level)) {
-        return;
-    }
-
-    hcnse_semaphore_wait(log->sem_empty);
-    hcnse_mutex_lock(log->mutex_deposit);
-
-    msg = &(messages[log->rear]);
-    log->rear = ((log->rear) + 1) % HCNSE_LOG_BUF_SIZE;
-
-    va_start(args, fmt);
-    hcnse_vsnprintf(msg->str, HCNSE_LOG_MSG_SIZE, fmt, args);
-    va_end(args);
-
-    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
-    msg->level = level;
-
-    hcnse_mutex_unlock(log->mutex_deposit);
-    hcnse_semaphore_post(log->sem_full);
-}
-
-void
 hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...)
 {
@@ -324,7 +294,7 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     if (err != HCNSE_OK) {
         if (HCNSE_LOG_MSG_SIZE > len) {
             buf = (msg->str) + len;
-            hcnse_snprintf(buf, HCNSE_LOG_MSG_SIZE, " (%d: %s)",
+            hcnse_snprintf(buf, HCNSE_LOG_MSG_SIZE - len, " (%d: %s)",
                 err, hcnse_strerror(err));
         }
     }
@@ -334,6 +304,32 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
 
     hcnse_mutex_unlock(log->mutex_deposit);
     hcnse_semaphore_post(log->sem_full);
+}
+
+void
+hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
+{
+    va_list args;
+    size_t len1 = 0;
+    size_t len2 = 0;
+    static char buf1[HCNSE_LOG_MSG_SIZE];
+    char *buf2;
+
+    va_start(args, fmt);
+    len1 = hcnse_vsnprintf(buf1, HCNSE_LOG_MSG_SIZE, fmt, args);
+    va_end(args);
+
+    if (HCNSE_LOG_MSG_SIZE > len1) {
+        buf2 = buf1 + len1;
+        if (err != HCNSE_OK) {
+            len2 = hcnse_snprintf(buf2, HCNSE_LOG_MSG_SIZE - len1,
+                " (%d: %s)\n", err, hcnse_strerror(err));
+        }
+        else {
+            len2 = hcnse_snprintf(buf2, HCNSE_LOG_MSG_SIZE - len1, "\n");
+        }
+    }
+    hcnse_write_fd(fd, buf1, len1 + len2);
 }
 
 void

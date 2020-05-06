@@ -14,15 +14,14 @@
 #define HCNSE_REGEX_STR(str) \
     (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF)
 
-typedef enum hcnse_pattern_number_t {
+typedef enum {
     HCNSE_PATTERN_LISTEN,
     HCNSE_PATTERN_LISTEN4,
     HCNSE_PATTERN_LISTEN6,
 
     HCNSE_PATTERN_LOG_FILE,
     HCNSE_PATTERN_LOG_SIZE,
-    HCNSE_PATTERN_LOG_REWRITE_ON,
-    HCNSE_PATTERN_LOG_REWRITE_OFF,
+    HCNSE_PATTERN_LOG_REWRITE,
 
     /* Log level */
     HCNSE_PATTERN_LOG_EMERG,
@@ -33,8 +32,6 @@ typedef enum hcnse_pattern_number_t {
 
     HCNSE_PATTERN_WORKDIR,
     HCNSE_PATTERN_PRIORITY,
-    HCNSE_PATTERN_DAEMON_ON,
-    HCNSE_PATTERN_DAEMON_OFF,
     HCNSE_PATTERN_TIMER,
     HCNSE_PATTERN_USER,
     HCNSE_PATTERN_GROUP,
@@ -42,8 +39,7 @@ typedef enum hcnse_pattern_number_t {
     HCNSE_PATTERN_WORKER_PROCESSES,
     HCNSE_PATTERN_WORKER_PROCESSES_AUTO,
 
-    HCNSE_PATTERN_SSL_ON,
-    HCNSE_PATTERN_SSL_OFF,
+    HCNSE_PATTERN_SSL,
     HCNSE_PATTERN_SSL_CERTFILE,
     HCNSE_PATTERN_SSL_KEYFILE,
 } hcnse_pattern_number_t;
@@ -56,8 +52,7 @@ static const char *patterns[] = {
 
     HCNSE_REGEX_STR("(log_file)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(log_size)\\s+([0-9]+)"),
-    HCNSE_REGEX_STR("(log_rewrite)\\s+(on)"),
-    HCNSE_REGEX_STR("(log_rewrite)\\s+(off)"),
+    HCNSE_REGEX_STR("(log_rewrite)\\s+(on|off)"),
 
     HCNSE_REGEX_STR("(log_level)\\s+(emerg)"),
     HCNSE_REGEX_STR("(log_level)\\s+(error)"),
@@ -67,8 +62,6 @@ static const char *patterns[] = {
 
     HCNSE_REGEX_STR("(workdir)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)"),  // signed value
-    HCNSE_REGEX_STR("(daemon)\\s+(on)"),
-    HCNSE_REGEX_STR("(daemon)\\s+(off)"),
     HCNSE_REGEX_STR("(timer)\\s+([0-9]+)"),
     HCNSE_REGEX_STR("(user)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(group)\\s+([\\S]+)"),
@@ -76,8 +69,7 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(worker_processes)\\s+([0-9]+)"),
     HCNSE_REGEX_STR("(log_level)\\s+(auto)"),
 
-    HCNSE_REGEX_STR("(ssl)\\s+(on)"),
-    HCNSE_REGEX_STR("(ssl)\\s+(off)"),
+    HCNSE_REGEX_STR("(ssl)\\s+(on|off)"),
     HCNSE_REGEX_STR("(ssl_certfile)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(ssl_keyfile)\\s+([\\S]+)")
 };
@@ -85,7 +77,7 @@ static const char *patterns[] = {
 
 static void hcnse_config_set_default_params(hcnse_conf_t *conf)
 {
-#if (HCNSE_LINUX || HCNSE_FREEBSD || HCNSE_SOLARIS)
+#if (HCNSE_POSIX)
     conf->workdir = "/";
     conf->log_fname = "server.log";
 
@@ -99,32 +91,267 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->log_rewrite = false;
 
     conf->priority = 0;
-    conf->daemon_on = true;
     conf->timer = 30000;
 
     conf->worker_processes = 0;
 }
+
+static void *hcnse_select_pattern(hcnse_conf_t *conf, char *raw_data,
+    char *data, size_t fsize, size_t pattern)
+{
+    size_t vector_size = 100;
+    int vector[vector_size];
+    int offset = 0;
+    pcre *re = NULL;
+    const char *error;
+    int erroffset;
+    int rc;
+    hcnse_listener_t *listener;
+    char *ptr;
+    char *ptr2;
+    hcnse_err_t err;
+
+    ptr = data;
+
+    re = pcre_compile(patterns[pattern], PCRE_MULTILINE, &error, &erroffset, 0);
+    if (!re) {
+        err = HCNSE_ERR_CONF_REGEX;
+        goto failed;
+    }
+    while (1) {
+        rc = pcre_exec(re, 0, raw_data, fsize, offset, 0, vector, vector_size);
+        if (rc < 0) {
+            break;
+        }
+
+        switch (pattern) {
+        case HCNSE_PATTERN_LISTEN:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            listener = hcnse_list_create_node_and_append(
+                sizeof(hcnse_listener_t), conf->listeners);
+            if (!listener) {
+                goto failed;
+            }
+
+            err = hcnse_listener_init_ipv4(listener, "0.0.0.0", ptr);
+            if (err != HCNSE_OK) {
+                goto failed;
+            }
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LISTEN4:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            ptr2 = ptr + HCNSE_FIRST_SUBSTR_LEN + 1;
+
+            hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
+            ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
+
+            listener = hcnse_list_create_node_and_append(
+                sizeof(hcnse_listener_t), conf->listeners);
+            if (!listener) {
+                goto failed;
+            }
+
+            err = hcnse_listener_init_ipv4(listener, ptr, ptr2);
+            if (err != HCNSE_OK) {
+                goto failed;
+            }
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LISTEN6:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            ptr2 = ptr + HCNSE_FIRST_SUBSTR_LEN + 1;
+
+            hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
+            ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
+
+            listener = hcnse_list_create_node_and_append(
+                sizeof(hcnse_listener_t), conf->listeners);
+            if (!listener) {
+                goto failed;
+            }
+
+            err = hcnse_listener_init_ipv6(listener, ptr, ptr2);
+            if (err != HCNSE_OK) {
+                goto failed;
+            }
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LOG_FILE:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->log_fname = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LOG_SIZE:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->log_size = (size_t) hcnse_atoi(ptr);
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LOG_REWRITE:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+            if (!hcnse_strncmp(ptr, "on", 2)) {
+                conf->log_rewrite = true;
+            }
+            else {
+                conf->log_rewrite = false;
+            }
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_LOG_EMERG:
+            conf->log_level = HCNSE_LOG_EMERG;
+            break;
+
+        case HCNSE_PATTERN_LOG_ERROR:
+            conf->log_level = HCNSE_LOG_ERROR;
+            break;
+
+        case HCNSE_PATTERN_LOG_WARN:
+            conf->log_level = HCNSE_LOG_WARN;
+            break;
+
+        case HCNSE_PATTERN_LOG_INFO:
+            conf->log_level = HCNSE_LOG_INFO;
+            break;
+
+        case HCNSE_PATTERN_LOG_DEBUG:
+            conf->log_level = HCNSE_LOG_DEBUG;
+            break;
+
+        case HCNSE_PATTERN_WORKDIR:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->workdir = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_PRIORITY:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->priority = (int8_t) hcnse_atoi(ptr);
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_TIMER:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->timer = (hcnse_msec_t) hcnse_atoi(ptr);
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_USER:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->user = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_GROUP:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->group = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_WORKER_PROCESSES:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->worker_processes = (uint8_t) hcnse_atoi(ptr);
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_WORKER_PROCESSES_AUTO:
+            conf->worker_processes = 0;
+            break;
+
+        case HCNSE_PATTERN_SSL:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+            if (!hcnse_strncmp(ptr, "on", 2)) {
+                conf->ssl_on = true;
+            }
+            else {
+                conf->ssl_on = false;
+            }
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_SSL_CERTFILE:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->ssl_certfile = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+
+        case HCNSE_PATTERN_SSL_KEYFILE:
+            hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+            ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+            conf->ssl_keyfile = ptr;
+
+            ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+            break;
+        }
+        offset = vector[1];
+    }
+    pcre_free(re);
+
+    return ptr;
+    
+failed:
+    if (re) {
+        pcre_free(re);
+    }
+    return NULL;
+}
+
 
 static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
 {
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
     char *raw_data = NULL;
     char *data = NULL;
-    char *ptr;
-    char *ptr2;
-
-    const char *error;
-    int erroffset;
-    int rc;
-    size_t vector_size = 100;
-    int vector[vector_size];
     ssize_t fsize;
     ssize_t bytes_read;
-    pcre *re = NULL;
-    int offset = 0;
+    void *ptr;
     hcnse_err_t err;
-
-    hcnse_listener_t *listener;
 
     fsize = hcnse_file_size(conf->file);
     if (fsize == -1) {
@@ -142,7 +369,6 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
         err = hcnse_get_errno();
         goto failed;
     }
-    ptr = data;
 
     bytes_read = hcnse_file_read(conf->file, (uint8_t *) raw_data, fsize, 0);
     if (bytes_read != fsize) {
@@ -151,227 +377,13 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
     }
     raw_data[fsize] = '\0';
 
+    ptr = data;
+
     for (size_t pattern = 0; pattern < number_of_patterns; pattern++) {
-        offset = 0;
-        re = pcre_compile(patterns[pattern], PCRE_MULTILINE, &error,
-            &erroffset, 0);
-        if (!re) {
-            err = HCNSE_ERR_CONF_REGEX;
+        ptr = hcnse_select_pattern(conf, raw_data, ptr, fsize, pattern);
+        if (!ptr) {
             goto failed;
         }
-        while (1) {
-            rc = pcre_exec(re, 0, raw_data, fsize, offset, 0, vector,
-                vector_size);
-            if (rc < 0) {
-                break;
-            }
-
-            switch (pattern) {
-            case HCNSE_PATTERN_LISTEN:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                listener = hcnse_list_create_node_and_append(
-                    sizeof(hcnse_listener_t), conf->listeners);
-                if (!listener) {
-                    goto failed;
-                }
-
-                err = hcnse_listener_init_ipv4(listener, "0.0.0.0", ptr);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LISTEN4:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                ptr2 = ptr + HCNSE_FIRST_SUBSTR_LEN + 1;
-
-                hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
-                ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
-
-                listener = hcnse_list_create_node_and_append(
-                    sizeof(hcnse_listener_t), conf->listeners);
-                if (!listener) {
-                    goto failed;
-                }
-
-                err = hcnse_listener_init_ipv4(listener, ptr, ptr2);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LISTEN6:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                ptr2 = ptr + HCNSE_FIRST_SUBSTR_LEN + 1;
-
-                hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
-                ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
-
-                listener = hcnse_list_create_node_and_append(
-                    sizeof(hcnse_listener_t), conf->listeners);
-                if (!listener) {
-                    goto failed;
-                }
-
-                err = hcnse_listener_init_ipv6(listener, ptr, ptr2);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LOG_FILE:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->log_fname = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LOG_SIZE:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->log_size = (size_t) atoi(ptr);
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_LOG_REWRITE_ON:
-                conf->log_rewrite = true;
-                break;
-
-            case HCNSE_PATTERN_LOG_REWRITE_OFF:
-                conf->log_rewrite = false;
-                break;
-
-            case HCNSE_PATTERN_LOG_EMERG:
-                conf->log_level = HCNSE_LOG_EMERG;
-                break;
-
-            case HCNSE_PATTERN_LOG_ERROR:
-                conf->log_level = HCNSE_LOG_ERROR;
-                break;
-
-            case HCNSE_PATTERN_LOG_WARN:
-                conf->log_level = HCNSE_LOG_WARN;
-                break;
-
-            case HCNSE_PATTERN_LOG_INFO:
-                conf->log_level = HCNSE_LOG_INFO;
-                break;
-
-            case HCNSE_PATTERN_LOG_DEBUG:
-                conf->log_level = HCNSE_LOG_DEBUG;
-                break;
-
-            case HCNSE_PATTERN_WORKDIR:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->workdir = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_PRIORITY:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->priority = (int8_t) atoi(ptr);
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_DAEMON_ON:
-                conf->daemon_on = true;
-                break;
-
-            case HCNSE_PATTERN_DAEMON_OFF:
-                conf->daemon_on = false;
-                break;
-
-            case HCNSE_PATTERN_TIMER:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->timer = (hcnse_msec_t) atoi(ptr);
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_USER:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->user = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_GROUP:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->group = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_WORKER_PROCESSES:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->worker_processes = (uint8_t) atoi(ptr);
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_WORKER_PROCESSES_AUTO:
-                conf->worker_processes = 0;
-                break;
-
-            case HCNSE_PATTERN_SSL_ON:
-                conf->ssl_on = true;
-                break;
-
-            case HCNSE_PATTERN_SSL_OFF:
-                conf->ssl_on = false;
-                break;
-
-            case HCNSE_PATTERN_SSL_CERTFILE:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->ssl_certfile = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-
-            case HCNSE_PATTERN_SSL_KEYFILE:
-                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
-                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
-
-                conf->ssl_keyfile = ptr;
-
-                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
-                break;
-            }
-            offset = vector[1];
-        }
-        pcre_free(re);
     }
     conf->data = data;
 
@@ -379,9 +391,6 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
     return HCNSE_OK;
 
 failed:
-    if (re) {
-        pcre_free(re);
-    }
     if (raw_data) {
         hcnse_free(raw_data);
     }

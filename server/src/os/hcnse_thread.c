@@ -91,7 +91,7 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
 hcnse_err_t
 hcnse_thread_destroy(hcnse_thread_t *thread)
 {
-    (void) thread;
+    pthread_attr_destroy(&(thread->attr));
     return HCNSE_OK;
 }
 
