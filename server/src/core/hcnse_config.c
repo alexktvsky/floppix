@@ -33,6 +33,8 @@ typedef enum hcnse_pattern_number_t {
 
     HCNSE_PATTERN_WORKDIR,
     HCNSE_PATTERN_PRIORITY,
+    HCNSE_PATTERN_DAEMON_ON,
+    HCNSE_PATTERN_DAEMON_OFF,
 
     HCNSE_PATTERN_SSL_ON,
     HCNSE_PATTERN_SSL_OFF,
@@ -59,6 +61,8 @@ static const char *patterns[] = {
 
     HCNSE_REGEX_STR("(workdir)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)"),  // signed value
+    HCNSE_REGEX_STR("(daemon)\\s+(on)"),
+    HCNSE_REGEX_STR("(daemon)\\s+(off)"),
 
     HCNSE_REGEX_STR("(ssl)\\s+(on)"),
     HCNSE_REGEX_STR("(ssl)\\s+(off)"),
@@ -83,6 +87,7 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->log_rewrite = false;
 
     conf->priority = 0;
+    conf->daemon_on = true;
 }
 
 static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
@@ -273,6 +278,14 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 conf->priority = (int8_t) atoi(ptr);
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_DAEMON_ON:
+                conf->daemon_on = true;
+                break;
+
+            case HCNSE_PATTERN_DAEMON_OFF:
+                conf->daemon_on = false;
                 break;
 
             case HCNSE_PATTERN_SSL_ON:

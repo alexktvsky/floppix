@@ -89,6 +89,13 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     hcnse_fprintf(HCNSE_STDOUT, "workdir: \"%s\"\n", conf->workdir);
     hcnse_fprintf(HCNSE_STDOUT, "priority: %d\n", conf->priority);
 
+    if (conf->daemon_on) {
+        hcnse_fprintf(HCNSE_STDOUT, "daemon: on\n");
+    }
+    else {
+        hcnse_fprintf(HCNSE_STDOUT, "daemon: off\n");
+    }
+
     if (conf->ssl_on) {
         hcnse_fprintf(HCNSE_STDOUT, "ssl: on\n");
         if (conf->ssl_certfile) {
@@ -199,14 +206,14 @@ int main(int argc, char *const argv[])
 
     /* Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon */
-#if !(HCNSE_NO_DAEMON)
-    err = hcnse_process_daemon_init();
-    if (err != HCNSE_OK) {
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
-            "Failed to create server process");
-        goto failed;
+    if (conf->daemon_on) {
+        err = hcnse_process_daemon_init();
+        if (err != HCNSE_OK) {
+            hcnse_log_error(HCNSE_LOG_EMERG, conf->log, err,
+                "Failed to create server process");
+            goto failed;
+        }
     }
-#endif
 
     /* TODO:
      * hcnse_signals_init

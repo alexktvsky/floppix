@@ -19,6 +19,7 @@ struct hcnse_config_s {
 
     char *workdir;
     int8_t priority; // XXX: Signed value
+    bool daemon_on;
 
     bool ssl_on;
     char *ssl_certfile;
