@@ -8,6 +8,9 @@ typedef struct hcnse_listener_s        hcnse_listener_t;
 typedef struct hcnse_connect_s         hcnse_connect_t;
 typedef struct hcnse_list_s            hcnse_list_t;
 typedef struct hcnse_mempool_s         hcnse_mempool_t;
+typedef struct hcnse_thread_pool_s     hcnse_thread_pool_t;
+typedef struct hcnse_thread_task_s     hcnse_thread_task_t;
+typedef void (* hcnse_thread_handler_t)(void *in, void *out);
 
 #include "hcnse_config.h"
 #include "hcnse_errno.h"
@@ -29,5 +32,6 @@ typedef struct hcnse_mempool_s         hcnse_mempool_t;
 #include "hcnse_mutex.h"
 #include "hcnse_semaphore.h"
 #include "hcnse_cpuinfo.h"
+#include "hcnse_thread_pool.h"
 
 #endif /* INCLUDED_HCNSE_CORE_H */

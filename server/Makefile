@@ -27,6 +27,7 @@ SRC_FILES += hcnse_event_connect.c
 SRC_FILES += hcnse_event_read.c
 SRC_FILES += hcnse_event_write.c
 SRC_FILES += hcnse_event_timer.c
+SRC_FILES += hcnse_thread_pool.c
 
 VPATH += src/core
 VPATH += src/event
