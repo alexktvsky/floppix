@@ -109,6 +109,14 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
         hcnse_fprintf(HCNSE_STDOUT, "WARNING: group is undefined\n");
     }
 
+    if (conf->worker_processes) {
+        hcnse_fprintf(HCNSE_STDOUT, "worker_processes: %lu\n",
+            conf->worker_processes);
+    }
+    else {
+        hcnse_fprintf(HCNSE_STDOUT, "worker_processes: auto\n");
+    }
+
     if (conf->ssl_on) {
         hcnse_fprintf(HCNSE_STDOUT, "ssl: on\n");
         if (conf->ssl_certfile) {

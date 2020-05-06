@@ -39,6 +39,9 @@ typedef enum hcnse_pattern_number_t {
     HCNSE_PATTERN_USER,
     HCNSE_PATTERN_GROUP,
 
+    HCNSE_PATTERN_WORKER_PROCESSES,
+    HCNSE_PATTERN_WORKER_PROCESSES_AUTO,
+
     HCNSE_PATTERN_SSL_ON,
     HCNSE_PATTERN_SSL_OFF,
     HCNSE_PATTERN_SSL_CERTFILE,
@@ -70,6 +73,9 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(user)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(group)\\s+([\\S]+)"),
 
+    HCNSE_REGEX_STR("(worker_processes)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(log_level)\\s+(auto)"),
+
     HCNSE_REGEX_STR("(ssl)\\s+(on)"),
     HCNSE_REGEX_STR("(ssl)\\s+(off)"),
     HCNSE_REGEX_STR("(ssl_certfile)\\s+([\\S]+)"),
@@ -95,6 +101,8 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->priority = 0;
     conf->daemon_on = true;
     conf->timer = 30000;
+
+    conf->worker_processes = 0;
 }
 
 static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
@@ -320,6 +328,19 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
                 conf->group = ptr;
 
                 ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_WORKER_PROCESSES:
+                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+                conf->worker_processes = (uint8_t) atoi(ptr);
+
+                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_WORKER_PROCESSES_AUTO:
+                conf->worker_processes = 0;
                 break;
 
             case HCNSE_PATTERN_SSL_ON:

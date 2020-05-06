@@ -23,6 +23,7 @@ struct hcnse_config_s {
     hcnse_msec_t timer;
     char *user;
     char *group;
+    uint8_t worker_processes;
 
     bool ssl_on;
     char *ssl_certfile;
