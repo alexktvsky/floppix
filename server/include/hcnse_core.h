@@ -28,5 +28,6 @@ typedef struct hcnse_mempool_s         hcnse_mempool_t;
 #include "hcnse_signal.h"
 #include "hcnse_mutex.h"
 #include "hcnse_semaphore.h"
+#include "hcnse_cpuinfo.h"
 
 #endif /* INCLUDED_HCNSE_CORE_H */

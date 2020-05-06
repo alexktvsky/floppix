@@ -17,6 +17,7 @@ SRC_FILES += hcnse_time.c
 SRC_FILES += hcnse_thread.c
 SRC_FILES += hcnse_mutex.c
 SRC_FILES += hcnse_semaphore.c
+SRC_FILES += hcnse_cpuinfo.c
 SRC_FILES += hcnse_signal.c
 SRC_FILES += hcnse_select.c
 SRC_FILES += hcnse_epoll.c
