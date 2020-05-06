@@ -165,8 +165,8 @@ failed:
 void
 hcnse_epoll_process_events(hcnse_conf_t *conf)
 {
+    hcnse_msec_t timer = conf->timer;
     int n;
-    hcnse_msec_t timer = 10000;
     hcnse_err_t err;
 
     err = hcnse_epoll_init(conf);

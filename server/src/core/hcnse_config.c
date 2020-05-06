@@ -35,6 +35,7 @@ typedef enum hcnse_pattern_number_t {
     HCNSE_PATTERN_PRIORITY,
     HCNSE_PATTERN_DAEMON_ON,
     HCNSE_PATTERN_DAEMON_OFF,
+    HCNSE_PATTERN_TIMER,
 
     HCNSE_PATTERN_SSL_ON,
     HCNSE_PATTERN_SSL_OFF,
@@ -63,6 +64,7 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)"),  // signed value
     HCNSE_REGEX_STR("(daemon)\\s+(on)"),
     HCNSE_REGEX_STR("(daemon)\\s+(off)"),
+    HCNSE_REGEX_STR("(timer)\\s+([0-9]+)"),
 
     HCNSE_REGEX_STR("(ssl)\\s+(on)"),
     HCNSE_REGEX_STR("(ssl)\\s+(off)"),
@@ -287,6 +289,17 @@ static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
             case HCNSE_PATTERN_DAEMON_OFF:
                 conf->daemon_on = false;
                 break;
+
+            case HCNSE_PATTERN_TIMER:
+                hcnse_memmove(ptr, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+                conf->timer = (hcnse_msec_t) atoi(ptr);
+
+                ptr += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+
 
             case HCNSE_PATTERN_SSL_ON:
                 conf->ssl_on = true;

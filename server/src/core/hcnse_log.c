@@ -19,6 +19,7 @@ struct hcnse_log_s {
     uint8_t level;
     size_t size;
     bool rewrite;
+    bool write_to_stdout;
     hcnse_log_message_t *messages;
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     pid_t pid;
@@ -77,9 +78,9 @@ hcnse_log_worker(void *arg)
             /* What we need to do? */
         }
 
-#if (HCNSE_NO_DAEMON)
-        hcnse_fprintf(HCNSE_STDOUT, "%s", buf);
-#endif
+        if (log->write_to_stdout) {
+            hcnse_fprintf(HCNSE_STDOUT, "%s", buf);
+        }
 
         hcnse_mutex_unlock(log->mutex_fetch);
         hcnse_semaphore_post(log->sem_empty);
@@ -203,6 +204,7 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
     log->level = conf->log_level;
     log->size = conf->log_size;
     log->rewrite = conf->log_rewrite;
+    log->write_to_stdout = !(conf->daemon_on);
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
