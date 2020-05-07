@@ -2,10 +2,9 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_POSIX)
+#if (HCNSE_POSIX && HCNSE_HAVE_DLOPEN)
 
-#if (HCNSE_HAVE_DLOPEN)
-char *hcnse_dlerror(void)
+const char *hcnse_dlerror(void)
 {
     char *err;
 
@@ -15,11 +14,10 @@ char *hcnse_dlerror(void)
     }
     return err;
 }
-#endif
 
 #elif (HCNSE_WIN32)
 
-char *hcnse_dlerror(void)
+const char *hcnse_dlerror(void)
 {
     return hcnse_strerror(hcnse_get_errno());
 }

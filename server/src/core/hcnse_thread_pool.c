@@ -23,9 +23,7 @@ hcnse_thread_routine(void *arg)
 
         hcnse_mutex_unlock(&(tp->mutex_fetch));
         hcnse_semaphore_post(&(tp->sem_empty));
-
     }
-
     hcnse_thread_exit(0);
 }
 

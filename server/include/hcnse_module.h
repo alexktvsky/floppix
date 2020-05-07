@@ -11,8 +11,8 @@ struct hcnse_module_s {
 };
 
 
-hcnse_err_t hcnse_load_module(void);
-hcnse_err_t hcnse_init_module(void);
-hcnse_err_t hcnse_unload_module(void);
+hcnse_err_t hcnse_module_load(void);
+hcnse_err_t hcnse_module_init(void);
+hcnse_err_t hcnse_module_unload(void);
 
 #endif /* INCLUDED_HCNSE_MODULE_H */

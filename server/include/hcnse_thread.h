@@ -42,8 +42,6 @@ struct hcnse_thread_s {
 
 #endif
 
-typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
-
 hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags,
     size_t stack_size, int prio, hcnse_thread_function_t start_routine,
     void *arg);

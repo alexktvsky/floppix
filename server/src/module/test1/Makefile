@@ -15,12 +15,12 @@ ifeq ($(CC), clang)
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
-	BIN_FILE = libtest1.exe
+	BIN_FILE = libtest1.dll
 	LD = x86_64-w64-mingw32-ld
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
-	BIN_FILE = libtest1.exe
+	BIN_FILE = libtest1.dll
 	LD = i686-w64-mingw32-ld
 endif
 
@@ -48,7 +48,7 @@ uninstall:
 clean:
 	rm -f obj/* bin/*
 
-mkdirs: 
+mkdirs:
 	@if [ ! -d bin ]; then \
 		mkdir bin; \
 	fi

@@ -433,7 +433,6 @@ hcnse_err_t hcnse_config_create(hcnse_conf_t **in_conf, const char *fname)
 
     err = hcnse_file_init(file, fname, HCNSE_FILE_RDONLY,
                     HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
-
     if (err != HCNSE_OK) {
         goto failed;
     }

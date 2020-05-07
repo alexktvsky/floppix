@@ -35,15 +35,17 @@ VPATH += src/core
 VPATH += src/event
 VPATH += src/os
 
+MODULE_DIRS += src/module/test1
+MODULE_DIRS += src/module/test2
+
 INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra -Wuninitialized -pipe
-build: override CFLAGS += -g0 -s -O3
-debug: override CFLAGS += -g3 -ggdb3 -O0
-debug: override CFLAGS +=  -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
+build: override CFLAGS += -g0 -O3 -s
+debug: override CFLAGS += -g3 -O0 -ggdb3
+debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 
-override LDFLAGS += -ldl
 override LDFLAGS += -lpcre
 build: override LDFLAGS += -static -static-libgcc
 
@@ -53,6 +55,7 @@ ifeq ($(CC), gcc)
 	GCC_VER = $(shell $(CC) -v 2>&1 | grep 'gcc version' 2>&1 \
 		| sed -e 's/^.* version \(.*\)/\1/')
 	override CFLAGS += -DHCNSE_COMPILER="\"gcc $(GCC_VER)\""
+	override LDFLAGS += -ldl
 	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
@@ -62,6 +65,7 @@ ifeq ($(CC), clang)
 		-e 's/^.*LLVM version \(.*\)/\1/p')
 	override CFLAGS += -DHCNSE_COMPILER="\"clang $(CLANG_VER)\""
 	override CFLAGS += -Qunused-arguments
+	override LDFLAGS += -ldl
 	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 endif
 
@@ -87,7 +91,7 @@ QUIET_CC = @echo '   ' CC $(notdir $@);
 MAKEFLAGS += --no-print-directory
 
 #.ONESHELL:
-.PHONY: build debug test docs
+.PHONY: build debug modules test docs
 
 all: build
 build: mkdirs _build
@@ -99,8 +103,13 @@ _build: $(OBJ_FILES)
 _debug: $(OBJ_FILES)
 	$(CC) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
 
+#	cd $(MODULE_DIR) && $(MAKE)
 modules:
-	cd src/module/* && $(MAKE)
+	@for dir in $(MODULE_DIRS); do \
+		if [ -d $$dir ]; then \
+			$(MAKE) -C $$dir build; \
+		fi; \
+	done;
 
 test:
 	$(warning Tests now is not available!)
@@ -118,11 +127,14 @@ uninstall:
 	rm -f $(INSTALL_DIR)/$(BIN_FILE)
 
 clean:
-	rm -f obj/*
-	rm -f bin/*
-	cd src/modules/* && $(MAKE) clean
+	rm -f obj/* bin/*
+	@for dir in $(MODULE_DIRS); do \
+		if [ -d $$dir ]; then \
+			$(MAKE) -C $$dir clean; \
+		fi; \
+	done;
 
-mkdirs: 
+mkdirs:
 	@if [ ! -d bin ]; then \
 		mkdir bin; \
 	fi

@@ -11,7 +11,7 @@
 #define hcnse_dlclose(handle)        dlclose(handle)
 
 #if (HCNSE_HAVE_DLOPEN)
-char *hcnse_dlerror(void);
+const char *hcnse_dlerror(void);
 #endif
 
 
@@ -21,7 +21,7 @@ char *hcnse_dlerror(void);
 #define hcnse_dlsym(handle, symbol)  (void *) GetProcAddress(handle, symbol)
 #define hcnse_dlclose(handle)        (FreeLibrary(handle) ? 0 : -1)
 
-char *hcnse_dlerror(void);
+const char *hcnse_dlerror(void);
 
 #endif
 
