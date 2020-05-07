@@ -10,6 +10,7 @@ typedef struct hcnse_list_s            hcnse_list_t;
 typedef struct hcnse_mempool_s         hcnse_mempool_t;
 typedef struct hcnse_thread_pool_s     hcnse_thread_pool_t;
 typedef struct hcnse_thread_task_s     hcnse_thread_task_t;
+typedef struct hcnse_module_s          hcnse_module_t;
 typedef void (* hcnse_thread_handler_t)(void *in, void *out);
 
 #include "hcnse_config.h"
@@ -33,5 +34,7 @@ typedef void (* hcnse_thread_handler_t)(void *in, void *out);
 #include "hcnse_semaphore.h"
 #include "hcnse_cpuinfo.h"
 #include "hcnse_thread_pool.h"
+#include "hcnse_dso.h"
+#include "hcnse_module.h"
 
 #endif /* INCLUDED_HCNSE_CORE_H */

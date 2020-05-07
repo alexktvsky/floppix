@@ -1,8 +1,8 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-
-#define HCNSE_ERR_END_LIST 0
+#define HCNSE_ERRSTR_LEN    1024
+#define HCNSE_ERR_END_LIST  0
 
 
 static const char *message_ok = "OK";
@@ -54,7 +54,7 @@ size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 #elif (HCNSE_WIN32)
 const char *hcnse_errno_strerror(hcnse_errno_t err)
 {
-    static _Thread_local char buf[1024];
+    static _Thread_local char buf[HCNSE_ERRSTR_LEN];
     hcnse_errno_strerror_r(err, buf, sizeof(buf));
     return buf;
 }

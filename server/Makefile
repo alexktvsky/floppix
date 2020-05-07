@@ -28,6 +28,8 @@ SRC_FILES += hcnse_event_read.c
 SRC_FILES += hcnse_event_write.c
 SRC_FILES += hcnse_event_timer.c
 SRC_FILES += hcnse_thread_pool.c
+SRC_FILES += hcnse_dso.c
+SRC_FILES += hcnse_module.c
 
 VPATH += src/core
 VPATH += src/event
@@ -41,6 +43,7 @@ build: override CFLAGS += -g0 -s -O3
 debug: override CFLAGS += -g3 -ggdb3 -O0
 debug: override CFLAGS +=  -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 
+override LDFLAGS += -ldl
 override LDFLAGS += -lpcre
 build: override LDFLAGS += -static -static-libgcc
 
@@ -81,6 +84,7 @@ endif
 
 OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
+MAKEFLAGS += --no-print-directory
 
 #.ONESHELL:
 .PHONY: build debug test docs
@@ -94,6 +98,9 @@ _build: $(OBJ_FILES)
 
 _debug: $(OBJ_FILES)
 	$(CC) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
+
+modules:
+	cd src/module/* && $(MAKE)
 
 test:
 	$(warning Tests now is not available!)
@@ -113,6 +120,7 @@ uninstall:
 clean:
 	rm -f obj/*
 	rm -f bin/*
+	cd src/modules/* && $(MAKE) clean
 
 mkdirs: 
 	@if [ ! -d bin ]; then \
