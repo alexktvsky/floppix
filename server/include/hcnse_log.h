@@ -22,8 +22,8 @@
     hcnse_log_console(HCNSE_STDERR, err, __VA_ARGS__)
 
 
-hcnse_err_t hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf);
-void hcnse_log_fini(hcnse_log_t *log);
+hcnse_err_t hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf);
+void hcnse_log_destroy(hcnse_log_t *log);
 void hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...);
 void hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...);

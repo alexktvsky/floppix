@@ -401,7 +401,7 @@ failed:
 }
 
 
-hcnse_err_t hcnse_config_init(hcnse_conf_t **in_conf, const char *fname)
+hcnse_err_t hcnse_config_create(hcnse_conf_t **in_conf, const char *fname)
 {
     hcnse_conf_t *conf = NULL;
     hcnse_file_t *file = NULL;

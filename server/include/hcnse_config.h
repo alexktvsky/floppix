@@ -30,7 +30,8 @@ struct hcnse_config_s {
 };
 
 
-hcnse_err_t hcnse_config_init(hcnse_conf_t **conf, const char *fname);
+hcnse_err_t hcnse_config_create(hcnse_conf_t **conf, const char *fname);
+// hcnse_err_t hcnse_config_init(hcnse_conf_t **conf, const char *fname);
 void hcnse_config_fini(hcnse_conf_t *conf);
 
 #endif /* INCLUDED_HCNSE_CONFIG_H */

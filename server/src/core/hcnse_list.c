@@ -21,6 +21,9 @@ struct hcnse_listnode_s {
     hcnse_listnode_t *prev;
 };
 
+size_t hcnse_node_t_size = sizeof(hcnse_listnode_t);
+
+
 hcnse_list_t *
 hcnse_list_create(void)
 {
@@ -41,6 +44,13 @@ hcnse_list_create1(hcnse_list_t **list)
     }
     hcnse_memset(new_list, 0, sizeof(hcnse_list_t));
     *list = new_list;
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_list_init(hcnse_list_t *list)
+{
+    hcnse_memset(list, 0, sizeof(hcnse_list_t));
     return HCNSE_OK;
 }
 
@@ -174,6 +184,15 @@ hcnse_list_destroy(hcnse_list_t *list)
 }
 
 void *
+hcnse_list_init_node(void *mem)
+{
+    void *node = mem;
+    ((hcnse_listnode_t *) node)->next = NULL;
+    ((hcnse_listnode_t *) node)->prev = NULL;
+    return hcnse_list_cast_ptr(node);
+}
+
+void *
 hcnse_list_create_node(size_t size)
 {
     void *node = hcnse_malloc(sizeof(hcnse_listnode_t) + size);
@@ -205,9 +224,20 @@ hcnse_list_destroy_node(void *ptr)
 }
 
 void *
+hcnse_list_init_node_and_append(void *mem, hcnse_list_t *list)
+{
+    void *ptr = mem;
+    if (hcnse_list_append(list, ptr) != HCNSE_OK) {
+        hcnse_list_destroy_node(ptr);
+        return NULL;
+    }
+    return ptr;
+}
+
+void *
 hcnse_list_create_node_and_append(size_t size, hcnse_list_t *list)
 {
-    hcnse_listnode_t *ptr = hcnse_list_create_node(size);
+    void *ptr = hcnse_list_create_node(size);
     if (!ptr) {
         return NULL;
     }
@@ -247,6 +277,34 @@ hcnse_try_use_already_exist_node(size_t size, hcnse_list_t *free_nodes,
             goto failed;
         }
         hcnse_list_append(list, ptr);
+    }
+
+    return ptr;
+
+failed:
+    return NULL;
+}
+
+void *
+hcnse_try_use_already_exist_node1(void *mem, hcnse_list_t *free_nodes,
+    hcnse_list_t *list)
+{
+    void *ptr;
+
+    /* Check for empty already exist node */
+    ptr = hcnse_list_first(free_nodes);
+
+    /* Use already exist node */
+    if (ptr) {
+        hcnse_list_remove(free_nodes, ptr);
+        hcnse_list_append(list, ptr);
+    }
+    /* If there are not empty nodes, allocate in buf */
+    else {
+        ptr = hcnse_list_cast_ptr(mem);
+        if (hcnse_list_append(list, ptr) != HCNSE_OK) {
+            goto failed;
+        }
     }
 
     return ptr;

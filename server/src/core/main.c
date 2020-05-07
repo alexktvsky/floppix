@@ -186,7 +186,7 @@ int main(int argc, char *const argv[])
     }
 #endif
 
-    err = hcnse_config_init(&conf, conf_file);
+    err = hcnse_config_create(&conf, conf_file);
     if (err != HCNSE_OK) {
         hcnse_log_stderr(err, "%s", "Failed to initialize config");
         goto failed;
@@ -213,7 +213,7 @@ int main(int argc, char *const argv[])
         }
     }
 
-    err = hcnse_log_init(&(conf->log), conf);
+    err = hcnse_log_create(&(conf->log), conf);
     if (err != HCNSE_OK) {
         hcnse_log_stderr(err, "%s", "Failed to set open log");
         goto failed;

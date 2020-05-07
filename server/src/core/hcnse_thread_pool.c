@@ -76,7 +76,7 @@ hcnse_thread_pool_create(hcnse_thread_pool_t **tp, size_t n_tasks,
 
     for (size_t i = 0; i < n_threads; i++) {
         thread = &(threads[i]);
-        hcnse_thread_create(thread,
+        hcnse_thread_init(thread,
             HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_DETACHED,
             0, HCNSE_THREAD_PRIORITY_NORMAL,
             hcnse_thread_routine, (void *) tp1);
@@ -101,7 +101,7 @@ hcnse_thread_pool_destroy(hcnse_thread_pool_t *tp)
         thread = &((tp->threads)[i]);
         hcnse_thread_cancel(thread);
         hcnse_msleep(100);
-        hcnse_thread_destroy(thread);
+        hcnse_thread_fini(thread);
     }
     hcnse_free(tp->tasks);
     hcnse_free(tp->threads);

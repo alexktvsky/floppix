@@ -44,11 +44,11 @@ struct hcnse_thread_s {
 
 typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
 
-hcnse_err_t hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags,
+hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags,
     size_t stack_size, int prio, hcnse_thread_function_t start_routine,
     void *arg);
 hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);
 hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
-hcnse_err_t hcnse_thread_destroy(hcnse_thread_t *thread);
+hcnse_err_t hcnse_thread_fini(hcnse_thread_t *thread);
 
 #endif /* INCLUDED_HCNSE_THREAD_H */

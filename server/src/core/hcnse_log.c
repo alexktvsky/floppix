@@ -88,7 +88,7 @@ hcnse_log_worker(void *arg)
 }
 
 hcnse_err_t
-hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
+hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
@@ -229,7 +229,7 @@ hcnse_log_init(hcnse_log_t **in_log, hcnse_conf_t *conf)
     }
     hcnse_memset(tid, 0, sizeof(hcnse_thread_t));
 
-    err = hcnse_thread_create(tid,
+    err = hcnse_thread_init(tid,
         HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_JOINABLE,
         0, HCNSE_THREAD_PRIORITY_NORMAL, hcnse_log_worker, (void *) log);
     if (err != HCNSE_OK) {
@@ -333,7 +333,7 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 }
 
 void
-hcnse_log_fini(hcnse_log_t *log)
+hcnse_log_destroy(hcnse_log_t *log)
 {
     hcnse_log_message_t *messages = log->messages;
 
@@ -348,7 +348,7 @@ hcnse_log_fini(hcnse_log_t *log)
     munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
 #else
     hcnse_thread_cancel(log->tid);
-    hcnse_thread_destroy(log->tid);
+    hcnse_thread_fini(log->tid);
     hcnse_free(messages);
     hcnse_free(log->tid);
 #endif

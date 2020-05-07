@@ -3,8 +3,9 @@
 
 
 #if (HCNSE_POSIX)
+
 hcnse_err_t
-hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
+hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
     int prio, hcnse_thread_function_t start_routine, void *arg)
 {
     pthread_attr_t attr;
@@ -89,15 +90,17 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
 }
 
 hcnse_err_t
-hcnse_thread_destroy(hcnse_thread_t *thread)
+hcnse_thread_fini(hcnse_thread_t *thread)
 {
     pthread_attr_destroy(&(thread->attr));
     return HCNSE_OK;
 }
 
+
 #elif (HCNSE_WIN32)
+
 hcnse_err_t
-hcnse_thread_create(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
+hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags, size_t stack_size,
     int prio, hcnse_thread_function_t start_routine, void *arg)
 {
     (void) flags;
@@ -136,7 +139,7 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
 }
 
 hcnse_err_t
-hcnse_thread_destroy(hcnse_thread_t *thread)
+hcnse_thread_fini(hcnse_thread_t *thread)
 {
     if (CloseHandle(thread->handler) == 0) {
         return hcnse_get_errno();
