@@ -5,6 +5,12 @@
 #define HCNSE_CR                       "\015"
 #define HCNSE_CRLF                     "\015\012"
 
+#if (HCNSE_POSIX)
+#define HCNSE_PORTABLE_LF              HCNSE_LF
+#elif (HCNSE_WIN32)
+#define HCNSE_PORTABLE_LF              HCNSE_CRLF
+#endif
+
 #define hcnse_strlen(str)              strlen(str)
 #define hcnse_memset(buf, c, n)        memset(buf, c, n)
 #define hcnse_memmove(dst, src, n)     memmove(dst, src, n)

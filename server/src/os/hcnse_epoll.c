@@ -3,9 +3,29 @@
 
 #if (HCNSE_HAVE_EPOLL && HCNSE_LINUX)
 
+static hcnse_err_t hcnse_epoll_add_listener(hcnse_listener_t *listener,
+    int flags);
+static hcnse_err_t hcnse_epoll_del_listener(hcnse_listener_t *listener,
+    int flags);
+static hcnse_err_t hcnse_epoll_add_connect(hcnse_conf_t *conf,
+    hcnse_listener_t *listener);
+static hcnse_err_t hcnse_epoll_del_connect(hcnse_conf_t *conf,
+    hcnse_connect_t *connect);
+static hcnse_err_t hcnse_epoll_process_events(hcnse_conf_t *conf);
+static hcnse_err_t hcnse_epoll_init(hcnse_conf_t *conf);
+
 static struct epoll_event *event_list;
 static int max_events;
 static int epfd = HCNSE_INVALID_SOCKET;
+
+hcnse_event_actions_t hcnse_event_actions_epoll = {
+    hcnse_epoll_add_listener,
+    hcnse_epoll_del_listener,
+    hcnse_epoll_add_connect,
+    hcnse_epoll_del_connect,
+    hcnse_epoll_process_events,
+    hcnse_epoll_init
+};
 
 
 static hcnse_err_t
@@ -92,8 +112,77 @@ hcnse_epoll_del_connect(hcnse_conf_t *conf, hcnse_connect_t *connect)
 }
 
 static hcnse_err_t
+hcnse_epoll_process_events(hcnse_conf_t *conf)
+{
+    hcnse_msec_t timer = conf->timer;
+    hcnse_listener_t *listener;
+    hcnse_connect_t *connect;
+    int events;
+    int ready_events;
+    hcnse_err_t err;
+
+
+    /* TODO: Change to epoll_pwait when signal handler will be ready */
+    events = epoll_wait(epfd, event_list, max_events, (int) timer);
+    if (events == -1) {
+        if (hcnse_get_errno() != EINTR) {
+            return hcnse_get_errno();
+        }
+        // else if (sighup_caught) {
+        //     printf("interrupted by SIGHUP\events");
+        //     sighup_caught = 0;
+        // }
+        else {
+            /* Interrupted by unknown signal */
+        }
+    }
+    if (events == 0) {
+        hcnse_event_timer(conf);
+        return HCNSE_OK;
+    }
+
+    for (int i = 0; i < events; i++) {
+        if (hcnse_is_listener(event_list[i].data.ptr)) {
+            listener = (hcnse_listener_t *) event_list[i].data.ptr;
+
+            err = hcnse_epoll_add_connect(conf, listener);
+            if (err != HCNSE_OK) {
+                goto failed;
+            }
+
+            err = hcnse_event_connect(conf, listener);
+            if (err != HCNSE_OK) {
+                goto failed;
+            }
+        }
+        else {
+            connect = (hcnse_connect_t *) event_list[i].data.ptr;
+            ready_events = event_list[i].events;
+
+            if (ready_events & EPOLLIN) {
+                err = hcnse_event_read(conf, connect);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+            if ((ready_events & EPOLLOUT) && (connect->ready_to_write)) {
+                err = hcnse_event_write(conf, connect);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+        }
+    }
+    return HCNSE_OK;
+
+failed:
+    return err;
+}
+
+static hcnse_err_t
 hcnse_epoll_init(hcnse_conf_t *conf)
 {
+    hcnse_listener_t *listener;
     hcnse_err_t err;
 
     max_events = hcnse_list_size(conf->listeners);
@@ -108,7 +197,6 @@ hcnse_epoll_init(hcnse_conf_t *conf)
         return hcnse_get_errno();
     }
 
-    hcnse_listener_t *listener;
     for (listener = hcnse_list_first(conf->listeners);
                             listener; listener = hcnse_list_next(listener)) {
         err = hcnse_epoll_add_listener(listener, EPOLLIN|EPOLLET);
@@ -116,96 +204,10 @@ hcnse_epoll_init(hcnse_conf_t *conf)
             return err;
         }
     }
-    return HCNSE_OK;
-}
-
-static hcnse_err_t
-hcnse_process_events(hcnse_conf_t *conf, int n)
-{
-    int flags;
-    hcnse_err_t err;
-
-    for (int i = 0; i < n; i++) {
-        /* Search new input connections */
-        if (hcnse_is_listener(event_list[i].data.ptr)) {
-            err = hcnse_epoll_add_connect(conf, event_list[i].data.ptr);
-            if (err != HCNSE_OK) {
-                goto failed;
-            }
-            err = hcnse_event_connect(conf, event_list[i].data.ptr);
-            if (err != HCNSE_OK) {
-                goto failed;
-            }
-        }
-        else {
-            flags = event_list[i].events;
-            if (flags & EPOLLIN) {
-                err = hcnse_event_read(conf, event_list[i].data.ptr);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-            }
-            if (flags & EPOLLOUT) {
-                if (((hcnse_connect_t *)event_list[i].data.ptr)->want_to_write) {
-                    err = hcnse_event_write(conf, event_list[i].data.ptr);
-                    if (err != HCNSE_OK) {
-                        goto failed;
-                    }
-                }
-            }
-        }
-    }
 
     return HCNSE_OK;
-
-failed:
-    return err;
 }
 
-void
-hcnse_epoll_process_events(hcnse_conf_t *conf)
-{
-    hcnse_msec_t timer = conf->timer;
-    int n;
-    hcnse_err_t err;
 
-    err = hcnse_epoll_init(conf);
-    if (err != HCNSE_OK) {
-        hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
-                                    err, "epoll_init() failed");
-        abort();
-    }
-
-    while (1) {
-        /* TODO: Change to epoll_pwait when signal handler will be ready */
-        n = epoll_wait(epfd, event_list, max_events, (int) timer);
-        if (n == -1) {
-            if (hcnse_get_errno() != EINTR) {
-                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
-                                    hcnse_get_errno(), "epoll_wait() failed");
-                abort();
-            }
-            // else if (sighup_caught) {
-            //     printf("interrupted by SIGHUP\n");
-            //     sighup_caught = 0;
-            // }
-            else {
-                hcnse_log_error(HCNSE_LOG_INFO, conf->log, HCNSE_OK, 
-                                            "Interrupted by unknown signal");
-            }
-        }
-        else if (!n) {
-            hcnse_event_timer(conf);
-        }
-        else {
-            err = hcnse_process_events(conf, n);
-            if (err != HCNSE_OK) {
-                hcnse_log_error(HCNSE_LOG_EMERG, conf->log,
-                        err, "hcnse_process_events() failed");
-                abort();
-            }
-        }
-    } /* while (1) */
-}
 
 #endif /* HCNSE_HAVE_EPOLL && HCNSE_LINUX */

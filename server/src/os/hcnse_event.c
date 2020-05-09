@@ -2,32 +2,47 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t
-hcnse_start_process_events(hcnse_conf_t *conf)
+hcnse_event_actions_t hcnse_event_actions;
+
+
+void
+hcnse_process_events_and_timers(hcnse_conf_t *conf)
 {
 #if (HCNSE_HAVE_SELECT)
-    hcnse_select_process_events(conf);
-
-#elif (HCNSE_HAVE_EPOLL && HCNSE_LINUX)
-    hcnse_epoll_process_events(conf);
-
+    hcnse_event_actions = hcnse_event_actions_select;
 #elif (HCNSE_HAVE_KQUEUE && HCNSE_FREEBSD)
-    hcnse_kqueue_process_events(conf);
-
+    hcnse_event_actions = hcnse_event_actions_kqueue;
+#elif (HCNSE_HAVE_EPOLL && HCNSE_LINUX)
+    hcnse_event_actions = hcnse_event_actions_epoll;
 #elif (HCNSE_HAVE_IOCP && HCNSE_WIN32)
-    hcnse_iocp_process_events(conf);
-
-#else
-#error "Events handler should have been selected"
-
+    hcnse_event_actions = hcnse_event_actions_iocp;
 #endif
-    return HCNSE_OK;
+
+
+    hcnse_init_event_actions(conf);
+
+
+    while (1) {
+
+        hcnse_process_events(conf);
+
+
+
+    } /* while (1) */
+
+
+
+
+
+
+
 }
 
 
-hcnse_err_t
-hcnse_stop_process_events(void)
-{
-    /* Raise the signal which interrupt cycle */
-    return HCNSE_OK;
-}
+
+// hcnse_err_t
+// hcnse_stop_process_events_and_timers(void)
+// {
+//     /* Raise the signal which interrupt cycle */
+//     return HCNSE_OK;
+// }

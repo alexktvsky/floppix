@@ -36,7 +36,7 @@ hcnse_set_events(hcnse_conf_t *conf)
                 fdmax = fd;
             }
             /* Add clients sockets to write array */
-            if (!connect->want_to_write) {
+            if (!connect->ready_to_write) {
                 continue;
             }
             fd = connect->fd;

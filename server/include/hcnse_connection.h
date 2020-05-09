@@ -19,10 +19,17 @@ struct hcnse_connect_s {
     hcnse_socket_t fd;
     struct sockaddr_storage sockaddr;
     hcnse_listener_t *owner;
-    bool want_to_write;
+
+    // hcnse_event_t read;
+    // hcnse_event_t write;
+
+    hcnse_mempool_t *pool;
+
+
+    bool ready_to_write;
 };
 
-/* XXX: Don't use memory allocation in this functions! */
+/* XXX: Don't use memory allocation in this functions */
 hcnse_err_t hcnse_listener_init_ipv4(hcnse_listener_t *listener,
     const char *ip, const char *port);
 hcnse_err_t hcnse_listener_init_ipv6(hcnse_listener_t *listener,

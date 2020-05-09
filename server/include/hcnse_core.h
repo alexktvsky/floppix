@@ -11,9 +11,13 @@ typedef struct hcnse_mempool_s         hcnse_mempool_t;
 typedef struct hcnse_thread_pool_s     hcnse_thread_pool_t;
 typedef struct hcnse_thread_task_s     hcnse_thread_task_t;
 typedef struct hcnse_module_s          hcnse_module_t;
+typedef struct hcnse_event_s           hcnse_event_t;
+typedef struct hcnse_event_actions_s   hcnse_event_actions_t;
 
+typedef void (*hcnse_event_handler_t)(hcnse_event_t *event);
 typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
 typedef void (* hcnse_thread_handler_t)(void *in, void *out);
+
 
 #include "hcnse_config.h"
 #include "hcnse_errno.h"

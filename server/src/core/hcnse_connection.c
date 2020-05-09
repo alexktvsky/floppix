@@ -247,7 +247,7 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
     connect->identifier = HCNSE_CONNECTION_FLAG;
     connect->fd = fd;
     connect->owner = listener;
-    connect->want_to_write = 0;
+    connect->ready_to_write = 0;
     return HCNSE_OK;
 }
 

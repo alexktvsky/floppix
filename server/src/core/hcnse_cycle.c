@@ -6,5 +6,5 @@ void
 hcnse_single_process_cycle(hcnse_conf_t *conf)
 {
 
-    hcnse_start_process_events(conf);
+    hcnse_process_events_and_timers(conf);
 }

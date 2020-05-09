@@ -63,7 +63,7 @@ hcnse_log_worker(void *arg)
         log->front = ((log->front) + 1) % HCNSE_LOG_BUF_SIZE;
 
 
-        len = hcnse_snprintf(buf, maxlen, "%s [%s] %s\n", 
+        len = hcnse_snprintf(buf, maxlen, "%s [%s] %s" HCNSE_PORTABLE_LF, 
                                 msg->time, prio[msg->level], msg->str);
 
         /* TODO: Improve logs rotation */

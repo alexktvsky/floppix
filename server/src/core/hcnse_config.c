@@ -11,8 +11,9 @@
 
 #define HCNSE_COMMIT_BEFORE            "^(?!#)\\s*"
 #define HCNSE_COMMIT_AFTER             "([\\s]*|[\\s]+#.*)"
+#define HCNSE_LF_OR_CRLF               "(\n|\r\n)"
 #define HCNSE_REGEX_STR(str) \
-    (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF)
+    (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF_OR_CRLF)
 
 typedef enum {
     HCNSE_PATTERN_LISTEN,
