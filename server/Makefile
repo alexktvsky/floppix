@@ -90,12 +90,18 @@ OBJ_FILES := $(patsubst %.c,obj/%.o,$(SRC_FILES))
 QUIET_CC = @echo '   ' CC $(notdir $@);
 MAKEFLAGS += --no-print-directory
 
+export CC
+export SRC_FILES
+export CFLAGS
+export LDFLAGS
+
 #.ONESHELL:
 .PHONY: build debug modules test docs
 
 all: build
 build: mkdirs _build
 debug: mkdirs _debug
+test: mkdirs
 
 _build: $(OBJ_FILES)
 	$(CC) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
@@ -112,7 +118,7 @@ modules:
 	done;
 
 test:
-	$(warning Tests now is not available!)
+	cd test && $(MAKE)
 
 docs:
 	doxygen docs/Doxyfile
@@ -128,6 +134,7 @@ uninstall:
 
 clean:
 	rm -f obj/* bin/*
+	@$(MAKE) -C test clean
 	@for dir in $(MODULE_DIRS); do \
 		if [ -d $$dir ]; then \
 			$(MAKE) -C $$dir clean; \

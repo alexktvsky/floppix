@@ -4,11 +4,13 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define hcnse_node_size(size) \
-    (hcnse_node_t_size + size)
-#define hcnse_list_push_back hcnse_list_append
+#define hcnse_get_listnode_alloc_size(size)  (hcnse_listnode_t_size + size)
+#define HCNSE_LIST_T_SIZE                       hcnse_list_t_size
+#define hcnse_list_push_back                    hcnse_list_append
 
-extern size_t hcnse_node_t_size;
+extern size_t hcnse_listnode_t_size;
+extern size_t hcnse_list_t_size;
+
 
 hcnse_err_t hcnse_list_init(hcnse_list_t *list);
 hcnse_list_t *hcnse_list_create(void);

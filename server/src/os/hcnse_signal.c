@@ -3,7 +3,8 @@
 
 
 #if (HCNSE_POSIX)
-hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid)
+hcnse_err_t
+hcnse_send_wakeup_signal(hcnse_thread_t *tid)
 {
     if (pthread_kill(tid->handler, SIGALRM) != 0) {
         return hcnse_get_errno();
@@ -11,7 +12,8 @@ hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_wait_wakeup_signal(hcnse_msec_t ms)
+hcnse_err_t
+hcnse_wait_wakeup_signal(hcnse_msec_t ms)
 {
     if (usleep(ms * 1000) != 0) {
         return hcnse_get_errno();
@@ -20,7 +22,8 @@ hcnse_err_t hcnse_wait_wakeup_signal(hcnse_msec_t ms)
 }
 
 #elif (HCNSE_WIN32)
-hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid)
+hcnse_err_t
+hcnse_send_wakeup_signal(hcnse_thread_t *tid)
 {
     if (PostThreadMessageA(GetThreadId(tid->handler), WM_TIMER, 0, 0) == 0) {
         return hcnse_get_errno();
@@ -28,7 +31,8 @@ hcnse_err_t hcnse_send_wakeup_signal(hcnse_thread_t *tid)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_wait_wakeup_signal(hcnse_msec_t ms)
+hcnse_err_t
+hcnse_wait_wakeup_signal(hcnse_msec_t ms)
 {
     MSG msg;
     hcnse_memset(&msg, 0, sizeof(MSG));

@@ -3,7 +3,9 @@
 
 
 #if (HCNSE_LINUX)
-hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
+
+hcnse_err_t
+hcnse_tcp_nopush(hcnse_socket_t s)
 {
     int option = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
@@ -16,7 +18,8 @@ hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_tcp_push(hcnse_socket_t s)
+hcnse_err_t
+hcnse_tcp_push(hcnse_socket_t s)
 {
     int option = 0;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
@@ -26,7 +29,8 @@ hcnse_err_t hcnse_tcp_push(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_nonblocking(hcnse_socket_t s)
 {
     int flags = fcntl(s, F_GETFL);
     if (fcntl(s, F_SETFL, flags|O_NONBLOCK) == -1) {
@@ -35,7 +39,8 @@ hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_blocking(hcnse_socket_t s)
 {
     int flags = fcntl(s, F_GETFL);
     if (fcntl(s, F_SETFL, flags & (~O_NONBLOCK)) == -1) {
@@ -45,7 +50,8 @@ hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
 }
 
 #elif (HCNSE_FREEBSD)
-hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
+hcnse_err_t
+hcnse_tcp_nopush(hcnse_socket_t s)
 {
     int hcnse_tcp_nopush = 1;
     if (setsockopt(s, IPPROTO_TCP, TCP_NOPUSH,
@@ -55,7 +61,8 @@ hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_tcp_push(hcnse_socket_t s) {
+hcnse_err_t
+hcnse_tcp_push(hcnse_socket_t s) {
     int hcnse_tcp_nopush = 0;
     if (setsockopt(s, IPPROTO_TCP, TCP_NOPUSH,
             (const void *) &hcnse_tcp_nopush, sizeof(int)) == -1) {
@@ -64,7 +71,8 @@ hcnse_err_t hcnse_tcp_push(hcnse_socket_t s) {
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_nonblocking(hcnse_socket_t s)
 {
     int nb = 1;
     if (ioctl(s, FIONBIO, &nb) == -1) {
@@ -73,7 +81,8 @@ hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_blocking(hcnse_socket_t s)
 {
     int nb = 0;
     if (ioctl(s, FIONBIO, &nb) == -1) {
@@ -84,14 +93,16 @@ hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
 
 
 #elif (HCNSE_SOLARIS)
-hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
+hcnse_err_t
+hcnse_tcp_nopush(hcnse_socket_t s)
 {
     /* XXX: do smth */
     (void) s;
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_tcp_push(hcnse_socket_t s)
+hcnse_err_t
+hcnse_tcp_push(hcnse_socket_t s)
 {
     /* XXX: do smth */
     (void) s;
@@ -102,7 +113,8 @@ hcnse_err_t hcnse_tcp_push(hcnse_socket_t s)
  * with no data to return 0 on a tty or pipe, or -1 with
  * errno EAGAIN on a socket. However 0 is ambiguous since
  * it is also returned for EOF */
-hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_nonblocking(hcnse_socket_t s)
 {
     int nb = 1;
     if (ioctl(s, FIONBIO, &nb) == -1) {
@@ -111,7 +123,8 @@ hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_blocking(hcnse_socket_t s)
 {
     int nb = 0;
     if (ioctl(s, FIONBIO, &nb) == -1) {
@@ -121,21 +134,25 @@ hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
 
 
 #elif (HCNSE_WIN32)
-hcnse_err_t hcnse_tcp_nopush(hcnse_socket_t s)
+
+hcnse_err_t
+hcnse_tcp_nopush(hcnse_socket_t s)
 {
     /* XXX: do smth */
     (void) s;
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_tcp_push(hcnse_socket_t s)
+hcnse_err_t
+hcnse_tcp_push(hcnse_socket_t s)
 {
     /* XXX: do smth */
     (void) s;
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_nonblocking(hcnse_socket_t s)
 {
     DWORD nb = 1;
     if (ioctlsocket(s, FIONBIO, &nb) != 0) {
@@ -144,7 +161,8 @@ hcnse_err_t hcnse_socket_nonblocking(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
+hcnse_err_t
+hcnse_socket_blocking(hcnse_socket_t s)
 {
     DWORD nb = 0;
     if (ioctlsocket(s, FIONBIO, &nb) != 0) {
@@ -153,7 +171,8 @@ hcnse_err_t hcnse_socket_blocking(hcnse_socket_t s)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_winsock_init_v22(void)
+hcnse_err_t
+hcnse_winsock_init_v22(void)
 {
     WSADATA data;
     WORD version_requested = MAKEWORD(2, 2);

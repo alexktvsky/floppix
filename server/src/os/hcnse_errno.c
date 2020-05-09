@@ -29,12 +29,14 @@ static const struct {
 
 
 #if (HCNSE_POSIX)
-const char *hcnse_errno_strerror(hcnse_errno_t err)
+const char *
+hcnse_errno_strerror(hcnse_errno_t err)
 {
     return strerror(err);
 }
 
-size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
+size_t
+hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
     char *strerr = strerror(err);
     size_t len = hcnse_strlen(strerr);
@@ -52,14 +54,16 @@ size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 
 
 #elif (HCNSE_WIN32)
-const char *hcnse_errno_strerror(hcnse_errno_t err)
+const char *
+hcnse_errno_strerror(hcnse_errno_t err)
 {
     static _Thread_local char buf[HCNSE_ERRSTR_LEN];
     hcnse_errno_strerror_r(err, buf, sizeof(buf));
     return buf;
 }
 
-size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
+size_t
+hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
 
     static DWORD lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
@@ -101,7 +105,8 @@ size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 }
 #endif
 
-size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
+size_t
+hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
 {
     size_t n;
 
@@ -135,7 +140,8 @@ size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
     return n;
 }
 
-const char *hcnse_strerror(hcnse_err_t errcode)
+const char *
+hcnse_strerror(hcnse_err_t errcode)
 {
     if (errcode == HCNSE_OK) {
         return message_ok;

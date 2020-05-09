@@ -17,14 +17,14 @@ typedef struct {
 } hcnse_unit_test_t;
 
 
-#define hcnse_assert_true(x)                                          \
-    if (!(x)) {                                                       \
-        fprintf(stdout, "[ FAILED ] %s\n", __FUNCTION__);             \
-        fprintf(stderr,                                               \
-            "%s:%d: Assertion 'hcnse_assert_true(%s)' failed.\n",     \
-            __FILE__, __LINE__, #x);                                  \
-        _is_last_test_failed = true;                                  \
-        return;                                                       \
+#define hcnse_assert_true(x)                                       \
+    if (!(x)) {                                                    \
+        fprintf(stdout, "[ FAILED ] %s\n", __FUNCTION__);          \
+        fprintf(stderr,                                            \
+            "%s:%d: Assertion 'hcnse_assert_true(%s)' failed.\n",  \
+            __FILE__, __LINE__, #x);                               \
+        _is_last_test_failed = true;                               \
+        return;                                                    \
     }
 
 #define hcnse_assert_int_equal(x, y)                                       \
@@ -68,14 +68,14 @@ typedef struct {
         return;                                                             \
     }
 
-#define hcnse_assert_non_null(expr)                                         \
-    if (!(expr)) {                                                          \
-        fprintf(stdout, "[ FAILED ] %s\n", __FUNCTION__);                   \
-        fprintf(stderr, "%s:%d: "                                           \
-            "Assertion 'hcnse_assert_non_null(%p)' failed.\n",              \
-            __FILE__, __LINE__, expr);                                      \
-        _is_last_test_failed = true;                                        \
-        return;                                                             \
+#define hcnse_assert_non_null(expr)                             \
+    if (!(expr)) {                                              \
+        fprintf(stdout, "[ FAILED ] %s\n", __FUNCTION__);       \
+        fprintf(stderr, "%s:%d: "                               \
+            "Assertion 'hcnse_assert_non_null(%p)' failed.\n",  \
+            __FILE__, __LINE__, (void *) expr);                 \
+        _is_last_test_failed = true;                            \
+        return;                                                 \
     }
 
 #define hcnse_assert_null(expr)                                               \
@@ -88,9 +88,9 @@ typedef struct {
     }
 
 
-#define hcnse_init_mock(_ret_type, _name, ...)     \
-    static _ret_type _name##_return;        \
-    _ret_type __wrap_##_name(__VA_ARGS__) { \
+#define hcnse_init_mock(_ret_type, _name, ...)  \
+    static _ret_type _name##_return;            \
+    _ret_type __wrap_##_name(__VA_ARGS__) {     \
         return _name##_return; }
 
 
@@ -102,16 +102,16 @@ typedef struct {
     {_name_unit_test, #_name_unit_test}
 
 
-#define hcnse_run_unit_tests(...) {                                          \
-    hcnse_unit_test_t dummy = {NULL, NULL};                                  \
-    hcnse_unit_test_t *list = (hcnse_unit_test_t[]){__VA_ARGS__, dummy};     \
-    for (size_t i = 0; ; i++) {                                              \
-        if (!(list[i]).func) {                                               \
-            break;                                                           \
-        }                                                                    \
-        (list[i]).func();                                                    \
-        fprintf(stdout, "[ PASSED ] %s\n", (list[i]).func_name);             \
-    }                                                                        \
+#define hcnse_run_unit_tests(...) {                                       \
+    hcnse_unit_test_t dummy = {NULL, NULL};                               \
+    hcnse_unit_test_t *list = (hcnse_unit_test_t[]){__VA_ARGS__, dummy};  \
+    for (size_t i = 0; ; i++) {                                           \
+        if (!(list[i]).func) {                                            \
+            break;                                                        \
+        }                                                                 \
+        (list[i]).func();                                                 \
+        fprintf(stdout, "[ PASSED ] %s\n", (list[i]).func_name);          \
+    }                                                                     \
 }
 
 

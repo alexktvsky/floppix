@@ -2,7 +2,8 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t hcnse_event_write(hcnse_conf_t *conf, hcnse_connect_t *connect)
+hcnse_err_t
+hcnse_event_write(hcnse_conf_t *conf, hcnse_connect_t *connect)
 {
     (void) conf;
     char str_ip[NI_MAXHOST]; // only for debug

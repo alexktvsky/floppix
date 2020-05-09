@@ -3,7 +3,8 @@
 
 
 #if (HCNSE_POSIX)
-hcnse_err_t hcnse_process_daemon_init(void)
+hcnse_err_t
+hcnse_process_daemon_init(void)
 {
     pid_t pid;
     if ((pid = fork()) < 0) {
@@ -41,7 +42,8 @@ hcnse_err_t hcnse_process_daemon_init(void)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_process_set_workdir(const char *workdir)
+hcnse_err_t
+hcnse_process_set_workdir(const char *workdir)
 {
     if ((chdir(workdir)) < 0) {
         return hcnse_get_errno();
@@ -54,7 +56,8 @@ hcnse_err_t hcnse_process_set_workdir(const char *workdir)
 
 
 #elif (HCNSE_WIN32)
-hcnse_err_t hcnse_process_daemon_init(void)
+hcnse_err_t
+hcnse_process_daemon_init(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 
@@ -73,7 +76,8 @@ hcnse_err_t hcnse_process_daemon_init(void)
     return HCNSE_OK;
 }
 
-hcnse_err_t hcnse_process_set_workdir(const char *workdir)
+hcnse_err_t
+hcnse_process_set_workdir(const char *workdir)
 {
     if (!SetCurrentDirectory(workdir)) {
         return hcnse_get_errno();

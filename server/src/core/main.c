@@ -9,7 +9,8 @@ static bool test_config;
 static bool quiet_mode;
 
 
-static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
+static hcnse_err_t
+hcnse_parse_argv(int argc, char *const argv[])
 {
     for (int i = 1; i < argc; i++) {
         char *p = argv[i];
@@ -52,7 +53,8 @@ static hcnse_err_t hcnse_parse_argv(int argc, char *const argv[])
     return HCNSE_OK;
 }
 
-static void hcnse_show_config_info(hcnse_conf_t *conf)
+static void
+hcnse_show_config_info(hcnse_conf_t *conf)
 {
     hcnse_listener_t *listener;
     char str_ip[NI_MAXHOST];
@@ -142,7 +144,8 @@ static void hcnse_show_config_info(hcnse_conf_t *conf)
     }
 }
 
-static void hcnse_show_version_info(void)
+static void
+hcnse_show_version_info(void)
 {
     hcnse_log_stdout(HCNSE_OK,
         "%s (%s)", hcnse_version_info(), hcnse_build_time());
@@ -157,7 +160,8 @@ static void hcnse_show_help_info(void)
 }
 
 
-int main(int argc, char *const argv[])
+int
+main(int argc, char *const argv[])
 {
     hcnse_listener_t *listener;
     hcnse_conf_t *conf;

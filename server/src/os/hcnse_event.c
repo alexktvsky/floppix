@@ -2,7 +2,8 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
+hcnse_err_t
+hcnse_start_process_events(hcnse_conf_t *conf)
 {
 #if (HCNSE_HAVE_SELECT)
     hcnse_select_process_events(conf);
@@ -24,7 +25,8 @@ hcnse_err_t hcnse_start_process_events(hcnse_conf_t *conf)
 }
 
 
-hcnse_err_t hcnse_stop_process_events(void)
+hcnse_err_t
+hcnse_stop_process_events(void)
 {
     /* Raise the signal which interrupt cycle */
     return HCNSE_OK;

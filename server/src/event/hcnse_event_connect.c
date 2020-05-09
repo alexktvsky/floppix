@@ -2,7 +2,8 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t hcnse_event_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
+hcnse_err_t
+hcnse_event_connect(hcnse_conf_t *conf, hcnse_listener_t *listener)
 {
     (void) conf;
 

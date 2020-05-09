@@ -2,7 +2,8 @@
 #include "hcnse_core.h"
 
 
-uint8_t hcnse_get_number_cpu(void)
+uint8_t
+hcnse_get_number_cpu(void)
 {
     int ncpus;
 #if (HCNSE_POSIX)

@@ -2,8 +2,8 @@
 #include "hcnse_core.h"
 
 
-
-int hcnse_module_test1(int a, int b)
+int
+hcnse_module_test1(int a, int b)
 {
     return (a + b);
 }

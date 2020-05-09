@@ -4,7 +4,8 @@
 
 #if (HCNSE_POSIX && HCNSE_HAVE_DLOPEN)
 
-const char *hcnse_dlerror(void)
+const char *
+hcnse_dlerror(void)
 {
     char *err;
 
@@ -17,7 +18,8 @@ const char *hcnse_dlerror(void)
 
 #elif (HCNSE_WIN32)
 
-const char *hcnse_dlerror(void)
+const char *
+hcnse_dlerror(void)
 {
     return hcnse_strerror(hcnse_get_errno());
 }

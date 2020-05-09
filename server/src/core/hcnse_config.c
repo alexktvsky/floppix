@@ -75,7 +75,8 @@ static const char *patterns[] = {
 };
 
 
-static void hcnse_config_set_default_params(hcnse_conf_t *conf)
+static void
+hcnse_config_set_default_params(hcnse_conf_t *conf)
 {
 #if (HCNSE_POSIX)
     conf->workdir = "/";
@@ -96,7 +97,8 @@ static void hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->worker_processes = 0;
 }
 
-static void *hcnse_select_pattern(hcnse_conf_t *conf, char *raw_data,
+static void *
+hcnse_select_pattern(hcnse_conf_t *conf, char *raw_data,
     char *data, size_t fsize, size_t pattern)
 {
     size_t vector_size = 100;
@@ -342,8 +344,8 @@ failed:
     return NULL;
 }
 
-
-static hcnse_err_t hcnse_config_parse(hcnse_conf_t *conf)
+static hcnse_err_t
+hcnse_config_parse(hcnse_conf_t *conf)
 {
     size_t number_of_patterns = sizeof(patterns)/sizeof(char *);
     char *raw_data = NULL;
@@ -400,8 +402,8 @@ failed:
     return err;
 }
 
-
-hcnse_err_t hcnse_config_create(hcnse_conf_t **in_conf, const char *fname)
+hcnse_err_t
+hcnse_config_create(hcnse_conf_t **in_conf, const char *fname)
 {
     hcnse_conf_t *conf = NULL;
     hcnse_file_t *file = NULL;
@@ -468,8 +470,8 @@ failed:
     return err;
 }
 
-
-void hcnse_config_fini(hcnse_conf_t *conf)
+void
+hcnse_config_fini(hcnse_conf_t *conf)
 {
     hcnse_file_fini(conf->file);
     if (conf->file) {

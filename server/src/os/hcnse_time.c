@@ -13,12 +13,15 @@
 
 
 #if (HCNSE_POSIX)
-void hcnse_gettimeofday(struct timeval *tv)
+
+void
+hcnse_gettimeofday(struct timeval *tv)
 {
     gettimeofday(tv, NULL);
 }
 
-void hcnse_localtime(time_t sec, hcnse_tm_t *tm)
+void
+hcnse_localtime(time_t sec, hcnse_tm_t *tm)
 {
     localtime_r(&sec, tm);
     tm->tm_mon += 1;
@@ -27,7 +30,9 @@ void hcnse_localtime(time_t sec, hcnse_tm_t *tm)
 
 
 #elif (HCNSE_WIN32)
-void hcnse_gettimeofday(struct timeval *tv)
+
+void
+hcnse_gettimeofday(struct timeval *tv)
 {
 
     /* 
@@ -51,7 +56,8 @@ void hcnse_gettimeofday(struct timeval *tv)
     tv->tv_usec = (long) ((intervals % 10000000) / 10);
 }
 
-void hcnse_localtime(time_t sec, hcnse_tm_t *tm)
+void
+hcnse_localtime(time_t sec, hcnse_tm_t *tm)
 {
     (void) sec;
     GetLocalTime(tm);
@@ -59,7 +65,8 @@ void hcnse_localtime(time_t sec, hcnse_tm_t *tm)
 #endif
 
 
-const char *hcnse_timestr(char *buf, size_t len, time_t sec)
+const char *
+hcnse_timestr(char *buf, size_t len, time_t sec)
 {
     hcnse_tm_t tm;
 

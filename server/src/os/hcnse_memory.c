@@ -13,7 +13,8 @@
 static size_t total_mem = 0;
 
 
-void *hcnse_malloc(size_t size)
+void *
+hcnse_malloc(size_t size)
 {
     void *mem;
 
@@ -25,7 +26,8 @@ void *hcnse_malloc(size_t size)
     return mem;
 }
 
-void *hcnse_calloc(size_t size)
+void *
+hcnse_calloc(size_t size)
 {
     void *mem;
 
@@ -38,23 +40,27 @@ void *hcnse_calloc(size_t size)
 }
 
 
-void hcnse_free(void *mem)
+void
+hcnse_free(void *mem)
 {
     free(mem);
 }
 
-size_t hcnse_get_total_mem_usage(void)
+size_t
+hcnse_get_total_mem_usage(void)
 {
     return total_mem;
 }
 
-void hcnse_explicit_memzero(void *buf, size_t n)
+void
+hcnse_explicit_memzero(void *buf, size_t n)
 {
     hcnse_memset(buf, 0, n);
     memory_barrier();
 }
 
-size_t hcnse_get_page_size(void)
+size_t
+hcnse_get_page_size(void)
 {
     size_t page_size;
 #if defined(_SC_PAGESIZE)

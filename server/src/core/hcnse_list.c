@@ -21,8 +21,8 @@ struct hcnse_listnode_s {
     hcnse_listnode_t *prev;
 };
 
-size_t hcnse_node_t_size = sizeof(hcnse_listnode_t);
-
+size_t hcnse_listnode_t_size = sizeof(hcnse_listnode_t);
+size_t hcnse_list_t_size = sizeof(hcnse_list_t);
 
 hcnse_list_t *
 hcnse_list_create(void)
@@ -148,7 +148,7 @@ hcnse_list_next(void *ptr)
         return hcnse_list_cast_ptr(node->next);
     }
     else {
-        return NULL;        
+        return NULL;
     }
 }
 
