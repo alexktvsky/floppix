@@ -22,11 +22,11 @@ struct hcnse_semaphore_s {
 
 #endif
 
-int hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
-    uint32_t flags);
-int hcnse_semaphore_wait(hcnse_semaphore_t *semaphore);
-int hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore);
-int hcnse_semaphore_post(hcnse_semaphore_t *semaphore);
-int hcnse_semaphore_fini(hcnse_semaphore_t *semaphore);
+hcnse_err_t hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value,
+    int maxval, uint32_t flags);
+hcnse_err_t hcnse_semaphore_wait(hcnse_semaphore_t *semaphore);
+hcnse_err_t hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore);
+hcnse_err_t hcnse_semaphore_post(hcnse_semaphore_t *semaphore);
+void hcnse_semaphore_fini(hcnse_semaphore_t *semaphore);
 
 #endif /* INCLUDED_HCNSE_SEMAPHORE_H */

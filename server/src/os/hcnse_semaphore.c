@@ -52,13 +52,14 @@ hcnse_semaphore_post(hcnse_semaphore_t *semaphore)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 {
-    if (sem_destroy(&(semaphore->handler)) != 0) {
-        return hcnse_get_errno();
-    }
-    return HCNSE_OK;
+    // if (sem_destroy(&(semaphore->handler)) != 0) {
+    //     return hcnse_get_errno();
+    // }
+    // return HCNSE_OK;
+    sem_destroy(&(semaphore->handler));
 }
 
 #elif (HCNSE_WIN32)
@@ -121,13 +122,14 @@ hcnse_semaphore_post(hcnse_semaphore_t *semaphore)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 {
-    if (CloseHandle(semaphore->handler) == 0) {
-        return hcnse_get_errno();
-    }
-    return HCNSE_OK;
+    // if (CloseHandle(semaphore->handler) == 0) {
+    //     return hcnse_get_errno();
+    // }
+    // return HCNSE_OK;
+    CloseHandle(semaphore->handler);
 }
 
 #endif

@@ -5,6 +5,22 @@
 #include "hcnse_core.h"
 
 
-void hcnse_single_process_cycle(hcnse_conf_t *conf);
+struct hcnse_cycle_s {
+    hcnse_conf_t *config;
+    hcnse_log_t *log;
+    hcnse_pool_t *pool;
+
+    hcnse_list_t *listeners;
+    hcnse_list_t *connections;
+    hcnse_list_t *free_connections;
+};
+
+
+hcnse_err_t hcnse_cycle_update_by_conf(hcnse_cycle_t *cycle,
+    hcnse_conf_t *conf);
+
+hcnse_err_t hcnse_cycle_create_inherited(hcnse_cycle_t *cycle);
+
+void hcnse_cycle_single_process(hcnse_cycle_t *cycle);
 
 #endif /* INCLUDED_HCNSE_CYCLE_H */

@@ -15,6 +15,7 @@ typedef struct {
 } hcnse_log_message_t;
 
 struct hcnse_log_s {
+    hcnse_pool_t *pool;
     hcnse_file_t *file;
     uint8_t level;
     size_t size;
@@ -41,6 +42,8 @@ static const char *prio[] = {
     "debug"
 };
 
+hcnse_log_t *hcnse_global_default_log;
+
 
 static hcnse_thread_value_t
 hcnse_log_worker(void *arg)
@@ -56,12 +59,10 @@ hcnse_log_worker(void *arg)
 
     while (1) {
         hcnse_semaphore_wait(log->sem_full);
-
         hcnse_mutex_lock(log->mutex_fetch);
 
         msg = &(messages[log->front]);
         log->front = ((log->front) + 1) % HCNSE_LOG_BUF_SIZE;
-
 
         len = hcnse_snprintf(buf, maxlen, "%s [%s] %s" HCNSE_PORTABLE_LF, 
                                 msg->time, prio[msg->level], msg->str);
@@ -74,7 +75,7 @@ hcnse_log_worker(void *arg)
         }
 
         if (hcnse_write_fd(log->file->fd, buf, len) == -1) {
-            /* What we need to do? */
+            /* XXX: What we need to do in this statement? */
         }
 
 #if (HCNSE_DEBUG && HCNSE_NO_DAEMON)
@@ -88,7 +89,7 @@ hcnse_log_worker(void *arg)
 }
 
 hcnse_err_t
-hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
+hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
@@ -96,6 +97,7 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
     hcnse_semaphore_t *sem_full;
     void *ptr;
 
+    hcnse_pool_t *pool;
     hcnse_log_t *log = NULL;
     hcnse_file_t *file = NULL;
     size_t mem_size = 0;
@@ -111,14 +113,20 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
 
     hcnse_err_t err;
 
-    log = hcnse_malloc(sizeof(hcnse_log_t));
+
+    pool = hcnse_pool_create(NULL);
+    if (!pool) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    log = hcnse_pcalloc(pool, sizeof(hcnse_log_t));
     if (!log) {
         err = hcnse_get_errno();
         goto failed;
     }
-    hcnse_memset(log, 0, sizeof(hcnse_log_t));
 
-    file = hcnse_malloc(sizeof(hcnse_file_t));
+    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
     if (!file) {
         err = hcnse_get_errno();
         goto failed;
@@ -130,6 +138,8 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
     if (err != HCNSE_OK) {
         goto failed;
     }
+
+    hcnse_pool_cleanup_register(pool, file, hcnse_file_fini);
 
     file_size = hcnse_file_size(file);
     if (file_size == -1) {
@@ -155,7 +165,7 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
 #else
-    messages = hcnse_malloc(mem_size);
+    messages = hcnse_palloc(pool, mem_size);
     if (messages == NULL) {
         err = hcnse_get_errno();
         goto failed;
@@ -181,24 +191,30 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
     if (err != HCNSE_OK) {
         goto failed;
     }
+    hcnse_pool_cleanup_register(pool, sem_empty, hcnse_semaphore_fini);
 
     err = hcnse_semaphore_init(sem_full, 0,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
+    hcnse_pool_cleanup_register(pool, sem_full, hcnse_semaphore_fini);
 
     err = hcnse_mutex_init(mutex_deposit, HCNSE_MUTEX_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
+    hcnse_pool_cleanup_register(pool, mutex_deposit, hcnse_mutex_fini);
 
     err = hcnse_mutex_init(mutex_fetch, HCNSE_MUTEX_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
+    hcnse_pool_cleanup_register(pool, mutex_fetch, hcnse_mutex_fini);
+
 
     /* XXX: Init all log struct fields before run worker */
+    log->pool = pool;
     log->file = file;
     log->level = conf->log_level;
     log->size = conf->log_size;
@@ -222,49 +238,50 @@ hcnse_log_create(hcnse_log_t **in_log, hcnse_conf_t *conf)
         log->pid = pid;
     }
 #else
-    tid = hcnse_malloc(sizeof(hcnse_thread_t));
+    tid = hcnse_palloc(pool, sizeof(hcnse_thread_t));
     if (!tid) {
         err = hcnse_get_errno();
         goto failed;
     }
-    hcnse_memset(tid, 0, sizeof(hcnse_thread_t));
 
     err = hcnse_thread_init(tid,
-        HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_JOINABLE,
+        HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_DETACHED,
         0, HCNSE_THREAD_PRIORITY_NORMAL, hcnse_log_worker, (void *) log);
     if (err != HCNSE_OK) {
         goto failed;
     }
-#endif
+    hcnse_pool_cleanup_register(pool, tid, hcnse_thread_fini);
 
-    *in_log = log;
+    log->tid = tid;
+#endif
 
     hcnse_msleep(HCNSE_LOG_INIT_DELAY);
 
+    *in_log = log;
     return HCNSE_OK;
 
 failed:
-    if (log) {
-        hcnse_free(log);
-    }
-    if (file) {
-        hcnse_file_fini(file);
+    if (pool) {
+        hcnse_pool_destroy(pool);
     }
 
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     if (messages != MAP_FAILED) {
         munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
     }
-#else
-    if (messages) {
-        hcnse_free(messages);
-    }
-    if (tid) {
-        hcnse_free(tid);
-    }
 #endif
-
     return err;
+}
+
+hcnse_log_t *
+hcnse_log_create(hcnse_conf_t *conf)
+{
+    hcnse_log_t *log;
+
+    if (hcnse_log_create1(&log, conf) != HCNSE_OK) {
+        return NULL;
+    }
+    return log;
 }
 
 void
@@ -335,22 +352,15 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 void
 hcnse_log_destroy(hcnse_log_t *log)
 {
-    hcnse_log_message_t *messages = log->messages;
-
-    hcnse_file_fini(log->file);
-    hcnse_mutex_fini(log->mutex_deposit);
-    hcnse_mutex_fini(log->mutex_fetch);
-    hcnse_semaphore_fini(log->sem_full);
-    hcnse_semaphore_fini(log->sem_empty);
-
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+    hcnse_log_message_t *temp;
+    temp = log->messages;
     kill(log->pid, SIGKILL);
-    munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
+    hcnse_pool_destroy(log->pool);
+    munmap(temp, sizeof(hcnse_log_message_t) * HCNSE_LOG_BUF_SIZE);
 #else
     hcnse_thread_cancel(log->tid);
-    hcnse_thread_fini(log->tid);
-    hcnse_free(messages);
-    hcnse_free(log->tid);
+    hcnse_msleep(100); /* Wait thread terminate */
+    hcnse_pool_destroy(log->pool);
 #endif
-    hcnse_free(log);
 }

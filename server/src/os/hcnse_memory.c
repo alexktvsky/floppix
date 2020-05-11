@@ -19,8 +19,14 @@ hcnse_malloc(size_t size)
     void *mem;
 
     mem = malloc(size);
-    if (mem) {
+    if (!mem) {
+        hcnse_log_error1(HCNSE_LOG_EMERG, hcnse_get_errno(),
+            "malloc(%zu) failed", size);
+    }
+    else {
         total_mem += size;
+        hcnse_log_error1(HCNSE_LOG_DEBUG, hcnse_get_errno(),
+            "malloc %p:%zu", mem, size);
     }
 
     return mem;

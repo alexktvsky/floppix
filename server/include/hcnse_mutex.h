@@ -28,6 +28,6 @@ hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags);
 hcnse_err_t hcnse_mutex_lock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_trylock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_unlock(hcnse_mutex_t *mutex);
-hcnse_err_t hcnse_mutex_fini(hcnse_mutex_t *mutex);
+void hcnse_mutex_fini(hcnse_mutex_t *mutex);
 
 #endif /* INCLUDED_HCNSE_MUTEX_H */

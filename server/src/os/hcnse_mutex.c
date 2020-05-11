@@ -69,13 +69,14 @@ hcnse_mutex_unlock(hcnse_mutex_t *mutex)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_mutex_fini(hcnse_mutex_t *mutex)
 {
-    if (pthread_mutex_destroy(&(mutex->handler)) != 0) {
-        return hcnse_get_errno();
-    }
-    return HCNSE_OK;
+    // if (pthread_mutex_destroy(&(mutex->handler)) != 0) {
+    //     return hcnse_get_errno();
+    // }
+    // return HCNSE_OK;
+    pthread_mutex_destroy(&(mutex->handler));
 }
 
 
@@ -122,13 +123,14 @@ hcnse_mutex_unlock(hcnse_mutex_t *mutex)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_mutex_fini(hcnse_mutex_t *mutex)
 {
-    if (CloseHandle(mutex->handler) == 0) {
-        return hcnse_get_errno();
-    }
-    return HCNSE_OK;
+    // if (CloseHandle(mutex->handler) == 0) {
+    //     return hcnse_get_errno();
+    // }
+    // return HCNSE_OK;
+    CloseHandle(mutex->handler);
 }
 
 #endif

@@ -4,14 +4,13 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-
 struct hcnse_config_s {
+    hcnse_pool_t *pool;
     hcnse_file_t *file;
-    char *data;
-    hcnse_list_t *listeners;
-    hcnse_list_t *free_connects; // Linked list with free and available connections
 
-    hcnse_log_t *log;
+    hcnse_list_t *addr_and_port;
+    hcnse_list_t *addr_and_port6;
+
     char *log_fname;
     size_t log_size;
     bool log_rewrite;
@@ -30,8 +29,8 @@ struct hcnse_config_s {
 };
 
 
-hcnse_err_t hcnse_config_create(hcnse_conf_t **conf, const char *fname);
-// hcnse_err_t hcnse_config_init(hcnse_conf_t **conf, const char *fname);
-void hcnse_config_fini(hcnse_conf_t *conf);
+hcnse_err_t hcnse_config_create_and_parse(hcnse_conf_t **in_conf,
+    const char *fname);
+void hcnse_config_destroy(hcnse_conf_t *conf);
 
 #endif /* INCLUDED_HCNSE_CONFIG_H */

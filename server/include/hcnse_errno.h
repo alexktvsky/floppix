@@ -19,7 +19,9 @@
 #define HCNSE_OK                       0
 #define HCNSE_FAILED                  -1
 #define HCNSE_BUSY                    -2
-#define HCNSE_ABORT                   -3
+#define HCNSE_DONE                    -3
+#define HCNSE_ABORT                   -4
+#define HCNSE_DECLINED                -5
 
 /* Where the HCNSE specific error values start */
 #define HCNSE_ERROR_DOMAIN_BASE        20000

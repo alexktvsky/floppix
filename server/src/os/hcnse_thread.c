@@ -89,11 +89,10 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_thread_fini(hcnse_thread_t *thread)
 {
     pthread_attr_destroy(&(thread->attr));
-    return HCNSE_OK;
 }
 
 
@@ -138,13 +137,14 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
     return HCNSE_OK;
 }
 
-hcnse_err_t
+void
 hcnse_thread_fini(hcnse_thread_t *thread)
 {
-    if (CloseHandle(thread->handler) == 0) {
-        return hcnse_get_errno();
-    }
-    return HCNSE_OK;
+    // if (CloseHandle(thread->handler) == 0) {
+    //     return hcnse_get_errno();
+    // }
+    // return HCNSE_OK;
+    CloseHandle(thread->handler);
 }
 
 #endif

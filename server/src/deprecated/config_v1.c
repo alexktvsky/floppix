@@ -7,7 +7,7 @@
 #include "errors.h"
 #include "sockets.h"
 #include "listen.h"
-#include "mempool.h"
+#include "pool.h"
 #include "config.h"
 
 #if (HCNSE_WIN32)
@@ -40,7 +40,7 @@ static struct {
     /* Limit size of log file */
     size_t maxlog;
     /* Private field */
-    hcnse_mempool_t *pool;
+    hcnse_pool_t *pool;
 } config;
 
 
@@ -61,8 +61,8 @@ static struct {
 hcnse_err_t init_config(void)
 {
     was_init = true;
-    hcnse_mempool_t *newpool;
-    if (hcnse_mempool_create(&newpool, NULL) != HCNSE_OK) {
+    hcnse_pool_t *newpool;
+    if (hcnse_pool_create(&newpool, NULL) != HCNSE_OK) {
         return ALLOC_MEM_ERROR;
     }
     config.pool = newpool;
@@ -79,7 +79,7 @@ void fini_config(void)
     was_set_filename = false;
     was_read = false;
     if (config.pool) {
-        hcnse_mempool_destroy(config.pool);
+        hcnse_pool_destroy(config.pool);
     }
     return;
 }

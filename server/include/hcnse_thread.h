@@ -47,6 +47,6 @@ hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags,
     void *arg);
 hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);
 hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
-hcnse_err_t hcnse_thread_fini(hcnse_thread_t *thread);
+void hcnse_thread_fini(hcnse_thread_t *thread);
 
 #endif /* INCLUDED_HCNSE_THREAD_H */

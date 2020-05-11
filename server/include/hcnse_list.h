@@ -4,40 +4,29 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define hcnse_get_listnode_alloc_size(size)  (hcnse_listnode_t_size + size)
-#define HCNSE_LIST_T_SIZE                       hcnse_list_t_size
-#define hcnse_list_push_back                    hcnse_list_append
+struct hcnse_list_node_s {
+    hcnse_list_node_t *next;
+    hcnse_list_node_t *prev;
+    void *data;
+};
 
-extern size_t hcnse_listnode_t_size;
-extern size_t hcnse_list_t_size;
+hcnse_list_t *hcnse_list_create(hcnse_pool_t *pool);
+hcnse_err_t hcnse_list_create1(hcnse_list_t **list, hcnse_pool_t *pool);
 
+void hcnse_list_push_back(hcnse_list_t *list, void *data);
+void hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node);
 
-hcnse_err_t hcnse_list_init(hcnse_list_t *list);
-hcnse_list_t *hcnse_list_create(void);
-hcnse_err_t hcnse_list_create1(hcnse_list_t **list);
-hcnse_err_t hcnse_list_append(hcnse_list_t *list, void *ptr);
-hcnse_err_t hcnse_list_remove(hcnse_list_t *list, void *ptr);
+hcnse_err_t hcnse_list_reserve(hcnse_list_t *list, size_t n);
+
+hcnse_list_node_t *hcnse_list_first(hcnse_list_t *list);
+hcnse_list_node_t *hcnse_list_last(hcnse_list_t *list);
+hcnse_list_node_t *hcnse_list_next(hcnse_list_node_t *node);
+hcnse_list_node_t *hcnse_list_prev(hcnse_list_node_t *node);
+void *hcnse_list_data1(hcnse_list_node_t *node);
+
 size_t hcnse_list_size(hcnse_list_t *list);
-void *hcnse_list_first(hcnse_list_t *list);
-void *hcnse_list_last(hcnse_list_t *list);
-void *hcnse_list_next(void *ptr);
-void *hcnse_list_prev(void *ptr);
+size_t hcnse_list_available_size(hcnse_list_t *list);
+
 void hcnse_list_clean(hcnse_list_t *list);
-void hcnse_list_destroy(hcnse_list_t *list);
-
-void *hcnse_list_init_node(void *mem);
-void *hcnse_list_create_node(size_t size);
-hcnse_err_t hcnse_list_create_node1(void **ptr, size_t size);
-void hcnse_list_destroy_node(void *ptr);
-
-void *hcnse_list_init_node_and_append(void *mem, hcnse_list_t *list);
-void *hcnse_list_create_node_and_append(size_t size, hcnse_list_t *list);
-void hcnse_list_remove_and_destroy_node(hcnse_list_t *list, void *ptr);
-void *hcnse_try_use_already_exist_node(size_t size, hcnse_list_t *fnodes,
-    hcnse_list_t *list);
-void *hcnse_try_use_already_exist_node1(void *mem, hcnse_list_t *free_nodes,
-    hcnse_list_t *list);
-void hcnse_list_reserve_node(void *instance, hcnse_list_t *free_nodes,
-    hcnse_list_t *list);
 
 #endif /* INCLUDED_HCNSE_LIST_H */

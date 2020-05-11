@@ -34,24 +34,8 @@ struct hcnse_event_actions_s {
 
 extern hcnse_event_actions_t hcnse_event_actions;
 
-#if (HCNSE_HAVE_SELECT)
-extern hcnse_event_actions_t hcnse_event_actions_select;
-#endif
 
-#if (HCNSE_HAVE_EPOLL && HCNSE_LINUX)
-extern hcnse_event_actions_t hcnse_event_actions_epoll;
-#endif
-
-#if (HCNSE_HAVE_KQUEUE && HCNSE_FREEBSD)
-extern hcnse_event_actions_t hcnse_event_actions_kqueue;
-#endif
-
-#if (HCNSE_HAVE_IOCP && HCNSE_WIN32)
-extern hcnse_event_actions_t hcnse_event_actions_iocp;
-#endif
-
-
-void hcnse_process_events_and_timers(hcnse_conf_t *conf);
+void hcnse_process_events_and_timers(hcnse_cycle_t *cycle);
 
 
 

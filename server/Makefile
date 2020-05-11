@@ -1,17 +1,10 @@
 BIN_FILE = server
 
 SRC_FILES += main.c
-SRC_FILES += hcnse_cycle.c
-SRC_FILES += hcnse_log.c
-SRC_FILES += hcnse_config.c
-SRC_FILES += hcnse_connection.c
-SRC_FILES += hcnse_mempool.c
-SRC_FILES += hcnse_list.c
 SRC_FILES += hcnse_memory.c
 SRC_FILES += hcnse_string.c
 SRC_FILES += hcnse_file.c
 SRC_FILES += hcnse_errno.c
-SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_socket.c
 SRC_FILES += hcnse_time.c
 SRC_FILES += hcnse_thread.c
@@ -19,17 +12,26 @@ SRC_FILES += hcnse_mutex.c
 SRC_FILES += hcnse_semaphore.c
 SRC_FILES += hcnse_cpuinfo.c
 SRC_FILES += hcnse_signal.c
-SRC_FILES += hcnse_select.c
-SRC_FILES += hcnse_epoll.c
-SRC_FILES += hcnse_iocp.c
-SRC_FILES += hcnse_event.c
-SRC_FILES += hcnse_event_connect.c
-SRC_FILES += hcnse_event_read.c
-SRC_FILES += hcnse_event_write.c
-SRC_FILES += hcnse_event_timer.c
-SRC_FILES += hcnse_thread_pool.c
-SRC_FILES += hcnse_dso.c
-SRC_FILES += hcnse_module.c
+SRC_FILES += hcnse_pool.c
+SRC_FILES += hcnse_log.c
+SRC_FILES += hcnse_list.c
+SRC_FILES += hcnse_config.c
+SRC_FILES += hcnse_regex.c
+SRC_FILES += hcnse_cycle.c
+SRC_FILES += hcnse_connection.c
+SRC_FILES += hcnse_process.c
+
+# SRC_FILES += hcnse_select.c
+# SRC_FILES += hcnse_epoll.c
+# SRC_FILES += hcnse_iocp.c
+# SRC_FILES += hcnse_event.c
+# SRC_FILES += hcnse_event_connect.c
+# SRC_FILES += hcnse_event_read.c
+# SRC_FILES += hcnse_event_write.c
+# SRC_FILES += hcnse_event_timer.c
+# SRC_FILES += hcnse_thread_pool.c
+# SRC_FILES += hcnse_dso.c
+# SRC_FILES += hcnse_module.c
 
 VPATH += src/core
 VPATH += src/event
@@ -41,7 +43,8 @@ MODULE_DIRS += src/module/test2
 INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
-override CFLAGS += -Wall -Wextra -Wuninitialized -pipe
+override CFLAGS += -Wall -Wextra -Wuninitialized
+override CFLAGS += -Wstrict-prototypes -pipe
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
@@ -101,7 +104,6 @@ export LDFLAGS
 all: build
 build: mkdirs _build
 debug: mkdirs _debug
-test: mkdirs
 
 _build: $(OBJ_FILES)
 	$(CC) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
@@ -118,7 +120,6 @@ modules:
 	done;
 
 test:
-	cd test && $(MAKE)
 
 docs:
 	doxygen docs/Doxyfile
@@ -134,12 +135,12 @@ uninstall:
 
 clean:
 	rm -f obj/* bin/*
-	@$(MAKE) -C test clean
 	@for dir in $(MODULE_DIRS); do \
 		if [ -d $$dir ]; then \
 			$(MAKE) -C $$dir clean; \
 		fi; \
 	done;
+# 	@$(MAKE) -C test clean
 
 mkdirs:
 	@if [ ! -d bin ]; then \
