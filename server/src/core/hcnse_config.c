@@ -41,6 +41,9 @@ typedef enum {
     HCNSE_PATTERN_WORKER_PROCESSES,
     HCNSE_PATTERN_WORKER_PROCESSES_AUTO,
 
+    HCNSE_PATTERN_WORKER_CONNECTIONS,
+    HCNSE_PATTERN_WORKER_CONNECTIONS_NOLIMIT,
+
     HCNSE_PATTERN_SSL,
     HCNSE_PATTERN_SSL_CERTFILE,
     HCNSE_PATTERN_SSL_KEYFILE,
@@ -53,7 +56,7 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(listen)\\s+\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)"),
 
     HCNSE_REGEX_STR("(log_file)\\s+([\\S]+)"),
-    HCNSE_REGEX_STR("(log_size)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(log_size)\\s+([0-9]+[k/m/g/t]?)"),
     HCNSE_REGEX_STR("(log_rewrite)\\s+(on|off)"),
 
     HCNSE_REGEX_STR("(log_level)\\s+(emerg)"),
@@ -69,7 +72,10 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(group)\\s+([\\S]+)"),
 
     HCNSE_REGEX_STR("(worker_processes)\\s+([0-9]+)"),
-    HCNSE_REGEX_STR("(log_level)\\s+(auto)"),
+    HCNSE_REGEX_STR("(worker_processes)\\s+(auto)"),
+
+    HCNSE_REGEX_STR("(worker_connections)\\s+([0-9]+)"),
+    HCNSE_REGEX_STR("(worker_connections)\\s+(nolimit)"),
 
     HCNSE_REGEX_STR("(ssl)\\s+(on|off)"),
     HCNSE_REGEX_STR("(ssl_certfile)\\s+([\\S]+)"),
@@ -97,6 +103,7 @@ hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->timer = 30000;
 
     conf->worker_processes = 0;
+    conf->worker_connections = 0;
 }
 
 static hcnse_err_t
@@ -216,6 +223,19 @@ hcnse_config_parse(hcnse_conf_t *conf)
 
                 conf->log_size = (size_t) hcnse_atoi(ptr1);
 
+                if (ptr1[HCNSE_FIRST_SUBSTR_LEN-1] == 'k') {
+                    conf->log_size *= HCNSE_METRIC_MULTIPLIER_KILO; 
+                }
+                else if (ptr1[HCNSE_FIRST_SUBSTR_LEN-1] == 'm') {
+                    conf->log_size *= HCNSE_METRIC_MULTIPLIER_MEGA; 
+                }
+                else if (ptr1[HCNSE_FIRST_SUBSTR_LEN-1] == 'g') {
+                    conf->log_size *= HCNSE_METRIC_MULTIPLIER_GIGA; 
+                }
+                else if (ptr1[HCNSE_FIRST_SUBSTR_LEN-1] == 't') {
+                    conf->log_size *= HCNSE_METRIC_MULTIPLIER_TERA; 
+                }
+
                 ptr1 += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
 
@@ -301,13 +321,26 @@ hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr1, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr1[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
-                conf->worker_processes = (uint8_t) hcnse_atoi(ptr1);
+                conf->worker_processes = (uint32_t) hcnse_atoi(ptr1);
 
                 ptr1 += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
 
             case HCNSE_PATTERN_WORKER_PROCESSES_AUTO:
                 conf->worker_processes = 0;
+                break;
+
+            case HCNSE_PATTERN_WORKER_CONNECTIONS:
+                hcnse_memmove(ptr1, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr1[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+
+                conf->worker_connections = (uint32_t) hcnse_atoi(ptr1);
+
+                ptr1 += HCNSE_FIRST_SUBSTR_LEN + 1;
+                break;
+
+            case HCNSE_PATTERN_WORKER_CONNECTIONS_NOLIMIT:
+                conf->worker_connections = 0;
                 break;
 
             case HCNSE_PATTERN_SSL:

@@ -18,16 +18,10 @@
 #define hcnse_log_set_global(log)      (hcnse_global_default_log = log)
 #define hcnse_log_get_global()         hcnse_global_default_log
 
-#if (HCNSE_DEBUG)
-#define hcnse_log_error1(level, err, ...) \
-    (hcnse_log_get_global() ? \
-        hcnse_log_error(level, hcnse_log_get_global(), err, __VA_ARGS__) :\
-        hcnse_log_stderr(err, __VA_ARGS__))
-#else
+
 #define hcnse_log_error1(level, err, ...) \
     (hcnse_log_get_global() ? \
         hcnse_log_error(level, hcnse_log_get_global(), err, __VA_ARGS__) : 0)
-#endif
 
 
 

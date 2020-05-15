@@ -62,7 +62,9 @@ hcnse_show_config_info(hcnse_conf_t *conf)
 
     hcnse_log_stdout(HCNSE_OK, "conf_file: \"%s\"", conf->file->name);
     hcnse_log_stdout(HCNSE_OK, "log_file: \"%s\"", conf->log_fname);
-    hcnse_log_stdout(HCNSE_OK, "log_size: %zu", conf->log_size);
+    hcnse_log_stdout(HCNSE_OK, "log_size: %zu%s",
+        hcnse_convert_to_prefix(conf->log_size),
+        hcnse_get_metric_prefix(conf->log_size));
 
     if (conf->log_rewrite) {
         hcnse_log_stdout(HCNSE_OK, "log_rewrite: on"); 
@@ -111,6 +113,14 @@ hcnse_show_config_info(hcnse_conf_t *conf)
     }
     else {
         hcnse_log_stdout(HCNSE_OK, "worker_processes: auto");
+    }
+
+    if (conf->worker_connections) {
+        hcnse_log_stdout(HCNSE_OK, "worker_connections: %lu",
+            conf->worker_connections);
+    }
+    else {
+        hcnse_log_stdout(HCNSE_OK, "worker_connections: nolimit");
     }
 
     if (conf->ssl_on) {

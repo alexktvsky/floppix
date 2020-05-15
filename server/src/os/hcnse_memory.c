@@ -10,7 +10,7 @@
 /* TODO: etc */
 #endif
 
-static size_t total_mem = 0;
+static uint64_t hcnse_total_mem = 0;
 
 
 void *
@@ -24,9 +24,9 @@ hcnse_malloc(size_t size)
             "malloc(%zu) failed", size);
     }
     else {
-        total_mem += size;
+        hcnse_total_mem += size;
         hcnse_log_error1(HCNSE_LOG_DEBUG, hcnse_get_errno(),
-            "malloc %p:%zu", mem, size);
+            "malloc %p:%zu total %zu", mem, size, hcnse_total_mem);
     }
 
     return mem;
@@ -53,9 +53,9 @@ hcnse_free(void *mem)
 }
 
 size_t
-hcnse_get_total_mem_usage(void)
+hcnse_get_hcnse_total_mem_usage(void)
 {
-    return total_mem;
+    return hcnse_total_mem;
 }
 
 void
