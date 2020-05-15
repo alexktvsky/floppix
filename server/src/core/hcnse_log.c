@@ -139,7 +139,7 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
 
-    hcnse_pool_cleanup_register(pool, file, hcnse_file_fini);
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
 
     file_size = hcnse_file_size(file);
     if (file_size == -1) {
@@ -191,26 +191,26 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
     if (err != HCNSE_OK) {
         goto failed;
     }
-    hcnse_pool_cleanup_register(pool, sem_empty, hcnse_semaphore_fini);
+    hcnse_pool_cleanup_add(pool, sem_empty, hcnse_semaphore_fini);
 
     err = hcnse_semaphore_init(sem_full, 0,
                             HCNSE_LOG_BUF_SIZE, HCNSE_SEMAPHORE_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
-    hcnse_pool_cleanup_register(pool, sem_full, hcnse_semaphore_fini);
+    hcnse_pool_cleanup_add(pool, sem_full, hcnse_semaphore_fini);
 
     err = hcnse_mutex_init(mutex_deposit, HCNSE_MUTEX_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
-    hcnse_pool_cleanup_register(pool, mutex_deposit, hcnse_mutex_fini);
+    hcnse_pool_cleanup_add(pool, mutex_deposit, hcnse_mutex_fini);
 
     err = hcnse_mutex_init(mutex_fetch, HCNSE_MUTEX_SHARED);
     if (err != HCNSE_OK) {
         goto failed;
     }
-    hcnse_pool_cleanup_register(pool, mutex_fetch, hcnse_mutex_fini);
+    hcnse_pool_cleanup_add(pool, mutex_fetch, hcnse_mutex_fini);
 
 
     /* XXX: Init all log struct fields before run worker */
@@ -250,7 +250,7 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
     if (err != HCNSE_OK) {
         goto failed;
     }
-    hcnse_pool_cleanup_register(pool, tid, hcnse_thread_fini);
+    hcnse_pool_cleanup_add(pool, tid, hcnse_thread_fini);
 
     log->tid = tid;
 #endif

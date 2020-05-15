@@ -28,7 +28,7 @@ failed:
     if (re) {
         pcre_free(re);
     }
-    return HCNSE_FAILED;
+    return HCNSE_ERR_REGEX;
 }
 
 hcnse_err_t

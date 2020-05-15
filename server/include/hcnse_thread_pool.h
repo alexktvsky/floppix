@@ -27,7 +27,7 @@ struct hcnse_thread_task_s {
 
 hcnse_err_t hcnse_thread_pool_create(hcnse_thread_pool_t **tp, size_t n_tasks,
     size_t n_threads);
-hcnse_err_t hcnse_thread_task_post(hcnse_thread_pool_t *tp,
+hcnse_err_t hcnse_thread_pool_task_post(hcnse_thread_pool_t *tp,
     hcnse_thread_task_t *task);
 hcnse_err_t hcnse_thread_pool_destroy(hcnse_thread_pool_t *tp);
 

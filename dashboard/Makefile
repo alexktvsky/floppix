@@ -57,7 +57,6 @@ _debug: $(OBJ_FILES)
 	$(CXX) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
 
 test:
-	$(warning Tests now is not available!)
 
 docs:
 	doxygen docs/Doxyfile

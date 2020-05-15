@@ -20,7 +20,11 @@ SRC_FILES += hcnse_regex.c
 SRC_FILES += hcnse_cycle.c
 SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_process.c
+SRC_FILES += hcnse_dso.c
+SRC_FILES += hcnse_module.c
+SRC_FILES += hcnse_thread_pool.c
 
+# SRC_FILES += hcnse_rbtree.c
 # SRC_FILES += hcnse_select.c
 # SRC_FILES += hcnse_epoll.c
 # SRC_FILES += hcnse_iocp.c
@@ -29,9 +33,7 @@ SRC_FILES += hcnse_process.c
 # SRC_FILES += hcnse_event_read.c
 # SRC_FILES += hcnse_event_write.c
 # SRC_FILES += hcnse_event_timer.c
-# SRC_FILES += hcnse_thread_pool.c
-# SRC_FILES += hcnse_dso.c
-# SRC_FILES += hcnse_module.c
+
 
 VPATH += src/core
 VPATH += src/event

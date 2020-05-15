@@ -13,8 +13,8 @@ struct hcnse_list_node_s {
 hcnse_list_t *hcnse_list_create(hcnse_pool_t *pool);
 hcnse_err_t hcnse_list_create1(hcnse_list_t **list, hcnse_pool_t *pool);
 
-void hcnse_list_push_back(hcnse_list_t *list, void *data);
-void hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node);
+hcnse_err_t hcnse_list_push_back(hcnse_list_t *list, void *data);
+hcnse_err_t hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node);
 
 hcnse_err_t hcnse_list_reserve(hcnse_list_t *list, size_t n);
 

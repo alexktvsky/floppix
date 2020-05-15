@@ -43,7 +43,6 @@
 *.pdb
 
 # Temporary project folders
-bin
-obj
+build
 docs/html
 *.log

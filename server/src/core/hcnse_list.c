@@ -20,7 +20,7 @@ hcnse_list_create1(hcnse_list_t **list, hcnse_pool_t *pool)
 
     list1 = hcnse_palloc(pool, sizeof(hcnse_list_t));
     if (!list1) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     hcnse_memset(list1, 0, sizeof(hcnse_list_t));
@@ -46,7 +46,7 @@ hcnse_list_create(hcnse_pool_t *pool)
     return list1;
 }
 
-void
+hcnse_err_t
 hcnse_list_push_back(hcnse_list_t *list, void *data)
 {
     hcnse_list_node_t *node;
@@ -63,7 +63,7 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
         alloc_size = sizeof(hcnse_list_node_t) * HCNSE_LIST_SIZE_ALLOC;
         nodes = hcnse_palloc(list->pool, alloc_size);
         if (!nodes) {
-            return;
+            return hcnse_get_errno();
         }
 
         node = &nodes[0];
@@ -91,6 +91,7 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
     }
 
     list->size += 1;
+    return HCNSE_OK;
 }
 
 hcnse_err_t
@@ -103,7 +104,7 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
     alloc_size = sizeof(hcnse_list_node_t) * n;
     nodes = hcnse_palloc(list->pool, alloc_size);
     if (!nodes) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     for (size_t i = 0; i < n; i++) {
@@ -116,7 +117,7 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
     return HCNSE_OK;
 }
 
-void
+hcnse_err_t
 hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
 {
     hcnse_list_node_t *temp1;
@@ -147,7 +148,7 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
         while (temp1 != node) {
             temp1 = temp1->next;
             if (temp1 == list->tail) {
-                return; /* Not found */
+                return HCNSE_NOT_FOUND;
             }
         }
         temp1->next->prev = temp1->prev;
@@ -161,6 +162,8 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
     founded_node->next = temp1;
 
     list->size_available += 1;
+
+    return HCNSE_OK;
 }
 
 hcnse_list_node_t *

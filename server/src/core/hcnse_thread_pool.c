@@ -109,7 +109,7 @@ hcnse_thread_pool_destroy(hcnse_thread_pool_t *tp)
 
 
 hcnse_err_t
-hcnse_thread_task_post(hcnse_thread_pool_t *tp, hcnse_thread_task_t *task)
+hcnse_thread_pool_task_post(hcnse_thread_pool_t *tp, hcnse_thread_task_t *task)
 {
     hcnse_thread_task_t *tasks = tp->tasks;
 

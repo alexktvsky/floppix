@@ -161,7 +161,7 @@ hcnse_show_config_info(hcnse_conf_t *conf)
         ip = iter->data;
         iter = iter->next;
         port = iter->data;
-        hcnse_log_stdout(HCNSE_OK, "listen %s:%s", ip, port);
+        hcnse_log_stdout(HCNSE_OK, "listen [%s]:%s", ip, port);
     }
 }
 
@@ -198,8 +198,6 @@ main(int argc, char *const argv[])
     char *port;
 
     hcnse_err_t err;
-
-    // hcnse_log_set_global()
 
 
     err = hcnse_parse_argv(argc, argv);
@@ -305,9 +303,14 @@ main(int argc, char *const argv[])
             goto failed;
         }
 
-        hcnse_pool_cleanup_register(pool, listener, hcnse_listener_close);
+        hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
 
         err = hcnse_listener_open(listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_list_push_back(cycle->listeners, listener);
         if (err != HCNSE_OK) {
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;
@@ -332,9 +335,14 @@ main(int argc, char *const argv[])
             goto failed;
         }
 
-        hcnse_pool_cleanup_register(pool, listener, hcnse_listener_close);
+        hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
 
         err = hcnse_listener_open(listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_list_push_back(cycle->listeners, listener);
         if (err != HCNSE_OK) {
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;

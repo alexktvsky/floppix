@@ -11,9 +11,9 @@
 
 #define HCNSE_COMMIT_BEFORE            "^(?!#)\\s*"
 #define HCNSE_COMMIT_AFTER             "([\\s]*|[\\s]+#.*)"
-#define HCNSE_LF_OR_CRLF               "(\n|\r\n)"
+#define HCNSE_LF_CR_CRLF               "(\n|\r|\r\n)"
 #define HCNSE_REGEX_STR(str) \
-    (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF_OR_CRLF)
+    (HCNSE_COMMIT_BEFORE str HCNSE_COMMIT_AFTER HCNSE_LF_CR_CRLF)
 
 
 typedef enum {
@@ -25,7 +25,6 @@ typedef enum {
     HCNSE_PATTERN_LOG_SIZE,
     HCNSE_PATTERN_LOG_REWRITE,
 
-    /* Log level */
     HCNSE_PATTERN_LOG_EMERG,
     HCNSE_PATTERN_LOG_ERROR,
     HCNSE_PATTERN_LOG_WARN,
@@ -52,7 +51,7 @@ typedef enum {
 
 static const char *patterns[] = {
     HCNSE_REGEX_STR("(listen)\\s+([0-9]+)(?!\\.)"),
-    HCNSE_REGEX_STR("(listen)\\s+([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)"),
+    HCNSE_REGEX_STR("(listen)\\s+([0-9/a-z/A-Z/.]+):([0-9]+)"),
     HCNSE_REGEX_STR("(listen)\\s+\\[([0-9/a-z/A-Z/:/%%/.]*)\\]:([0-9]+)"),
 
     HCNSE_REGEX_STR("(log_file)\\s+([\\S]+)"),
@@ -172,8 +171,14 @@ hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr1, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
                 ptr1[HCNSE_FIRST_SUBSTR_LEN] = '\0';
 
-                hcnse_list_push_back(conf->addr_and_port, "0.0.0.0");
-                hcnse_list_push_back(conf->addr_and_port, ptr1);
+                err = hcnse_list_push_back(conf->addr_and_port, "0.0.0.0");
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+                err = hcnse_list_push_back(conf->addr_and_port, ptr1);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
 
                 ptr1 += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
@@ -187,8 +192,14 @@ hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
-                hcnse_list_push_back(conf->addr_and_port, ptr1);
-                hcnse_list_push_back(conf->addr_and_port, ptr2);
+                err = hcnse_list_push_back(conf->addr_and_port, ptr1);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+                err = hcnse_list_push_back(conf->addr_and_port, ptr2);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
 
                 ptr1 += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 2;
                 break;
@@ -202,8 +213,14 @@ hcnse_config_parse(hcnse_conf_t *conf)
                 hcnse_memmove(ptr2, HCNSE_SECOND_SUBSTR, HCNSE_SECOND_SUBSTR_LEN);
                 ptr2[HCNSE_SECOND_SUBSTR_LEN] = '\0';
 
-                hcnse_list_push_back(conf->addr_and_port6, ptr1);
-                hcnse_list_push_back(conf->addr_and_port6, ptr2);
+                err = hcnse_list_push_back(conf->addr_and_port6, ptr1);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+                err = hcnse_list_push_back(conf->addr_and_port6, ptr2);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
 
                 ptr1 += HCNSE_FIRST_SUBSTR_LEN + HCNSE_SECOND_SUBSTR_LEN + 2;
                 break;
@@ -413,7 +430,7 @@ hcnse_config_create_and_parse(hcnse_conf_t **in_conf, const char *fname)
         goto failed;
     }
 
-    file = hcnse_pcalloc(pool, sizeof(hcnse_file_t));
+    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
     if (!file) {
         err = hcnse_get_errno();
         goto failed;
@@ -425,7 +442,7 @@ hcnse_config_create_and_parse(hcnse_conf_t **in_conf, const char *fname)
         goto failed;
     }
 
-    hcnse_pool_cleanup_register(pool, file, hcnse_file_fini);
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
 
     addr_and_port = hcnse_list_create(pool);
     if (!addr_and_port) {

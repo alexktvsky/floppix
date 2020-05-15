@@ -1,9 +1,9 @@
 #ifndef INCLUDED_HCNSE_STRING_H
 #define INCLUDED_HCNSE_STRING_H
 
-#define HCNSE_LF                       "\012"
-#define HCNSE_CR                       "\015"
-#define HCNSE_CRLF                     "\015\012"
+#define HCNSE_LF                       "\n"
+#define HCNSE_CR                       "\r"
+#define HCNSE_CRLF                     "\r\n"
 
 #if (HCNSE_POSIX)
 #define HCNSE_PORTABLE_LF              HCNSE_LF

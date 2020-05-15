@@ -11,18 +11,19 @@ static const struct {
     hcnse_err_t code;
     const char *message;
 } error_list[] = {
-    /* HCNSE_ERR_CONF domain */
-    {HCNSE_ERR_CONF_REGEX,           "Failed to compile regular expressions"},
+    {HCNSE_FAILED,                   "Default internal error"},
+    {HCNSE_BUSY,                     "Resource is busy"},
+    {HCNSE_DONE,                     "Operation is done"},
+    {HCNSE_ABORT,                    "Operation aborted"},
+    {HCNSE_DECLINED,                 "Operation declined"},
+    {HCNSE_NOT_FOUND,                "Resource not found"},
 
-    /* HCNSE_ERR_NET domain */
-    {HCNSE_ERR_NET_GAI,              "Failed to translate network address"},
-    {HCNSE_ERR_NET_GSN,              "Failed to get address to which the socket is bound"},
-    {HCNSE_ERR_NET_GPN,              "Failed to get address of the peer connected to the socket"},
+    /* {HCNSE_ERR_REGEX domain */
+    {HCNSE_ERR_REGEX_COMPILE,        "Failed to compile regular expressions"},
 
     /* HCNSE_ERR_SSL domain */
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
 
-    {HCNSE_FAILED,                   "Default internal error"},
     /* End of error list */
     {HCNSE_ERR_END_LIST,             "Undefined error code"}
 };

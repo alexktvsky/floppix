@@ -26,6 +26,7 @@
 #define HCNSE_INVALID_SOCKET           -1
 #define hcnse_close_socket(s)          close(s)
 
+
 #elif (HCNSE_WIN32)
 #define HCNSE_SHUT_RD                  SD_RECEIVE
 #define HCNSE_SHUT_WR                  SD_SEND

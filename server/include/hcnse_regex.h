@@ -1,7 +1,6 @@
 #ifndef INCLUDED_HCNSE_REGEX_H
 #define INCLUDED_HCNSE_REGEX_H
 
-typedef struct hcnse_regex_compile_s hcnse_regex_compile_t;
 
 struct hcnse_regex_compile_s {
     const char *pattern;
@@ -9,7 +8,6 @@ struct hcnse_regex_compile_s {
     const char *error;
     int erroffset;
 };
-
 
 
 void hcnse_regex_init(void);

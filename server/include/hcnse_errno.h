@@ -9,6 +9,7 @@
 #define hcnse_set_errno(err)           (errno = err)
 #define hcnse_get_socket_errno()       (errno)
 #define hcnse_set_socket_errno()       (errno = err)
+
 #elif (HCNSE_WIN32)
 #define hcnse_get_errno()              GetLastError()
 #define hcnse_set_errno(err)           SetLastError(err)
@@ -22,6 +23,7 @@
 #define HCNSE_DONE                    -3
 #define HCNSE_ABORT                   -4
 #define HCNSE_DECLINED                -5
+#define HCNSE_NOT_FOUND               -6
 
 /* Where the HCNSE specific error values start */
 #define HCNSE_ERROR_DOMAIN_BASE        20000
@@ -30,15 +32,10 @@
     (HCNSE_ERROR_DOMAIN_BASE + (domain * HCNSE_ERRSPACE_SIZE))
 
 
-#define HCNSE_ERR_CONF                 HCNSE_ERROR_DOMAIN(1)
-#define HCNSE_ERR_CONF_REGEX           (HCNSE_ERR_CONF+1)
+#define HCNSE_ERR_REGEX                HCNSE_ERROR_DOMAIN(1)
+#define HCNSE_ERR_REGEX_COMPILE        (HCNSE_ERR_REGEX+1)
 
-#define HCNSE_ERR_NET                  HCNSE_ERROR_DOMAIN(2)
-#define HCNSE_ERR_NET_GAI              (HCNSE_ERR_NET+1)
-#define HCNSE_ERR_NET_GSN              (HCNSE_ERR_NET+2)
-#define HCNSE_ERR_NET_GPN              (HCNSE_ERR_NET+3)
-
-#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(3)
+#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(2)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
 
 
