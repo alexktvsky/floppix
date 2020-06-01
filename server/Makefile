@@ -24,6 +24,8 @@ SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
 SRC_FILES += hcnse_thread_pool.c
 
+# SRC_FILES += hcnse_mmap.c
+# SRC_FILES += hcnse_send.c
 # SRC_FILES += hcnse_rbtree.c
 # SRC_FILES += hcnse_select.c
 # SRC_FILES += hcnse_epoll.c

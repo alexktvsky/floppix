@@ -42,7 +42,7 @@ static const char *prio[] = {
     "debug"
 };
 
-hcnse_log_t *hcnse_global_default_log;
+hcnse_log_t *hcnse_log_global;
 
 
 static hcnse_thread_value_t
@@ -288,11 +288,13 @@ void
 hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...)
 {
-    char *buf;
-    size_t len;
-    hcnse_log_message_t *messages = log->messages;
+    hcnse_log_message_t *messages;
     hcnse_log_message_t *msg;
     va_list args;
+    char *buf;
+    size_t len;
+
+    messages = log->messages;
 
     if (level > (log->level)) {
         return;

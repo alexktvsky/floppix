@@ -175,7 +175,8 @@ hcnse_show_version_info(void)
 #endif
 }
 
-static void hcnse_show_help_info(void)
+static void
+hcnse_show_help_info(void)
 {
     hcnse_log_stdout(HCNSE_OK, "%s", "Some help info");
 }
