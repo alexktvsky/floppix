@@ -456,7 +456,6 @@ hcnse_config_create_and_parse(hcnse_conf_t **in_conf, const char *fname)
         goto failed;
     }
 
-
     conf->pool = pool;
     conf->file = file;
     conf->addr_and_port = addr_and_port;
@@ -464,10 +463,14 @@ hcnse_config_create_and_parse(hcnse_conf_t **in_conf, const char *fname)
 
     hcnse_config_set_default_params(conf);
 
+    hcnse_regex_malloc_init(pool);
+
     err = hcnse_config_parse(conf);
     if (err != HCNSE_OK) {
         goto failed;
     }
+
+    hcnse_regex_malloc_done();
 
     *in_conf = conf;
     return HCNSE_OK;

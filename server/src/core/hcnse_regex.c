@@ -2,12 +2,49 @@
 #include "hcnse_core.h"
 
 
+static hcnse_pool_t *hcnse_regex_pool;
+
+
+static void *
+hcnse_regex_malloc(size_t size)
+{
+    hcnse_pool_t *pool;
+    pool = hcnse_regex_pool;
+
+    if (pool) {
+        return hcnse_palloc(pool, size);
+    }
+
+    return NULL;
+}
+
+static void
+hcnse_regex_free(void *mem)
+{
+    (void) mem;
+    return;
+}
+
 void
 hcnse_regex_init(void)
 {
-    pcre_malloc = hcnse_malloc;
-    pcre_free = hcnse_free;
+    pcre_malloc = hcnse_regex_malloc;
+    pcre_free = hcnse_regex_free;
 }
+
+void
+hcnse_regex_malloc_init(hcnse_pool_t *pool)
+{
+    hcnse_regex_pool = pool;
+}
+
+
+void
+hcnse_regex_malloc_done(void)
+{
+    hcnse_regex_pool = NULL;
+}
+
 
 hcnse_err_t
 hcnse_regex_compile(hcnse_regex_compile_t *rc, const char *pattern)

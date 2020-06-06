@@ -49,7 +49,9 @@ INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra -Wuninitialized
-override CFLAGS += -Wstrict-prototypes -pipe
+override CFLAGS += -Wstrict-prototypes
+override CFLAGS += -pipe
+override CFLAGS += -fstack-protector-strong
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND

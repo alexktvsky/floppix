@@ -34,7 +34,7 @@ hcnse_socket_bind(hcnse_socket_t sockfd, const struct sockaddr *addr,
     if (bind(sockfd, addr, addrlen) == -1) {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "bind() failed to fd %d, \"%s:%s\"", sockfd,
+                "bind() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         return err;
@@ -67,7 +67,7 @@ hcnse_socket_accept(hcnse_socket_t *new_sockfd, hcnse_socket_t sockfd,
     if (sockfd1 == HCNSE_INVALID_SOCKET) {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "accept() failed to fd %d \"%s:%s\"", sockfd,
+            "accept() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         goto failed;
@@ -90,7 +90,7 @@ hcnse_socket_connect(hcnse_socket_t sockfd, const struct sockaddr *addr,
     if (connect(sockfd, addr, addrlen) == -1) {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "connect() failed to fd %d \"%s:%s\"", sockfd,
+            "connect() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         return err;
