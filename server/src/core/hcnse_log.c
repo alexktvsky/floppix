@@ -294,11 +294,11 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     char *buf;
     size_t len;
 
-    messages = log->messages;
-
     if (level > (log->level)) {
         return;
     }
+
+    messages = log->messages;
 
     hcnse_semaphore_wait(log->sem_empty);
     hcnse_mutex_lock(log->mutex_deposit);

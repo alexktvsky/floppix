@@ -22,6 +22,18 @@
 #define hcnse_log_debug(log, err, ...) \
     hcnse_log_error(HCNSE_LOG_DEBUG, log, err, __VA_ARGS__)
 
+#if (HCNSE_LOG_REDIRECT_TO_STDERR)
+#define hcnse_log_error1(level, err, ...) \
+    (hcnse_log_get_global() ? \
+        hcnse_log_error(level, hcnse_log_get_global(), err, __VA_ARGS__) : \
+        hcnse_log_stderr(err, __VA_ARGS__))
+
+#define hcnse_log_debug1(err, ...) \
+    (hcnse_log_get_global() ? \
+        hcnse_log_debug(hcnse_log_get_global(), err, __VA_ARGS__) : \
+        hcnse_log_stderr(err, __VA_ARGS__))
+
+#else
 #define hcnse_log_error1(level, err, ...) \
     (hcnse_log_get_global() ? \
         hcnse_log_error(level, hcnse_log_get_global(), err, __VA_ARGS__) : 0)
@@ -29,6 +41,9 @@
 #define hcnse_log_debug1(err, ...) \
     (hcnse_log_get_global() ? \
         hcnse_log_debug(hcnse_log_get_global(), err, __VA_ARGS__) : 0)
+#endif
+
+
 
 extern hcnse_log_t *hcnse_log_global;
 

@@ -12,12 +12,12 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    hcnse_socket_t fd = HCNSE_INVALID_SOCKET;
+    hcnse_socket_t fd;
     socklen_t addrlen;
     bool done;
     hcnse_err_t err;
 
-
+    fd = HCNSE_INVALID_SOCKET;
     hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
     hcnse_memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
@@ -34,36 +34,27 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     }
 
     for (rp = result; rp; rp = rp->ai_next) {
-        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd == HCNSE_INVALID_SOCKET) {
-            err = hcnse_get_socket_errno();
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "getaddrinfo() failed to %s:%s", ip, port);
+        err = hcnse_socket_init(&fd,
+            rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (err != HCNSE_OK) {
             continue;
         }
-        err = hcnse_tcp_nopush(fd);
+        err = hcnse_socket_nopush(fd);
         if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "hcnse_tcp_nopush() failed to %s:%s", ip, port);
-            hcnse_close_socket(fd);
+            hcnse_socket_close(fd);
             continue;
         }
         err = hcnse_socket_nonblocking(fd);
         if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "hcnse_socket_nonblocking() failed to %s:%s", ip, port);
-            hcnse_close_socket(fd);
+            hcnse_socket_close(fd);
             continue;
         }
 
         for (size_t tries = 0; tries < 5; tries++) {
-            if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-                err = hcnse_get_socket_errno();
-                hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                    "bind() failed to %s:%s", ip, port);
-                
+            err = hcnse_socket_bind(fd, rp->ai_addr, rp->ai_addrlen);
+            if (err != HCNSE_OK) {
                 hcnse_log_error1(HCNSE_LOG_INFO, HCNSE_OK,
-                    "try again to bind() after 500ms");
+                    "try again to bind after 500ms");
                 hcnse_msleep(500);
             }
             else {
@@ -76,8 +67,8 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
             break;
         else {
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "still could not bind() to%s:%s", ip, port);
-            hcnse_close_socket(fd);
+                "still could not bind to %s:%s", ip, port);
+            hcnse_socket_close(fd);
             continue;
         }
     }
@@ -106,7 +97,7 @@ failed:
         freeaddrinfo(result);
     }
     if (fd != HCNSE_INVALID_SOCKET) {
-        hcnse_close_socket(fd);
+        hcnse_socket_close(fd);
     }
     return err;
 }
@@ -118,12 +109,12 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     struct addrinfo hints;
     struct addrinfo *result = NULL;
     struct addrinfo *rp;
-    hcnse_socket_t fd = HCNSE_INVALID_SOCKET;
+    hcnse_socket_t fd;
     socklen_t addrlen;
     bool done;
     hcnse_err_t err;
 
-
+    fd = HCNSE_INVALID_SOCKET;
     hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
     hcnse_memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET6;
@@ -140,35 +131,26 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     }
 
     for (rp = result; rp; rp = rp->ai_next) {
-        fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd == HCNSE_INVALID_SOCKET) {
-            err = hcnse_get_socket_errno();
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "socket() failed to %s:%s", ip, port);
+        err = hcnse_socket_init(&fd,
+            rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (err != HCNSE_OK) {
             continue;
         }
-        err = hcnse_tcp_nopush(fd);
+        err = hcnse_socket_nopush(fd);
         if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "hcnse_tcp_nopush() failed to %s:%s", ip, port);
-            hcnse_close_socket(fd);
+            hcnse_socket_close(fd);
             continue;
         }
         err = hcnse_socket_nonblocking(fd);
         if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "hcnse_socket_nonblocking() failed to %s:%s", ip, port);
-            hcnse_close_socket(fd);
+            hcnse_socket_close(fd);
             continue;
         }
         for (size_t tries = 0; tries < 5; tries++) {
-            if (bind(fd, rp->ai_addr, rp->ai_addrlen) == -1) {
-                err = hcnse_get_socket_errno();
-                hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                    "bind() failed to %s:%s", ip, port);
-                
+            err = hcnse_socket_bind(fd, rp->ai_addr, rp->ai_addrlen);
+            if (err != HCNSE_OK) {
                 hcnse_log_error1(HCNSE_LOG_INFO, HCNSE_OK,
-                    "try again to bind() after 500ms");
+                    "try again to bind after 500ms");
                 hcnse_msleep(500);
             }
             else {
@@ -181,8 +163,8 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
             break;
         else {
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "still could not bind() to%s:%s", ip, port);
-            hcnse_close_socket(fd);
+                "still could not bind to %s:%s", ip, port);
+            hcnse_socket_close(fd);
             continue;
         }
     }
@@ -210,7 +192,7 @@ failed:
         freeaddrinfo(result);
     }
     if (fd != HCNSE_INVALID_SOCKET) {
-        hcnse_close_socket(fd);
+        hcnse_socket_close(fd);
     }
     return err;
 }
@@ -220,11 +202,8 @@ hcnse_listener_open(hcnse_listener_t *listener)
 {
     hcnse_err_t err;
 
-    if (listen(listener->fd, HCNSE_MAX_CONNECT_QUEUELEN) == -1) {
-        err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "listen() failed to %s:%s", hcnse_listener_get_addr(listener),
-            hcnse_listener_get_port(listener));
+    err = hcnse_socket_listen(listener->fd, HCNSE_MAX_CONNECT_QUEUELEN);
+    if (err != HCNSE_OK) {
         return err;
     }
 
@@ -235,7 +214,7 @@ void
 hcnse_listener_close(hcnse_listener_t *listener)
 {
     if (listener->fd != HCNSE_INVALID_SOCKET) {
-        hcnse_close_socket(listener->fd);
+        hcnse_socket_close(listener->fd);
         listener->fd = HCNSE_INVALID_SOCKET;
     }
 }
@@ -273,18 +252,17 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
     socklen_t addrlen;
     hcnse_err_t err;
 
+    fd = HCNSE_INVALID_SOCKET;
     addrlen = sizeof(struct sockaddr_in);
 
-    fd = accept(listener->fd, (struct sockaddr *)&connect->sockaddr, &addrlen);
-    if (fd == HCNSE_INVALID_SOCKET) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "accept() failed to %s:%s", hcnse_listener_get_addr(listener),
-            hcnse_listener_get_port(listener));
-        return hcnse_get_socket_errno();
+    err = hcnse_socket_accept(&fd, listener->fd,
+        (struct sockaddr *) &connect->sockaddr, &addrlen);
+    if (err != HCNSE_OK) {
+        return err;
     }
     err = hcnse_socket_nonblocking(fd);
     if (err != HCNSE_OK) {
-        hcnse_close_socket(fd);
+        hcnse_socket_close(fd);
         return err;
     }
     connect->fd = fd;
@@ -297,7 +275,8 @@ void
 hcnse_connection_close(hcnse_connect_t *connect)
 {
     if (connect->fd != HCNSE_INVALID_SOCKET) {
-        hcnse_close_socket(connect->fd);
+        hcnse_socket_shutdown(connect->fd, HCNSE_SHUT_RDWR);
+        hcnse_socket_close(connect->fd);
         connect->fd = HCNSE_INVALID_SOCKET;
     }
 }
@@ -338,35 +317,63 @@ hcnse_is_connection(void *instance)
 
 
 const char *
-hcnse_connection_get_addr(hcnse_connect_t *connect)
+hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr)
 {
     static _Thread_local char buf[100];
-    struct sockaddr_storage *sockaddr;
+    socklen_t addrlen;
 
-    sockaddr = &(connect->sockaddr);
-    socklen_t addrlen = sizeof(struct sockaddr_storage);
+    addrlen = sizeof(struct sockaddr_storage);
 
-    if (getnameinfo((const struct sockaddr *)sockaddr, addrlen,
-                            buf, NI_MAXHOST, 0, 0, NI_NUMERICHOST) != 0) {
+    if (getnameinfo(sockaddr, addrlen, buf, NI_MAXHOST, 0, 0,
+        NI_NUMERICHOST) != 0)
+    {
         return NULL;
     }
+
     return buf;
+}
+
+const char *
+hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr)
+{
+    static _Thread_local char buf[100];
+    socklen_t addrlen;
+
+    addrlen = sizeof(struct sockaddr_storage);
+
+    if (getnameinfo(sockaddr, addrlen, NULL, 0, buf, NI_MAXSERV,
+        NI_NUMERICHOST|NI_NUMERICSERV) != 0)
+    {
+        return NULL;
+    }
+
+    return buf;
+}
+
+const char *
+hcnse_listener_get_ip_addr(hcnse_listener_t *listener)
+{
+    return hcnse_sockaddr_get_addr_text((const struct sockaddr *)
+        &(listener->sockaddr));
+}
+
+const char *
+hcnse_listener_get_port(hcnse_listener_t *listener)
+{
+    return hcnse_sockaddr_get_port_text((const struct sockaddr *)
+        &(listener->sockaddr));
+}
+
+const char *
+hcnse_connection_get_ip_addr(hcnse_connect_t *connect)
+{
+    return hcnse_sockaddr_get_addr_text((const struct sockaddr *)
+        &(connect->sockaddr));
 }
 
 const char *
 hcnse_connection_get_port(hcnse_connect_t *connect)
 {
-    static _Thread_local char buf[50];
-    struct sockaddr_storage *sockaddr;
-    socklen_t addrlen;
-
-    sockaddr = &(connect->sockaddr);
-    addrlen = sizeof(struct sockaddr_storage);
-
-    if (getnameinfo((const struct sockaddr *)sockaddr, addrlen, NULL, 0,
-                    buf, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV) != 0) {
-        return NULL;
-    }
-    return buf;
+    return hcnse_sockaddr_get_port_text((const struct sockaddr *)
+        &(connect->sockaddr));
 }
-

@@ -2,182 +2,130 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_LINUX)
-
 hcnse_err_t
-hcnse_tcp_nopush(hcnse_socket_t s)
+hcnse_socket_init(hcnse_socket_t *new_sockfd, int domain, int type,
+    int protocol)
 {
-    int option = 1;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-                        (const void *) &option, sizeof(int)) == -1) {
-        return hcnse_get_socket_errno();
+    hcnse_socket_t sockfd;
+    hcnse_err_t err;
+
+    sockfd = socket(domain, type, protocol);
+    if (sockfd == HCNSE_INVALID_SOCKET) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "socket(%d, %d, %d) failed", domain, type, protocol);
+        goto failed;
     }
-    // int  cork = 1;
-    // return setsockopt(s, IPPROTO_TCP, TCP_CORK,
-    //                      (const void *) &cork, sizeof(int));
+
+    *new_sockfd = sockfd;
+
     return HCNSE_OK;
+
+failed:
+    return err;
 }
 
 hcnse_err_t
-hcnse_tcp_push(hcnse_socket_t s)
+hcnse_socket_bind(hcnse_socket_t sockfd, const struct sockaddr *addr,
+    socklen_t addrlen)
 {
-    int option = 0;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR,
-                        (const void *) &option, sizeof(int)) == -1) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
+    hcnse_err_t err;
 
-hcnse_err_t
-hcnse_socket_nonblocking(hcnse_socket_t s)
-{
-    int flags = fcntl(s, F_GETFL);
-    if (fcntl(s, F_SETFL, flags|O_NONBLOCK) == -1) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_socket_blocking(hcnse_socket_t s)
-{
-    int flags = fcntl(s, F_GETFL);
-    if (fcntl(s, F_SETFL, flags & (~O_NONBLOCK)) == -1) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
-
-#elif (HCNSE_FREEBSD)
-hcnse_err_t
-hcnse_tcp_nopush(hcnse_socket_t s)
-{
-    int hcnse_tcp_nopush = 1;
-    if (setsockopt(s, IPPROTO_TCP, TCP_NOPUSH,
-            (const void *) &hcnse_tcp_nopush, sizeof(int)) == -1) {
-        return hcnse_get_socket_errno();
+    if (bind(sockfd, addr, addrlen) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "bind() failed to fd %d, \"%s:%s\"", sockfd,
+            hcnse_sockaddr_get_addr_text(addr),
+            hcnse_sockaddr_get_port_text(addr));
+        return err;
     }
     return HCNSE_OK;
 }
 
 hcnse_err_t
-hcnse_tcp_push(hcnse_socket_t s) {
-    int hcnse_tcp_nopush = 0;
-    if (setsockopt(s, IPPROTO_TCP, TCP_NOPUSH,
-            (const void *) &hcnse_tcp_nopush, sizeof(int)) == -1) {
-        return hcnse_get_socket_errno();
+hcnse_socket_listen(hcnse_socket_t sockfd, int backlog)
+{
+    hcnse_err_t err;
+
+    if (listen(sockfd, backlog) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "listen(%d, %d) failed", sockfd, backlog);
+        return err;
     }
     return HCNSE_OK;
 }
 
 hcnse_err_t
-hcnse_socket_nonblocking(hcnse_socket_t s)
+hcnse_socket_accept(hcnse_socket_t *new_sockfd, hcnse_socket_t sockfd,
+    struct sockaddr *addr, socklen_t *addrlen)
 {
-    int nb = 1;
-    if (ioctl(s, FIONBIO, &nb) == -1) {
-        return hcnse_get_socket_errno();
+    hcnse_socket_t sockfd1;
+    hcnse_err_t err;
+
+    sockfd1 = accept(sockfd, addr, addrlen);
+    if (sockfd1 == HCNSE_INVALID_SOCKET) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "accept() failed to fd %d \"%s:%s\"", sockfd,
+            hcnse_sockaddr_get_addr_text(addr),
+            hcnse_sockaddr_get_port_text(addr));
+        goto failed;
+    }
+
+    *new_sockfd = sockfd1;
+
+    return HCNSE_OK;
+
+failed:
+    return err;
+}
+
+hcnse_err_t
+hcnse_socket_connect(hcnse_socket_t sockfd, const struct sockaddr *addr,
+    socklen_t addrlen)
+{
+    hcnse_err_t err;
+
+    if (connect(sockfd, addr, addrlen) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "connect() failed to fd %d \"%s:%s\"", sockfd,
+            hcnse_sockaddr_get_addr_text(addr),
+            hcnse_sockaddr_get_port_text(addr));
+        return err;
     }
     return HCNSE_OK;
 }
 
 hcnse_err_t
-hcnse_socket_blocking(hcnse_socket_t s)
+hcnse_socket_shutdown(hcnse_socket_t sockfd, int how)
 {
-    int nb = 0;
-    if (ioctl(s, FIONBIO, &nb) == -1) {
-        return hcnse_get_socket_errno();
+    hcnse_err_t err;
+
+    if (shutdown(sockfd, how) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "shutdown(%d, %d) failed", sockfd, how);
+        return err;
     }
     return HCNSE_OK;
 }
 
-
-#elif (HCNSE_SOLARIS)
-hcnse_err_t
-hcnse_tcp_nopush(hcnse_socket_t s)
-{
-    /* XXX: do smth */
-    (void) s;
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_tcp_push(hcnse_socket_t s)
-{
-    /* XXX: do smth */
-    (void) s;
-    return HCNSE_OK;
-}
-
-/* Setting FIONBIO or O_NDELAY on Solaris causes a read
- * with no data to return 0 on a tty or pipe, or -1 with
- * errno EAGAIN on a socket. However 0 is ambiguous since
- * it is also returned for EOF */
-hcnse_err_t
-hcnse_socket_nonblocking(hcnse_socket_t s)
-{
-    int nb = 1;
-    if (ioctl(s, FIONBIO, &nb) == -1) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_socket_blocking(hcnse_socket_t s)
-{
-    int nb = 0;
-    if (ioctl(s, FIONBIO, &nb) == -1) {
-    }
-    return HCNSE_OK;
-}
-
-
-#elif (HCNSE_WIN32)
-
-hcnse_err_t
-hcnse_tcp_nopush(hcnse_socket_t s)
-{
-    /* XXX: do smth */
-    (void) s;
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_tcp_push(hcnse_socket_t s)
-{
-    /* XXX: do smth */
-    (void) s;
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_socket_nonblocking(hcnse_socket_t s)
-{
-    DWORD nb = 1;
-    if (ioctlsocket(s, FIONBIO, &nb) != 0) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_socket_blocking(hcnse_socket_t s)
-{
-    DWORD nb = 0;
-    if (ioctlsocket(s, FIONBIO, &nb) != 0) {
-        return hcnse_get_socket_errno();
-    }
-    return HCNSE_OK;
-}
-
+#if (HCNSE_WIN32)
 hcnse_err_t
 hcnse_winsock_init_v22(void)
 {
     WSADATA data;
-    WORD version_requested = MAKEWORD(2, 2);
+    WORD version_requested;
+    hcnse_err_t err;
+
+    version_requested = MAKEWORD(2, 2);
+
     if (WSAStartup(version_requested, &data) != 0) {
-        return hcnse_get_socket_errno();
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "WSAStartup() failed");
+        return err;
     }
     return HCNSE_OK;
 }

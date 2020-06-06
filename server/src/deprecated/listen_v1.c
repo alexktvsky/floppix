@@ -23,7 +23,7 @@ static hcnse_err_t init_listen_tcp(listen_unit_t *unit)
     }
 
     /* Prevent sticking of port */
-    if (hcnse_tcp_nopush(unit->socket) == -1) {
+    if (hcnse_socket_nopush(unit->socket) == -1) {
         return SETSOCKOPT_ERROR; /* Error of set options on sockets */
     }
 
@@ -62,7 +62,7 @@ static hcnse_err_t init_listen_tcp6(listen_unit_t *unit)
     }
 
     /* Prevent sticking of port */
-    if (hcnse_tcp_nopush(unit->socket) == -1) {
+    if (hcnse_socket_nopush(unit->socket) == -1) {
         return SETSOCKOPT_ERROR; /* Error of set options on sockets */
     }
     

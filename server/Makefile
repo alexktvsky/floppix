@@ -6,6 +6,7 @@ SRC_FILES += hcnse_string.c
 SRC_FILES += hcnse_file.c
 SRC_FILES += hcnse_errno.c
 SRC_FILES += hcnse_socket.c
+SRC_FILES += hcnse_sockopt.c
 SRC_FILES += hcnse_time.c
 SRC_FILES += hcnse_thread.c
 SRC_FILES += hcnse_mutex.c
