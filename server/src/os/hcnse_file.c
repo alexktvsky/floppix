@@ -7,9 +7,15 @@ hcnse_err_t
 hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
 {
-    hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
+    hcnse_fd_t fd;
+    hcnse_err_t err;
+
+    fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
-        return hcnse_get_errno();
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "open(\"%s\", %d|%d, %o) failed", name, mode, create, access);
+        return err;
     }
     file->fd = fd;
     file->name = (char *) name;
@@ -20,11 +26,18 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
 ssize_t
 hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 {
+    ssize_t n;
+
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "lseek(%d, %zd, %s) failed", file->fd, offset,
+            hcnse_value(SEEK_SET));
         return -1;
     }
-    ssize_t n = read(file->fd, buf, size);
+    n = read(file->fd, buf, size);
     if (n == -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "read(%d, %p, %zu) failed", file->fd, buf, size);
         return -1;
     }
     file->offset += n;
@@ -38,12 +51,17 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
     ssize_t written = 0;
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "lseek(%d, %zd, %s) failed", file->fd, offset,
+            hcnse_value(SEEK_SET));
         return -1;
     }
 
     for ( ; ; ) {
         n = write(file->fd, buf + written, size);
         if (n == -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "write(%d, %p, %zu) failed", file->fd, buf + written, size);
             return -1;
         }
         file->offset += n;
@@ -59,15 +77,27 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
 ssize_t
 hcnse_file_size(hcnse_file_t *file)
 {
-    off_t off = lseek(file->fd, 0, SEEK_CUR);
-    if (off == (off_t) -1) {
+    size_t size;
+    off_t offset;
+
+    offset = lseek(file->fd, 0, SEEK_CUR);
+    if (offset == (off_t) -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "lseek(%d, %zd, %s) failed",
+            file->fd, 0, hcnse_value(SEEK_CUR));
         return -1;
     }
-    size_t size = (size_t) lseek(file->fd, 0, SEEK_END);
+    size = (size_t) lseek(file->fd, 0, SEEK_END);
     if (size == (size_t) -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "lseek(%d, %zd, %s) failed",
+            file->fd, offset, hcnse_value(SEEK_END));
         return -1;
     }
-    if (lseek(file->fd, off, SEEK_SET) == (off_t) -1) {
+    if (lseek(file->fd, offset, SEEK_SET) == (off_t) -1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "lseek(%d, %zd, %s) failed",
+            file->fd, 0, hcnse_value(SEEK_SET));
         return -1;
     }
     return size;
@@ -91,10 +121,17 @@ hcnse_err_t
 hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
     int access)
 {
+    hcnse_fd_t fd;
+    hcnse_err_t err;
     (void) access;
-    hcnse_fd_t fd = hcnse_open_file(name, mode, create, access);
+
+    fd = hcnse_open_file(name, mode, create, access);
     if (fd == HCNSE_INVALID_FILE) {
-        return hcnse_get_errno();
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "CreateFile(\"%s\", %d, %d, %p, %d, %d, %p) failed",
+            name, mode, 0, NULL, create, 0, NULL);
+        return err;
     }
     file->fd = fd;
     file->name = (char *) name;
@@ -114,6 +151,9 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
     ovlp.hEvent = NULL;
 
     if (!ReadFile(file->fd, buf, size, &n, &ovlp)) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "ReadFile(%d, %p, %zu, %p, %p) failed",
+            file->fd, buf, size, &n, &ovlp);
         return -1;
     }
     file->fd += n;
@@ -132,6 +172,9 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
     ovlp.hEvent = NULL;
 
     if (!WriteFile(file->fd, buf, size, &n, &ovlp)) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "WriteFile(%d, %p, %zu, %p, %p) failed",
+            file->fd, buf, size, &n, &ovlp);
         return -1;
     }
 
@@ -146,7 +189,10 @@ ssize_t
 hcnse_file_size(hcnse_file_t *file)
 {
     LARGE_INTEGER info;
-    if (GetFileSizeEx(file->fd, &info) != TRUE) {
+    if (GetFileSizeEx(file->fd, &info) != 1) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "GetFileSizeEx(%d, %p) failed",
+            file->fd, &info);
         return -1;
     }
     ssize_t size = info.QuadPart;
@@ -158,6 +204,9 @@ server_read_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
     if (ReadFile(fd, buf, size, &n, NULL) != 0) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "ReadFile(%d, %p, %zu, %p, %p) failed",
+            fd, buf, size, &n, NULL);
         return (ssize_t) n;
     }
     return -1;
@@ -168,6 +217,9 @@ hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
     if (WriteFile(fd, buf, size, &n, NULL) != 0) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "WriteFile(%d, %p, %zu, %p, %p) failed",
+            fd, buf, size, &n, NULL);
         return (ssize_t) n;
     }
     return -1;

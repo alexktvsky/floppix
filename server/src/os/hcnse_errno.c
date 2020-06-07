@@ -11,7 +11,7 @@ static const struct {
     hcnse_err_t code;
     const char *message;
 } error_list[] = {
-    {HCNSE_FAILED,                   "Default internal error"},
+    {HCNSE_FAILED,                   "Internal server error"},
     {HCNSE_BUSY,                     "Resource is busy"},
     {HCNSE_DONE,                     "Operation is done"},
     {HCNSE_ABORT,                    "Operation aborted"},

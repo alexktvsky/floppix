@@ -14,12 +14,10 @@ hcnse_socket_nopush(hcnse_socket_t sockfd)
                         (const void *) &option, sizeof(int)) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, %zu) failed",
-            sockfd, option, sizeof(int));
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setsockopt() failed");
         return err;
     }
-    // int  cork = 1;
+    // int cork = 1;
     // return setsockopt(sockfd, IPPROTO_TCP, TCP_CORK,
     //                      (const void *) &cork, sizeof(int));
     return HCNSE_OK;
@@ -35,9 +33,7 @@ hcnse_socket_push(hcnse_socket_t sockfd)
                         (const void *) &option, sizeof(int)) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, %zu) failed",
-            sockfd, option, sizeof(int));
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setsockopt() failed");
         return err;
     }
     return HCNSE_OK;
@@ -54,8 +50,7 @@ hcnse_socket_nonblocking(hcnse_socket_t sockfd)
     if (fcntl(sockfd, F_SETFL, flags|O_NONBLOCK) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "fcntl(%d, F_SETFL, %d|O_NONBLOCK) failed", sockfd, flags);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "fcntl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -72,8 +67,7 @@ hcnse_socket_blocking(hcnse_socket_t sockfd)
     if (fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK)) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "fcntl(%d, F_SETFL, %d & (~O_NONBLOCK)) failed", sockfd, flags);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "fcntl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -92,9 +86,7 @@ hcnse_socket_nopush(hcnse_socket_t sockfd)
             (const void *) &option, sizeof(int)) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, ) failed",
-            sockfd, option, sizeof(int));
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setsockopt() failed");
         return err;
     }
     return HCNSE_OK;
@@ -112,9 +104,7 @@ hcnse_socket_push(hcnse_socket_t sockfd)
             (const void *) &hcnse_socket_nopush, sizeof(int)) == -1)
     {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, %zu) failed",
-            sockfd, hcnse_socket_nopush, sizeof(int));
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setsockopt() failed");
         return err;
     }
     return HCNSE_OK;
@@ -130,8 +120,7 @@ hcnse_socket_nonblocking(hcnse_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctl(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -147,8 +136,7 @@ hcnse_socket_blocking(hcnse_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctl(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -172,10 +160,12 @@ hcnse_socket_push(hcnse_socket_t sockfd)
     return HCNSE_OK;
 }
 
-/* Setting FIONBIO or O_NDELAY on Solaris causes a read
+/* 
+ * Setting FIONBIO or O_NDELAY on Solaris causes a read
  * with no data to return 0 on a tty or pipe, or -1 with
  * errno EAGAIN on a socket. However 0 is ambiguous since
- * it is also returned for EOF */
+ * it is also returned for EOF
+ */
 hcnse_err_t
 hcnse_socket_nonblocking(hcnse_socket_t sockfd)
 {
@@ -186,8 +176,7 @@ hcnse_socket_nonblocking(hcnse_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctl(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -203,8 +192,7 @@ hcnse_socket_blocking(hcnse_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctl(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctl() failed");
         return err;
     }
     return HCNSE_OK;
@@ -239,8 +227,7 @@ hcnse_socket_nonblocking(hcnse_socket_t sockfd)
 
     if (ioctlsocket(sockfd, FIONBIO, &nb) != 0) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctlsocket(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctlsocket() failed");
         return err;
     }
     return HCNSE_OK;
@@ -256,8 +243,7 @@ hcnse_socket_blocking(hcnse_socket_t sockfd)
 
     if (ioctlsocket(sockfd, FIONBIO, &nb) != 0) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "ioctlsocket(%d, FIONBIO, %d) failed", sockfd, nb);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "ioctlsocket() failed");
         return err;
     }
     return HCNSE_OK;

@@ -12,8 +12,7 @@ hcnse_socket_init(hcnse_socket_t *new_sockfd, int domain, int type,
     sockfd = socket(domain, type, protocol);
     if (sockfd == HCNSE_INVALID_SOCKET) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err, "socket(%d, %d, %d) failed",
-            domain, type, protocol);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "socket() failed");
         goto failed;
     }
 
@@ -121,7 +120,7 @@ hcnse_winsock_init_v22(void)
 
     if (WSAStartup(version_requested, &data) != 0) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err, "WSAStartup() failed");
+        hcnse_log_error1(HCNSE_LOG_EMERG, err, "WSAStartup() failed");
         return err;
     }
     return HCNSE_OK;

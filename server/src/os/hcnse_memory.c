@@ -20,7 +20,7 @@ hcnse_malloc(size_t size)
 
     mem = malloc(size);
     if (!mem) {
-        hcnse_log_error1(HCNSE_LOG_EMERG, hcnse_get_errno(),
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "malloc(%zu) failed", size);
     }
     else {

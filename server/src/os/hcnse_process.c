@@ -53,8 +53,6 @@ hcnse_process_set_workdir(const char *workdir)
 
 // hcnse_err_t process_set_priority(int8_t prio) {}
 
-
-
 #elif (HCNSE_WIN32)
 hcnse_err_t
 hcnse_process_daemon_init(void)

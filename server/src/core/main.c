@@ -366,8 +366,10 @@ main(int argc, char *const argv[])
     hcnse_log_set_global(log);
 
 
-    /* Now log file is available and server can write error mesages in it, so
-     * here we close TTY, fork off the parent process and run daemon */
+    /*
+     * Now log file is available and server can write error mesages in it, so
+     * here we close TTY, fork off the parent process and run daemon
+     */
 #if !(HCNSE_NO_DAEMON)
     err = hcnse_process_daemon_init();
     if (err != HCNSE_OK) {
@@ -376,7 +378,8 @@ main(int argc, char *const argv[])
     }
 #endif
 
-    /* TODO:
+    /* 
+     * TODO:
      * hcnse_signals_init
      * hcnse_ssl_init
      * 

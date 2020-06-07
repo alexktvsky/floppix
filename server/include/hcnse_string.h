@@ -35,6 +35,8 @@
 #define hcnse_vsnprintf(str, size, ...) \
     vsnprintf(str, size, __VA_ARGS__)
 
+#define hcnse_value(x)                 (#x)
+
 
 const char *hcnse_get_metric_prefix(size_t number);
 size_t hcnse_convert_to_prefix(size_t number);
