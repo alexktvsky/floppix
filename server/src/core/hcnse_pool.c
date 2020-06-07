@@ -9,9 +9,6 @@
 #define HCNSE_SIZEOF_MEMPOOL_T_ALIGN \
     hcnse_align_default(sizeof(hcnse_pool_t))
 
-#define hcnse_memnode_max_size(node) \
-    ((size_t) (((uintptr_t) node->endp) - ((uintptr_t) node->startp)))
-
 #define HCNSE_PAGE_SIZE (hcnse_get_page_size())
 
 /* 
@@ -30,10 +27,10 @@ typedef struct hcnse_cleanup_node_s hcnse_cleanup_node_t;
 
 struct hcnse_memnode_s {
     hcnse_memnode_t *next;
-    uint8_t *startp;
+    uint8_t *begin;
     uint8_t *first_avail;
-    uint8_t *endp;
-    size_t free_size;
+    size_t size;
+    size_t size_avail; /* To increase search speed */
 };
 
 struct hcnse_cleanup_node_s {
@@ -68,41 +65,47 @@ hcnse_align_allocation(size_t in_size)
 }
 
 static size_t
-hcnse_get_npages(size_t in_size)
+hcnse_get_npages(size_t size)
 {
-    size_t size = in_size + HCNSE_SIZEOF_MEMNODE_T_ALIGN;
-    if (size < HCNSE_PAGE_SIZE) {
+    size_t total_size;
+
+    total_size = size + HCNSE_SIZEOF_MEMNODE_T_ALIGN;
+    if (total_size < HCNSE_PAGE_SIZE) {
         return 1;
     }
     else {
-        return ((size / HCNSE_PAGE_SIZE) + 1);
+        return ((total_size / HCNSE_PAGE_SIZE) + 1);
     }
 }
 
 static hcnse_memnode_t *
-hcnse_memnode_allocate_and_init(size_t in_size)
+hcnse_memnode_allocate_and_init(size_t size)
 {
     hcnse_memnode_t *node;
+    uint8_t *mem;
 
 #if (HCNSE_HAVE_MMAP)
-    node = mmap(NULL, in_size, PROT_READ|PROT_WRITE,
+    mem = mmap(NULL, size, PROT_READ|PROT_WRITE,
                                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    if (node == MAP_FAILED) {
+    if (mem == MAP_FAILED) {
         return NULL;
     }
 #else
-    node = hcnse_malloc(in_size);
-    if (node == NULL) {
+    mem = hcnse_malloc(size);
+    if (mem == NULL) {
         return NULL;
     }
 #endif
 
+    node = (hcnse_memnode_t *) mem;
+
     /* Initialization of memnode */
     node->next = NULL;
-    node->startp = (uint8_t *) node + HCNSE_SIZEOF_MEMNODE_T_ALIGN;
-    node->first_avail = (uint8_t *) node->startp;
-    node->endp = (uint8_t *) node + in_size;
-    node->free_size = hcnse_memnode_max_size(node);
+    node->begin = mem + HCNSE_SIZEOF_MEMNODE_T_ALIGN;
+    node->first_avail = node->begin;
+    node->size = size - HCNSE_SIZEOF_MEMNODE_T_ALIGN;
+    node->size_avail = node->size;
+
     return node;
 }
 
@@ -190,8 +193,8 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
 
     node = (pool->nodes)[index];
     while (node) {
-        if (node->free_size >= size) {
-            node->free_size -= size;
+        if (node->size_avail >= size) {
+            node->size_avail -= size;
             mem = node->first_avail;
             node->first_avail += size;
             break;
@@ -208,7 +211,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
         (pool->nodes)[index] = node;
         node->next = temp;
 
-        node->free_size -= size;
+        node->size_avail -= size;
         mem = node->first_avail;
         node->first_avail += size;
     }
@@ -274,7 +277,7 @@ hcnse_pool_get_size(hcnse_pool_t *pool)
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
-            size += hcnse_memnode_max_size(node);
+            size += node->size;
             node = node->next;
         }
     }
@@ -289,7 +292,7 @@ hcnse_pool_get_free_size(hcnse_pool_t *pool)
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
-            size += node->free_size;
+            size += node->size_avail;
             node = node->next;
         }
     }
@@ -331,8 +334,8 @@ hcnse_pool_clean(hcnse_pool_t *pool)
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
-            node->first_avail = node->startp;
-            node->free_size = hcnse_memnode_max_size(node);
+            node->first_avail = node->begin;
+            node->size_avail = node->size;
             node = node->next;
         }
     }

@@ -12,8 +12,8 @@ hcnse_socket_init(hcnse_socket_t *new_sockfd, int domain, int type,
     sockfd = socket(domain, type, protocol);
     if (sockfd == HCNSE_INVALID_SOCKET) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "socket(%d, %d, %d) failed", domain, type, protocol);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "socket(%d, %d, %d) failed",
+            domain, type, protocol);
         goto failed;
     }
 
@@ -33,8 +33,7 @@ hcnse_socket_bind(hcnse_socket_t sockfd, const struct sockaddr *addr,
 
     if (bind(sockfd, addr, addrlen) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "bind() failed to %s:%s",
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "bind() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         return err;
@@ -49,8 +48,8 @@ hcnse_socket_listen(hcnse_socket_t sockfd, int backlog)
 
     if (listen(sockfd, backlog) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "listen(%d, %d) failed", sockfd, backlog);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "listen(%d, %d) failed",
+            sockfd, backlog);
         return err;
     }
     return HCNSE_OK;
@@ -66,8 +65,7 @@ hcnse_socket_accept(hcnse_socket_t *new_sockfd, hcnse_socket_t sockfd,
     sockfd1 = accept(sockfd, addr, addrlen);
     if (sockfd1 == HCNSE_INVALID_SOCKET) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "accept() failed to %s:%s",
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "accept() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         goto failed;
@@ -89,8 +87,7 @@ hcnse_socket_connect(hcnse_socket_t sockfd, const struct sockaddr *addr,
 
     if (connect(sockfd, addr, addrlen) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "connect() failed to %s:%s",
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "connect() failed to %s:%s",
             hcnse_sockaddr_get_addr_text(addr),
             hcnse_sockaddr_get_port_text(addr));
         return err;
@@ -105,8 +102,8 @@ hcnse_socket_shutdown(hcnse_socket_t sockfd, int how)
 
     if (shutdown(sockfd, how) == -1) {
         err = hcnse_get_socket_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "shutdown(%d, %d) failed", sockfd, how);
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "shutdown(%d, %d) failed",
+            sockfd, how);
         return err;
     }
     return HCNSE_OK;

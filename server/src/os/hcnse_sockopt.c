@@ -15,8 +15,8 @@ hcnse_socket_nopush(hcnse_socket_t sockfd)
     {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, sizeof(int)) failed",
-            sockfd, option);
+            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, %zu) failed",
+            sockfd, option, sizeof(int));
         return err;
     }
     // int  cork = 1;
@@ -36,8 +36,8 @@ hcnse_socket_push(hcnse_socket_t sockfd)
     {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, sizeof(int)) failed",
-            sockfd, option);
+            "setsockopt(%d, SOL_SOCKET, SO_REUSEADDR, %d, %zu) failed",
+            sockfd, option, sizeof(int));
         return err;
     }
     return HCNSE_OK;
@@ -93,8 +93,8 @@ hcnse_socket_nopush(hcnse_socket_t sockfd)
     {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, sizeof(int)) failed",
-            sockfd, option);
+            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, ) failed",
+            sockfd, option, sizeof(int));
         return err;
     }
     return HCNSE_OK;
@@ -113,8 +113,8 @@ hcnse_socket_push(hcnse_socket_t sockfd)
     {
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, sizeof(int)) failed",
-            sockfd, hcnse_socket_nopush);
+            "setsockopt(%d, IPPROTO_TCP, TCP_NOPUSH, %d, %zu) failed",
+            sockfd, hcnse_socket_nopush, sizeof(int));
         return err;
     }
     return HCNSE_OK;
