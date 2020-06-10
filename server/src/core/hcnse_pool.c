@@ -12,12 +12,12 @@
 #define HCNSE_PAGE_SIZE (hcnse_get_page_size())
 
 /* 
- * slot  0: size  4096
- * slot  1: size  8192
+ * slot  0: size 4096
+ * slot  1: size 8192
  * slot  2: size 12288
  * ...
  * slot 19: size 81920
- * slot 20: nodes larger than 81920
+ * slot 20: size 163840
  */
 #define HCNSE_MAX_POOL_INDEX 20
 
@@ -132,15 +132,33 @@ hcnse_pool_add_child(hcnse_pool_t *parent, hcnse_pool_t *new_child)
 hcnse_err_t
 hcnse_pool_create1(hcnse_pool_t **newpool, hcnse_pool_t *parent)
 {
+    hcnse_memnode_t *node;
     hcnse_pool_t *pool;
-    hcnse_err_t err;
+    size_t npages;
+    size_t index;
 
-    pool = hcnse_malloc(sizeof(hcnse_pool_t));
-    if (!pool) {
-        err = hcnse_get_errno();
-        goto failed;
+    npages = hcnse_get_npages(HCNSE_SIZEOF_MEMPOOL_T_ALIGN);
+    index = npages - 1;
+    if (index > HCNSE_MAX_POOL_INDEX) {
+        return HCNSE_FAILED;
     }
+
+    node = hcnse_memnode_allocate_and_init(npages * HCNSE_PAGE_SIZE);
+    if (!node) {
+        return hcnse_get_errno();
+    }
+
+    pool = (hcnse_pool_t *) node->begin;
     hcnse_memset(pool, 0, sizeof(hcnse_pool_t));
+
+    node->begin += HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
+    node->size -= HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
+    node->first_avail = node->begin;
+    node->size_avail = node->size;
+
+    /* Registaration of memnode */
+    (pool->nodes)[index] = node;
+    node->next = NULL;
 
     if (parent) {
         hcnse_pool_add_child(parent, pool);
@@ -148,12 +166,6 @@ hcnse_pool_create1(hcnse_pool_t **newpool, hcnse_pool_t *parent)
 
     *newpool = pool;
     return HCNSE_OK;
-
-failed:
-    if (pool) {
-        hcnse_free(pool);
-    }
-    return err;
 }
 
 hcnse_pool_t *
@@ -187,8 +199,18 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
      */
     npages = hcnse_get_npages(size);
     index = npages - 1;
+
+    /*
+     * When the requested allocation is too large to fit into a block,
+     * the request is forwarded to the system allocator and the returned
+     * pointer is stored in the pool for further deallocation
+     */
     if (index > HCNSE_MAX_POOL_INDEX) {
-        return NULL;
+        mem = hcnse_malloc(size);
+        if (mem) {
+            hcnse_pool_cleanup_add(pool, mem, hcnse_free);
+        }
+        return mem;
     }
 
     node = (pool->nodes)[index];
@@ -205,6 +227,9 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
     /* If we haven't got a suitable node, allocate a new one */
     if (!node) {
         node = hcnse_memnode_allocate_and_init(npages * HCNSE_PAGE_SIZE);
+        if (!node) {
+            return NULL;
+        }
 
         /* Registaration of memnode */
         temp = (pool->nodes)[index];
@@ -371,5 +396,4 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
 #endif
         }
     }
-    hcnse_free(pool);
 }
