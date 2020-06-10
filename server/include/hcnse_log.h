@@ -51,6 +51,7 @@ extern hcnse_log_t *hcnse_log_global;
 void hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...);
 hcnse_log_t *hcnse_log_create(hcnse_conf_t *conf);
 hcnse_err_t hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf);
+hcnse_err_t hcnse_log_update(hcnse_log_t *log, hcnse_conf_t *conf);
 void hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...);
 void hcnse_log_destroy(hcnse_log_t *log);

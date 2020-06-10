@@ -12,12 +12,12 @@
 #define HCNSE_PAGE_SIZE (hcnse_get_page_size())
 
 /* 
- * slot  0: size 4096
- * slot  1: size 8192
- * slot  2: size 12288
+ * Index  0: size 4096
+ * Index  1: size 8192
+ * Index  2: size 12288
  * ...
- * slot 19: size 81920
- * slot 20: size 163840
+ * Index 19: size 81920
+ * Index 20: size 163840
  */
 #define HCNSE_MAX_POOL_INDEX 20
 
@@ -52,16 +52,18 @@ struct hcnse_pool_s {
 
 
 static size_t
-hcnse_align_allocation(size_t in_size)
+hcnse_align_allocation(size_t size)
 {
-    size_t size = hcnse_align_default(in_size);
-    if (size < in_size) {
+    size_t align_size;
+
+    align_size = hcnse_align_default(size);
+    if (align_size < size) {
         return 0;
     }
-    if (size < HCNSE_MIN_ALLOC) {
-        size = HCNSE_MIN_ALLOC;
+    if (align_size < HCNSE_MIN_ALLOC) {
+        align_size = HCNSE_MIN_ALLOC;
     }
-    return size;
+    return align_size;
 }
 
 static size_t
@@ -179,17 +181,18 @@ hcnse_pool_create(hcnse_pool_t *parent)
 }
 
 void *
-hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
+hcnse_palloc(hcnse_pool_t *pool, size_t size)
 {
-    size_t size;
-    size_t npages;
-    size_t index;
-    void *mem;
     hcnse_memnode_t *node;
     hcnse_memnode_t *temp;
+    void *mem;
+    size_t align_size;
+    size_t npages;
+    size_t index;
 
-    size = hcnse_align_allocation(in_size);
-    if (!size) {
+
+    align_size = hcnse_align_allocation(size);
+    if (!align_size) {
         return NULL;
     }
 
@@ -197,7 +200,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
      * First see if there are any nodes in the area we know
      * our node will fit into
      */
-    npages = hcnse_get_npages(size);
+    npages = hcnse_get_npages(align_size);
     index = npages - 1;
 
     /*
@@ -206,7 +209,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
      * pointer is stored in the pool for further deallocation
      */
     if (index > HCNSE_MAX_POOL_INDEX) {
-        mem = hcnse_malloc(size);
+        mem = hcnse_malloc(align_size);
         if (mem) {
             hcnse_pool_cleanup_add(pool, mem, hcnse_free);
         }
@@ -215,10 +218,10 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
 
     node = (pool->nodes)[index];
     while (node) {
-        if (node->size_avail >= size) {
-            node->size_avail -= size;
+        if (node->size_avail >= align_size) {
+            node->size_avail -= align_size;
             mem = node->first_avail;
-            node->first_avail += size;
+            node->first_avail += align_size;
             break;
         }
         node = node->next;
@@ -236,21 +239,21 @@ hcnse_palloc(hcnse_pool_t *pool, size_t in_size)
         (pool->nodes)[index] = node;
         node->next = temp;
 
-        node->size_avail -= size;
+        node->size_avail -= align_size;
         mem = node->first_avail;
-        node->first_avail += size;
+        node->first_avail += align_size;
     }
     return mem;
 }
 
 void *
-hcnse_pcalloc(hcnse_pool_t *pool, size_t in_size)
+hcnse_pcalloc(hcnse_pool_t *pool, size_t size)
 {
     void *mem;
 
-    mem = hcnse_palloc(pool, in_size);
+    mem = hcnse_palloc(pool, size);
     if (mem) {
-        hcnse_memset(mem, 0, in_size);
+        hcnse_memset(mem, 0, size);
     }
     return mem;
 }

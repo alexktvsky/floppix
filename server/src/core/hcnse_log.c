@@ -3,10 +3,34 @@
 
 #define HCNSE_LOG_MSG_SIZE             500
 #define HCNSE_LOG_BUF_SIZE             32
+#define HCNSE_TIMESTRLEN               24
 
 #define HCNSE_LOG_INIT_DELAY           500
 #define HCNSE_LOG_WORKER_DELAY         1000
 
+typedef struct hcnse_log_node_s hcnse_log_node_t;
+typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, uint8_t level,
+    char *buf, size_t len);
+
+/*
+ * TODO:
+ * A logger instance can be a chain of loggers, linked to each other
+ * with the next field. In this case, each message is written to all loggers
+ * in the chain
+ * 
+ * fix config to:
+ * # log <file> <level> <size/nolimit>
+ * 
+ */
+
+struct hcnse_log_node_s {
+    uint8_t level;
+    hcnse_file_t *file;
+    size_t max_size;
+    bool rewrite;
+    hcnse_log_handler_t handler;
+    hcnse_log_node_t *next;
+};
 
 typedef struct {
     uint8_t level;
@@ -16,16 +40,19 @@ typedef struct {
 
 struct hcnse_log_s {
     hcnse_pool_t *pool;
-    hcnse_file_t *file;
-    uint8_t level;
-    size_t size;
-    bool rewrite;
+    uint8_t level; // remove
+    hcnse_file_t *file;  // remove
+    size_t file_max_size;  // remove
+    bool file_rewrite;  // remove
+
     hcnse_log_message_t *messages;
+
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     pid_t pid;
 #else
     hcnse_thread_t *tid;
 #endif
+
     uint32_t front;
     uint32_t rear;
     hcnse_semaphore_t *sem_empty;
@@ -68,8 +95,8 @@ hcnse_log_worker(void *arg)
                                 msg->time, prio[msg->level], msg->str);
 
         /* TODO: Improve logs rotation */
-        if (log->size) {
-            if ((log->file->offset + len) > (log->size)) {
+        if (log->file_max_size) {
+            if ((log->file->offset + len) > (log->file_max_size)) {
                 log->file->offset = 0;
             }
         }
@@ -217,8 +244,8 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
     log->pool = pool;
     log->file = file;
     log->level = conf->log_level;
-    log->size = conf->log_size;
-    log->rewrite = conf->log_rewrite;
+    log->file_max_size = conf->log_size;
+    log->file_rewrite = conf->log_rewrite;
     log->messages = messages;
     log->mutex_deposit = mutex_deposit;
     log->mutex_fetch = mutex_fetch;
@@ -284,6 +311,16 @@ hcnse_log_create(hcnse_conf_t *conf)
     return log;
 }
 
+hcnse_err_t
+hcnse_log_update(hcnse_log_t *log, hcnse_conf_t *conf)
+{
+    /* Rebuild chain of log nodes */
+
+
+
+    return HCNSE_OK;
+}
+
 void
 hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...)
@@ -291,6 +328,7 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
     hcnse_log_message_t *messages;
     hcnse_log_message_t *msg;
     va_list args;
+    time_t sec;
     char *buf;
     size_t len;
 
@@ -318,7 +356,11 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
         }
     }
 
-    hcnse_timestr(msg->time, HCNSE_TIMESTRLEN, time(NULL));
+    sec = time(NULL);
+
+    hcnse_timestr(sec, "[%02d.%02d.%02d] [%02d:%02d:%02d]", msg->time,
+        HCNSE_TIMESTRLEN);
+
     msg->level = level;
 
     hcnse_mutex_unlock(log->mutex_deposit);

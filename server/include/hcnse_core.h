@@ -18,9 +18,9 @@ typedef struct hcnse_event_actions_s   hcnse_event_actions_t;
 typedef struct hcnse_regex_compile_s   hcnse_regex_compile_t;
 
 typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
-typedef void (* hcnse_thread_handler_t)(void *in, void *out);
+typedef void (*hcnse_thread_handler_t)(void *in, void *out);
 
-typedef void (* hcnse_cleanup_handler_t)(void *data);
+typedef void (*hcnse_cleanup_handler_t)(void *data);
 typedef void (*hcnse_event_handler_t)(hcnse_event_t *event);
 
 #include "hcnse_regex.h"

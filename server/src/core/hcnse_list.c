@@ -91,6 +91,7 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
     }
 
     list->size += 1;
+
     return HCNSE_OK;
 }
 

@@ -4,8 +4,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_TIMESTRLEN               24
-
 #if (HCNSE_POSIX)
 
 #define hcnse_tm_sec                   tm_sec
@@ -52,6 +50,6 @@
 
 void hcnse_gettimeofday(struct timeval *tv);
 void hcnse_localtime(time_t sec, hcnse_tm_t *tm);
-const char *hcnse_timestr(char *buf, size_t len, time_t sec);
+const char *hcnse_timestr(time_t sec, const char *fmt, char *buf, size_t len);
 
 #endif /* INCLUDED_HCNSE_TIME_H */
