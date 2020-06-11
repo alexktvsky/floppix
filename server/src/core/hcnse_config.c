@@ -31,6 +31,7 @@ typedef enum {
     HCNSE_PATTERN_LOG_INFO,
     HCNSE_PATTERN_LOG_DEBUG,
 
+    HCNSE_PATTERN_DAEMON,
     HCNSE_PATTERN_WORKDIR,
     HCNSE_PATTERN_PRIORITY,
     HCNSE_PATTERN_TIMER,
@@ -64,6 +65,7 @@ static const char *patterns[] = {
     HCNSE_REGEX_STR("(log_level)\\s+(info)"),
     HCNSE_REGEX_STR("(log_level)\\s+(debug)"),
 
+    HCNSE_REGEX_STR("(daemon)\\s+(on|off)"),
     HCNSE_REGEX_STR("(workdir)\\s+([\\S]+)"),
     HCNSE_REGEX_STR("(priority)\\s+([0-9/-]+)"),  // signed value
     HCNSE_REGEX_STR("(timer)\\s+([0-9]+)"),
@@ -98,6 +100,7 @@ hcnse_config_set_default_params(hcnse_conf_t *conf)
     conf->log_level = HCNSE_LOG_ERROR;
     conf->log_rewrite = false;
 
+    conf->daemon = true;
     conf->priority = 0;
     conf->timer = 30000;
 
@@ -287,6 +290,20 @@ hcnse_config_parse(hcnse_conf_t *conf)
 
             case HCNSE_PATTERN_LOG_DEBUG:
                 conf->log_level = HCNSE_LOG_DEBUG;
+                break;
+
+
+            case HCNSE_PATTERN_DAEMON:
+                hcnse_memmove(ptr1, HCNSE_FIRST_SUBSTR, HCNSE_FIRST_SUBSTR_LEN);
+                ptr1[HCNSE_FIRST_SUBSTR_LEN] = '\0';
+                if (!hcnse_strncmp(ptr1, "on", 2)) {
+                    conf->daemon = true;
+                }
+                else {
+                    conf->daemon = false;
+                }
+
+                ptr1 += HCNSE_FIRST_SUBSTR_LEN + 1;
                 break;
 
             case HCNSE_PATTERN_WORKDIR:

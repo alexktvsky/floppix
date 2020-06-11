@@ -16,6 +16,7 @@ struct hcnse_config_s {
     bool log_rewrite;
     uint8_t log_level;
 
+    bool daemon;
     char *workdir;
     int8_t priority; // XXX: Signed value
     hcnse_msec_t timer;
