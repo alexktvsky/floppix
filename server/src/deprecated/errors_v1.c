@@ -13,9 +13,9 @@ static const struct {
     const char *message;
 } error_list[] = {
     /* HCNSE_ERR_CONF domain */
-    {HCNSE_ERR_CONF_OPEN,            "Failed to open config file"},
-    {HCNSE_ERR_CONF_SIZE,            "Failed to determine config file size"},
-    {HCNSE_ERR_CONF_READ,            "Failed to read from config file"},
+    {HCNSE_ERR_CONF_OPEN,            "Failed to open conf file"},
+    {HCNSE_ERR_CONF_SIZE,            "Failed to determine conf file size"},
+    {HCNSE_ERR_CONF_READ,            "Failed to read from conf file"},
     {HCNSE_ERR_CONF_REGEX,           "Failed to compile regular expressions"},
 
     /* HCNSE_ERR_NET domain */

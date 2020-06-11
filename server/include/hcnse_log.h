@@ -46,7 +46,7 @@
 
 
 extern hcnse_log_t *hcnse_log_global;
-
+extern const char *hcnse_log_prio[];
 
 void hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...);
 hcnse_log_t *hcnse_log_create(hcnse_conf_t *conf);

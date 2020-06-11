@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_CORE_H
 
 typedef int                            hcnse_err_t;
-typedef struct hcnse_config_s          hcnse_conf_t;
+typedef struct hcnse_conf_s          hcnse_conf_t;
 typedef struct hcnse_cycle_s           hcnse_cycle_t;
 typedef struct hcnse_log_s             hcnse_log_t;
 typedef struct hcnse_listener_s        hcnse_listener_t;

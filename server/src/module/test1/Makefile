@@ -39,11 +39,11 @@ obj/%.o: src/%.c
 
 install: mkdirs build
 	cp bin/$(BIN_FILE) /usr/bin
-	/sbin/ldconfig
+	/sbin/ldconf
 
 uninstall:
 	rm -f /usr/bin/$(BIN_FILE)
-	/sbin/ldconfig
+	/sbin/ldconf
 
 clean:
 	rm -f obj/* bin/*

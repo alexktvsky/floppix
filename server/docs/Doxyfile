@@ -14,10 +14,10 @@
 # Values that contain spaces should be placed between quotes (\" \").
 
 #---------------------------------------------------------------------------
-# Project related configuration options
+# Project related confuration options
 #---------------------------------------------------------------------------
 
-# This tag specifies the encoding used for all characters in the config file
+# This tag specifies the encoding used for all characters in the conf file
 # that follow. The default is UTF-8 which is also the encoding used for all text
 # before the first occurrence of this tag. Doxygen uses libiconv (or the iconv
 # built into libc) for the transcoding. See http://www.gnu.org/software/libiconv
@@ -424,7 +424,7 @@ TYPEDEF_HIDES_STRUCT   = NO
 LOOKUP_CACHE_SIZE      = 0
 
 #---------------------------------------------------------------------------
-# Build related configuration options
+# Build related confuration options
 #---------------------------------------------------------------------------
 
 # If the EXTRACT_ALL tag is set to YES, doxygen will assume all entities in
@@ -1049,7 +1049,7 @@ SOURCE_TOOLTIPS        = YES
 #
 # To use it do the following:
 # - Install the latest version of global
-# - Enable SOURCE_BROWSER and USE_HTAGS in the config file
+# - Enable SOURCE_BROWSER and USE_HTAGS in the conf file
 # - Make sure the INPUT points to the root of the source tree
 # - Run doxygen as normal
 #
@@ -1145,7 +1145,7 @@ HTML_FILE_EXTENSION    = .html
 # standard header.
 #
 # To get valid HTML the header file that includes any scripts and style sheets
-# that doxygen needs, which is dependent on the configuration options used (e.g.
+# that doxygen needs, which is dependent on the confuration options used (e.g.
 # the setting GENERATE_TREEVIEW). It is highly recommended to start with a
 # default header using
 # doxygen -w html new_header.html new_footer.html new_stylesheet.css
@@ -1529,7 +1529,7 @@ FORMULA_TRANSPARENT    = YES
 # http://www.mathjax.org) which uses client side Javascript for the rendering
 # instead of using pre-rendered bitmaps. Use this if you do not have LaTeX
 # installed or if you want to formulas look prettier in the HTML output. When
-# enabled you may also need to install MathJax separately and configure the path
+# enabled you may also need to install MathJax separately and confure the path
 # to it using the MATHJAX_RELPATH option.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
@@ -1651,7 +1651,7 @@ SEARCHDATA_FILE        = searchdata.xml
 EXTERNAL_SEARCH_ID     = 
 
 # The EXTRA_SEARCH_MAPPINGS tag can be used to enable searching through doxygen
-# projects other than the one defined by this configuration file, but that are
+# projects other than the one defined by this confuration file, but that are
 # all added to the same external search index. Each project needs to have a
 # unique id set via EXTERNAL_SEARCH_ID. The search mapping then maps the id of
 # to a relative location where the documentation can be found. The format is:
@@ -1868,7 +1868,7 @@ COMPACT_RTF            = NO
 
 RTF_HYPERLINKS         = NO
 
-# Load stylesheet definitions from file. Syntax is similar to doxygen's config
+# Load stylesheet definitions from file. Syntax is similar to doxygen's conf
 # file, i.e. a series of assignments. You only have to provide replacements,
 # missing definitions are set to their default value.
 #
@@ -1879,7 +1879,7 @@ RTF_HYPERLINKS         = NO
 RTF_STYLESHEET_FILE    = 
 
 # Set optional variables used in the generation of an RTF document. Syntax is
-# similar to doxygen's config file. A template extensions file can be generated
+# similar to doxygen's conf file. A template extensions file can be generated
 # using doxygen -e rtf extensionFile.
 # This tag requires that the tag GENERATE_RTF is set to YES.
 
@@ -2425,7 +2425,7 @@ DIAFILE_DIRS           =
 PLANTUML_JAR_PATH      = 
 
 # When using plantuml, the PLANTUML_CFG_FILE tag can be used to specify a
-# configuration file for plantuml.
+# confuration file for plantuml.
 
 PLANTUML_CFG_FILE      = 
 

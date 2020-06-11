@@ -8,7 +8,7 @@
 #include "sockets.h"
 #include "listen.h"
 #include "pool.h"
-#include "config.h"
+#include "conf.h"
 
 #if (HCNSE_WIN32)
 #define PCRE_STATIC
@@ -29,8 +29,8 @@ static bool was_init = false;
 static bool was_read = false;
 
 static struct {
-    /* Name of config file */
-    char *config_filename;
+    /* Name of conf file */
+    char *conf_filename;
     /* Listeners */
     listen_unit_t *listeners;
     /* Number of logic CPU */
@@ -41,7 +41,7 @@ static struct {
     size_t maxlog;
     /* Private field */
     hcnse_pool_t *pool;
-} config;
+} conf;
 
 
 #define SafeIncSectionCounter() {                                       \
@@ -58,19 +58,19 @@ static struct {
 }
 
 
-hcnse_err_t init_config(void)
+hcnse_err_t init_conf(void)
 {
     was_init = true;
     hcnse_pool_t *newpool;
     if (hcnse_pool_create(&newpool, NULL) != HCNSE_OK) {
         return ALLOC_MEM_ERROR;
     }
-    config.pool = newpool;
+    conf.pool = newpool;
     return HCNSE_OK;
 }
 
 
-void fini_config(void)
+void fini_conf(void)
 {
     if (!was_init) {
         return;
@@ -78,13 +78,13 @@ void fini_config(void)
     was_init = false;
     was_set_filename = false;
     was_read = false;
-    if (config.pool) {
-        hcnse_pool_destroy(config.pool);
+    if (conf.pool) {
+        hcnse_pool_destroy(conf.pool);
     }
     return;
 }
 
-hcnse_err_t set_config_filename(const char *in_filename)
+hcnse_err_t set_conf_filename(const char *in_filename)
 {
     if (!was_init) {
         return ERR_FAILED;
@@ -93,48 +93,48 @@ hcnse_err_t set_config_filename(const char *in_filename)
         return NULL_ADDRESS_ERROR; /* Error of null address */
     }
     was_set_filename = true;
-    config.config_filename = (char *) in_filename;
+    conf.conf_filename = (char *) in_filename;
     return HCNSE_OK;
 }
 
 
-listen_unit_t *config_get_listeners(void)
+listen_unit_t *conf_get_listeners(void)
 {
     if (!was_read) {
         return NULL;
     }
-    return config.listeners;
+    return conf.listeners;
 }
 
 
-size_t config_get_nprocs(void)
+size_t conf_get_nprocs(void)
 {
     if (!was_read) {
         return 0;
     }
-    return config.nprocs;
+    return conf.nprocs;
 }
 
 
-char *config_get_logfile(void)
+char *conf_get_logfile(void)
 {
     if (!was_read) {
         return NULL;
     }
-    return config.logfile;
+    return conf.logfile;
 }
 
 
-size_t config_get_maxlog(void)
+size_t conf_get_maxlog(void)
 {
     if (!was_read) {
         return 0;
     }
-    return config.maxlog;
+    return conf.maxlog;
 }
 
 
-hcnse_err_t parse_config(void)
+hcnse_err_t parse_conf(void)
 {
     if (!was_init) {
         return ERR_FAILED;
@@ -145,9 +145,9 @@ hcnse_err_t parse_config(void)
     }
 
     was_read = true;
-    FILE *conf_file = fopen(config.config_filename, "r");
+    FILE *conf_file = fopen(conf.conf_filename, "r");
     if (!conf_file) {
-        return CONF_OPEN_ERROR; /* Error while open config file */
+        return CONF_OPEN_ERROR; /* Error while open conf file */
     }
 
     char patterns[][MAX_SIZE_LINE] = {
@@ -179,9 +179,9 @@ hcnse_err_t parse_config(void)
         }
     }
 
-    config.listeners = NULL;
-    config.nprocs = 0;
-    config.maxlog = 0;
+    conf.listeners = NULL;
+    conf.nprocs = 0;
+    conf.maxlog = 0;
     
     char last_interface[MAX_SIZE_LINE];
     char input_str[MAX_SIZE_LINE];
@@ -227,7 +227,7 @@ hcnse_err_t parse_config(void)
                         /* Section interface */
                         case 2:
                             if (sections[section_counter - 1] != SECTION_SERVER) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
                             hcnse_memset(last_interface, 0, MAX_SIZE_LINE);
@@ -241,13 +241,13 @@ hcnse_err_t parse_config(void)
                         /* Item listen TCP IPv4 */
                         case 3:
                             if (sections[section_counter - 1] != SECTION_INTERFACE) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
-                            temp1 = config.listeners;
+                            temp1 = conf.listeners;
                             if (!temp1) {
-                                config.listeners = hcnse_palloc(config.pool, sizeof(listen_unit_t));
-                                temp1 = config.listeners;
+                                conf.listeners = hcnse_palloc(conf.pool, sizeof(listen_unit_t));
+                                temp1 = conf.listeners;
                                 if (!temp1) {
                                     return ALLOC_MEM_ERROR; /* Error of allocate memory */
                                 }
@@ -257,7 +257,7 @@ hcnse_err_t parse_config(void)
                                     temp2 = temp1;
                                     temp1 = temp1->next;
                                 }
-                                temp1 = hcnse_palloc(config.pool, sizeof(listen_unit_t));
+                                temp1 = hcnse_palloc(conf.pool, sizeof(listen_unit_t));
                                 if (!temp1) {
                                     return ALLOC_MEM_ERROR; /* Error of allocate memory */
                                 }
@@ -266,7 +266,7 @@ hcnse_err_t parse_config(void)
 
                             string_len = hcnse_strlen(last_interface);
 
-                            temp1->netface = hcnse_palloc(config.pool, string_len + 1);
+                            temp1->netface = hcnse_palloc(conf.pool, string_len + 1);
                             if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
@@ -280,13 +280,13 @@ hcnse_err_t parse_config(void)
                         /* Item listen TCP IPv6 */
                         case 4:
                             if (sections[section_counter - 1] != SECTION_INTERFACE) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
-                            temp1 = config.listeners;
+                            temp1 = conf.listeners;
                             if (!temp1) {
-                                config.listeners = hcnse_palloc(config.pool, sizeof(listen_unit_t));
-                                temp1 = config.listeners;
+                                conf.listeners = hcnse_palloc(conf.pool, sizeof(listen_unit_t));
+                                temp1 = conf.listeners;
                                 if (!temp1) {
                                     return ALLOC_MEM_ERROR; /* Error of allocate memory */
                                 }
@@ -296,7 +296,7 @@ hcnse_err_t parse_config(void)
                                     temp2 = temp1;
                                     temp1 = temp1->next;
                                 }
-                                temp1 = hcnse_palloc(config.pool, sizeof(listen_unit_t));
+                                temp1 = hcnse_palloc(conf.pool, sizeof(listen_unit_t));
                                 if (!temp1) {
                                     return ALLOC_MEM_ERROR; /* Error of allocate memory */
                                 }
@@ -305,7 +305,7 @@ hcnse_err_t parse_config(void)
 
                             string_len = hcnse_strlen(last_interface);
 
-                            temp1->netface = hcnse_palloc(config.pool, string_len + 1);
+                            temp1->netface = hcnse_palloc(conf.pool, string_len + 1);
                             if (!(temp1->netface)) {
                                 return ALLOC_MEM_ERROR; /* Error of allocate memory */
                             }
@@ -319,37 +319,37 @@ hcnse_err_t parse_config(void)
                         /* Item nprocs */
                         case 5:
                             if (sections[section_counter - 1] != SECTION_SERVER) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
-                            config.nprocs = atoi(stringlist[0]);
+                            conf.nprocs = atoi(stringlist[0]);
                             /* Logic or syntax error */
-                            if (config.nprocs == 0) {
-                                config.nprocs = 1;
+                            if (conf.nprocs == 0) {
+                                conf.nprocs = 1;
                             }
                             break;
 
                         /* Item logfile */
                         case 6:
                             if (sections[section_counter - 1] != SECTION_SERVER) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
 
                             string_len = hcnse_strlen(stringlist[0]);
 
-                            config.logfile = hcnse_palloc(config.pool, string_len + 1);
-                            hcnse_memmove(config.logfile, stringlist[0], string_len);
-                            config.logfile[string_len] = '\0';
+                            conf.logfile = hcnse_palloc(conf.pool, string_len + 1);
+                            hcnse_memmove(conf.logfile, stringlist[0], string_len);
+                            conf.logfile[string_len] = '\0';
                             break;
 
                         /* Item maxlog */
                         case 7:
                             if (sections[section_counter - 1] != SECTION_SERVER) {
-                                /* Error of syntax configure file */
+                                /* Error of syntax confure file */
                                 return CONF_SYNTAX_ERROR;
                             }
-                            config.maxlog = atoi(stringlist[0]);
+                            conf.maxlog = atoi(stringlist[0]);
                             break;
                     }
                     pcre_free_substring_list(stringlist);
@@ -358,7 +358,7 @@ hcnse_err_t parse_config(void)
         }
     }
     if (section_counter) {
-        return CONF_SYNTAX_ERROR; /* Error of syntax configure file */
+        return CONF_SYNTAX_ERROR; /* Error of syntax confure file */
     }
     for (size_t i = 0; i < SIZE; i++) {
         pcre_free(pcre_array[i]);

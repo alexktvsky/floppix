@@ -6,7 +6,7 @@
 
 
 struct hcnse_cycle_s {
-    hcnse_conf_t *config;
+    hcnse_conf_t *conf;
     hcnse_log_t *log;
     hcnse_pool_t *pool;
 
