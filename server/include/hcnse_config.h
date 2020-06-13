@@ -5,6 +5,31 @@
 #include "hcnse_core.h"
 
 
+#define HCNSE_CONF_TAKE0       0x00000001
+#define HCNSE_CONF_TAKE1       0x00000002
+#define HCNSE_CONF_TAKE2       0x00000004
+#define HCNSE_CONF_TAKE3       0x00000008
+#define HCNSE_CONF_TAKE4       0x00000010
+#define HCNSE_CONF_TAKE5       0x00000020
+#define HCNSE_CONF_TAKE6       0x00000040
+#define HCNSE_CONF_TAKE7       0x00000080
+
+
+#define HCNSE_CONF_NULL_DIRECTIVE  {NULL, 0, NULL}
+
+
+
+struct hcnse_conf_directive_s {
+    char *name;
+    size_t takes;
+    hcnse_conf_dir_handler_t handler;
+};
+
+
+
+
+
+
 #define HCNSE_METRIC_PREFIX_EMPTY      ""
 #define HCNSE_METRIC_PREFIX_KILO       "k"
 #define HCNSE_METRIC_PREFIX_MEGA       "m"

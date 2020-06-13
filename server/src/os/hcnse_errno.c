@@ -18,8 +18,8 @@ static const struct {
     {HCNSE_DECLINED,                 "Operation declined"},
     {HCNSE_NOT_FOUND,                "Resource not found"},
 
-    /* {HCNSE_ERR_REGEX domain */
-    {HCNSE_ERR_REGEX_COMPILE,        "Failed to compile regular expressions"},
+    /* {HCNSE_ERR_CONF domain */
+    {HCNSE_ERR_CONF_SYNTAX,          "Error of configuration file syntax"},
 
     /* HCNSE_ERR_SSL domain */
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
@@ -148,7 +148,7 @@ hcnse_strerror(hcnse_err_t errcode)
         return message_ok;
     }
 
-    if (errcode < HCNSE_ERROR_DOMAIN_BASE) {
+    if (errcode > 0 && errcode < HCNSE_ERROR_DOMAIN_BASE) {
         return hcnse_errno_strerror(errcode);
     }
 

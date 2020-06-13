@@ -2,7 +2,8 @@
 #define INCLUDED_HCNSE_CORE_H
 
 typedef int                            hcnse_err_t;
-typedef struct hcnse_conf_s          hcnse_conf_t;
+typedef struct hcnse_conf_s            hcnse_conf_t;
+typedef struct hcnse_conf_directive_s  hcnse_conf_directive_t;
 typedef struct hcnse_cycle_s           hcnse_cycle_t;
 typedef struct hcnse_log_s             hcnse_log_t;
 typedef struct hcnse_listener_s        hcnse_listener_t;
@@ -17,6 +18,8 @@ typedef struct hcnse_event_s           hcnse_event_t;
 typedef struct hcnse_event_actions_s   hcnse_event_actions_t;
 typedef struct hcnse_regex_compile_s   hcnse_regex_compile_t;
 
+
+typedef void (*hcnse_conf_dir_handler_t)(size_t argc, char **argv);
 typedef hcnse_thread_value_t (*hcnse_thread_function_t)(void *);
 typedef void (*hcnse_thread_handler_t)(void *in, void *out);
 

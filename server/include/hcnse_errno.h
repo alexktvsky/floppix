@@ -32,8 +32,8 @@
     (HCNSE_ERROR_DOMAIN_BASE + (domain * HCNSE_ERRSPACE_SIZE))
 
 
-#define HCNSE_ERR_REGEX                HCNSE_ERROR_DOMAIN(1)
-#define HCNSE_ERR_REGEX_COMPILE        (HCNSE_ERR_REGEX+1)
+#define HCNSE_ERR_CONF                 HCNSE_ERROR_DOMAIN(1)
+#define HCNSE_ERR_CONF_SYNTAX          (HCNSE_ERR_CONF+1)
 
 #define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(2)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
