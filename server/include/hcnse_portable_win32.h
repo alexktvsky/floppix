@@ -4,12 +4,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <stdbool.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
 #include <errno.h>
+#include <time.h>
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -26,6 +26,8 @@
 
 typedef HANDLE                         hcnse_fd_t;
 typedef SOCKET                         hcnse_socket_t;
+typedef DWORD                          hcnse_tid_t;
+typedef HANDLE                         hcnse_thread_handle_t;
 typedef DWORD                          hcnse_thread_value_t;
 typedef SYSTEMTIME                     hcnse_tm_t;
 

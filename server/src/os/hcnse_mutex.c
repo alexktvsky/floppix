@@ -5,11 +5,13 @@
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
 {
     pthread_mutexattr_t attr;
-    int done_shared = 0;
+    hcnse_uint_t done_shared;
     hcnse_err_t err;
+
+    done_shared = 0;
 
     if (pthread_mutexattr_init(&attr) != 0) {
         err = hcnse_get_errno();
@@ -43,13 +45,11 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
         }
     }
 
-    if (pthread_mutex_init(&(mutex->handler), &attr) != 0) {
+    if (pthread_mutex_init(&(mutex->handle), &attr) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "pthread_mutex_init() failed");
         return err;
     }
-
-    hcnse_memmove(&(mutex->attr), &attr, sizeof(pthread_mutexattr_t));
 
     return HCNSE_OK;
 }
@@ -59,7 +59,7 @@ hcnse_mutex_lock(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (pthread_mutex_lock(&(mutex->handler)) != 0) {
+    if (pthread_mutex_lock(&(mutex->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "pthread_mutex_lock() failed");
         return err;
@@ -70,7 +70,7 @@ hcnse_mutex_lock(hcnse_mutex_t *mutex)
 hcnse_err_t
 hcnse_mutex_trylock(hcnse_mutex_t *mutex)
 {
-    if (pthread_mutex_trylock(&(mutex->handler)) != 0) {
+    if (pthread_mutex_trylock(&(mutex->handle)) != 0) {
         return HCNSE_BUSY;
     }
     return HCNSE_OK;
@@ -81,7 +81,7 @@ hcnse_mutex_unlock(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (pthread_mutex_unlock(&(mutex->handler)) != 0) {
+    if (pthread_mutex_unlock(&(mutex->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "pthread_mutex_unlock() failed");
         return err;
@@ -94,7 +94,7 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (pthread_mutex_destroy(&(mutex->handler)) != 0) {
+    if (pthread_mutex_destroy(&(mutex->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
             "pthread_mutex_destroy() failed");
@@ -105,11 +105,12 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
 {
-    (void) flags;
     HANDLE m;
     hcnse_err_t err;
+
+    (void) flags;
 
     m = CreateMutex(NULL, FALSE, NULL);
     if (m == NULL) {
@@ -117,7 +118,7 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, uint32_t flags)
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "CreateMutex() failed");
         return err;
     }
-    mutex->handler = m;
+    mutex->handle = m;
     return HCNSE_OK;
 }
 
@@ -126,7 +127,7 @@ hcnse_mutex_lock(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (WaitForSingleObject(mutex->handler, INFINITE) != WAIT_OBJECT_0) {
+    if (WaitForSingleObject(mutex->handle, INFINITE) != WAIT_OBJECT_0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "WaitForSingleObject() failed");
         return err;
@@ -137,7 +138,7 @@ hcnse_mutex_lock(hcnse_mutex_t *mutex)
 hcnse_err_t
 hcnse_mutex_trylock(hcnse_mutex_t *mutex)
 {
-    if (WaitForSingleObject(mutex->handler, 0) != WAIT_OBJECT_0) {
+    if (WaitForSingleObject(mutex->handle, 0) != WAIT_OBJECT_0) {
         return HCNSE_BUSY;
     }
     return HCNSE_OK;
@@ -148,7 +149,7 @@ hcnse_mutex_unlock(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (ReleaseMutex(mutex->handler) == 0) {
+    if (ReleaseMutex(mutex->handle) == 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "ReleaseMutex() failed");
         return err;
@@ -161,7 +162,7 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 {
     hcnse_err_t err;
 
-    if (CloseHandle(mutex->handler) == 0) {
+    if (CloseHandle(mutex->handle) == 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "CloseHandle() failed");
     }

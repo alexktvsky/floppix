@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <stdbool.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -13,12 +13,13 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/time.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/syscall.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -51,6 +52,8 @@
 
 typedef int                            hcnse_fd_t;
 typedef int                            hcnse_socket_t;
+typedef pid_t                          hcnse_tid_t;
+typedef pthread_t                      hcnse_thread_handle_t;
 typedef void *                         hcnse_thread_value_t;
 typedef struct tm                      hcnse_tm_t;
 

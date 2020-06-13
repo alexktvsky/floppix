@@ -5,10 +5,12 @@
 #include "hcnse_core.h"
 
 /* Thread specific flags */
-#define HCNSE_THREAD_SCOPE_SYSTEM           0x01
-#define HCNSE_THREAD_SCOPE_PROCESS          0x02
-#define HCNSE_THREAD_CREATE_DETACHED        0x04
-#define HCNSE_THREAD_CREATE_JOINABLE        0x08
+#define HCNSE_THREAD_SCOPE_SYSTEM           0x00000001
+#define HCNSE_THREAD_SCOPE_PROCESS          0x00000002
+#define HCNSE_THREAD_CREATE_DETACHED        0x00000004
+#define HCNSE_THREAD_CREATE_JOINABLE        0x00000008
+
+#define hcnse_thread_local  _Thread_local
 
 
 #if (HCNSE_POSIX)
@@ -19,12 +21,16 @@
 #define HCNSE_THREAD_PRIORITY_BELOW_NORMAL  0
 #define HCNSE_THREAD_PRIORITY_LOWEST        0
 
+#define hcnse_thread_current_handle()       pthread_self()
 #define hcnse_thread_exit(retval)  pthread_exit((hcnse_thread_value_t) retval)
 
-struct hcnse_thread_s {
-    pthread_t handler;
-    pthread_attr_t attr;
-};
+#if (HCNSE_LINUX)
+#define HCNSE_FMT_TID_T                     "%d"
+#elif (HCNSE_FREEBSD)
+#define HCNSE_FMT_TID_T                     "%u"
+#else
+#define HCNSE_FMT_TID_T                     "%lu"
+#endif
 
 #elif (HCNSE_WIN32)
 
@@ -34,19 +40,28 @@ struct hcnse_thread_s {
 #define HCNSE_THREAD_PRIORITY_BELOW_NORMAL  THREAD_PRIORITY_BELOW_NORMAL
 #define HCNSE_THREAD_PRIORITY_LOWEST        THREAD_PRIORITY_LOWEST
 
+#define hcnse_thread_current_handle()       GetCurrentThread()
 #define hcnse_thread_exit(retval)  ExitThread((hcnse_thread_value_t) retval)
 
-struct hcnse_thread_s {
-    HANDLE handler;
-};
+#define HCNSE_FMT_TID_T                     "%lu"
 
 #endif
 
-hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, uint32_t flags,
-    size_t stack_size, int prio, hcnse_thread_function_t start_routine,
+struct hcnse_thread_s {
+    hcnse_thread_handle_t handle;
+    hcnse_uint_t index;
+};
+
+
+hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags,
+    size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg);
 hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);
 hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
 void hcnse_thread_fini(hcnse_thread_t *thread);
+
+hcnse_tid_t hcnse_thread_current_tid(void);
+
+hcnse_uint_t hcnse_get_thread_counter(void);
 
 #endif /* INCLUDED_HCNSE_THREAD_H */

@@ -136,8 +136,7 @@ hcnse_pool_create1(hcnse_pool_t **newpool, hcnse_pool_t *parent)
 {
     hcnse_memnode_t *node;
     hcnse_pool_t *pool;
-    size_t npages;
-    size_t index;
+    size_t npages, index;
 
     npages = hcnse_get_npages(HCNSE_SIZEOF_MEMPOOL_T_ALIGN);
     index = npages - 1;
@@ -174,6 +173,7 @@ hcnse_pool_t *
 hcnse_pool_create(hcnse_pool_t *parent)
 {
     hcnse_pool_t *pool;
+
     if (hcnse_pool_create1(&pool, parent) != HCNSE_OK) {
         return NULL;
     }
@@ -183,13 +183,9 @@ hcnse_pool_create(hcnse_pool_t *parent)
 void *
 hcnse_palloc(hcnse_pool_t *pool, size_t size)
 {
-    hcnse_memnode_t *node;
-    hcnse_memnode_t *temp;
+    hcnse_memnode_t *node, *temp;
+    size_t align_size, npages, index;
     void *mem;
-    size_t align_size;
-    size_t npages;
-    size_t index;
-
 
     align_size = hcnse_align_allocation(size);
     if (!align_size) {
@@ -280,8 +276,7 @@ hcnse_pool_cleanup_add1(hcnse_pool_t *pool, void *data,
 void
 hcnse_pool_cleanup_run(hcnse_pool_t *pool)
 {
-    hcnse_cleanup_node_t *temp1;
-    hcnse_cleanup_node_t *temp2;
+    hcnse_cleanup_node_t *temp1, *temp2;
 
     temp1 = pool->cleanups;
 
@@ -300,8 +295,11 @@ hcnse_pool_cleanup_run(hcnse_pool_t *pool)
 size_t
 hcnse_pool_get_size(hcnse_pool_t *pool)
 {
-    size_t size = 0;
     hcnse_memnode_t *node;
+    size_t size;
+
+    size = 0;
+
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
@@ -315,8 +313,11 @@ hcnse_pool_get_size(hcnse_pool_t *pool)
 size_t
 hcnse_pool_get_free_size(hcnse_pool_t *pool)
 {
-    size_t size = 0;
     hcnse_memnode_t *node;
+    size_t size;
+
+    size = 0;
+
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
@@ -330,8 +331,11 @@ hcnse_pool_get_free_size(hcnse_pool_t *pool)
 size_t
 hcnse_pool_get_total_size(hcnse_pool_t *pool)
 {
-    size_t size = 0;
     hcnse_memnode_t *node;
+    size_t size;
+
+    size = 0;
+
     for (size_t i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
         node = (pool->nodes)[i];
         while (node) {
@@ -372,8 +376,7 @@ hcnse_pool_clean(hcnse_pool_t *pool)
 void
 hcnse_pool_destroy(hcnse_pool_t *pool)
 {
-    hcnse_memnode_t *node;
-    hcnse_memnode_t *temp;
+    hcnse_memnode_t *node, *temp;
 
     hcnse_pool_cleanup_run(pool);
 

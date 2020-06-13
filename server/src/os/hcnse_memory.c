@@ -10,7 +10,7 @@
 /* TODO: etc */
 #endif
 
-static uint64_t hcnse_total_mem;
+static uint64_t hcnse_memory_counter_value;
 
 
 void *
@@ -24,9 +24,9 @@ hcnse_malloc(size_t size)
             "malloc(%zu) failed", size);
     }
     else {
-        hcnse_total_mem += size;
+        hcnse_memory_counter_value += size;
         hcnse_log_debug1(HCNSE_OK, "malloc %p:%zu total %zu",
-            mem, size, hcnse_total_mem);
+            mem, size, hcnse_memory_counter_value);
     }
 
     return mem;
@@ -53,9 +53,9 @@ hcnse_free(void *mem)
 }
 
 size_t
-hcnse_get_hcnse_total_mem_usage(void)
+hcnse_get_memory_counter(void)
 {
-    return hcnse_total_mem;
+    return hcnse_memory_counter_value;
 }
 
 void
@@ -65,18 +65,35 @@ hcnse_explicit_memzero(void *buf, size_t n)
     memory_barrier();
 }
 
+
+#if (HCNSE_POSIX)
+
 size_t
 hcnse_get_page_size(void)
 {
     size_t page_size;
+
 #if defined(_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
-#elif (HCNSE_WIN32)
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    page_size = si.dwPageSize;
 #else
 #error "Failed to determine page size"
 #endif
+
     return page_size;
 }
+
+#elif (HCNSE_WIN32)
+
+size_t
+hcnse_get_page_size(void)
+{
+    SYSTEM_INFO si;
+    size_t page_size;
+
+    GetSystemInfo(&si);
+    page_size = si.dwPageSize;
+
+    return page_size;
+}
+
+#endif

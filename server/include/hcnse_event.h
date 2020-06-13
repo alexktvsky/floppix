@@ -14,9 +14,9 @@
 
 struct hcnse_event_s {
     void *data;
-    bool read;
-    bool write;
-    bool ready;
+    hcnse_uint_t read : 1;
+    hcnse_uint_t write : 1;
+    hcnse_uint_t ready : 1;
 
     /* ... */
 

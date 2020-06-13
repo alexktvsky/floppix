@@ -65,7 +65,7 @@ failed:
     if (re) {
         pcre_free(re);
     }
-    return HCNSE_ERR_REGEX;
+    return HCNSE_FAILED;
 }
 
 hcnse_err_t

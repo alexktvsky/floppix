@@ -4,9 +4,9 @@
 
 #if (HCNSE_POSIX)
 hcnse_err_t
-hcnse_send_wakeup_signal(hcnse_thread_t *tid)
+hcnse_send_wakeup_signal(hcnse_thread_t *thread)
 {
-    if (pthread_kill(tid->handler, SIGALRM) != 0) {
+    if (pthread_kill(thread->handle, SIGALRM) != 0) {
         return hcnse_get_errno();
     }
     return HCNSE_OK;
@@ -23,9 +23,9 @@ hcnse_wait_wakeup_signal(hcnse_msec_t ms)
 
 #elif (HCNSE_WIN32)
 hcnse_err_t
-hcnse_send_wakeup_signal(hcnse_thread_t *tid)
+hcnse_send_wakeup_signal(hcnse_thread_t *thread)
 {
-    if (PostThreadMessageA(GetThreadId(tid->handler), WM_TIMER, 0, 0) == 0) {
+    if (PostThreadMessageA(GetThreadId(thread->handle), WM_TIMER, 0, 0) == 0) {
         return hcnse_get_errno();
     }
     return HCNSE_OK;

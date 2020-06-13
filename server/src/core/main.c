@@ -3,10 +3,10 @@
 
 
 static char *conf_file = "server.conf";
-static bool show_version;
-static bool show_help;
-static bool test_conf;
-static bool quiet_mode;
+static hcnse_uint_t show_version;
+static hcnse_uint_t show_help;
+static hcnse_uint_t test_conf;
+static hcnse_uint_t quiet_mode;
 
 
 static hcnse_err_t
@@ -20,19 +20,19 @@ hcnse_parse_argv(int argc, char *const argv[])
         while (*p) {
             switch (*p++) {
             case 'v':
-                show_version = true;
+                show_version = 1;
                 break;
 
             case 'h':
-                show_help = true;
+                show_help = 1;
                 break;
 
             case 't':
-                test_conf = true;
+                test_conf = 1;
                 break;
 
             case 'q':
-                quiet_mode = true;
+                quiet_mode = 1;
                 break;
 
             case 'c':
@@ -51,109 +51,6 @@ hcnse_parse_argv(int argc, char *const argv[])
         }
     }
     return HCNSE_OK;
-}
-
-static void
-hcnse_show_conf_info(hcnse_conf_t *conf)
-{
-    // char *ip;
-    // char *port;
-    // hcnse_list_node_t *iter;
-
-    // hcnse_log_stdout(HCNSE_OK, "conf_file: \"%s\"", conf->file->name);
-    // hcnse_log_stdout(HCNSE_OK, "log_file: \"%s\"", conf->log_fname);
-    // hcnse_log_stdout(HCNSE_OK, "log_size: %zu%s",
-    //     hcnse_convert_to_prefix(conf->log_size),
-    //     hcnse_get_metric_prefix(conf->log_size));
-
-    // if (conf->log_rewrite) {
-    //     hcnse_log_stdout(HCNSE_OK, "log_rewrite: on"); 
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "log_rewrite: off"); 
-    // }
-
-    // hcnse_log_stdout(HCNSE_OK, "log_level: %s", hcnse_log_prio[conf->log_level]);
-
-    // if (conf->daemon) {
-    //     hcnse_log_stdout(HCNSE_OK, "daemon: on"); 
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "daemon: off"); 
-    // }
-    // hcnse_log_stdout(HCNSE_OK, "workdir: \"%s\"", conf->workdir);
-    // hcnse_log_stdout(HCNSE_OK, "priority: %d", conf->priority);
-
-    // hcnse_log_stdout(HCNSE_OK, "timer: %lu", conf->timer);
-    // if (conf->user) {
-    //     hcnse_log_stdout(HCNSE_OK, "user: \"%s\"", conf->user);
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "WARNING: user is undefined");
-    // }
-    // if (conf->group) {
-    //     hcnse_log_stdout(HCNSE_OK, "group: \"%s\"", conf->group);
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "WARNING: group is undefined");
-    // }
-
-    // if (conf->worker_processes) {
-    //     hcnse_log_stdout(HCNSE_OK, "worker_processes: %lu",
-    //         conf->worker_processes);
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "worker_processes: auto");
-    // }
-
-    // if (conf->worker_connections) {
-    //     hcnse_log_stdout(HCNSE_OK, "worker_connections: %lu",
-    //         conf->worker_connections);
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "worker_connections: nolimit");
-    // }
-
-    // if (conf->ssl_on) {
-    //     hcnse_log_stdout(HCNSE_OK, "ssl: on");
-    //     if (conf->ssl_certfile) {
-    //         hcnse_log_stdout(HCNSE_OK,
-    //             "ssl_certfile: \"%s\"", conf->ssl_certfile);
-    //     }
-    //     else {
-    //         hcnse_log_stdout(HCNSE_OK,
-    //             "WARNING: SSL certificate file is undefined");
-    //     }
-    //     if (conf->ssl_keyfile) {
-    //         hcnse_log_stdout(HCNSE_OK,
-    //             "ssl_keyfile: \"%s\"", conf->ssl_keyfile);
-    //     }
-    //     else {
-    //         hcnse_log_stdout(HCNSE_OK,
-    //             "WARNING: SSL key file is undefined");
-    //     }
-    // }
-    // else {
-    //     hcnse_log_stdout(HCNSE_OK, "ssl: off\nWARNING: SSL is disable");
-    // }
-
-    // /* Print IPv4 addr and port */
-    // iter = hcnse_list_first(conf->addr_and_port);
-    // for ( ; iter; iter = iter->next) {
-    //     ip = iter->data;
-    //     iter = iter->next;
-    //     port = iter->data;
-    //     hcnse_log_stdout(HCNSE_OK, "listen %s:%s", ip, port);
-    // }
-
-    // /* Print IPv6 addr and port */
-    // iter = hcnse_list_first(conf->addr_and_port6);
-    // for ( ; iter; iter = iter->next) {
-    //     ip = iter->data;
-    //     iter = iter->next;
-    //     port = iter->data;
-    //     hcnse_log_stdout(HCNSE_OK, "listen [%s]:%s", ip, port);
-    // }
 }
 
 static void
@@ -178,16 +75,11 @@ main(int argc, char *const argv[])
     hcnse_cycle_t *cycle;
     hcnse_pool_t *pool;
     hcnse_conf_t *conf;
-    // hcnse_log_t *log;
+    hcnse_log_t *log;
 
     hcnse_list_t *listeners;
     hcnse_list_t *connections;
     hcnse_list_t *free_connections;
-
-    // hcnse_listener_t *listener;
-    // hcnse_list_node_t *iter;
-    // char *ip;
-    // char *port;
 
     hcnse_err_t err;
 
@@ -255,8 +147,6 @@ main(int argc, char *const argv[])
     cycle->listeners = listeners;
     cycle->connections = connections;
     cycle->free_connections = free_connections;
-
-    hcnse_regex_init();
 
     err = hcnse_conf_init_and_parse(&conf, pool, conf_file);
     if (err != HCNSE_OK) {

@@ -12,19 +12,18 @@ SRC_FILES += hcnse_thread.c
 SRC_FILES += hcnse_mutex.c
 SRC_FILES += hcnse_semaphore.c
 SRC_FILES += hcnse_cpuinfo.c
-SRC_FILES += hcnse_signal.c
 SRC_FILES += hcnse_pool.c
 SRC_FILES += hcnse_log.c
 SRC_FILES += hcnse_list.c
 SRC_FILES += hcnse_config.c
-SRC_FILES += hcnse_regex.c
 SRC_FILES += hcnse_cycle.c
 SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
-SRC_FILES += hcnse_thread_pool.c
 
+
+# SRC_FILES += hcnse_signal.c
 # SRC_FILES += hcnse_mmap.c
 # SRC_FILES += hcnse_send.c
 # SRC_FILES += hcnse_rbtree.c
@@ -36,6 +35,8 @@ SRC_FILES += hcnse_thread_pool.c
 # SRC_FILES += hcnse_event_read.c
 # SRC_FILES += hcnse_event_write.c
 # SRC_FILES += hcnse_event_timer.c
+# SRC_FILES += hcnse_regex.c
+
 
 
 VPATH += src/core

@@ -11,7 +11,7 @@
 #define HCNSE_LOG_INIT_DELAY           500
 #define HCNSE_LOG_WORKER_DELAY         1000
 
-typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, uint8_t level,
+typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, hcnse_uint_t level,
     char *buf, size_t len);
 
 /*
@@ -26,15 +26,15 @@ typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, uint8_t level,
  */
 
 typedef struct {
-    uint8_t level;
+    hcnse_uint_t level;
     hcnse_file_t *file;
     size_t max_size;
-    bool rewrite;
+    hcnse_uint_t rewrite;
     hcnse_log_handler_t handler;
 } hcnse_log_output_t;
 
 typedef struct {
-    uint8_t level;
+    hcnse_uint_t level;
     char time[HCNSE_TIMESTRLEN];
     char str[HCNSE_LOG_MSG_SIZE];
 } hcnse_log_message_t;
@@ -44,10 +44,10 @@ struct hcnse_log_s {
     hcnse_list_t *outputs;
 
 
-    uint8_t level; // remove
+    hcnse_uint_t level; // remove
     hcnse_file_t *file;  // remove
     size_t file_max_size;  // remove
-    bool file_rewrite;  // remove
+    hcnse_uint_t file_rewrite;  // remove
 
     hcnse_log_message_t *messages;
 
@@ -57,8 +57,8 @@ struct hcnse_log_s {
     hcnse_thread_t *tid;
 #endif
 
-    uint32_t front;
-    uint32_t rear;
+    hcnse_uint_t front;
+    hcnse_uint_t rear;
     hcnse_semaphore_t *sem_empty;
     hcnse_semaphore_t *sem_full;
     hcnse_mutex_t *mutex_deposit;
@@ -80,11 +80,11 @@ const char *hcnse_log_prio[] = {
 static hcnse_thread_value_t
 hcnse_log_worker(void *arg)
 {
-    hcnse_log_t *log;
-    hcnse_log_message_t *messages;
-    hcnse_log_message_t *msg;
-    size_t len;
     static char buf[HCNSE_LOG_FULL_MSG_SIZE];
+    hcnse_log_t *log;
+    hcnse_log_message_t *messages, *msg;
+    size_t len;
+
 
     log = (hcnse_log_t *) arg;
     messages = log->messages;
@@ -176,19 +176,6 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
 //         iter = iter->next;
 //         printf("%s\n", (char *) iter->data);
 //     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -364,11 +351,10 @@ hcnse_log_update(hcnse_log_t *log, hcnse_conf_t *conf)
 }
 
 void
-hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
+hcnse_log_error(hcnse_uint_t level, hcnse_log_t *log, hcnse_err_t err,
     const char *fmt, ...)
 {
-    hcnse_log_message_t *messages;
-    hcnse_log_message_t *msg;
+    hcnse_log_message_t *messages, *msg;
     va_list args;
     time_t sec;
     char *buf;
@@ -412,11 +398,13 @@ hcnse_log_error(uint8_t level, hcnse_log_t *log, hcnse_err_t err,
 void
 hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 {
+    static hcnse_thread_local char buf1[HCNSE_LOG_MSG_SIZE];
     va_list args;
-    size_t len1 = 0;
-    size_t len2 = 0;
-    static char buf1[HCNSE_LOG_MSG_SIZE];
+    size_t len1, len2;
     char *buf2;
+
+    len1 = 0;
+    len2 = 0;
 
     va_start(args, fmt);
     len1 = hcnse_vsnprintf(buf1, HCNSE_LOG_MSG_SIZE, fmt, args);

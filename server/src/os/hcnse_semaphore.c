@@ -5,12 +5,14 @@
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
-    uint32_t flags)
+hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
+    hcnse_uint_t maxval, hcnse_flag_t flags)
 {
-    (void) maxval;
+    hcnse_uint_t shared;
     hcnse_err_t err;
-    int shared = 0;
+
+    (void) maxval;
+    shared = 0;
 
     if (flags & (HCNSE_SEMAPHORE_SHARED)) {
         shared = 1;
@@ -20,7 +22,7 @@ hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
         }
     }
 
-    if (sem_init(&(semaphore->handler), shared, value) != 0) {
+    if (sem_init(&(semaphore->handle), shared, value) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "sem_init() failed");
         return err;
@@ -33,7 +35,7 @@ hcnse_semaphore_wait(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (sem_wait(&(semaphore->handler)) != 0) {
+    if (sem_wait(&(semaphore->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "sem_wait() failed");
         return err;
@@ -44,7 +46,7 @@ hcnse_semaphore_wait(hcnse_semaphore_t *semaphore)
 hcnse_err_t
 hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore)
 {
-    if (sem_trywait(&(semaphore->handler)) != 0) {
+    if (sem_trywait(&(semaphore->handle)) != 0) {
         return HCNSE_BUSY;
     }
     return HCNSE_OK;
@@ -55,7 +57,7 @@ hcnse_semaphore_post(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (sem_post(&(semaphore->handler)) != 0) {
+    if (sem_post(&(semaphore->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "sem_post() failed");
         return err;
@@ -68,7 +70,7 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (sem_destroy(&(semaphore->handler)) != 0) {
+    if (sem_destroy(&(semaphore->handle)) != 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "sem_destroy() failed");
     }
@@ -77,14 +79,17 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
-    uint32_t flags)
+hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
+    hcnse_uint_t maxval, hcnse_flag_t flags)
 {
-    (void) flags;
     HANDLE s;
-    int shared = 1;
     SECURITY_ATTRIBUTES attr;
+    hcnse_uint_t shared;
     hcnse_err_t err;
+
+    (void) flags;
+
+    shared = 1;
 
     // if (flags & (HCNSE_SEMAPHORE_SHARED)) {
     //     shared = 1;
@@ -105,7 +110,7 @@ hcnse_semaphore_init(hcnse_semaphore_t *semaphore, int value, int maxval,
         return err;
     }
 
-    semaphore->handler = s;
+    semaphore->handle = s;
 
     return HCNSE_OK;
 }
@@ -115,7 +120,7 @@ hcnse_semaphore_wait(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (WaitForSingleObject(semaphore->handler, INFINITE) != WAIT_OBJECT_0) {
+    if (WaitForSingleObject(semaphore->handle, INFINITE) != WAIT_OBJECT_0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "WaitForSingleObject() failed");
         return err;
@@ -126,7 +131,7 @@ hcnse_semaphore_wait(hcnse_semaphore_t *semaphore)
 hcnse_err_t
 hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore)
 {
-    if (WaitForSingleObject(semaphore->handler, 0) != WAIT_OBJECT_0) {
+    if (WaitForSingleObject(semaphore->handle, 0) != WAIT_OBJECT_0) {
         return HCNSE_BUSY;
     }
     return HCNSE_OK;
@@ -137,7 +142,7 @@ hcnse_semaphore_post(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (ReleaseSemaphore(semaphore->handler, 1, NULL) == 0) {
+    if (ReleaseSemaphore(semaphore->handle, 1, NULL) == 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "ReleaseSemaphore() failed");
         return err;
@@ -150,7 +155,7 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 {
     hcnse_err_t err;
 
-    if (CloseHandle(semaphore->handler) == 0) {
+    if (CloseHandle(semaphore->handle) == 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "CloseHandle() failed");
     }

@@ -3,9 +3,9 @@
 
 
 
-void foo(size_t argc, char **argv) {
+void foo(int argc, char **argv) {
     printf("foo ");
-    for (size_t i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++) {
         printf("%s ", argv[i]);
     }
     printf("\n");
@@ -13,7 +13,8 @@ void foo(size_t argc, char **argv) {
 
 
 
-static const hcnse_conf_directive_t hcnse_core_directives[] = {
+static hcnse_conf_directive_t hcnse_core_directives[] = {
+    {"import", HCNSE_CONF_TAKE1, foo},
     {"daemon", HCNSE_CONF_TAKE1, foo},
     {"workdir", HCNSE_CONF_TAKE1, foo},
     {"priority", HCNSE_CONF_TAKE1, foo},
@@ -24,6 +25,7 @@ static const hcnse_conf_directive_t hcnse_core_directives[] = {
 static char *test =
 
     "      \n"
+    "import modules/module1.so\n"
     "daemon   on1\n"
     "daemon on2 # comment1\n"
     "daemon on3  # comment2\n"
@@ -37,9 +39,9 @@ static char *test =
     "#  daemon on7 # comment3\n";
 
 
-static char *test_buf[512];
+static char test_buf[512];
 
-static uint32_t hcnse_conf_takes_number[] = {
+static hcnse_flag_t hcnse_conf_takes_number[] = {
     HCNSE_CONF_TAKE0,
     HCNSE_CONF_TAKE1,
     HCNSE_CONF_TAKE2,
@@ -55,40 +57,30 @@ static hcnse_err_t
 hcnse_conf_parse(hcnse_conf_t *conf)
 {
     hcnse_conf_directive_t *directive;
-    char *begin;
-    char *end;
+    char *begin, *end, *pos;
+    char c;
     size_t len;
 
-    char *ptr;
+    size_t argc, argc_min, argc_max;
+    char *argv[HCNSE_CONF_MAX_TAKES - 1];
 
-    size_t argc_min;
-    size_t argc_max;
-    size_t argc;
-    char *argv[7];
+    hcnse_uint_t found, comment, in_directive, end_line, variadic;
 
-    char c;
 
-    bool found;
-    bool commit;
-    bool in_directive;
-    bool end_line;
-    bool variadic;
-
+    found = 0;
+    comment = 0;
+    in_directive = 0;
+    end_line = 0;
+    variadic = 0;
 
     begin = NULL;
-    ptr = test_buf;
-
-    found = false;
-    commit = false;
-    in_directive = false;
-    end_line = false;
-    variadic = false;
-
+    pos = test_buf;
 
     for (size_t i = 0; ; i++) {
+
         c = test[i];
 
-        end_line = false;
+        end_line = 0;
 
         switch (c) {
         case HCNSE_NULL:
@@ -102,8 +94,8 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             if (variadic) {
                 if (argc >= argc_min) {
                     directive->handler(argc, argv);
-                    in_directive = false;
-                    variadic = false;
+                    in_directive = 0;
+                    variadic = 0;
                 }
                 else {
                     hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
@@ -120,64 +112,63 @@ hcnse_conf_parse(hcnse_conf_t *conf)
         case HCNSE_SPACE:
             if (begin != NULL) {
                 end = &test[i];
-                found = true;
+                found = 1;
             }
             break;
 
         case HCNSE_LF:
         case HCNSE_CR:
-            end_line = true;
-            commit = false;
+            end_line = 1;
+            comment = 0;
             if (begin != NULL) {
                 end = &test[i];
-                found = true;
+                found = 1;
             }
             break;
 
         case '#':
             if (begin != NULL) {
                 hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
-                    "Unexpected #, expecting space character "
+                    "Unexpected #, missing space character "
                     "after parameter or directive");
                 return HCNSE_ERR_CONF_SYNTAX;
             }
-            commit = true;
+            comment = 1;
             break;
 
         default:
-            if (begin == NULL && !commit) {
+            if (begin == NULL && !comment) {
                 begin = &test[i];
             }
         }
 
         if (found) {
             len = (size_t) (end - begin);
-            hcnse_memmove(ptr, begin, len);
-            ptr[len] = HCNSE_NULL;
+            hcnse_memmove(pos, begin, len);
+            pos[len] = HCNSE_NULL;
 
             for (size_t j = 0; hcnse_core_directives[j].name; j++) {
-                if (hcnse_strcmp(hcnse_core_directives[j].name, ptr) == 0) {
+                if (hcnse_strcmp(hcnse_core_directives[j].name, pos) == 0) {
                     if (in_directive) {
                         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
                             "Unexpected directive \"%s\", "
                             "directive \"%s\" is not ended",
-                            ptr, directive->name);
+                            pos, directive->name);
                         return HCNSE_ERR_CONF_SYNTAX;
                     }
                     directive = &hcnse_core_directives[j];
-                    in_directive = true;
+                    in_directive = 1;
                     argc = 0;
                     argc_min = 0;
                     argc_max = 0;
 
-                    
-                    for (size_t tn_i = 0; tn_i < 8; tn_i++) {
+                    for (size_t tn_i = 0; tn_i < HCNSE_CONF_MAX_TAKES; tn_i++) {
                         if (directive->takes & hcnse_conf_takes_number[tn_i]) {
                             if (argc_min == 0) {
                                 argc_min = tn_i;
                             }
                             else {
-                                variadic = true;
+                                variadic = 1;
                                 argc_max = tn_i;
                             }
                         }
@@ -189,19 +180,19 @@ hcnse_conf_parse(hcnse_conf_t *conf)
 
             if (!in_directive) {
                 hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
-                    "Unknown directive \"%s\"", ptr);
+                    "Unknown directive \"%s\"", pos);
                 return HCNSE_ERR_CONF_SYNTAX;
             }
 
             if (in_directive) {
-                argv[argc] = ptr;
+                argv[argc] = pos;
                 argc += 1;
                 if ((argc == argc_min && !variadic)
                     || (argc == argc_max && variadic))
                 {
                     directive->handler(argc, argv);
-                    in_directive = false;
-                    variadic = false;
+                    in_directive = 0;
+                    variadic = 0;
                 }
             }
             if (in_directive && end_line && !variadic) {
@@ -214,8 +205,8 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             if (in_directive && end_line && variadic) {
                 if (argc >= argc_min) {
                     directive->handler(argc, argv);
-                    in_directive = false;
-                    variadic = false;
+                    in_directive = 0;
+                    variadic = 0;
                 }
                 else {
                     hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
@@ -227,12 +218,11 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             }
 next:
             begin = NULL;
-            found = false;
-            ptr += len + 1;
+            found = 0;
+            pos += len + 1;
         }
         continue;
     }
-
 
     return HCNSE_OK;
 }
@@ -251,9 +241,9 @@ hcnse_conf_set_default_params(hcnse_conf_t *conf)
 
 //     conf->log_size = 0;
 //     conf->log_level = HCNSE_LOG_ERROR;
-//     conf->log_rewrite = false;
+//     conf->log_rewrite = 0;
 
-//     conf->daemon = true;
+//     conf->daemon = 1;
 //     conf->priority = 0;
 //     conf->timer = 30000;
 
@@ -266,7 +256,6 @@ hcnse_conf_init_and_parse(hcnse_conf_t **in_conf, hcnse_pool_t *pool,
     const char *fname)
 {
     hcnse_conf_t *conf;
-    hcnse_conf_bin_t *conf_bin;
     hcnse_file_t *file;
     hcnse_err_t err;
 

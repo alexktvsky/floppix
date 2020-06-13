@@ -14,7 +14,7 @@
 #define hcnse_get_errno()              GetLastError()
 #define hcnse_set_errno(err)           SetLastError(err)
 #define hcnse_get_socket_errno()       WSAGetLastError()
-#define hcnse_set_socket_errno()       WSASetLastError()
+#define hcnse_set_socket_errno(err)    WSASetLastError(err)
 #endif
 
 #define HCNSE_OK                       0

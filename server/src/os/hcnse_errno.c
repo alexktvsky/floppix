@@ -39,9 +39,12 @@ hcnse_errno_strerror(hcnse_errno_t err)
 size_t
 hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
-    char *strerr = strerror(err);
-    size_t len = hcnse_strlen(strerr);
-    size_t n;
+    char *strerr;
+    size_t len, n;
+
+    strerr = strerror(err);
+    len = hcnse_strlen(strerr);
+
     if (len > bufsize) {
         hcnse_memmove(buf, strerr, bufsize);
         n = bufsize;
@@ -58,7 +61,7 @@ hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 const char *
 hcnse_errno_strerror(hcnse_errno_t err)
 {
-    static _Thread_local char buf[HCNSE_ERRSTR_LEN];
+    static hcnse_thread_local char buf[HCNSE_ERRSTR_LEN];
     hcnse_errno_strerror_r(err, buf, sizeof(buf));
     return buf;
 }
@@ -66,9 +69,10 @@ hcnse_errno_strerror(hcnse_errno_t err)
 size_t
 hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 {
-
-    static DWORD lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+    static DWORD lang;
     DWORD len;
+
+    lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 
     if (bufsize == 0) {
         return 0;
@@ -98,7 +102,8 @@ hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
 
     /* remove ".\r\n\0" */
     while (buf[len] == '\0' || buf[len] == '\r'
-                            || buf[len] == '\n' || buf[len] == '.') {
+                            || buf[len] == '\n' || buf[len] == '.')
+    {
         buf[len] = '\0';
         len -= 1;
     }
@@ -126,7 +131,8 @@ hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
 
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
-                error_list[i].code == HCNSE_ERR_END_LIST) {
+            error_list[i].code == HCNSE_ERR_END_LIST)
+        {
             n = hcnse_strlen(error_list[i].message);
             if (n > bufsize) {
                 n = bufsize;
@@ -154,7 +160,8 @@ hcnse_strerror(hcnse_err_t errcode)
 
     for (size_t i = 0; ; i++) {
         if (error_list[i].code == errcode ||
-                error_list[i].code == HCNSE_ERR_END_LIST) {
+            error_list[i].code == HCNSE_ERR_END_LIST)
+        {
             return error_list[i].message;
         }
         else {

@@ -49,9 +49,7 @@ hcnse_list_create(hcnse_pool_t *pool)
 hcnse_err_t
 hcnse_list_push_back(hcnse_list_t *list, void *data)
 {
-    hcnse_list_node_t *node;
-    hcnse_list_node_t *nodes;
-    hcnse_list_node_t *temp;
+    hcnse_list_node_t *nodes, *node, *temp;
     size_t alloc_size;
 
     if (list->available) {
@@ -98,8 +96,7 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
 hcnse_err_t
 hcnse_list_reserve(hcnse_list_t *list, size_t n)
 {
-    hcnse_list_node_t *temp;
-    hcnse_list_node_t *nodes;
+    hcnse_list_node_t *nodes, *temp;
     size_t alloc_size;
 
     alloc_size = sizeof(hcnse_list_node_t) * n;
@@ -121,8 +118,7 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
 hcnse_err_t
 hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
 {
-    hcnse_list_node_t *temp1;
-    hcnse_list_node_t *founded_node;
+    hcnse_list_node_t *founded_node, *temp1;
 
     temp1 = list->head;
 

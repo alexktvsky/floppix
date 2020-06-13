@@ -9,22 +9,21 @@ hcnse_err_t
 hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     const char *port)
 {
-    struct addrinfo hints;
-    struct addrinfo *result = NULL;
-    struct addrinfo *rp;
+    struct addrinfo hints, *result, *rp;
     hcnse_socket_t fd;
     socklen_t addrlen;
-    bool done;
+    hcnse_uint_t done;
     hcnse_err_t err;
 
+    result = NULL;
     fd = HCNSE_INVALID_SOCKET;
-    hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
-    hcnse_memset(&hints, 0, sizeof(struct addrinfo));
+    hcnse_memzero(listener, sizeof(hcnse_listener_t));
+    hcnse_memzero(&hints, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = IPPROTO_TCP;
-    done = false;
+    done = 0;
 
     if (getaddrinfo(ip, port, &hints, &result) != 0) {
         err = hcnse_get_socket_errno();
@@ -58,7 +57,7 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
                 hcnse_msleep(500);
             }
             else {
-                done = true;
+                done = 1;
                 break;
             }
         }
@@ -106,22 +105,21 @@ hcnse_err_t
 hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     const char *port)
 {
-    struct addrinfo hints;
-    struct addrinfo *result = NULL;
-    struct addrinfo *rp;
+    struct addrinfo hints, *result, *rp;
     hcnse_socket_t fd;
     socklen_t addrlen;
-    bool done;
+    hcnse_uint_t done;
     hcnse_err_t err;
 
+    result = NULL;
     fd = HCNSE_INVALID_SOCKET;
-    hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
-    hcnse_memset(&hints, 0, sizeof(struct addrinfo));
+    hcnse_memzero(listener, sizeof(hcnse_listener_t));
+    hcnse_memzero(&hints, sizeof(struct addrinfo));
     hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = IPPROTO_TCP;
-    done = false;
+    done = 0;
 
     if (getaddrinfo(ip, port, &hints, &result) != 0) {
         err = hcnse_get_socket_errno();
@@ -154,7 +152,7 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
                 hcnse_msleep(500);
             }
             else {
-                done = true;
+                done = 1;
                 break;
             }
         }
@@ -223,7 +221,7 @@ void
 hcnse_listener_clean(hcnse_listener_t *listener)
 {
     hcnse_listener_close(listener);
-    hcnse_memset(listener, 0, sizeof(hcnse_listener_t));
+    hcnse_memzero(listener, sizeof(hcnse_listener_t));
 }
 
 hcnse_err_t
@@ -231,7 +229,7 @@ hcnse_connection_init(hcnse_connect_t *connect)
 {
     hcnse_pool_t *pool;
 
-    hcnse_memset(connect, 0, sizeof(hcnse_connect_t));
+    hcnse_memzero(connect, sizeof(hcnse_connect_t));
 
     pool = hcnse_pool_create(NULL);
     if (!pool) {
@@ -295,7 +293,7 @@ hcnse_connection_destroy(hcnse_connect_t *connect)
     hcnse_pool_destroy(connect->pool);
 }
 
-bool
+hcnse_uint_t
 hcnse_is_listener(void *instance)
 {
     struct temp {
@@ -305,7 +303,7 @@ hcnse_is_listener(void *instance)
     return ((p->identifier) == HCNSE_LISTENER_FLAG);
 }
 
-bool
+hcnse_uint_t
 hcnse_is_connection(void *instance)
 {
     struct temp {
@@ -319,7 +317,7 @@ hcnse_is_connection(void *instance)
 const char *
 hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr)
 {
-    static _Thread_local char buf[100];
+    static hcnse_thread_local char buf[100];
     socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);
@@ -336,7 +334,7 @@ hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr)
 const char *
 hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr)
 {
-    static _Thread_local char buf[100];
+    static hcnse_thread_local char buf[100];
     socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);

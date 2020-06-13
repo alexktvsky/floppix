@@ -47,8 +47,9 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 ssize_t
 hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
 {
-    ssize_t n;
-    ssize_t written = 0;
+    ssize_t n, written;
+    
+    written = 0;
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
@@ -144,13 +145,14 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
+
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
     // ovlp.OffsetHigh = (DWORD) (offset >> 32);
     ovlp.hEvent = NULL;
 
-    if (!ReadFile(file->fd, buf, size, &n, &ovlp)) {
+    if (ReadFile(file->fd, buf, size, &n, &ovlp) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "ReadFile(%d, %p, %zu, %p, %p) failed",
             file->fd, buf, size, &n, &ovlp);
@@ -165,13 +167,14 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
+
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
     // ovlp.OffsetHigh = (DWORD) (offset >> 32);
     ovlp.hEvent = NULL;
 
-    if (!WriteFile(file->fd, buf, size, &n, &ovlp)) {
+    if (WriteFile(file->fd, buf, size, &n, &ovlp) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "WriteFile(%d, %p, %zu, %p, %p) failed",
             file->fd, buf, size, &n, &ovlp);
@@ -189,13 +192,15 @@ ssize_t
 hcnse_file_size(hcnse_file_t *file)
 {
     LARGE_INTEGER info;
-    if (GetFileSizeEx(file->fd, &info) != 1) {
+    ssize_t size;
+
+    if (GetFileSizeEx(file->fd, &info) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "GetFileSizeEx(%d, %p) failed",
             file->fd, &info);
         return -1;
     }
-    ssize_t size = info.QuadPart;
+    size = info.QuadPart;
     return size;
 }
 
@@ -203,26 +208,27 @@ ssize_t
 server_read_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
-    if (ReadFile(fd, buf, size, &n, NULL) != 0) {
+    if (ReadFile(fd, buf, size, &n, NULL) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "ReadFile(%d, %p, %zu, %p, %p) failed",
             fd, buf, size, &n, NULL);
-        return (ssize_t) n;
+        return -1;
     }
-    return -1;
+    return (ssize_t) n;
 }
 
 ssize_t
 hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
-    if (WriteFile(fd, buf, size, &n, NULL) != 0) {
+
+    if (WriteFile(fd, buf, size, &n, NULL) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "WriteFile(%d, %p, %zu, %p, %p) failed",
             fd, buf, size, &n, NULL);
-        return (ssize_t) n;
+        return -1;
     }
-    return -1;
+    return (ssize_t) n;
 }
 #endif
 

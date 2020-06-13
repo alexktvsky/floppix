@@ -24,7 +24,7 @@ struct hcnse_connect_s {
 
     // hcnse_event_t read;
     // hcnse_event_t write;
-    // bool ready_to_write;
+    // hcnse_uint_t ready_to_write;
 };
 
 hcnse_err_t hcnse_listener_init_ipv4(hcnse_listener_t *listener,
@@ -49,7 +49,7 @@ const char *hcnse_listener_get_port(hcnse_listener_t *listener);
 const char *hcnse_connection_get_ip_addr(hcnse_connect_t *connect);
 const char *hcnse_connection_get_port(hcnse_connect_t *connect);
 
-bool hcnse_is_listener(void *instance);
-bool hcnse_is_connection(void *instance);
+hcnse_uint_t hcnse_is_listener(void *instance);
+hcnse_uint_t hcnse_is_connection(void *instance);
 
 #endif /* INCLUDED_HCNSE_CONNECTION_H */
