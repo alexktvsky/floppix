@@ -24,7 +24,9 @@
 #define hcnse_vsnprintf(str, size, ...) \
     vsnprintf(str, size, __VA_ARGS__)
 
-#define hcnse_value(x)                 (#x)
+#define hcnse_value_helper(x)          #x
+#define hcnse_value(x)                 hcnse_value_helper(x)
+#define hcnse_stringify(x)             hcnse_value_helper(x)
 
 
 hcnse_int_t hcnse_atoi(const char *str, size_t n);

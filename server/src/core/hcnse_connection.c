@@ -231,7 +231,7 @@ hcnse_connection_init(hcnse_connect_t *connect)
 
     hcnse_memzero(connect, sizeof(hcnse_connect_t));
 
-    pool = hcnse_pool_create(NULL);
+    pool = hcnse_pool_create(0, NULL);
     if (!pool) {
         return hcnse_get_errno();
     }

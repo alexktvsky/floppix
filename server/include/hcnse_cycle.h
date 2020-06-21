@@ -10,6 +10,8 @@ struct hcnse_cycle_s {
     hcnse_log_t *log;
     hcnse_pool_t *pool;
 
+    hcnse_module_t *modules;
+
     hcnse_list_t *listeners;
     hcnse_list_t *connections;
     hcnse_list_t *free_connections;

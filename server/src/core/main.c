@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-static char *conf_file = "server.conf";
+static char *conf_file = "hcnse.conf";
 static hcnse_uint_t show_version;
 static hcnse_uint_t show_help;
 static hcnse_uint_t test_conf;
@@ -56,8 +56,8 @@ hcnse_parse_argv(int argc, char *const argv[])
 static void
 hcnse_show_version_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK,
-        "%s (%s)", hcnse_version_info(), hcnse_build_time());
+    hcnse_log_stdout(HCNSE_OK, "%s (%s)", HCNSE_VERSION_INFO, HCNSE_BUILD_TIME);
+    hcnse_log_stdout(HCNSE_OK, "Target system: %s", HCNSE_SYSTEM_NAME);
 #ifdef HCNSE_COMPILER
     hcnse_log_stdout(HCNSE_OK, "Built by %s", HCNSE_COMPILER);
 #endif
@@ -107,7 +107,7 @@ main(int argc, char *const argv[])
     }
 #endif
 
-    pool = hcnse_pool_create(NULL);
+    pool = hcnse_pool_create(0, NULL);
     if (!pool) {
         err = hcnse_get_errno();
         hcnse_log_stderr(err, "Failed to create pool");

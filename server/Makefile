@@ -1,4 +1,4 @@
-BIN_FILE = server
+BIN_FILE = hcnse
 
 SRC_FILES += main.c
 SRC_FILES += hcnse_memory.c

@@ -41,7 +41,7 @@ static char *test =
 
 static char test_buf[512];
 
-static hcnse_flag_t hcnse_conf_takes_number[] = {
+static hcnse_flag_t hcnse_conf_take_numbers[] = {
     HCNSE_CONF_TAKE0,
     HCNSE_CONF_TAKE1,
     HCNSE_CONF_TAKE2,
@@ -65,7 +65,6 @@ hcnse_conf_parse(hcnse_conf_t *conf)
     char *argv[HCNSE_CONF_MAX_TAKES - 1];
 
     hcnse_uint_t found, comment, in_directive, end_line, variadic;
-
 
     found = 0;
     comment = 0;
@@ -147,8 +146,8 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             hcnse_memmove(pos, begin, len);
             pos[len] = HCNSE_NULL;
 
-            for (size_t j = 0; hcnse_core_directives[j].name; j++) {
-                if (hcnse_strcmp(hcnse_core_directives[j].name, pos) == 0) {
+            for (size_t x = 0; hcnse_core_directives[x].name; x++) {
+                if (hcnse_strcmp(hcnse_core_directives[x].name, pos) == 0) {
                     if (in_directive) {
                         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
                             "Unexpected directive \"%s\", "
@@ -156,20 +155,20 @@ hcnse_conf_parse(hcnse_conf_t *conf)
                             pos, directive->name);
                         return HCNSE_ERR_CONF_SYNTAX;
                     }
-                    directive = &hcnse_core_directives[j];
+                    directive = &hcnse_core_directives[x];
                     in_directive = 1;
                     argc = 0;
                     argc_min = 0;
                     argc_max = 0;
 
-                    for (size_t tn_i = 0; tn_i < HCNSE_CONF_MAX_TAKES; tn_i++) {
-                        if (directive->takes & hcnse_conf_takes_number[tn_i]) {
+                    for (size_t y = 0; y < HCNSE_CONF_MAX_TAKES; y++) {
+                        if (directive->takes & hcnse_conf_take_numbers[y]) {
                             if (argc_min == 0) {
-                                argc_min = tn_i;
+                                argc_min = y;
                             }
                             else {
                                 variadic = 1;
-                                argc_max = tn_i;
+                                argc_max = y;
                             }
                         }
                     }

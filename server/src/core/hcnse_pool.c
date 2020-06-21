@@ -1,25 +1,23 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_MIN_ORDER 1
-#define HCNSE_MIN_ALLOC (HCNSE_ALIGN_SIZE << HCNSE_MIN_ORDER)
+#define HCNSE_MIN_ORDER  1
+#define HCNSE_MIN_ALLOC  (HCNSE_ALIGN_SIZE << HCNSE_MIN_ORDER)
 
 #define HCNSE_SIZEOF_MEMNODE_T_ALIGN \
     hcnse_align_default(sizeof(hcnse_memnode_t))
 #define HCNSE_SIZEOF_MEMPOOL_T_ALIGN \
     hcnse_align_default(sizeof(hcnse_pool_t))
 
-#define HCNSE_PAGE_SIZE (hcnse_get_page_size())
-
 /* 
- * Index  0: size 4096
- * Index  1: size 8192
- * Index  2: size 12288
+ * Slot  0: size 4096
+ * Slot  1: size 8192
+ * Slot  2: size 12288
  * ...
- * Index 19: size 81920
- * Index 20: size 163840
+ * Slot 19: size 81920
+ * Slot 20: size 163840
  */
-#define HCNSE_MAX_POOL_INDEX 20
+#define HCNSE_MAX_POOL_INDEX  20
 
 
 typedef struct hcnse_memnode_s hcnse_memnode_t;
@@ -111,6 +109,25 @@ hcnse_memnode_allocate_and_init(size_t size)
     return node;
 }
 
+static void
+hcnse_pool_cleanup_run(hcnse_pool_t *pool)
+{
+    hcnse_cleanup_node_t *temp1, *temp2;
+
+    temp1 = pool->cleanups;
+
+    while (temp1) {
+        temp2 = temp1;
+        temp1 = temp1->next;
+
+        temp2->handler(temp2->data);
+        temp2->next = pool->free_cleanups;
+        pool->free_cleanups = temp2;
+    }
+
+    pool->cleanups = NULL;
+}
+
 void
 hcnse_pool_add_child(hcnse_pool_t *parent, hcnse_pool_t *new_child)
 {
@@ -132,13 +149,20 @@ hcnse_pool_add_child(hcnse_pool_t *parent, hcnse_pool_t *new_child)
 }
 
 hcnse_err_t
-hcnse_pool_create1(hcnse_pool_t **newpool, hcnse_pool_t *parent)
+hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
 {
     hcnse_memnode_t *node;
     hcnse_pool_t *pool;
-    size_t npages, index;
+    size_t npages, index, align_size;
 
-    npages = hcnse_get_npages(HCNSE_SIZEOF_MEMPOOL_T_ALIGN);
+    align_size = hcnse_align_allocation(size);
+    if (align_size == 0) {
+        return HCNSE_FAILED;
+    }
+
+    align_size += HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
+
+    npages = hcnse_get_npages(align_size);
     index = npages - 1;
     if (index > HCNSE_MAX_POOL_INDEX) {
         return HCNSE_FAILED;
@@ -170,11 +194,11 @@ hcnse_pool_create1(hcnse_pool_t **newpool, hcnse_pool_t *parent)
 }
 
 hcnse_pool_t *
-hcnse_pool_create(hcnse_pool_t *parent)
+hcnse_pool_create(size_t size, hcnse_pool_t *parent)
 {
     hcnse_pool_t *pool;
 
-    if (hcnse_pool_create1(&pool, parent) != HCNSE_OK) {
+    if (hcnse_pool_create1(&pool, size, parent) != HCNSE_OK) {
         return NULL;
     }
     return pool;
@@ -189,7 +213,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
 
     align_size = hcnse_align_allocation(size);
     if (!align_size) {
-        return NULL;
+        goto failed;
     }
 
     /*
@@ -209,25 +233,28 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
         if (mem) {
             hcnse_pool_cleanup_add(pool, mem, hcnse_free);
         }
-        return mem;
+        goto done;
     }
 
-    node = (pool->nodes)[index];
-    while (node) {
-        if (node->size_avail >= align_size) {
-            node->size_avail -= align_size;
-            mem = node->first_avail;
-            node->first_avail += align_size;
-            break;
+    /* Try to find suitable node */
+    for (size_t i = index; i < HCNSE_MAX_POOL_INDEX; i++) {
+        node = (pool->nodes)[i];
+        while (node) {
+            if (node->size_avail >= align_size) {
+                node->size_avail -= align_size;
+                mem = node->first_avail;
+                node->first_avail += align_size;
+                goto done;
+            }
+            node = node->next;
         }
-        node = node->next;
     }
 
     /* If we haven't got a suitable node, allocate a new one */
     if (!node) {
         node = hcnse_memnode_allocate_and_init(npages * HCNSE_PAGE_SIZE);
         if (!node) {
-            return NULL;
+            goto failed;
         }
 
         /* Registaration of memnode */
@@ -238,8 +265,13 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
         node->size_avail -= align_size;
         mem = node->first_avail;
         node->first_avail += align_size;
+        goto done;
     }
+
+done:
     return mem;
+failed:
+    return NULL;
 }
 
 void *
@@ -271,25 +303,6 @@ hcnse_pool_cleanup_add1(hcnse_pool_t *pool, void *data,
     temp1->handler = handler;
     temp1->next = pool->cleanups;
     pool->cleanups = temp1;
-}
-
-void
-hcnse_pool_cleanup_run(hcnse_pool_t *pool)
-{
-    hcnse_cleanup_node_t *temp1, *temp2;
-
-    temp1 = pool->cleanups;
-
-    while (temp1) {
-        temp2 = temp1;
-        temp1 = temp1->next;
-
-        temp2->handler(temp2->data);
-        temp2->next = pool->free_cleanups;
-        pool->free_cleanups = temp2;
-    }
-
-    pool->cleanups = NULL;
 }
 
 size_t
@@ -349,13 +362,13 @@ hcnse_pool_get_total_size(hcnse_pool_t *pool)
 void
 hcnse_pool_clean(hcnse_pool_t *pool)
 {
+    hcnse_pool_t *temp1, *temp2;
     hcnse_memnode_t *node;
 
     hcnse_pool_cleanup_run(pool);
 
     if (pool->child) {
-        hcnse_pool_t *temp1 = pool->child;
-        hcnse_pool_t *temp2;
+        temp1 = pool->child;
         while (temp1) {
             temp2 = temp1;
             temp1 = temp1->brother;
@@ -376,13 +389,13 @@ hcnse_pool_clean(hcnse_pool_t *pool)
 void
 hcnse_pool_destroy(hcnse_pool_t *pool)
 {
+    hcnse_pool_t *temp1, *temp2;
     hcnse_memnode_t *node, *temp;
 
     hcnse_pool_cleanup_run(pool);
 
     if (pool->child) {
-        hcnse_pool_t *temp1 = pool->child;
-        hcnse_pool_t *temp2;
+        temp1 = pool->child;
         while (temp1) {
             temp2 = temp1;
             temp1 = temp1->brother;

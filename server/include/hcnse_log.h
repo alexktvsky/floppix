@@ -43,6 +43,8 @@
         hcnse_log_debug(hcnse_log_get_global(), err, __VA_ARGS__) : 0)
 #endif
 
+#define HCNSE_FILE_LINE  (__FILE__ ":" hcnse_stringify(__LINE__))
+
 
 extern hcnse_log_t *hcnse_log_global;
 

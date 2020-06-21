@@ -27,6 +27,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
 
     if (flags & (HCNSE_THREAD_SCOPE_SYSTEM)) {
         done_scope = 1;
+
         if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -39,9 +40,8 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
         if (done_scope) {
             return HCNSE_FAILED;
         }
-        else {
-            done_scope = 1;
-        }
+        done_scope = 1;
+
         if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -64,9 +64,8 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
         if (done_detached) {
             return HCNSE_FAILED;
         }
-        else {
-            done_detached = 1;
-        }
+        done_detached = 1;
+
         if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -157,6 +156,16 @@ hcnse_tid_t
 hcnse_thread_current_tid(void)
 {
     return pthread_getthreadid_np();
+}
+
+#elif (HCNSE_DARWIN)
+hcnse_tid_t
+hcnse_thread_current_tid(void)
+{
+    uint64_t tid;
+
+    pthread_threadid_np(NULL, &tid);
+    return tid;
 }
 
 #else

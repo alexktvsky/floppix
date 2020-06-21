@@ -26,7 +26,7 @@
 #define HCNSE_FILE_DEFAULT_ACCESS      0644
 #define HCNSE_FILE_OWNER_ACCESS        0600
 
-#define HCNSE_INVALID_FILE             -1
+#define HCNSE_INVALID_FILE            -1
 
 #define hcnse_open_file(name, mode, create, access) \
     open((const char *) name, mode|create, access)

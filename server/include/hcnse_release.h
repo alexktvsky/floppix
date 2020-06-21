@@ -5,9 +5,6 @@
 #define HCNSE_VERSION                  "0.0.3"
 
 #define HCNSE_VERSION_INFO             (HCNSE_NAME " version " HCNSE_VERSION)
-#define BUILD_TIME                     (__DATE__ " " __TIME__)
-
-#define hcnse_version_info()           (HCNSE_VERSION_INFO)
-#define hcnse_build_time()             (BUILD_TIME)
+#define HCNSE_BUILD_TIME               (__DATE__ " " __TIME__)
 
 #endif /* INCLUDED_HCNSE_RELEASE_H */

@@ -7,6 +7,7 @@
 /* Alignment macros is only to be used to align on a power of 2 boundary */
 #define HCNSE_PTR_SIZE                 __SIZEOF_POINTER__
 #define HCNSE_ALIGN_SIZE               sizeof(uintptr_t)
+#define HCNSE_PAGE_SIZE                hcnse_get_page_size()
 
 #define hcnse_align(p, b)  (((p) + ((b) - 1)) & ~((b) - 1))
 #define hcnse_align_default(p)         hcnse_align(p, HCNSE_ALIGN_SIZE)

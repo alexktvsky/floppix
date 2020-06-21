@@ -150,7 +150,7 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
 //     hcnse_list_t *outputs;
 //     hcnse_err_t err;
 
-//     pool = hcnse_pool_create(NULL);
+//     pool = hcnse_pool_create(0, NULL);
 //     if (!pool) {
 //         err = hcnse_get_errno();
 //         goto failed;

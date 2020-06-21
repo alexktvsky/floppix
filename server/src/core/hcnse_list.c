@@ -1,15 +1,16 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_LIST_SIZE_ALLOC  10
+#define HCNSE_LIST_INITIAL_SIZE  10
+
 
 struct hcnse_list_s {
     hcnse_pool_t *pool;
     hcnse_list_node_t *head;
     hcnse_list_node_t *tail;
-    hcnse_list_node_t *available;
+    hcnse_list_node_t *free_nodes;
     size_t size;
-    size_t size_available;
+    size_t free_nodes_size;
 };
 
 
@@ -23,7 +24,7 @@ hcnse_list_create1(hcnse_list_t **list, hcnse_pool_t *pool)
         return hcnse_get_errno();
     }
 
-    hcnse_memset(list1, 0, sizeof(hcnse_list_t));
+    hcnse_memzero(list1, sizeof(hcnse_list_t));
     list1->pool = pool;
 
     *list = list1;
@@ -40,7 +41,7 @@ hcnse_list_create(hcnse_pool_t *pool)
         return NULL;
     }
 
-    hcnse_memset(list1, 0, sizeof(hcnse_list_t));
+    hcnse_memzero(list1, sizeof(hcnse_list_t));
     list1->pool = pool;
 
     return list1;
@@ -52,13 +53,13 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
     hcnse_list_node_t *nodes, *node, *temp;
     size_t alloc_size;
 
-    if (list->available) {
-        node = list->available;
-        list->available = node->next;
-        list->size_available -= 1;
+    if (list->free_nodes) {
+        node = list->free_nodes;
+        list->free_nodes = node->next;
+        list->free_nodes_size -= 1;
     }
     else {
-        alloc_size = sizeof(hcnse_list_node_t) * HCNSE_LIST_SIZE_ALLOC;
+        alloc_size = sizeof(hcnse_list_node_t) * HCNSE_LIST_INITIAL_SIZE;
         nodes = hcnse_palloc(list->pool, alloc_size);
         if (!nodes) {
             return hcnse_get_errno();
@@ -67,12 +68,12 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
         node = &nodes[0];
         nodes = &nodes[1];
 
-        for (size_t i = 0; i < (HCNSE_LIST_SIZE_ALLOC - 1); i++) {
-            temp = list->available;
-            list->available = &nodes[i];
-            list->available->next = temp;
+        for (size_t i = 0; i < (HCNSE_LIST_INITIAL_SIZE - 1); i++) {
+            temp = list->free_nodes;
+            list->free_nodes = &nodes[i];
+            list->free_nodes->next = temp;
         }
-        list->size_available = HCNSE_LIST_SIZE_ALLOC - 1;
+        list->free_nodes_size = HCNSE_LIST_INITIAL_SIZE - 1;
     }
 
     node->next = NULL;
@@ -106,11 +107,11 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
     }
 
     for (size_t i = 0; i < n; i++) {
-        temp = list->available;
-        list->available = &nodes[i];
-        list->available->next = temp;
+        temp = list->free_nodes;
+        list->free_nodes = &nodes[i];
+        list->free_nodes->next = temp;
     }
-    list->size_available += n;
+    list->free_nodes_size += n;
 
     return HCNSE_OK;
 }
@@ -154,11 +155,11 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
         list->size -= 1;
     }
 
-    temp1 = list->available;
-    list->available = founded_node;
+    temp1 = list->free_nodes;
+    list->free_nodes = founded_node;
     founded_node->next = temp1;
 
-    list->size_available += 1;
+    list->free_nodes_size += 1;
 
     return HCNSE_OK;
 }
@@ -222,11 +223,19 @@ hcnse_list_size(hcnse_list_t *list)
 size_t
 hcnse_list_available_size(hcnse_list_t *list)
 {
-    return list->size_available;
+    return list->free_nodes_size;
 }
 
 void
 hcnse_list_clean(hcnse_list_t *list)
 {
-    hcnse_memset(list, 0, sizeof(hcnse_list_t));
+    hcnse_list_node_t *node, *temp;
+
+    node = list->head;
+
+    while (node) {
+        temp = node->next;
+        hcnse_list_remove(list, node);
+        node = temp;
+    }
 }
