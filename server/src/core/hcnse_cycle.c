@@ -6,7 +6,7 @@ void
 hcnse_cycle_single_process(hcnse_cycle_t *cycle)
 {
 
-    // hcnse_process_events_and_timers(cycle);
+    /* hcnse_process_events_and_timers(cycle); */
 }
 
 hcnse_err_t

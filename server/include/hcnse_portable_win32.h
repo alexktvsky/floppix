@@ -24,6 +24,12 @@
 #include <pcre.h>
 #endif
 
+#if (HCNSE_HAVE_OPENSSL)
+#include <openssl/ssl.h>
+#include <openssl/evp.h>
+#include <openssl/x509v3.h>
+#endif
+
 typedef HANDLE                         hcnse_fd_t;
 typedef SOCKET                         hcnse_socket_t;
 typedef DWORD                          hcnse_tid_t;

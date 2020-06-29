@@ -9,7 +9,7 @@
 
 
 struct hcnse_module_s {
-    char *name; // check loading by name and strcmp
+    char *name; /* check loading by name and strcmp */
     uint32_t version;
 
     hcnse_conf_directive_t *directives;
@@ -20,10 +20,10 @@ struct hcnse_module_s {
 };
 
 
-// XXX: cycle->modules
+/* XXX: cycle->modules */
 
 
-// hcnse_err_t hcnse_module_load(void);
-// hcnse_err_t hcnse_module_unload(void);
+/* hcnse_err_t hcnse_module_load(void); */
+/* hcnse_err_t hcnse_module_unload(void); */
 
 #endif /* INCLUDED_HCNSE_MODULE_H */

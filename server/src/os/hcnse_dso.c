@@ -5,23 +5,35 @@
 #if (HCNSE_POSIX && HCNSE_HAVE_DLOPEN)
 
 const char *
-hcnse_dlerror(void)
+hcnse_dlerror(char *buf, size_t bufsize)
 {
-    char *err;
+    char *str;
+    size_t len;
 
-    err = (char *) dlerror();
-    if (err == NULL) {
-        return "";
+    str = (char *) dlerror();
+    if (str == NULL) {
+        str = "";
     }
-    return err;
+
+    len = hcnse_strlen(str);
+
+    if (len < bufsize) {
+        hcnse_memmove(buf, str, len);
+        buf[len] = '\0';
+    }
+    else {
+        hcnse_memmove(buf, str, bufsize);
+        buf[bufsize-1] = '\0';
+    }
+    return buf;
 }
 
 #elif (HCNSE_WIN32)
 
 const char *
-hcnse_dlerror(void)
+hcnse_dlerror(char *buf, size_t bufsize)
 {
-    return hcnse_strerror(hcnse_get_errno());
+    return hcnse_strerror(hcnse_get_errno(), buf, bufsize);
 }
 
 #endif

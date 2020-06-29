@@ -91,13 +91,15 @@ hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
 
     shared = 1;
 
-    // if (flags & (HCNSE_SEMAPHORE_SHARED)) {
-    //     shared = 1;
-    //     /* Check conflict of shared flags */
-    //     if (flags & (HCNSE_SEMAPHORE_PRIVATE)) {
-    //         return hcnse_get_errno();
-    //     }
-    // }
+#if 0
+    if (flags & (HCNSE_SEMAPHORE_SHARED)) {
+        shared = 1;
+        /* Check conflict of shared flags */
+        if (flags & (HCNSE_SEMAPHORE_PRIVATE)) {
+            return hcnse_get_errno();
+        }
+    }
+#endif
 
     attr.nLength = sizeof(SECURITY_ATTRIBUTES);
     attr.lpSecurityDescriptor = NULL;

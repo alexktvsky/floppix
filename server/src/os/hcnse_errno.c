@@ -1,16 +1,13 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_ERRSTR_LEN    1024
-#define HCNSE_ERR_END_LIST  0
-
-
-static const char *message_ok = "OK";
+#define HCNSE_ERR_UNDEF  2147483647
 
 static const struct {
     hcnse_err_t code;
     const char *message;
 } error_list[] = {
+    {HCNSE_OK,                       "OK"},
     {HCNSE_FAILED,                   "Internal server error"},
     {HCNSE_BUSY,                     "Resource is busy"},
     {HCNSE_DONE,                     "Operation is done"},
@@ -18,64 +15,51 @@ static const struct {
     {HCNSE_DECLINED,                 "Operation declined"},
     {HCNSE_NOT_FOUND,                "Resource not found"},
 
-    /* {HCNSE_ERR_CONF domain */
+    /* HCNSE_ERR_CONF domain */
     {HCNSE_ERR_CONF_SYNTAX,          "Error of configuration file syntax"},
 
     /* HCNSE_ERR_SSL domain */
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
 
     /* End of error list */
-    {HCNSE_ERR_END_LIST,             "Undefined error code"}
+    {HCNSE_ERR_UNDEF,                "Undefined error code"}
 };
 
 
 #if (HCNSE_POSIX)
-const char *
-hcnse_errno_strerror(hcnse_errno_t err)
+
+static const char *
+hcnse_os_strerror(hcnse_err_t err, char *buf, size_t bufsize)
 {
-    return strerror(err);
-}
+    char *str;
+    size_t len;
 
-size_t
-hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
-{
-    char *strerr;
-    size_t len, n;
+    str = strerror(err);
+    len = hcnse_strlen(str);
 
-    strerr = strerror(err);
-    len = hcnse_strlen(strerr);
-
-    if (len > bufsize) {
-        hcnse_memmove(buf, strerr, bufsize);
-        n = bufsize;
+    if (len < bufsize) {
+        hcnse_memmove(buf, str, len);
+        buf[len] = '\0';
     }
     else {
-        hcnse_memmove(buf, strerr, len);
-        n = len;
+        hcnse_memmove(buf, str, bufsize);
+        buf[bufsize-1] = '\0';
     }
-    return n;
+    return buf;
 }
 
 
 #elif (HCNSE_WIN32)
-const char *
-hcnse_errno_strerror(hcnse_errno_t err)
-{
-    static hcnse_thread_local char buf[HCNSE_ERRSTR_LEN];
-    hcnse_errno_strerror_r(err, buf, sizeof(buf));
-    return buf;
-}
 
-size_t
-hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
+static const char *
+hcnse_os_strerror(hcnse_err_t err, char *buf, size_t bufsize)
 {
-    static DWORD lang;
-    DWORD len;
+    DWORD lang, len;
 
     lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 
     if (bufsize == 0) {
-        return 0;
+        return NULL;
     }
 
     len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
@@ -97,7 +81,7 @@ hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
     }
 
     if (len == 0) {
-        return 0;
+        return NULL;
     }
 
     /* remove ".\r\n\0" */
@@ -107,66 +91,41 @@ hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize)
         buf[len] = '\0';
         len -= 1;
     }
-    return len;
+    return buf;
 }
 #endif
 
-size_t
-hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize)
+const char *
+hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize)
 {
-    size_t n;
+    const char *str;
+    size_t len;
+    hcnse_uint_t i;
 
-    if (errcode == HCNSE_OK) {
-        n = hcnse_strlen(message_ok);
-        if (n > bufsize) {
-            n = bufsize;
-        }
-        hcnse_memmove(buf, message_ok, n);
-        return n;
+    if (err > 0 && err < HCNSE_ERROR_DOMAIN_BASE) {
+        return hcnse_os_strerror(err, buf, bufsize);
     }
 
-    if (errcode < HCNSE_ERROR_DOMAIN_BASE) {
-        return hcnse_errno_strerror_r(errcode, buf, bufsize);
-    }
-
-    for (size_t i = 0; ; i++) {
-        if (error_list[i].code == errcode ||
-            error_list[i].code == HCNSE_ERR_END_LIST)
+    for (i = 0; ; i++) {
+        if (error_list[i].code == err ||
+            error_list[i].code == HCNSE_ERR_UNDEF)
         {
-            n = hcnse_strlen(error_list[i].message);
-            if (n > bufsize) {
-                n = bufsize;
+            str = error_list[i].message;
+            len = hcnse_strlen(str);
+            if (len < bufsize) {
+                hcnse_memmove(buf, str, len);
+                buf[len] = '\0';
             }
-            hcnse_memmove(buf, error_list[i].message, n);
+            else {
+                hcnse_memmove(buf, str, bufsize);
+                buf[bufsize-1] = '\0';
+            }
             break;
         }
         else {
             continue;
         }
     }
-    return n;
-}
 
-const char *
-hcnse_strerror(hcnse_err_t errcode)
-{
-    if (errcode == HCNSE_OK) {
-        return message_ok;
-    }
-
-    if (errcode > 0 && errcode < HCNSE_ERROR_DOMAIN_BASE) {
-        return hcnse_errno_strerror(errcode);
-    }
-
-    for (size_t i = 0; ; i++) {
-        if (error_list[i].code == errcode ||
-            error_list[i].code == HCNSE_ERR_END_LIST)
-        {
-            return error_list[i].message;
-        }
-        else {
-            continue;
-        }
-    }
-    return NULL;
+    return buf;
 }

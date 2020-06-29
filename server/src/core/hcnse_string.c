@@ -7,6 +7,7 @@ hcnse_atoi(const char *str, size_t n)
 {
     hcnse_int_t value, temp;
     hcnse_int_t cutoff, cutlim;
+    hcnse_uint_t i;
 
     if (n == 0) {
         return -1;
@@ -17,7 +18,7 @@ hcnse_atoi(const char *str, size_t n)
 
     value = 0;
 
-    for (size_t i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         if (str[i] < '0' || str[i] > '9') {
             return -1;
         }
@@ -39,6 +40,7 @@ hcnse_atosz(const char *str, size_t n)
 {
     ssize_t value, temp;
     ssize_t cutoff, cutlim;
+    hcnse_uint_t i;
 
     if (n == 0) {
         return -1;
@@ -49,7 +51,7 @@ hcnse_atosz(const char *str, size_t n)
 
     value = 0;
 
-    for (size_t i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         if (str[i] < '0' || str[i] > '9') {
             return -1;
         }
@@ -69,7 +71,9 @@ hcnse_atosz(const char *str, size_t n)
 size_t
 hcnse_strlen(const char *str)
 {
-    for (size_t i = 0; ; i++) {
+    hcnse_uint_t i;
+
+    for (i = 0; ; i++) {
         if (str[i] == '\0') {
             return i;
         }
@@ -79,7 +83,9 @@ hcnse_strlen(const char *str)
 size_t
 hcnse_strnlen(const char *str, size_t n)
 {
-    for (size_t i = 0; i < n; i++) {
+    hcnse_uint_t i;
+
+    for (i = 0; i < n; i++) {
         if (str[i] == '\0') {
             return i;
         }

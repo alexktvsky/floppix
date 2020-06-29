@@ -16,7 +16,7 @@
 #define HCNSE_FILE_RDWR                O_RDWR
 
 /* create */
-#define HCNSE_FILE_OPEN                0 // Don't open if already existing
+#define HCNSE_FILE_OPEN                0 /* Don't open if already existing */
 #define HCNSE_FILE_CREATE_OR_OPEN      O_CREAT
 #define HCNSE_FILE_TRUNCATE            O_TRUNC
 #define HCNSE_FILE_APPEND              O_APPEND

@@ -1,16 +1,16 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
+/*
+ * static char *week[] = {
+ *     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+ * };
 
-// static char *week[] = {
-//     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-// };
-
-// static char *months[] = {
-//     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-//     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-// };
-
+ * static char *months[] = {
+ *     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+ *     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+ * };
+ */
 
 #if (HCNSE_POSIX)
 
@@ -62,22 +62,5 @@ hcnse_localtime(time_t sec, hcnse_tm_t *tm)
     (void) sec;
     GetLocalTime(tm);
 }
+
 #endif
-
-
-const char *
-hcnse_timestr(time_t sec, const char *fmt, char *buf, size_t len)
-{
-    hcnse_tm_t tm;
-    size_t n;
-
-    hcnse_localtime(sec, &tm);
-
-    n = hcnse_snprintf(buf, len, fmt,
-        tm.hcnse_tm_mday, tm.hcnse_tm_mon, tm.hcnse_tm_year,
-        tm.hcnse_tm_hour, tm.hcnse_tm_min, tm.hcnse_tm_sec);
-
-    buf[n] = '\0';
-
-    return buf;
-}

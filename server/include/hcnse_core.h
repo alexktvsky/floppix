@@ -1,7 +1,6 @@
 #ifndef INCLUDED_HCNSE_CORE_H
 #define INCLUDED_HCNSE_CORE_H
 
-typedef int                            hcnse_err_t;
 typedef struct hcnse_conf_s            hcnse_conf_t;
 typedef struct hcnse_conf_directive_s  hcnse_conf_directive_t;
 typedef struct hcnse_cycle_s           hcnse_cycle_t;
@@ -27,6 +26,7 @@ typedef void (*hcnse_event_handler_t)(hcnse_event_t *event);
 #include "hcnse_time.h"
 #include "hcnse_memory.h"
 #include "hcnse_limits.h"
+#include "hcnse_util.h"
 #include "hcnse_socket.h"
 #include "hcnse_sockopt.h"
 #include "hcnse_file.h"
@@ -50,6 +50,6 @@ typedef void (*hcnse_event_handler_t)(hcnse_event_t *event);
 #include "hcnse_dso.h"
 #include "hcnse_module.h"
 
-// #include "hcnse_regex.h"
+/* #include "hcnse_regex.h" */
 
 #endif /* INCLUDED_HCNSE_CORE_H */

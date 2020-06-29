@@ -3,9 +3,13 @@
 
 
 
-void foo(int argc, char **argv) {
+void
+foo(int argc, char **argv)
+{
+    int i;
+
     printf("foo ");
-    for (int i = 0; i < argc; i++) {
+    for (i = 0; i < argc; i++) {
         printf("%s ", argv[i]);
     }
     printf("\n");
@@ -41,7 +45,7 @@ static char *test =
 
 static char test_buf[512];
 
-static hcnse_flag_t hcnse_conf_take_numbers[] = {
+static hcnse_flag_t hcnse_conf_takes[] = {
     HCNSE_CONF_TAKE0,
     HCNSE_CONF_TAKE1,
     HCNSE_CONF_TAKE2,
@@ -64,6 +68,7 @@ hcnse_conf_parse(hcnse_conf_t *conf)
     size_t argc, argc_min, argc_max;
     char *argv[HCNSE_CONF_MAX_TAKES - 1];
 
+    hcnse_uint_t i, x, y;
     hcnse_uint_t found, comment, in_directive, end_line, variadic;
 
     found = 0;
@@ -75,7 +80,7 @@ hcnse_conf_parse(hcnse_conf_t *conf)
     begin = NULL;
     pos = test_buf;
 
-    for (size_t i = 0; ; i++) {
+    for (i = 0; ; i++) {
 
         c = test[i];
 
@@ -146,7 +151,7 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             hcnse_memmove(pos, begin, len);
             pos[len] = HCNSE_NULL;
 
-            for (size_t x = 0; hcnse_core_directives[x].name; x++) {
+            for (x = 0; hcnse_core_directives[x].name; x++) {
                 if (hcnse_strcmp(hcnse_core_directives[x].name, pos) == 0) {
                     if (in_directive) {
                         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
@@ -161,8 +166,10 @@ hcnse_conf_parse(hcnse_conf_t *conf)
                     argc_min = 0;
                     argc_max = 0;
 
-                    for (size_t y = 0; y < HCNSE_CONF_MAX_TAKES; y++) {
-                        if (directive->takes & hcnse_conf_take_numbers[y]) {
+                    for (y = 0; y < HCNSE_CONF_MAX_TAKES; y++) {
+                        if (hcnse_flag_is_set(directive->takes,
+                                                        hcnse_conf_takes[y]))
+                        {
                             if (argc_min == 0) {
                                 argc_min = y;
                             }
@@ -186,8 +193,8 @@ hcnse_conf_parse(hcnse_conf_t *conf)
             if (in_directive) {
                 argv[argc] = pos;
                 argc += 1;
-                if ((argc == argc_min && !variadic)
-                    || (argc == argc_max && variadic))
+                if ((argc == argc_min && !variadic) ||
+                    (argc == argc_max && variadic))
                 {
                     directive->handler(argc, argv);
                     in_directive = 0;
@@ -229,25 +236,27 @@ next:
 static void
 hcnse_conf_set_default_params(hcnse_conf_t *conf)
 {
-// #if (HCNSE_POSIX)
-//     conf->workdir = "/";
-//     // conf->log_fname = "server.log";
+#if 0
+#if (HCNSE_POSIX)
+    conf->workdir = "/";
+    conf->log_fname = "server.log";
 
-// #elif (HCNSE_WIN32)
-//     conf->workdir = "C:\\";
-//     // conf->log_fname = "server.log";
-// #endif
+#elif (HCNSE_WIN32)
+    conf->workdir = "C:\\";
+    conf->log_fname = "server.log";
+#endif
 
-//     conf->log_size = 0;
-//     conf->log_level = HCNSE_LOG_ERROR;
-//     conf->log_rewrite = 0;
+    conf->log_size = 0;
+    conf->log_level = HCNSE_LOG_ERROR;
+    conf->log_rewrite = 0;
 
-//     conf->daemon = 1;
-//     conf->priority = 0;
-//     conf->timer = 30000;
+    conf->daemon = 1;
+    conf->priority = 0;
+    conf->timer = 30000;
 
-//     conf->worker_processes = 0;
-//     conf->worker_connections = 0;
+    conf->worker_processes = 0;
+    conf->worker_connections = 0;
+#endif
 }
 
 hcnse_err_t
@@ -306,90 +315,91 @@ hcnse_conf_fini(hcnse_conf_t *conf)
     (void) conf;
 }
 
+#if 0
+hcnse_err_t
+hcnse_conf_get_flag_param()
+{
 
-// hcnse_err_t
-// hcnse_conf_get_flag_param()
-// {
+}
 
-// }
+hcnse_err_t
+hcnse_conf_get_index_param()
+{
 
-// hcnse_err_t
-// hcnse_conf_get_index_param()
-// {
+}
 
-// }
+hcnse_err_t
+hcnse_conf_get_size_param()
+{
 
-// hcnse_err_t
-// hcnse_conf_get_size_param()
-// {
-
-// }
+}
 
 
 
-// const char *
-// hcnse_get_metric_prefix(size_t number)
-// {
-//     size_t i;
+const char *
+hcnse_get_metric_prefix(size_t number)
+{
+    size_t i;
 
-//     if (number < HCNSE_METRIC_MULTIPLIER_KILO) {
-//         return HCNSE_METRIC_PREFIX_EMPTY;
-//     }
-//     for (i = 0; number > 0; i++) {
-//         if (number % 10 != 0) {
-//             break;
-//         }
-//         number /= 10;
-//     }
+    if (number < HCNSE_METRIC_MULTIPLIER_KILO) {
+        return HCNSE_METRIC_PREFIX_EMPTY;
+    }
+    for (i = 0; number > 0; i++) {
+        if (number % 10 != 0) {
+            break;
+        }
+        number /= 10;
+    }
 
-//     if (i >= 12) {
-//         return HCNSE_METRIC_PREFIX_TERA;
-//     }
-//     else if (i >= 9) {
-//         return HCNSE_METRIC_PREFIX_GIGA;
-//     }
-//     else if (i >= 6) {
-//         return HCNSE_METRIC_PREFIX_MEGA;
-//     }
-//     else if (i >= 3) {
-//         return HCNSE_METRIC_PREFIX_KILO;
-//     }
-//     else {
-//         return HCNSE_METRIC_PREFIX_EMPTY;
-//     }
-// }
+    if (i >= 12) {
+        return HCNSE_METRIC_PREFIX_TERA;
+    }
+    else if (i >= 9) {
+        return HCNSE_METRIC_PREFIX_GIGA;
+    }
+    else if (i >= 6) {
+        return HCNSE_METRIC_PREFIX_MEGA;
+    }
+    else if (i >= 3) {
+        return HCNSE_METRIC_PREFIX_KILO;
+    }
+    else {
+        return HCNSE_METRIC_PREFIX_EMPTY;
+    }
+}
 
-// size_t
-// hcnse_convert_to_prefix(size_t number)
-// {
-//     size_t i;
-//     size_t temp;
+size_t
+hcnse_convert_to_prefix(size_t number)
+{
+    size_t i;
+    size_t temp;
 
-//     temp = number;
+    temp = number;
 
-//     if (number < HCNSE_METRIC_MULTIPLIER_KILO) {
-//         return number;
-//     }
-//     for (i = 0; number > 0; i++) {
-//         if (number % 10 != 0) {
-//             break;
-//         }
-//         number /= 10;
-//     }
+    if (number < HCNSE_METRIC_MULTIPLIER_KILO) {
+        return number;
+    }
+    for (i = 0; number > 0; i++) {
+        if (number % 10 != 0) {
+            break;
+        }
+        number /= 10;
+    }
 
-//     if (i >= 12) {
-//         return temp / HCNSE_METRIC_MULTIPLIER_TERA;
-//     }
-//     else if (i >= 9) {
-//         return temp / HCNSE_METRIC_MULTIPLIER_GIGA;
-//     }
-//     else if (i >= 6) {
-//         return temp / HCNSE_METRIC_MULTIPLIER_MEGA;
-//     }
-//     else if (i >= 3) {
-//         return temp / HCNSE_METRIC_MULTIPLIER_KILO;
-//     }
-//     else {
-//         return temp;
-//     }
-// }
+    if (i >= 12) {
+        return temp / HCNSE_METRIC_MULTIPLIER_TERA;
+    }
+    else if (i >= 9) {
+        return temp / HCNSE_METRIC_MULTIPLIER_GIGA;
+    }
+    else if (i >= 6) {
+        return temp / HCNSE_METRIC_MULTIPLIER_MEGA;
+    }
+    else if (i >= 3) {
+        return temp / HCNSE_METRIC_MULTIPLIER_KILO;
+    }
+    else {
+        return temp;
+    }
+}
+#endif

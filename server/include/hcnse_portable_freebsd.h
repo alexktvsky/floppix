@@ -14,8 +14,8 @@
 
 
 
-typedef int hcnse_socket_t;
-typedef uint32_t   hcnse_tid_t;
+typedef int                            hcnse_socket_t;
+typedef uint32_t                       hcnse_tid_t;
 
 
 #endif /* INCLUDED_HCNSE_PORTABLE_FREEBSD_H */

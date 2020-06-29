@@ -50,7 +50,6 @@ INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra -Wuninitialized
-override CFLAGS += -Wstrict-prototypes
 override CFLAGS += -pipe
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3

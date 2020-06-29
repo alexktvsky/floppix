@@ -32,7 +32,7 @@ static hcnse_err_t
 hcnse_epoll_add_listener(hcnse_listener_t *listener, int flags)
 {
     struct epoll_event ee;
-    int op = EPOLL_CTL_ADD; // When we need to use EPOLL_CTL_MOD?
+    int op = EPOLL_CTL_ADD; /* When we need to use EPOLL_CTL_MOD? */
 
     ee.events = flags;
     ee.data.ptr = listener;
@@ -48,7 +48,7 @@ static hcnse_err_t
 hcnse_epoll_del_listener(hcnse_listener_t *listener, int flags)
 {
     struct epoll_event ee;
-    int op = EPOLL_CTL_DEL; // When we need to use EPOLL_CTL_MOD?
+    int op = EPOLL_CTL_DEL; /* When we need to use EPOLL_CTL_MOD? */
 
     ee.events = flags;
     ee.data.ptr = listener;
@@ -128,10 +128,12 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
         if (hcnse_get_errno() != EINTR) {
             return hcnse_get_errno();
         }
-        // else if (sighup_caught) {
-        //     printf("interrupted by SIGHUP\events");
-        //     sighup_caught = 0;
-        // }
+#if 0
+        else if (sighup_caught) {
+            printf("interrupted by SIGHUP\events");
+            sighup_caught = 0;
+        }
+#endif
         else {
             /* Interrupted by unknown signal */
         }

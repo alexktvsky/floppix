@@ -10,9 +10,6 @@
 #define HCNSE_THREAD_CREATE_DETACHED        0x00000004
 #define HCNSE_THREAD_CREATE_JOINABLE        0x00000008
 
-#define hcnse_thread_local  _Thread_local
-
-
 #if (HCNSE_POSIX)
 
 #define HCNSE_THREAD_PRIORITY_HIGHEST       0
@@ -28,6 +25,8 @@
 #define HCNSE_FMT_TID_T                     "%d"
 #elif (HCNSE_FREEBSD)
 #define HCNSE_FMT_TID_T                     "%u"
+#elif (HCNSE_DARWIN)
+#define HCNSE_FMT_TID_T                     "%lu"
 #else
 #define HCNSE_FMT_TID_T                     "%lu"
 #endif

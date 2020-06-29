@@ -12,7 +12,9 @@ static hcnse_uint_t quiet_mode;
 static hcnse_err_t
 hcnse_parse_argv(int argc, char *const argv[])
 {
-    for (int i = 1; i < argc; i++) {
+    int i;
+
+    for (i = 1; i < argc; i++) {
         char *p = argv[i];
         if (*p++ != '-') {
             return HCNSE_FAILED;
@@ -154,126 +156,129 @@ main(int argc, char *const argv[])
         goto failed;
     }
 
-    // if (test_conf) {
-    //     hcnse_show_conf_info(conf);
-    //     hcnse_conf_destroy(conf);
-    //     hcnse_pool_destroy(pool);
-    //     return 0;
-    // }
+#if 0
+    if (test_conf) {
+        hcnse_show_conf_info(conf);
+        hcnse_conf_destroy(conf);
+        hcnse_pool_destroy(pool);
+        return 0;
+    }
 
-    // err = hcnse_cycle_update_by_conf(cycle, conf);
-    // if (err != HCNSE_OK) {
-    //     hcnse_log_stderr(err, "Failed to update cycle by conf");
-    //     goto failed;
-    // }
+    err = hcnse_cycle_update_by_conf(cycle, conf);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to update cycle by conf");
+        goto failed;
+    }
 
-    // iter = hcnse_list_first(conf->addr_and_port);
-    // for ( ; iter; iter = iter->next) {
-    //     ip = iter->data;
-    //     iter = iter->next;
-    //     port = iter->data;
+    iter = hcnse_list_first(conf->addr_and_port);
+    for ( ; iter; iter = iter->next) {
+        ip = iter->data;
+        iter = iter->next;
+        port = iter->data;
 
-    //     listener = hcnse_palloc(pool, sizeof(hcnse_listener_t));
-    //     if (!listener) {
-    //         err = hcnse_get_errno();
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    //     err = hcnse_listener_init_ipv4(listener, ip, port);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
+        listener = hcnse_palloc(pool, sizeof(hcnse_listener_t));
+        if (!listener) {
+            err = hcnse_get_errno();
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_listener_init_ipv4(listener, ip, port);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
 
-    //     hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
+        hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
 
-    //     err = hcnse_listener_open(listener);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    //     err = hcnse_list_push_back(cycle->listeners, listener);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    // }
+        err = hcnse_listener_open(listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_list_push_back(cycle->listeners, listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+    }
 
-    // iter = hcnse_list_first(conf->addr_and_port6);
-    // for ( ; iter; iter = iter->next) {
-    //     ip = iter->data;
-    //     iter = iter->next;
-    //     port = iter->data;
+    iter = hcnse_list_first(conf->addr_and_port6);
+    for ( ; iter; iter = iter->next) {
+        ip = iter->data;
+        iter = iter->next;
+        port = iter->data;
 
-    //     listener = hcnse_palloc(pool, sizeof(hcnse_listener_t));
-    //     if (!listener) {
-    //         err = hcnse_get_errno();
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    //     err = hcnse_listener_init_ipv6(listener, ip, port);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
+        listener = hcnse_palloc(pool, sizeof(hcnse_listener_t));
+        if (!listener) {
+            err = hcnse_get_errno();
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_listener_init_ipv6(listener, ip, port);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
 
-    //     hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
+        hcnse_pool_cleanup_add(pool, listener, hcnse_listener_close);
 
-    //     err = hcnse_listener_open(listener);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    //     err = hcnse_list_push_back(cycle->listeners, listener);
-    //     if (err != HCNSE_OK) {
-    //         hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
-    //         goto failed;
-    //     }
-    // }
+        err = hcnse_listener_open(listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+        err = hcnse_list_push_back(cycle->listeners, listener);
+        if (err != HCNSE_OK) {
+            hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
+            goto failed;
+        }
+    }
 
-    // err = hcnse_process_set_workdir(conf->workdir);
-    // if (err != HCNSE_OK) {
-    //     hcnse_log_stderr(err, "Failed to set workdir %s", conf->workdir);
-    //     goto failed;
-    // }
+    err = hcnse_process_set_workdir(conf->workdir);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to set workdir %s", conf->workdir);
+        goto failed;
+    }
 
-    // err = hcnse_log_create1(&log, conf);
-    // if (err != HCNSE_OK) {
-    //     hcnse_log_stderr(err, "%s", "Failed to set open log");
-    //     goto failed;
-    // }
+    err = hcnse_log_create1(&log, conf);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "%s", "Failed to set open log");
+        goto failed;
+    }
 
-    // cycle->log = log;
-    // hcnse_log_set_global(log);
+    cycle->log = log;
+    hcnse_log_set_global(log);
 
 
-    // /*
-    //  * Now log file is available and server can write error mesages in it, so
-    //  * here we close TTY, fork off the parent process and run daemon
-    //  */
-    // if (conf->daemon) {
-    //     err = hcnse_process_daemon_init();
-    // }
-    // if (err != HCNSE_OK) {
-    //     hcnse_log_error(HCNSE_LOG_EMERG, log, err, "Failed to become daemon");
-    //     goto failed;
-    // }
+    /*
+     * Now log file is available and server can write error mesages in it, so
+     * here we close TTY, fork off the parent process and run daemon
+     */
+    if (conf->daemon) {
+        err = hcnse_process_daemon_init();
+    }
+    if (err != HCNSE_OK) {
+        hcnse_log_error(HCNSE_LOG_EMERG, log, err, "Failed to become daemon");
+        goto failed;
+    }
 
-    // /* 
-    //  * TODO:
-    //  * hcnse_signals_init
-    //  * hcnse_ssl_init
-    //  * 
-    //  * hcnse_master_process_cycle(conf);
-    //  * 
-    //  */
+    /* 
+     * TODO:
+     * hcnse_signals_init
+     * hcnse_ssl_init
+     * 
+     * hcnse_master_process_cycle(conf);
+     * 
+     */
 
-    // if (!(conf->ssl_on)) {
-    //     hcnse_log_error(HCNSE_LOG_WARN, log, HCNSE_OK, "SSL is disable");
-    // }
+    if (!(conf->ssl_on)) {
+        hcnse_log_error(HCNSE_LOG_WARN, log, HCNSE_OK, "SSL is disable");
+    }
 
-    // while (1);
-    // hcnse_single_process_cycle(conf);
+    while (1);
+    hcnse_single_process_cycle(conf);
+#endif
+
 
     return 0;
 

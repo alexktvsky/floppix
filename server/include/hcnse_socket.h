@@ -9,24 +9,32 @@
 #define HCNSE_SHUT_WR                  SHUT_WR
 #define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
-#define hcnse_socket_close(s)          close(s)
+
+#define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_FREEBSD)
 /* Details for FreeBSD */
 #define HCNSE_INVALID_SOCKET           -1
-#define hcnse_socket_close(s)          close(s)
 
 #elif (HCNSE_SOLARIS)
 /* Details for Solaris */
 #define HCNSE_INVALID_SOCKET           -1
-#define hcnse_socket_close(s)          close(s)
+
+#elif (HCNSE_DARWIN)
+/* Details for Darwin */
+#define HCNSE_INVALID_SOCKET           -1
 
 #elif (HCNSE_WIN32)
 #define HCNSE_SHUT_RD                  SD_RECEIVE
 #define HCNSE_SHUT_WR                  SD_SEND
 #define HCNSE_SHUT_RDWR                SD_BOTH
 #define HCNSE_INVALID_SOCKET           INVALID_SOCKET
-#define hcnse_socket_close(s)          closesocket(s)
+
+#if (HCNSE_PTR_SIZE == 4)
+#define HCNSE_FMT_SOCKET_T             "%d"
+#else
+#define HCNSE_FMT_SOCKET_T             "%I64d"
+#endif
 
 hcnse_err_t hcnse_winsock_init_v22(void);
 
@@ -42,5 +50,6 @@ hcnse_err_t hcnse_socket_accept(hcnse_socket_t *new_sockfd,
 hcnse_err_t hcnse_socket_connect(hcnse_socket_t sockfd,
     const struct sockaddr *addr, socklen_t addrlen);
 hcnse_err_t hcnse_socket_shutdown(hcnse_socket_t sockfd, int how);
+void hcnse_socket_close(hcnse_socket_t sockf);
 
 #endif /* INCLUDED_HCNSE_SOCKET_H */

@@ -1,9 +1,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_LISTENER_FLAG    1
-#define HCNSE_CONNECTION_FLAG  2
-
 
 hcnse_err_t
 hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
@@ -12,18 +9,21 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
     struct addrinfo hints, *result, *rp;
     hcnse_socket_t fd;
     socklen_t addrlen;
-    hcnse_uint_t done;
+    hcnse_uint_t tries, done;
     hcnse_err_t err;
 
+    done = 0;
     result = NULL;
     fd = HCNSE_INVALID_SOCKET;
+
     hcnse_memzero(listener, sizeof(hcnse_listener_t));
     hcnse_memzero(&hints, sizeof(struct addrinfo));
+
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = IPPROTO_TCP;
-    done = 0;
+
 
     if (getaddrinfo(ip, port, &hints, &result) != 0) {
         err = hcnse_get_socket_errno();
@@ -49,11 +49,11 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
             continue;
         }
 
-        for (size_t tries = 0; tries < 5; tries++) {
+        for (tries = 0; tries < 3; tries++) {
             err = hcnse_socket_bind(fd, rp->ai_addr, rp->ai_addrlen);
             if (err != HCNSE_OK) {
                 hcnse_log_error1(HCNSE_LOG_INFO, HCNSE_OK,
-                    "try again to bind after 500ms");
+                    "Try again to bind after 500ms");
                 hcnse_msleep(500);
             }
             else {
@@ -66,7 +66,7 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
             break;
         else {
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "still could not bind to %s:%s", ip, port);
+                "Still could not bind to %s:%s", ip, port);
             hcnse_socket_close(fd);
             continue;
         }
@@ -82,10 +82,9 @@ hcnse_listener_init_ipv4(hcnse_listener_t *listener, const char *ip,
         err = hcnse_get_socket_errno();
         hcnse_log_error1(HCNSE_LOG_EMERG, err,
                 "getsockname() failed to %s:%s", ip, port);
-        
         goto failed;
     }
-    listener->identifier = HCNSE_LISTENER_FLAG;
+    listener->type_id = HCNSE_LISTENER_ID;
     listener->fd = fd;
     freeaddrinfo(result);
 
@@ -108,18 +107,21 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
     struct addrinfo hints, *result, *rp;
     hcnse_socket_t fd;
     socklen_t addrlen;
-    hcnse_uint_t done;
+    hcnse_uint_t tries, done;
     hcnse_err_t err;
 
+    done = 0;
     result = NULL;
     fd = HCNSE_INVALID_SOCKET;
+
     hcnse_memzero(listener, sizeof(hcnse_listener_t));
     hcnse_memzero(&hints, sizeof(struct addrinfo));
+
     hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = IPPROTO_TCP;
-    done = 0;
+
 
     if (getaddrinfo(ip, port, &hints, &result) != 0) {
         err = hcnse_get_socket_errno();
@@ -144,11 +146,11 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
             hcnse_socket_close(fd);
             continue;
         }
-        for (size_t tries = 0; tries < 5; tries++) {
+        for (tries = 0; tries < 3; tries++) {
             err = hcnse_socket_bind(fd, rp->ai_addr, rp->ai_addrlen);
             if (err != HCNSE_OK) {
                 hcnse_log_error1(HCNSE_LOG_INFO, HCNSE_OK,
-                    "try again to bind after 500ms");
+                    "Try again to bind after 500ms");
                 hcnse_msleep(500);
             }
             else {
@@ -161,7 +163,7 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
             break;
         else {
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
-                "still could not bind to %s:%s", ip, port);
+                "Still could not bind to %s:%s", ip, port);
             hcnse_socket_close(fd);
             continue;
         }
@@ -179,7 +181,7 @@ hcnse_listener_init_ipv6(hcnse_listener_t *listener, const char *ip,
             "getsockname() failed to %s:%s", ip, port);
         goto failed;
     }
-    listener->identifier = HCNSE_LISTENER_FLAG;
+    listener->type_id = HCNSE_LISTENER_ID;
     listener->fd = fd;
     freeaddrinfo(result);
 
@@ -236,7 +238,7 @@ hcnse_connection_init(hcnse_connect_t *connect)
         return hcnse_get_errno();
     }
 
-    connect->identifier = HCNSE_CONNECTION_FLAG;
+    connect->type_id = HCNSE_CONNECTION_ID;
     connect->fd = HCNSE_INVALID_SOCKET;
     connect->pool = pool;
 
@@ -265,7 +267,7 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
     }
     connect->fd = fd;
     connect->owner = listener;
-    // connect->ready_to_write = 0;
+    /* connect->ready_to_write = 0; */
     return HCNSE_OK;
 }
 
@@ -293,36 +295,15 @@ hcnse_connection_destroy(hcnse_connect_t *connect)
     hcnse_pool_destroy(connect->pool);
 }
 
-hcnse_uint_t
-hcnse_is_listener(void *instance)
-{
-    struct temp {
-        int8_t identifier;
-    };
-    struct temp *p = (struct temp *) instance;
-    return ((p->identifier) == HCNSE_LISTENER_FLAG);
-}
-
-hcnse_uint_t
-hcnse_is_connection(void *instance)
-{
-    struct temp {
-        int8_t identifier;
-    };
-    struct temp *p = (struct temp *) instance;
-    return ((p->identifier) == HCNSE_CONNECTION_FLAG);
-}
-
-
 const char *
-hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr)
+hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
+    size_t bufsize)
 {
-    static hcnse_thread_local char buf[100];
     socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);
 
-    if (getnameinfo(sockaddr, addrlen, buf, NI_MAXHOST, 0, 0,
+    if (getnameinfo(sockaddr, addrlen, buf, bufsize, 0, 0,
         NI_NUMERICHOST) != 0)
     {
         return NULL;
@@ -332,14 +313,14 @@ hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr)
 }
 
 const char *
-hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr)
+hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr, char *buf,
+    size_t bufsize)
 {
-    static hcnse_thread_local char buf[100];
     socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);
 
-    if (getnameinfo(sockaddr, addrlen, NULL, 0, buf, NI_MAXSERV,
+    if (getnameinfo(sockaddr, addrlen, NULL, 0, buf, bufsize,
         NI_NUMERICHOST|NI_NUMERICSERV) != 0)
     {
         return NULL;
@@ -349,29 +330,33 @@ hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr)
 }
 
 const char *
-hcnse_listener_get_ip_addr(hcnse_listener_t *listener)
+hcnse_listener_get_addr_text(hcnse_listener_t *listener, char *buf,
+    size_t bufsize)
 {
-    return hcnse_sockaddr_get_addr_text((const struct sockaddr *)
-        &(listener->sockaddr));
+    return hcnse_sockaddr_get_addr_text(
+        (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);
 }
 
 const char *
-hcnse_listener_get_port(hcnse_listener_t *listener)
+hcnse_listener_get_port_text(hcnse_listener_t *listener, char *buf,
+    size_t bufsize)
 {
-    return hcnse_sockaddr_get_port_text((const struct sockaddr *)
-        &(listener->sockaddr));
+    return hcnse_sockaddr_get_port_text(
+        (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);
 }
 
 const char *
-hcnse_connection_get_ip_addr(hcnse_connect_t *connect)
+hcnse_connection_get_addr_text(hcnse_connect_t *connect, char *buf,
+    size_t bufsize)
 {
-    return hcnse_sockaddr_get_addr_text((const struct sockaddr *)
-        &(connect->sockaddr));
+    return hcnse_sockaddr_get_addr_text(
+        (const struct sockaddr *) &(connect->sockaddr), buf, bufsize);
 }
 
 const char *
-hcnse_connection_get_port(hcnse_connect_t *connect)
+hcnse_connection_get_port_text(hcnse_connect_t *connect, char *buf,
+    size_t bufsize)
 {
-    return hcnse_sockaddr_get_port_text((const struct sockaddr *)
-        &(connect->sockaddr));
+    return hcnse_sockaddr_get_port_text(
+        (const struct sockaddr *) &(connect->sockaddr), buf, bufsize);
 }

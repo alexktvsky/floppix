@@ -68,12 +68,12 @@
 
 #endif
 
+typedef int                            hcnse_err_t;
 typedef intptr_t                       hcnse_int_t;
 typedef uintptr_t                      hcnse_uint_t;
 typedef size_t                         hcnse_size_t;
 typedef ssize_t                        hcnse_ssize_t;
 typedef uint32_t                       hcnse_flag_t;
-typedef int                            hcnse_errno_t;
 typedef uintptr_t                      hcnse_msec_t;
 typedef struct hcnse_file_s            hcnse_file_t;
 typedef struct hcnse_thread_s          hcnse_thread_t;

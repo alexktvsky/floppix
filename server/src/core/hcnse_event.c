@@ -58,10 +58,11 @@ hcnse_process_events_and_timers(hcnse_cycle_t *cycle)
 }
 
 
-
-// hcnse_err_t
-// hcnse_stop_process_events_and_timers(void)
-// {
-//     /* Raise the signal which interrupt cycle */
-//     return HCNSE_OK;
-// }
+#if 0
+hcnse_err_t
+hcnse_stop_process_events_and_timers(void)
+{
+    /* Raise the signal which interrupt cycle */
+    return HCNSE_OK;
+}
+#endif

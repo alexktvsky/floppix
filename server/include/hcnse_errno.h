@@ -4,6 +4,8 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
+#define HCNSE_ERRNO_STR_SIZE           1024
+
 #if (HCNSE_POSIX)
 #define hcnse_get_errno()              (errno)
 #define hcnse_set_errno(err)           (errno = err)
@@ -39,9 +41,6 @@
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
 
 
-const char *hcnse_strerror(hcnse_err_t errcode);
-size_t hcnse_strerror_r(hcnse_err_t errcode, char *buf, size_t bufsize);
-const char *hcnse_errno_strerror(hcnse_errno_t err);
-size_t hcnse_errno_strerror_r(hcnse_errno_t err, char *buf, size_t bufsize);
+const char *hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize);
 
 #endif /* INCLUDED_HCNSE_ERRNO_H */

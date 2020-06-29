@@ -30,8 +30,7 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "lseek(%d, %zd, %s) failed", file->fd, offset,
-            hcnse_value(SEEK_SET));
+            "lseek(%d, %zd, SEEK_SET) failed", file->fd, offset);
         return -1;
     }
     n = read(file->fd, buf, size);
@@ -84,21 +83,18 @@ hcnse_file_size(hcnse_file_t *file)
     offset = lseek(file->fd, 0, SEEK_CUR);
     if (offset == (off_t) -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "lseek(%d, %zd, %s) failed",
-            file->fd, 0, hcnse_value(SEEK_CUR));
+            "lseek(%d, %zd, SEEK_CUR) failed", file->fd, 0);
         return -1;
     }
     size = (size_t) lseek(file->fd, 0, SEEK_END);
     if (size == (size_t) -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "lseek(%d, %zd, %s) failed",
-            file->fd, offset, hcnse_value(SEEK_END));
+            "lseek(%d, %zd, SEEK_END) failed", file->fd, offset);
         return -1;
     }
     if (lseek(file->fd, offset, SEEK_SET) == (off_t) -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "lseek(%d, %zd, %s) failed",
-            file->fd, 0, hcnse_value(SEEK_SET));
+            "lseek(%d, %zd, SEEK_SET) failed", file->fd, 0);
         return -1;
     }
     return size;
@@ -149,7 +145,7 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
-    // ovlp.OffsetHigh = (DWORD) (offset >> 32);
+    /* ovlp.OffsetHigh = (DWORD) (offset >> 32); */
     ovlp.hEvent = NULL;
 
     if (ReadFile(file->fd, buf, size, &n, &ovlp) == 0) {
@@ -171,7 +167,7 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
-    // ovlp.OffsetHigh = (DWORD) (offset >> 32);
+    /* ovlp.OffsetHigh = (DWORD) (offset >> 32); */
     ovlp.hEvent = NULL;
 
     if (WriteFile(file->fd, buf, size, &n, &ovlp) == 0) {

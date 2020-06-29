@@ -7,7 +7,10 @@ hcnse_err_t
 hcnse_process_daemon_init(void)
 {
     pid_t pid;
-    if ((pid = fork()) < 0) {
+
+    pid = fork();
+
+    if (pid < 0) {
         return hcnse_get_errno();
     }
     /* Parent terminates */
@@ -51,7 +54,12 @@ hcnse_process_set_workdir(const char *workdir)
     return HCNSE_OK;
 }
 
-// hcnse_err_t process_set_priority(int8_t prio) {}
+#if 0
+hcnse_err_t
+hcnse_process_set_priority(hcnse_int_t prio)
+{
+}
+#endif
 
 #elif (HCNSE_WIN32)
 hcnse_err_t
@@ -82,7 +90,5 @@ hcnse_process_set_workdir(const char *workdir)
     }
     return HCNSE_OK;
 }
-
-// hcnse_err_t hcnse_process_set_priority(int8_t prio) {}
 
 #endif
