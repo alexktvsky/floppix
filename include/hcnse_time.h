@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_TIME_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #if (HCNSE_POSIX)
 

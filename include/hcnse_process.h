@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_PROCESS_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
 hcnse_err_t hcnse_process_daemon_init(void);

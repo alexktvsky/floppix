@@ -1,8 +1,8 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
-#if (HCNSE_POSIX && HCNSE_HAVE_DLOPEN)
+#if (HCNSE_POSIX)
 
 const char *
 hcnse_dlerror(char *buf, size_t bufsize)

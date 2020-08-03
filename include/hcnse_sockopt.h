@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_SOCKOPT_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 hcnse_err_t hcnse_socket_nopush(hcnse_socket_t s);
 hcnse_err_t hcnse_socket_push(hcnse_socket_t s);

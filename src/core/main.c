@@ -1,21 +1,21 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
-
-static char *conf_file = "hcnse.conf";
+static const char *config_fname = "hcnse.conf";
 static hcnse_uint_t show_version;
 static hcnse_uint_t show_help;
-static hcnse_uint_t test_conf;
+static hcnse_uint_t test_config;
 static hcnse_uint_t quiet_mode;
 
 
 static hcnse_err_t
-hcnse_parse_argv(int argc, char *const argv[])
+hcnse_parse_argv(int argc, const char *const *argv)
 {
     int i;
+    const char *p;
 
     for (i = 1; i < argc; i++) {
-        char *p = argv[i];
+        p = argv[i];
         if (*p++ != '-') {
             return HCNSE_FAILED;
         }
@@ -30,7 +30,7 @@ hcnse_parse_argv(int argc, char *const argv[])
                 break;
 
             case 't':
-                test_conf = 1;
+                test_config = 1;
                 break;
 
             case 'q':
@@ -39,14 +39,13 @@ hcnse_parse_argv(int argc, char *const argv[])
 
             case 'c':
                 if (argv[i++]) {
-                    conf_file = argv[i];
+                    config_fname = argv[i];
                 }
                 else {
                     return HCNSE_FAILED;
                 }
                 break;
 
-            /* smth else */
             default:
                 return HCNSE_FAILED;
             }
@@ -59,7 +58,8 @@ static void
 hcnse_show_version_info(void)
 {
     hcnse_log_stdout(HCNSE_OK, "%s (%s)", HCNSE_PROJECT_INFO, HCNSE_BUILD_TIME);
-    hcnse_log_stdout(HCNSE_OK, "Target system: %s", HCNSE_SYSTEM_NAME);
+    hcnse_log_stdout(HCNSE_OK, "Target system: %s %d-bit",
+        HCNSE_SYSTEM_NAME, HCNSE_PTR_WIDTH);
 #ifdef HCNSE_COMPILER
     hcnse_log_stdout(HCNSE_OK, "Built by %s", HCNSE_COMPILER);
 #endif
@@ -71,12 +71,23 @@ hcnse_show_help_info(void)
     hcnse_log_stdout(HCNSE_OK, "%s", "Some help info");
 }
 
-int
-main(int argc, char *const argv[])
+static void
+hcnse_save_argv(hcnse_server_t *server, int argc, const char *const *argv)
 {
-    hcnse_cycle_t *cycle;
+    server->argc = argc;
+    server->argv = argv;
+}
+
+int
+main(int argc, const char *const *argv)
+{
+    hcnse_server_t *server;
     hcnse_pool_t *pool;
-    /* hcnse_log_t *log; */
+    hcnse_config_t *config;
+/*
+    hcnse_logger_t *logger;
+    
+*/
 
     hcnse_list_t *modules;
 
@@ -117,12 +128,14 @@ main(int argc, char *const argv[])
         goto failed;
     }
 
-    cycle = hcnse_pcalloc(pool, sizeof(hcnse_cycle_t));
-    if (!cycle) {
+    server = hcnse_pcalloc(pool, sizeof(hcnse_server_t));
+    if (!server) {
         err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create server cycle");
+        hcnse_log_stderr(err, "Failed to allocate server run time context");
         goto failed;
     }
+
+    hcnse_save_argv(server, argc, argv);
 
     /*
      * Create linked lists of resources
@@ -131,54 +144,88 @@ main(int argc, char *const argv[])
     modules = hcnse_list_create(pool);
     if (!modules) {
         err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create linked list");
+        hcnse_log_stderr(err, "Failed to allocate list of modules");
         goto failed;
     }
 
     listeners = hcnse_list_create(pool);
     if (!listeners) {
         err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create linked list");
+        hcnse_log_stderr(err, "Failed to allocate list of listeners");
         goto failed;
     }
 
     connections = hcnse_list_create(pool);
     if (!connections) {
         err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create linked list");
+        hcnse_log_stderr(err, "Failed to allocate list of connections");
         goto failed;
     }
 
     free_connections = hcnse_list_create(pool);
     if (!free_connections) {
         err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create linked list");
+        hcnse_log_stderr(err, "Failed to allocate list of free connections");
         goto failed;
     }
 
-    cycle->pool = pool;
-    cycle->modules = modules;
-    cycle->listeners = listeners;
-    cycle->connections = connections;
-    cycle->free_connections = free_connections;
-
-    err = hcnse_process_conf_file(cycle, conf_file);
+    err = hcnse_read_config(&config, pool, config_fname);
     if (err != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to initialize conf");
+        hcnse_log_stderr(err, "Failed to read config file");
         goto failed;
     }
 
-#if 0
-    if (test_conf) {
-        hcnse_show_conf_info(conf);
-        hcnse_conf_destroy(conf);
+
+    server->pool = pool;
+    server->config = config;
+    server->modules = modules;
+    server->listeners = listeners;
+    server->connections = connections;
+    server->free_connections = free_connections;
+
+
+    err = hcnse_setup_prelinked_modules(server);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to setup prelinked modules");
+        goto failed;
+    }
+
+    err = hcnse_preinit_modules(server);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to preinit modules");
+        goto failed;
+    }
+
+    if (test_config) {
+        err = hcnse_check_config(config, server);
+        if (err == HCNSE_OK) {
+            hcnse_log_stderr(HCNSE_OK, "Configuration checking was successful");
+        }
+        else {
+            hcnse_log_stderr(HCNSE_OK, "Configuration checking failed");
+        }
         hcnse_pool_destroy(pool);
         return 0;
     }
 
-    err = hcnse_cycle_update_by_conf(cycle, conf);
+    err = hcnse_process_config(config, server);
     if (err != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to update cycle by conf");
+        hcnse_log_stderr(err, "Failed to process config");
+        goto failed;
+    }
+
+    err = hcnse_init_modules(server);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to init modules");
+        goto failed;
+    }
+
+
+#if 0
+
+    err = hcnse_cycle_update_by_conf(cntx, conf);
+    if (err != HCNSE_OK) {
+        hcnse_log_stderr(err, "Failed to update cntx by conf");
         goto failed;
     }
 
@@ -207,7 +254,7 @@ main(int argc, char *const argv[])
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;
         }
-        err = hcnse_list_push_back(cycle->listeners, listener);
+        err = hcnse_list_push_back(cntx->listeners, listener);
         if (err != HCNSE_OK) {
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;
@@ -239,7 +286,7 @@ main(int argc, char *const argv[])
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;
         }
-        err = hcnse_list_push_back(cycle->listeners, listener);
+        err = hcnse_list_push_back(cntx->listeners, listener);
         if (err != HCNSE_OK) {
             hcnse_log_stderr(err, "Failed to listen %s:%s", ip, port);
             goto failed;
@@ -258,7 +305,7 @@ main(int argc, char *const argv[])
         goto failed;
     }
 
-    cycle->log = log;
+    cntx->log = log;
     hcnse_log_set_global(log);
 
 
@@ -300,3 +347,5 @@ failed:
 #endif
     return 1;
 }
+
+

@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define HCNSE_MIN_ORDER  1
 #define HCNSE_MIN_ALLOC  (HCNSE_ALIGN_SIZE << HCNSE_MIN_ORDER)

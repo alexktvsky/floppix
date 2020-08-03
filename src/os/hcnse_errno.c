@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define HCNSE_ERR_UNDEF  2147483647
 
@@ -16,7 +16,7 @@ static const struct {
     {HCNSE_NOT_FOUND,                "Resource not found"},
 
     /* HCNSE_ERR_CONF domain */
-    {HCNSE_ERR_CONF_SYNTAX,          "Error of configuration file syntax"},
+    {HCNSE_ERR_CONFIG_SYNTAX,        "Error of configuration file syntax"},
 
     /* HCNSE_ERR_SSL domain */
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},

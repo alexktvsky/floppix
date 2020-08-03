@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
 hcnse_int_t
@@ -74,6 +74,7 @@ hcnse_strlen(const char *str)
     hcnse_uint_t i;
 
     for (i = 0; ; i++) {
+
         if (str[i] == '\0') {
             return i;
         }

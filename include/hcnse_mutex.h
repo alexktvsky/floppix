@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_MUTEX_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 /* Mutex specific flags */
 #define HCNSE_MUTEX_SHARED             0x00000001

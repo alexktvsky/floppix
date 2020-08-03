@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define HCNSE_LIST_INITIAL_SIZE  10
 
@@ -126,7 +126,7 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
 }
 
 hcnse_err_t
-hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
+hcnse_list_remove1(hcnse_list_t *list, hcnse_list_node_t *node)
 {
     hcnse_list_node_t *founded_node, *temp1;
 
@@ -172,6 +172,55 @@ hcnse_list_remove(hcnse_list_t *list, hcnse_list_node_t *node)
 
     return HCNSE_OK;
 }
+
+hcnse_err_t
+hcnse_list_remove(hcnse_list_t *list, void *data)
+{
+    hcnse_list_node_t *founded_node, *temp1;
+
+    temp1 = list->head;
+
+    /* If first element */
+    if (list->head->data == data) {
+        founded_node = list->head;
+        if (list->head->next) {
+            list->head->next->prev = NULL;
+        }
+        list->head = list->head->next;
+        list->size -= 1;
+    }
+    /* If the last element */
+    else if (list->tail->data == data) {
+        founded_node = list->tail;
+        if (list->tail->prev) {
+            list->tail->prev->next = NULL;
+        }
+        list->tail = list->tail->prev;
+        list->size -= 1;
+    }
+    else {
+        temp1 = temp1->next;
+        while (temp1->data != data) {
+            temp1 = temp1->next;
+            if (temp1 == list->tail) {
+                return HCNSE_NOT_FOUND;
+            }
+        }
+        temp1->next->prev = temp1->prev;
+        temp1->prev->next = temp1->next;
+        founded_node = temp1;
+        list->size -= 1;
+    }
+
+    temp1 = list->free_nodes;
+    list->free_nodes = founded_node;
+    founded_node->next = temp1;
+
+    list->free_nodes_size += 1;
+
+    return HCNSE_OK;
+}
+
 
 hcnse_list_node_t *
 hcnse_list_first(hcnse_list_t *list)

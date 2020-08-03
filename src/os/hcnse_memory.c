@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #if defined(__GNUC__)
 #define memory_barrier() __sync_synchronize()

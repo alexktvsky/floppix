@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_SIGNAL_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
 

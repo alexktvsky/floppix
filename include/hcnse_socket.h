@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_SOCKET_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #if (HCNSE_LINUX)
 #define HCNSE_SHUT_RD                  SHUT_RD

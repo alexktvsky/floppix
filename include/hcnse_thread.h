@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_THREAD_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 /* Thread specific flags */
 #define HCNSE_THREAD_SCOPE_SYSTEM           0x00000001

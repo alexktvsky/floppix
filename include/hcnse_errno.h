@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_ERRNO_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define HCNSE_ERRNO_STR_SIZE           1024
 
@@ -34,8 +34,10 @@
     (HCNSE_ERROR_DOMAIN_BASE + (domain * HCNSE_ERRSPACE_SIZE))
 
 
-#define HCNSE_ERR_CONF                 HCNSE_ERROR_DOMAIN(1)
-#define HCNSE_ERR_CONF_SYNTAX          (HCNSE_ERR_CONF+1)
+#define HCNSE_ERR_CONFIG               HCNSE_ERROR_DOMAIN(1)
+#define HCNSE_ERR_CONFIG_SYNTAX        (HCNSE_ERR_CONFIG+1)
+
+
 
 #define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(2)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)

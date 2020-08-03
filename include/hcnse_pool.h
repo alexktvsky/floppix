@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_POOL_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define hcnse_pool_cleanup_add(pool, data, handler) \
     hcnse_pool_cleanup_add1(pool, data, (hcnse_cleanup_handler_t) handler)

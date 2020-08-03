@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_FILE_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #if (HCNSE_POSIX)
 
@@ -69,15 +69,15 @@
 struct hcnse_file_s {
     hcnse_fd_t fd;
     char *name;
-    off_t offset;
+    hcnse_off_t offset;
 };
 
 hcnse_err_t hcnse_file_init(hcnse_file_t *file, const char *fname, int mode,
     int create, int access);
 ssize_t hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
-    off_t offset);
+    hcnse_off_t offset);
 ssize_t hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
-    off_t offset);
+    hcnse_off_t offset);
 ssize_t hcnse_file_write1(hcnse_file_t *file, const char *buf, size_t size);
 ssize_t hcnse_file_size(hcnse_file_t *file);
 void hcnse_file_fini(hcnse_file_t *file);

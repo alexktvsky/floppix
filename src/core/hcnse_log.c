@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define HCNSE_MAX_LOG_SLOTS            32
 #define HCNSE_LOG_STR_SIZE             1000
@@ -9,7 +9,7 @@
 #define HCNSE_LOG_INIT_DELAY           500
 #define HCNSE_LOG_WORKER_DELAY         1000
 
-typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, hcnse_uint_t level,
+typedef void (*hcnse_log_handler_t) (hcnse_logger_t *log, hcnse_uint_t level,
     char *buf, size_t len);
 
 /*
@@ -37,7 +37,7 @@ typedef struct {
     char str[HCNSE_LOG_STR_SIZE];
 } hcnse_log_message_t;
 
-struct hcnse_log_s {
+struct hcnse_logger_s {
     hcnse_pool_t *pool;
     hcnse_list_t *outputs;
 
@@ -64,7 +64,7 @@ struct hcnse_log_s {
 };
 
 
-hcnse_log_t *hcnse_log_global;
+hcnse_logger_t *hcnse_logger_global;
 
 const char *hcnse_log_prio[] = {
     "emerg",
@@ -79,12 +79,12 @@ static hcnse_thread_value_t
 hcnse_log_worker(void *arg)
 {
     char buf[HCNSE_LOG_TOTAL_STR_SIZE];
-    hcnse_log_t *log;
+    hcnse_logger_t *log;
     hcnse_log_message_t *messages, *msg;
     size_t len;
 
 
-    log = (hcnse_log_t *) arg;
+    log = (hcnse_logger_t *) arg;
     messages = log->messages;
 
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
@@ -121,10 +121,11 @@ hcnse_log_worker(void *arg)
     return 0;
 }
 
-hcnse_err_t
-hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
-{
 #if 0
+hcnse_err_t
+hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
+{
+
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
     hcnse_semaphore_t *sem_empty;
@@ -132,7 +133,7 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
     void *ptr;
 
     hcnse_pool_t *pool;
-    hcnse_log_t *log = NULL;
+    hcnse_logger_t *log = NULL;
     hcnse_file_t *file = NULL;
     size_t mem_size = 0;
     ssize_t file_size;
@@ -155,7 +156,7 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
 
-    log = hcnse_pcalloc(pool, sizeof(hcnse_log_t));
+    log = hcnse_pcalloc(pool, sizeof(hcnse_logger_t));
     if (!log) {
         err = hcnse_get_errno();
         goto failed;
@@ -309,8 +310,9 @@ hcnse_log_create1(hcnse_log_t **in_log, hcnse_conf_t *conf)
     hcnse_msleep(HCNSE_LOG_INIT_DELAY);
 
     *in_log = log;
-#endif
+
     return HCNSE_OK;
+#endif
 
 #if 0
 failed:
@@ -324,13 +326,13 @@ failed:
     }
 #endif
     return err;
-#endif
+
 }
 
-hcnse_log_t *
+hcnse_logger_t *
 hcnse_log_create(hcnse_conf_t *conf)
 {
-    hcnse_log_t *log;
+    hcnse_logger_t *log;
 
     if (hcnse_log_create1(&log, conf) != HCNSE_OK) {
         return NULL;
@@ -338,18 +340,10 @@ hcnse_log_create(hcnse_conf_t *conf)
     return log;
 }
 
-hcnse_err_t
-hcnse_log_update(hcnse_log_t *log, hcnse_conf_t *conf)
-{
-    /* Rebuild chain of log nodes */
-
-
-
-    return HCNSE_OK;
-}
+#endif
 
 void
-hcnse_log_error(hcnse_uint_t level, hcnse_log_t *log, hcnse_err_t err,
+hcnse_log_error(hcnse_uint_t level, hcnse_logger_t *log, hcnse_err_t err,
     const char *fmt, ...)
 {
     char errstr[HCNSE_ERRNO_STR_SIZE];
@@ -436,7 +430,7 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 }
 
 void
-hcnse_log_destroy(hcnse_log_t *log)
+hcnse_log_destroy(hcnse_logger_t *log)
 {
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     hcnse_log_message_t *temp;

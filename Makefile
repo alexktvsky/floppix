@@ -7,6 +7,7 @@ SRC_FILES += hcnse_file.c
 SRC_FILES += hcnse_errno.c
 SRC_FILES += hcnse_socket.c
 SRC_FILES += hcnse_sockopt.c
+SRC_FILES += hcnse_sockaddr.c
 SRC_FILES += hcnse_time.c
 SRC_FILES += hcnse_thread.c
 SRC_FILES += hcnse_mutex.c
@@ -15,8 +16,9 @@ SRC_FILES += hcnse_cpuinfo.c
 SRC_FILES += hcnse_pool.c
 SRC_FILES += hcnse_log.c
 SRC_FILES += hcnse_list.c
+SRC_FILES += hcnse_array.c
 SRC_FILES += hcnse_config.c
-SRC_FILES += hcnse_cycle.c
+SRC_FILES += hcnse_core.c
 SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_dso.c
@@ -141,11 +143,11 @@ uninstall:
 
 clean:
 	rm -f obj/* bin/*
-	@for dir in $(MODULE_DIRS); do \
-		if [ -d $$dir ]; then \
-			$(MAKE) -C $$dir clean; \
-		fi; \
-	done;
+# 	@for dir in $(MODULE_DIRS); do \
+# 		if [ -d $$dir ]; then \
+# 			$(MAKE) -C $$dir clean; \
+# 		fi; \
+# 	done;
 # 	@$(MAKE) -C test clean
 
 mkdirs:

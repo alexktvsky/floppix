@@ -1,5 +1,5 @@
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
 #if (HCNSE_POSIX)
@@ -24,7 +24,8 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
 }
 
 ssize_t
-hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
+hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
+    hcnse_off_t offset)
 {
     ssize_t n;
 
@@ -44,7 +45,8 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 }
 
 ssize_t
-hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
+hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
+    hcnse_off_t offset)
 {
     ssize_t n, written;
     
@@ -78,10 +80,10 @@ ssize_t
 hcnse_file_size(hcnse_file_t *file)
 {
     size_t size;
-    off_t offset;
+    hcnse_off_t offset;
 
     offset = lseek(file->fd, 0, SEEK_CUR);
-    if (offset == (off_t) -1) {
+    if (offset == (hcnse_off_t) -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "lseek(%d, %zd, SEEK_CUR) failed", file->fd, 0);
         return -1;
@@ -92,7 +94,7 @@ hcnse_file_size(hcnse_file_t *file)
             "lseek(%d, %zd, SEEK_END) failed", file->fd, offset);
         return -1;
     }
-    if (lseek(file->fd, offset, SEEK_SET) == (off_t) -1) {
+    if (lseek(file->fd, offset, SEEK_SET) == (hcnse_off_t) -1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
             "lseek(%d, %zd, SEEK_SET) failed", file->fd, 0);
         return -1;
@@ -137,7 +139,8 @@ hcnse_file_init(hcnse_file_t *file, const char *name, int mode, int create,
 }
 
 ssize_t
-hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
+hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
+    hcnse_off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -159,7 +162,8 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, off_t offset)
 }
 
 ssize_t
-hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size, off_t offset)
+hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
+    hcnse_off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -253,5 +257,5 @@ hcnse_file_fini(hcnse_file_t *file)
     hcnse_close_file(file->fd);
     file->fd = HCNSE_INVALID_FILE;
     file->name = NULL;
-    file->offset = (off_t) 0;
+    file->offset = (hcnse_off_t) 0;
 }

@@ -73,11 +73,32 @@ typedef intptr_t                       hcnse_int_t;
 typedef uintptr_t                      hcnse_uint_t;
 typedef size_t                         hcnse_size_t;
 typedef ssize_t                        hcnse_ssize_t;
-typedef uint32_t                       hcnse_flag_t;
+typedef intptr_t                       hcnse_off_t;
+typedef int32_t                        hcnse_flag_t;
 typedef uintptr_t                      hcnse_msec_t;
 typedef struct hcnse_file_s            hcnse_file_t;
 typedef struct hcnse_thread_s          hcnse_thread_t;
 typedef struct hcnse_mutex_s           hcnse_mutex_t;
 typedef struct hcnse_semaphore_s       hcnse_semaphore_t;
+
+#include "hcnse_errno.h"
+#include "hcnse_time.h"
+#include "hcnse_memory.h"
+#include "hcnse_limits.h"
+#include "hcnse_socket.h"
+#include "hcnse_sockopt.h"
+#include "hcnse_file.h"
+#include "hcnse_process.h"
+#include "hcnse_signal.h"
+#include "hcnse_thread.h"
+#include "hcnse_mutex.h"
+#include "hcnse_semaphore.h"
+#include "hcnse_cpuinfo.h"
+#include "hcnse_dso.h"
+
+#define hcnse_flag_set(x, flag)     (x |= flag)
+#define hcnse_flag_unset(x, flag)   (x &= ~(flag))
+#define hcnse_flag_is_set(x, flag)  (x & flag)
+
 
 #endif /* INCLUDED_HCNSE_PORTABLE_H */

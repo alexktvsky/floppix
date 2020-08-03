@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_EVENT_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 #define hcnse_add_listener        hcnse_event_actions.add_listener
 #define hcnse_del_listener        hcnse_event_actions.del_listener

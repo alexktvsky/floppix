@@ -2,10 +2,10 @@
 #define INCLUDED_HCNSE_MEMORY_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
-/* Alignment macros is only to be used to align on a power of 2 boundary */
 #define HCNSE_PTR_SIZE                 __SIZEOF_POINTER__
+#define HCNSE_PTR_WIDTH                (8 * HCNSE_PTR_SIZE)
 #define HCNSE_ALIGN_SIZE               sizeof(uintptr_t)
 #define HCNSE_PAGE_SIZE                hcnse_get_page_size()
 

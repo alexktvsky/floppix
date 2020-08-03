@@ -2,7 +2,7 @@
 #define INCLUDED_HCNSE_SEMAPHORE_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 /* Semaphore specific flags */
 #define HCNSE_SEMAPHORE_PRIVATE        0x00000001

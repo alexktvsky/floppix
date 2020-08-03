@@ -2,81 +2,97 @@
 #define INCLUDED_HCNSE_CONFIG_H
 
 #include "hcnse_portable.h"
-#include "hcnse_common.h"
+#include "hcnse_core.h"
 
 
-#define HCNSE_CONF_TAKE0       0x00000001
-#define HCNSE_CONF_TAKE1       0x00000002
-#define HCNSE_CONF_TAKE2       0x00000004
-#define HCNSE_CONF_TAKE3       0x00000008
-#define HCNSE_CONF_TAKE4       0x00000010
-#define HCNSE_CONF_TAKE5       0x00000020
-#define HCNSE_CONF_TAKE6       0x00000040
-#define HCNSE_CONF_TAKE7       0x00000080
+#define HCNSE_TAKE0                    0x00000001
+#define HCNSE_TAKE1                    0x00000002
+#define HCNSE_TAKE2                    0x00000004
+#define HCNSE_TAKE3                    0x00000008
+#define HCNSE_TAKE4                    0x00000010
+#define HCNSE_TAKE5                    0x00000020
+#define HCNSE_TAKE6                    0x00000040
+#define HCNSE_TAKE7                    0x00000080
 
-#define HCNSE_CONF_MAX_TAKES   8
+#define HCNSE_MAX_TAKES                8
 
-#define HCNSE_CONF_NULL_DIRECTIVE  {NULL, 0, NULL}
+#define HCNSE_NULL_COMMAND             {NULL, 0, NULL, 0}
 
-
-#define HCNSE_CONF_UNSET              -1
-#define NGX_CONF_UNSET_PTR             NULL
-#define NGX_CONF_UNSET_SIZE            ((size_t) -1)
-#define NGX_CONF_UNSET_UINT            ((ngx_int_t) -1)
-#define NGX_CONF_UNSET_FLAG            ((hcnse_flag_t) -1)
-
-
-
-struct hcnse_conf_directive_s {
-    char *name;
+/*
+ * The command record structure. Modules can define a table of these
+ * to define the directives it will implement.
+ */
+struct hcnse_command_s {
+    /* Name of this command */
+    const char *name;
+    /* How many arguments takes directive */
     hcnse_flag_t takes;
-    hcnse_conf_dir_handler_t handler;
+    /* The function to be called when this directive is parsed */
+    hcnse_cmd_handler_t handler;
+    /* The offset of field in context structure */
+    hcnse_off_t offset;
 };
 
+/*
+ * This structure is passed to a command which is being invoked,
+ * to carry a large variety of miscellaneous data.
+ */
+struct hcnse_cmd_params_s {
+    /* Server being configured for */
+    hcnse_server_t *server;
+    /* The current command */
+    hcnse_command_t *cmd;
+    /* The directive specifying this command */
+    hcnse_directive_t *directive;
 
-hcnse_err_t hcnse_process_conf_file(hcnse_cycle_t *cycle, const char *fname);
-
-
-
-#if 0
-
-#define HCNSE_METRIC_PREFIX_EMPTY      ""
-#define HCNSE_METRIC_PREFIX_KILO       "k"
-#define HCNSE_METRIC_PREFIX_MEGA       "m"
-#define HCNSE_METRIC_PREFIX_GIGA       "g"
-#define HCNSE_METRIC_PREFIX_TERA       "t"
-
-#define HCNSE_METRIC_MULTIPLIER_KILO   1000
-#define HCNSE_METRIC_MULTIPLIER_MEGA   1000000
-#define HCNSE_METRIC_MULTIPLIER_GIGA   1000000000
-#define HCNSE_METRIC_MULTIPLIER_TERA   1000000000000
-
-
-struct hcnse_conf_s {
-    hcnse_pool_t *pool;
-    hcnse_file_t *file;
-
-    uint32_t daemon : 1;
-    uint32_t ssl : 1;
-
-
-    char *workdir;
-    hcnse_int_t priority;
-    hcnse_msec_t timer;
-    char *user;
-    char *group;
-    hcnse_uint_t worker_processes;
-    hcnse_uint_t worker_connections;
-
-    char *ssl_certfile;
-    char *ssl_keyfile;
 };
 
+/*
+ * This structure store the directives that will be active in
+ * the running server.
+ */
+struct hcnse_directive_s {
+    /* The current directive name */
+    const char *name;
+    /*  Number of arguments */
+    int argc;
+    /* The arguments for the current directive */
+    char **argv;
 
-hcnse_err_t hcnse_conf_init_and_parse(hcnse_conf_t **in_conf,
-    hcnse_pool_t *pool, const char *fname);
-void hcnse_conf_fini(hcnse_conf_t *conf);
+    /* The name of the file this directive was found in */
+    /* const char *filename; */
+    /* The line number the directive was on */
+    /* hcnse_uint_t line; */
+};
 
-#endif
+/*
+ * This structure store the config structure (list, tree, etc)
+ * TODO: Abstract syntax tree
+ */
+struct hcnse_config_s {
+    /* List of directives, nodes type is hcnse_directive_t */
+    hcnse_list_t *conf_list;
+
+    hcnse_file_t *conf_file;
+};
+
+hcnse_err_t hcnse_read_config(hcnse_config_t **config, hcnse_pool_t *pool,
+    const char *filename);
+hcnse_err_t hcnse_check_config(hcnse_config_t *config,
+    hcnse_server_t *server);
+hcnse_err_t hcnse_process_config(hcnse_config_t *config,
+    hcnse_server_t *server);
+
+hcnse_err_t hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data,
+    int argc, char **argv);
+
+hcnse_err_t hcnse_handler_set_str(hcnse_cmd_params_t *params, void *data,
+    int argc, char **argv);
+
+hcnse_err_t hcnse_handler_set_size(hcnse_cmd_params_t *params, void *data,
+    int argc, char **argv);
+
+hcnse_err_t hcnse_handler_set_uint(hcnse_cmd_params_t *params, void *data,
+    int argc, char **argv);
 
 #endif /* INCLUDED_HCNSE_CONFIG_H */
