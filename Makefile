@@ -37,7 +37,6 @@ SRC_FILES += hcnse_module.c
 # SRC_FILES += hcnse_event_read.c
 # SRC_FILES += hcnse_event_write.c
 # SRC_FILES += hcnse_event_timer.c
-# SRC_FILES += hcnse_regex.c
 
 
 

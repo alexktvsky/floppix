@@ -39,10 +39,6 @@
 #include <sys/epoll.h>
 #endif
 
-#if (HCNSE_HAVE_PCRE)
-#include <pcre.h>
-#endif
-
 #if (HCNSE_HAVE_OPENSSL)
 #include <openssl/ssl.h>
 #include <openssl/evp.h>

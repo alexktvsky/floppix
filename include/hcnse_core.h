@@ -19,7 +19,6 @@ typedef struct hcnse_list_s            hcnse_list_t;
 typedef struct hcnse_list_node_s       hcnse_list_node_t;
 typedef struct hcnse_pool_s            hcnse_pool_t;
 typedef struct hcnse_module_s          hcnse_module_t;
-typedef struct hcnse_regex_compile_s   hcnse_regex_compile_t;
 
 /*
 typedef struct hcnse_event_s           hcnse_event_t;
@@ -47,7 +46,6 @@ typedef void (*hcnse_cleanup_handler_t)(void *data);
 #if 0
 #include "hcnse_rbtree.h"
 #include "hcnse_event.h"
-#include "hcnse_regex.h"
 #endif
 
 
