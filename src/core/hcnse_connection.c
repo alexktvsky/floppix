@@ -22,7 +22,7 @@ hcnse_connection_init(hcnse_connect_t *connect)
 }
 
 hcnse_err_t
-hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listen_t *listen)
+hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
 {
     hcnse_socket_t fd;
     socklen_t addrlen;
@@ -31,7 +31,7 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listen_t *listen)
     fd = HCNSE_INVALID_SOCKET;
     addrlen = sizeof(struct sockaddr_in);
 
-    err = hcnse_socket_accept(&fd, listen->fd,
+    err = hcnse_socket_accept(&fd, listener->fd,
         (struct sockaddr *) &connect->sockaddr, &addrlen);
     if (err != HCNSE_OK) {
         return err;
@@ -42,7 +42,7 @@ hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listen_t *listen)
         return err;
     }
     connect->fd = fd;
-    connect->owner = listen;
+    connect->owner = listener;
     /* connect->ready_to_write = 0; */
     return HCNSE_OK;
 }

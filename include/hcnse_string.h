@@ -24,6 +24,14 @@
 #define hcnse_vsnprintf(str, size, ...) \
     vsnprintf(str, size, __VA_ARGS__)
 
+#define hcnse_isdigit(c) \
+    ((c >= '0') && (c <= '9'))
+#define hcnse_tolower(c) \
+    ((char) ((c >= 'A' && c <= 'Z') ? (c | 0x20) : c))
+#define hcnse_toupper(c) \
+    ((char) ((c >= 'a' && c <= 'z') ? (c & ~0x20) : c))
+
+
 #define hcnse_value_helper(x)          #x
 #define hcnse_value(x)                 hcnse_value_helper(x)
 #define hcnse_stringify(x)             hcnse_value_helper(x)
@@ -35,5 +43,6 @@ size_t hcnse_strlen(const char *str);
 size_t hcnse_strnlen(const char *str, size_t n);
 hcnse_int_t hcnse_strcasecmp(char *str1, char *str2);
 hcnse_int_t hcnse_strncasecmp(char *str1, char *str2, size_t n);
+char *hcnse_strchr(const char *str, int c);
 
 #endif /* INCLUDED_HCNSE_STRING_H */

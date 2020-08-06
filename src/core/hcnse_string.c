@@ -101,7 +101,7 @@ hcnse_strcasecmp(char *str1, char *str2)
 {
     hcnse_uint_t c1, c2;
 
-    for ( ;; ) {
+    for ( ; ; ) {
         c1 = (hcnse_uint_t) *str1++;
         c2 = (hcnse_uint_t) *str2++;
 
@@ -147,4 +147,19 @@ hcnse_strncasecmp(char *str1, char *str2, size_t n)
     }
 
     return 0;
+}
+
+char *
+hcnse_strchr(const char *str, int c)
+{
+    size_t len, i;
+
+    len = hcnse_strlen(str);
+
+    for (i = 0; i < len; i++) {
+        if (str[i] == c) {
+            return (char *) &str[i];
+        }
+    }
+    return NULL;
 }

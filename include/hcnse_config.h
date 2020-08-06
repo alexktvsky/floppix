@@ -76,6 +76,7 @@ struct hcnse_config_s {
     hcnse_file_t *conf_file;
 };
 
+
 hcnse_err_t hcnse_read_config(hcnse_config_t **config, hcnse_pool_t *pool,
     const char *filename);
 hcnse_err_t hcnse_check_config(hcnse_config_t *config,
@@ -85,13 +86,10 @@ hcnse_err_t hcnse_process_config(hcnse_config_t *config,
 
 hcnse_err_t hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-
 hcnse_err_t hcnse_handler_set_str(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-
 hcnse_err_t hcnse_handler_set_size(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-
 hcnse_err_t hcnse_handler_set_uint(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
 

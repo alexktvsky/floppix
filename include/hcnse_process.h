@@ -5,7 +5,7 @@
 #include "hcnse_core.h"
 
 
-hcnse_err_t hcnse_process_daemon_init(void);
+hcnse_err_t hcnse_process_become_daemon(void);
 hcnse_err_t hcnse_process_set_workdir(const char *workdir);
 /* hcnse_err_t hcnse_process_set_priority(hcnse_int_t); */
 

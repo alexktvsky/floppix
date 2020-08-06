@@ -16,7 +16,7 @@
  * ...
  * Slot 19: size 81920
  */
-#define HCNSE_MAX_POOL_INDEX  20
+#define HCNSE_MAX_POOL_SLOT  20
 
 
 typedef struct hcnse_memnode_s hcnse_memnode_t;
@@ -37,7 +37,7 @@ struct hcnse_cleanup_node_s {
 };
 
 struct hcnse_pool_s {
-    hcnse_memnode_t *nodes[HCNSE_MAX_POOL_INDEX];
+    hcnse_memnode_t *nodes[HCNSE_MAX_POOL_SLOT];
     hcnse_pool_t *parent;
     hcnse_pool_t *brother;
     hcnse_pool_t *child;
@@ -163,10 +163,10 @@ hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
 
     npages = hcnse_get_npages(align_size);
     index = npages - 1;
-    if (index > HCNSE_MAX_POOL_INDEX) {
+    if (index > HCNSE_MAX_POOL_SLOT) {
         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
             "Initial pool size (%zu) out of range (0 - %zu)",
-            size, HCNSE_MAX_POOL_INDEX * HCNSE_PAGE_SIZE);
+            size, HCNSE_MAX_POOL_SLOT * HCNSE_PAGE_SIZE);
         return HCNSE_FAILED;
     }
 
@@ -231,7 +231,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
      * the request is forwarded to the system allocator and the returned
      * pointer is stored in the pool for further deallocation
      */
-    if (index > HCNSE_MAX_POOL_INDEX) {
+    if (index > HCNSE_MAX_POOL_SLOT) {
         mem = hcnse_malloc(align_size);
         if (mem) {
             hcnse_pool_cleanup_add(pool, mem, hcnse_free);
@@ -240,7 +240,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
     }
 
     /* Try to find suitable node */
-    for (i = index; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = index; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             if (node->size_avail >= align_size) {
@@ -317,7 +317,7 @@ hcnse_pool_get_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += node->size;
@@ -336,7 +336,7 @@ hcnse_pool_get_free_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += node->size_avail;
@@ -355,7 +355,7 @@ hcnse_pool_get_total_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             size += HCNSE_PAGE_SIZE * (i + 1);
@@ -383,7 +383,7 @@ hcnse_pool_clean(hcnse_pool_t *pool)
         }
     }
 
-    for (i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             node->first_avail = node->begin;
@@ -411,7 +411,7 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
         }
     }
 
-    for (i = 0; i < HCNSE_MAX_POOL_INDEX; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
         node = (pool->nodes)[i];
         while (node) {
             temp = node;

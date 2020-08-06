@@ -167,60 +167,8 @@ next:
     return HCNSE_OK;
 }
 
-static ssize_t
-hcnse_config_parse_size(const char *str)
-{
-    char prefix;
-    size_t len;
-    ssize_t size, scale, max;
-
-    len = hcnse_strlen(str);
-
-    if (len == 0) {
-        return -1;
-    }
-
-    prefix = str[len - 1];
-
-    switch (prefix) {
-    case 'K':
-    case 'k':
-        len -= 1;
-        max = HCNSE_SSIZE_T_MAX / 1024;
-        scale = 1024;
-        break;
-
-    case 'M':
-    case 'm':
-        len -= 1;
-        max = HCNSE_SSIZE_T_MAX / (1024 * 1024);
-        scale = 1024 * 1024;
-        break;
-
-    case 'G':
-    case 'g':
-        len -= 1;
-        max = HCNSE_SSIZE_T_MAX / (1024 * 1024 * 1024);
-        scale = 1024 * 1024 * 1024;
-        break;
-
-    default:
-        max = HCNSE_SSIZE_T_MAX;
-        scale = 1;
-    }
-
-    size = hcnse_atosz(str, len);
-    if (size == -1 || size > max) {
-        return -1;
-    }
-
-    size *= scale;
-
-    return size;
-}
-
 static hcnse_command_t *
-find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
+hcnse_find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
 {
     hcnse_list_node_t *iter;
     hcnse_module_t *module;
@@ -239,7 +187,7 @@ find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
 }
 
 static hcnse_module_t *
-find_module_by_command(hcnse_server_t *server, const char *cmd_name)
+hcnse_find_module_by_command(hcnse_server_t *server, const char *cmd_name)
 {
     hcnse_list_node_t *iter;
     hcnse_module_t *module;
@@ -303,7 +251,7 @@ hcnse_check_config(hcnse_config_t *config, hcnse_server_t *server)
 
         directive = iter->data;
 
-        cmd = find_command_in_modules(server, directive->name);
+        cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
                 "Unknown directive \"%s\"", directive->name);
@@ -337,7 +285,7 @@ hcnse_process_config(hcnse_config_t *config, hcnse_server_t *server)
     iter = hcnse_list_first(config->conf_list);
     for ( ; iter; iter = iter->next) {
         directive = iter->data;
-        cmd = find_command_in_modules(server, directive->name);
+        cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
                 "Unknown directive \"%s\"", directive->name);
@@ -352,7 +300,7 @@ hcnse_process_config(hcnse_config_t *config, hcnse_server_t *server)
             return HCNSE_ERR_CONFIG_SYNTAX;
         }
 
-        module = find_module_by_command(server, directive->name);
+        module = hcnse_find_module_by_command(server, directive->name);
         if (!module) {
             return HCNSE_FAILED; /* Not possible */
         }
@@ -443,6 +391,7 @@ failed:
 
     return HCNSE_FAILED;
 }
+
 
 hcnse_err_t
 hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data, int argc,

@@ -3,7 +3,7 @@
 
 
 typedef struct hcnse_server_s          hcnse_server_t;
-typedef struct hcnse_listen_s          hcnse_listen_t;
+typedef struct hcnse_listener_s        hcnse_listener_t;
 typedef struct hcnse_connect_s         hcnse_connect_t;
 
 typedef struct hcnse_command_s         hcnse_command_t;
@@ -34,6 +34,7 @@ typedef void (*hcnse_cleanup_handler_t)(void *data);
 #include "hcnse_list.h"
 #include "hcnse_array.h"
 #include "hcnse_config.h"
+#include "hcnse_parse.h"
 #include "hcnse_log.h"
 #include "hcnse_sockaddr.h"
 #include "hcnse_listen.h"

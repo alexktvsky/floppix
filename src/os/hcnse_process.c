@@ -3,8 +3,9 @@
 
 
 #if (HCNSE_POSIX)
+
 hcnse_err_t
-hcnse_process_daemon_init(void)
+hcnse_process_become_daemon(void)
 {
     pid_t pid;
 
@@ -54,16 +55,19 @@ hcnse_process_set_workdir(const char *workdir)
     return HCNSE_OK;
 }
 
-#if 0
 hcnse_err_t
-hcnse_process_set_priority(hcnse_int_t prio)
+hcnse_process_set_user(const char *user)
 {
+
+
+    return HCNSE_OK;
 }
-#endif
+
 
 #elif (HCNSE_WIN32)
+
 hcnse_err_t
-hcnse_process_daemon_init(void)
+hcnse_process_become_daemon(void)
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 

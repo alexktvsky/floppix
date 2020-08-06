@@ -38,7 +38,7 @@
 #define HCNSE_WIN32    0
 
 #elif defined(_WIN32) || defined(__WIN32__)
-#define HCNSE_SYSTEM_NAME  "Win32"
+#define HCNSE_SYSTEM_NAME  "Windows"
 #define HCNSE_LINUX    0
 #define HCNSE_FREEBSD  0
 #define HCNSE_DARWIN   0
