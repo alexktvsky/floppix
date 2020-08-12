@@ -116,10 +116,13 @@ hcnse_pool_cleanup_run(hcnse_pool_t *pool)
     temp1 = pool->cleanups;
 
     while (temp1) {
+
         temp2 = temp1;
         temp1 = temp1->next;
 
         temp2->handler(temp2->data);
+
+        /* Reserve node */
         temp2->next = pool->free_cleanups;
         pool->free_cleanups = temp2;
     }
@@ -293,19 +296,54 @@ void
 hcnse_pool_cleanup_add1(hcnse_pool_t *pool, void *data,
     hcnse_cleanup_handler_t handler)
 {
-    hcnse_cleanup_node_t *temp1;
+    hcnse_cleanup_node_t *node;
 
     if (pool->free_cleanups) {
-        temp1 = pool->free_cleanups;
-        pool->free_cleanups = temp1->next;
+        node = pool->free_cleanups;
+        pool->free_cleanups = node->next;
     }
     else {
-        temp1 = hcnse_palloc(pool, sizeof(hcnse_cleanup_node_t));
+        node = hcnse_palloc(pool, sizeof(hcnse_cleanup_node_t));
     }
-    temp1->data = data;
-    temp1->handler = handler;
-    temp1->next = pool->cleanups;
-    pool->cleanups = temp1;
+    node->data = data;
+    node->handler = handler;
+    node->next = pool->cleanups;
+    pool->cleanups = node;
+}
+
+void
+hcnse_pool_cleanup_remove1(hcnse_pool_t *pool, void *data,
+    hcnse_cleanup_handler_t handler)
+{
+    hcnse_cleanup_node_t *node, *prev;
+
+    node = pool->cleanups;
+
+    while (node) {
+        if (node->data == data && node->handler == handler) {
+            break;
+        }
+        prev = node;
+        node = node->next;
+    }
+
+    if (!node) {
+        /* Not found */
+        return;
+    }
+
+    printf("found!\n");
+
+    if (pool->cleanups == node) {
+        pool->cleanups = node->next;
+    }
+    else {
+        prev->next = node->next;
+    }
+
+    /* Reserve node */
+    node->next = pool->free_cleanups;
+    pool->free_cleanups = node;
 }
 
 size_t
