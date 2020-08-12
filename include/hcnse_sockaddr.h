@@ -9,7 +9,7 @@
 #define HCNSE_MAX_PORT_LEN             NI_MAXSERV
 
 #define hcnse_sockaddr_is_ipv4(sockaddr) \
-    (sockaddr->ss_family == AF_INET4)
+    (sockaddr->ss_family == AF_INET)
 #define hcnse_sockaddr_is_ipv6(sockaddr) \
     (sockaddr->ss_family == AF_INET6)
 

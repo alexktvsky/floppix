@@ -163,3 +163,37 @@ hcnse_strchr(const char *str, int c)
     }
     return NULL;
 }
+
+char *
+hcnse_pstrdup(hcnse_pool_t *pool, const char *str)
+{
+    char *mem;
+    size_t len;
+
+    len = hcnse_strlen(str) + 1;
+
+    mem = hcnse_palloc(pool, len * sizeof(char));
+    if (!mem) {
+        return NULL;
+    }
+
+    hcnse_memmove(mem, str, len);
+
+    return mem;
+}
+
+char *
+hcnse_pstrndup(hcnse_pool_t *pool, const char *str, size_t n)
+{
+    char *mem;
+
+    mem = hcnse_palloc(pool, (n + 1) * sizeof(char));
+    if (!mem) {
+        return NULL;
+    }
+
+    hcnse_memmove(mem, str, n);
+    mem[n] = '\0';
+
+    return mem;
+}

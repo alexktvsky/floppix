@@ -16,6 +16,26 @@ foo(hcnse_cmd_params_t *params, void *data, int argc, char **argv)
 }
 
 static hcnse_err_t
+hcnse_handler_include(hcnse_cmd_params_t *params, void *data, int argc,
+    char **argv)
+{
+    hcnse_pool_t *pool;
+    hcnse_err_t err;
+
+    (void) data;
+    (void) argc;
+
+    pool = params->server->pool;
+
+    err = hcnse_read_included_config(params->config, pool, argv[0]);
+    if (err != HCNSE_OK) {
+        return err;
+    }
+
+    return HCNSE_OK;
+}
+
+static hcnse_err_t
 hcnse_handler_import(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
@@ -119,22 +139,18 @@ hcnse_core_preinit(hcnse_server_t *server)
     // hcnse_logger_create();
 
 
-    /*
-     * Next fields set by hcnse_pcalloc()
-     *
-     * server->workdir = NULL;
-     * server->user = NULL;
-     * server->group = NULL;
-     * server->priority = 0;
-     *
-     */
 
-    server->daemon = -1;
+    server->daemon = 1;
+    server->workdir = HCNSE_DEFAULT_WORKDIR;
+    server->priority = HCNSE_DEFAULT_PRIORITY;
+    // server->user = HCNSE_DEFAULT_USER;
+    // server->group = HCNSE_DEFAULT_GROUP;
+    
+    // server->logger = logger;
 
     server->listeners = listeners;
     server->connections = connections;
     server->free_connections = free_connections;
-    // server->logger = logger;
 
     return server;
 }
@@ -161,56 +177,45 @@ hcnse_core_init(hcnse_server_t *server, void *data)
     iter = hcnse_list_first(server->listeners);
     for ( ; iter; iter = iter->next) {
         listener = (hcnse_listener_t *) (iter->data);
-        err = hcnse_listener_open(listener);
-        if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, err, "Failed to listen %s:%s",
+
+        if ((err = hcnse_listener_bind(listener)) != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err, "Listener (%s:%s) failed",
+                listener->text_addr, listener->text_port);
+            return HCNSE_FAILED;
+        }
+
+        if ((err = hcnse_listener_open(listener)) != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err, "Listener (%s:%s) failed",
                 listener->text_addr, listener->text_port);
             return HCNSE_FAILED;
         }
         hcnse_pool_cleanup_add(server->pool, listener, hcnse_listener_close);
     }
 
-    if (!server->workdir) {
-#if (HCNSE_POSIX)
-        server->workdir = "/";
-#elif (HCNSE_WIN32)
-        server->workdir = "C:\\";
-#endif
-    }
-    err = hcnse_process_set_workdir(server->workdir);
-    if (err != HCNSE_OK) {
+
+
+    if ((err = hcnse_process_set_workdir(server->workdir)) != HCNSE_OK) {
         goto failed;
     }
 
-    if (!server->user) {
-        // server->user = 
-    }
-    // err = hcnse_process_set_user(server->user);
-    // if (err != HCNSE_OK) {
+    // if ((err = hcnse_process_set_user(server->user)) != HCNSE_OK) {
     //     goto failed;
     // }
 
-
-
-
-
-
-
-
-
-
+    // if ((err = hcnse_process_set_group(server->user)) != HCNSE_OK) {
+    //     goto failed;
+    // }
 
     /*
      * Now log file is available and server can write error mesages in it, so
      * here we close TTY, fork off the parent process and run daemon
      */
-    if (server->daemon == -1) {
-        server->daemon = 1;
-    }
-    if (server->daemon) {
-        hcnse_process_become_daemon();
-    }
 
+    if (server->daemon) {
+        if ((err = hcnse_process_become_daemon()) != HCNSE_OK) {
+            goto failed;
+        }
+    }
 
 
 
@@ -222,6 +227,7 @@ failed:
 
 
 hcnse_command_t hcnse_core_cmd[] = {
+    {"include", HCNSE_TAKE1, hcnse_handler_include, 0},
     {"import", HCNSE_TAKE1, hcnse_handler_import, 0},
     {"listen", HCNSE_TAKE1, hcnse_handler_listen, 0},
     {"log", HCNSE_TAKE2|HCNSE_TAKE3, hcnse_handler_log, 0},

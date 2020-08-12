@@ -89,8 +89,7 @@ main(int argc, const char *const *argv)
     hcnse_err_t err;
 
 
-    err = hcnse_parse_argv(argc, argv);
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_parse_argv(argc, argv)) != HCNSE_OK) {
         hcnse_log_stderr(0, "Invalid input parameters");
         goto failed;
     }
@@ -105,8 +104,7 @@ main(int argc, const char *const *argv)
     }
 
 #if (HCNSE_WIN32)
-    err = hcnse_winsock_init_v22();
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_winsock_init_v22()) != HCNSE_OK) {
         hcnse_log_stderr(0, "Failed to initialize Winsock 2.2");
         goto failed;
     }
@@ -135,8 +133,14 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
-    err = hcnse_read_config(&config, pool, config_fname);
-    if (err != HCNSE_OK) {
+    config = hcnse_palloc(pool, sizeof(hcnse_config_t));
+    if (!config) {
+        err = hcnse_get_errno();
+        hcnse_log_stderr(err, "Failed to create server config");
+        goto failed;
+    }
+
+    if ((err = hcnse_read_config(config, pool, config_fname)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to read config file");
         goto failed;
     }
@@ -145,21 +149,18 @@ main(int argc, const char *const *argv)
     server->config = config;
     server->modules = modules;
 
-    err = hcnse_setup_prelinked_modules(server);
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_setup_prelinked_modules(server)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to setup prelinked modules");
         goto failed;
     }
 
-    err = hcnse_preinit_modules(server);
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_preinit_modules(server)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to preinit modules");
         goto failed;
     }
 
     if (test_config) {
-        err = hcnse_check_config(config, server);
-        if (err == HCNSE_OK) {
+        if (hcnse_check_config(config, server) == HCNSE_OK) {
             hcnse_log_stderr(HCNSE_OK, "Configuration check succeeded");
         }
         else {
@@ -169,14 +170,12 @@ main(int argc, const char *const *argv)
         return 0;
     }
 
-    err = hcnse_process_config(config, server);
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_process_config(config, server)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to process config");
         goto failed;
     }
 
-    err = hcnse_init_modules(server);
-    if (err != HCNSE_OK) {
+    if ((err = hcnse_init_modules(server)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to init modules");
         goto failed;
     }
@@ -189,6 +188,7 @@ main(int argc, const char *const *argv)
     return 0;
 
 failed:
+
 #if (HCNSE_WIN32)
     system("pause");
 #endif

@@ -54,7 +54,6 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     int argc;
     char *argv[HCNSE_MAX_TAKES];
     char *alloc_str;
-
     char c;
 
     hcnse_uint_t found, comment, in_directive, end_line, end_file;
@@ -62,6 +61,8 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
 
     begin = NULL;
     end = NULL;
+
+    argc = 0;
 
     found = 0;
     comment = 0;
@@ -119,12 +120,10 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
 
             len = (size_t) (end - begin);
 
-            alloc_str = hcnse_palloc(pool, len + 1);
+            alloc_str = hcnse_pstrndup(pool, begin, len);
             if (!alloc_str) {
                 return hcnse_get_errno();
             }
-            hcnse_memmove(alloc_str, begin, len);
-            alloc_str[len] = '\0';
 
             if (!in_directive) {
                 in_directive = 1;
@@ -308,6 +307,7 @@ hcnse_process_config(hcnse_config_t *config, hcnse_server_t *server)
         params.server = server;
         params.cmd = cmd;
         params.directive = directive;
+        params.config = config;
 
         err = cmd->handler(&params, module->cntx, directive->argc,
             directive->argv);
@@ -319,13 +319,12 @@ hcnse_process_config(hcnse_config_t *config, hcnse_server_t *server)
     return HCNSE_OK;
 }
 
-
 hcnse_err_t
-hcnse_read_config(hcnse_config_t **out_config, hcnse_pool_t *pool,
+hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *filename)
 {
-    hcnse_config_t *config;
     hcnse_list_t *conf_list;
+    hcnse_list_t *conf_files;
     hcnse_file_t *file;
     char *file_buf;
     ssize_t file_size;
@@ -366,32 +365,99 @@ hcnse_read_config(hcnse_config_t **out_config, hcnse_pool_t *pool,
         goto failed;
     }
 
-    config = hcnse_pcalloc(pool, sizeof(hcnse_config_t));
-    if (!config) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
-
     conf_list = hcnse_list_create(pool);
     if (!conf_list) {
         err = hcnse_get_errno();
         goto failed;
     }
 
+    conf_files = hcnse_list_create(pool);
+    if (!conf_files) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    err = hcnse_list_push_back(conf_files, file);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    hcnse_memzero(config, sizeof(hcnse_config_t));
+
     config->conf_list = conf_list;
-    config->conf_file = file;
+    config->conf_files = conf_files;
 
-    hcnse_config_parse(config, pool, file_buf);
-
-    *out_config = config;
+    err = hcnse_config_parse(config, pool, file_buf);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
 
     return HCNSE_OK;
 
 failed:
 
-    return HCNSE_FAILED;
+    return err;
 }
 
+hcnse_err_t
+hcnse_read_included_config(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *filename)
+{
+    hcnse_file_t *file;
+    char *file_buf;
+    ssize_t file_size;
+    ssize_t bytes_read;
+
+    hcnse_err_t err;
+
+    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
+    if (!file) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    err = hcnse_file_init(file, filename, HCNSE_FILE_RDONLY,
+                    HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
+
+    file_size = hcnse_file_size(file);
+    if (file_size == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    file_buf = hcnse_palloc(pool, file_size);
+    if (!file_buf) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    bytes_read = hcnse_file_read(file, (uint8_t *) file_buf, file_size, 0);
+    if (bytes_read == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    err = hcnse_list_push_back(config->conf_files, file);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    err = hcnse_config_parse(config, pool, file_buf);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    return HCNSE_OK;
+
+failed:
+
+    return err;
+}
 
 hcnse_err_t
 hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data, int argc,

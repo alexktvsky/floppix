@@ -45,6 +45,7 @@ struct hcnse_cmd_params_s {
     /* The directive specifying this command */
     hcnse_directive_t *directive;
 
+    hcnse_config_t *config;
 };
 
 /*
@@ -73,12 +74,14 @@ struct hcnse_config_s {
     /* List of directives, nodes type is hcnse_directive_t */
     hcnse_list_t *conf_list;
 
-    hcnse_file_t *conf_file;
+    hcnse_list_t *conf_files;
 };
 
 
-hcnse_err_t hcnse_read_config(hcnse_config_t **config, hcnse_pool_t *pool,
+hcnse_err_t hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *filename);
+hcnse_err_t hcnse_read_included_config(hcnse_config_t *config,
+    hcnse_pool_t *pool, const char *filename);
 hcnse_err_t hcnse_check_config(hcnse_config_t *config,
     hcnse_server_t *server);
 hcnse_err_t hcnse_process_config(hcnse_config_t *config,

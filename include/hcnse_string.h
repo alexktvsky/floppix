@@ -44,5 +44,7 @@ size_t hcnse_strnlen(const char *str, size_t n);
 hcnse_int_t hcnse_strcasecmp(char *str1, char *str2);
 hcnse_int_t hcnse_strncasecmp(char *str1, char *str2, size_t n);
 char *hcnse_strchr(const char *str, int c);
+char *hcnse_pstrdup(hcnse_pool_t *pool, const char *str);
+char *hcnse_pstrndup(hcnse_pool_t *pool, const char *str, size_t n);
 
 #endif /* INCLUDED_HCNSE_STRING_H */
