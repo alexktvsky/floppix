@@ -12,6 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <dlfcn.h>
@@ -46,6 +47,7 @@
 #endif
 
 typedef int                            hcnse_fd_t;
+typedef struct stat                    hcnse_file_stat_t;
 typedef int                            hcnse_socket_t;
 typedef pid_t                          hcnse_tid_t;
 typedef pthread_t                      hcnse_thread_handle_t;

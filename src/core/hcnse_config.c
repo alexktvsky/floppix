@@ -339,13 +339,13 @@ hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
         goto failed;
     }
 
-    err = hcnse_file_init(file, filename, HCNSE_FILE_RDONLY,
+    err = hcnse_file_open(file, filename, HCNSE_FILE_RDONLY,
                     HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
 
     file_size = hcnse_file_size(file);
     if (file_size == -1) {
@@ -416,13 +416,13 @@ hcnse_read_included_config(hcnse_config_t *config, hcnse_pool_t *pool,
         goto failed;
     }
 
-    err = hcnse_file_init(file, filename, HCNSE_FILE_RDONLY,
+    err = hcnse_file_open(file, filename, HCNSE_FILE_RDONLY,
                     HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
 
     file_size = hcnse_file_size(file);
     if (file_size == -1) {

@@ -22,7 +22,7 @@ static const struct {
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
 
     /* End of error list */
-    {HCNSE_ERR_UNDEF,                "Undefined error code"}
+    {HCNSE_ERR_UNDEF,                "Unknown error code"}
 };
 
 
@@ -103,7 +103,12 @@ hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize)
     hcnse_uint_t i;
 
     if (err > 0 && err < HCNSE_ERROR_DOMAIN_BASE) {
-        return hcnse_os_strerror(err, buf, bufsize);
+        str = hcnse_os_strerror(err, buf, bufsize);
+        if (!str) {
+            return hcnse_strerror(HCNSE_ERR_UNDEF, buf, bufsize);
+        }
+
+        return str;
     }
 
     for (i = 0; ; i++) {

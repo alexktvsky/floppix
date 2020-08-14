@@ -184,14 +184,14 @@ hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
 
-    err = hcnse_file_init(file, conf->log_fname, HCNSE_FILE_WRONLY,
+    err = hcnse_file_open(file, conf->log_fname, HCNSE_FILE_WRONLY,
                                     HCNSE_FILE_CREATE_OR_OPEN,
                                             HCNSE_FILE_OWNER_ACCESS);
     if (err != HCNSE_OK) {
         goto failed;
     }
 
-    hcnse_pool_cleanup_add(pool, file, hcnse_file_fini);
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
 
     file_size = hcnse_file_size(file);
     if (file_size == -1) {
