@@ -4,7 +4,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-/* Thread specific flags */
+/* Thread specific parameters */
 #define HCNSE_THREAD_SCOPE_SYSTEM           0x00000001
 #define HCNSE_THREAD_SCOPE_PROCESS          0x00000002
 #define HCNSE_THREAD_CREATE_DETACHED        0x00000004
@@ -52,7 +52,7 @@ struct hcnse_thread_s {
 };
 
 
-hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags,
+hcnse_err_t hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
     size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg);
 hcnse_err_t hcnse_thread_join(hcnse_thread_t *thread);

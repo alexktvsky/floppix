@@ -332,8 +332,6 @@ hcnse_pool_cleanup_remove1(hcnse_pool_t *pool, void *data,
         return;
     }
 
-    printf("found!\n");
-
     if (pool->cleanups == node) {
         pool->cleanups = node->next;
     }

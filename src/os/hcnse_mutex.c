@@ -5,7 +5,7 @@
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
 {
     pthread_mutexattr_t attr;
     hcnse_uint_t done_shared;
@@ -20,7 +20,7 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
         return err;
     }
 
-    if (flags & (HCNSE_MUTEX_SHARED)) {
+    if (hcnse_bit_is_set(params, HCNSE_MUTEX_SHARED)) {
         done_shared = 1;
         if (pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED) != 0) {
         err = hcnse_get_errno();
@@ -29,8 +29,8 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
         return err;
         }
     }
-    if (flags & (HCNSE_MUTEX_PRIVATE)) {
-        /* Check conflict of shared flags */
+    if (hcnse_bit_is_set(params, HCNSE_MUTEX_PRIVATE)) {
+        /* Check conflict of shared params */
         if (done_shared) {
             return HCNSE_FAILED;
         }
@@ -105,12 +105,12 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
 {
     HANDLE m;
     hcnse_err_t err;
 
-    (void) flags;
+    (void) params;
 
     m = CreateMutex(NULL, FALSE, NULL);
     if (m == NULL) {

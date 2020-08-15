@@ -18,6 +18,9 @@ static const struct {
     /* HCNSE_ERR_CONF domain */
     {HCNSE_ERR_CONFIG_SYNTAX,        "Error of configuration file syntax"},
 
+    /* HCNSE_ERR_FILESYS domain */
+    {HCNSE_ERR_FILESYS_PATH,         "Specified path is not absolute"},
+
     /* HCNSE_ERR_SSL domain */
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
 

@@ -157,6 +157,24 @@ hcnse_strchr(const char *str, int c)
     len = hcnse_strlen(str);
 
     for (i = 0; i < len; i++) {
+
+        if (str[i] == c) {
+            return (char *) &str[i];
+        }
+    }
+    return NULL;
+}
+
+char *
+hcnse_strrchr(const char *str, int c)
+{
+    size_t len;
+    hcnse_int_t i;
+
+    len = hcnse_strlen(str);
+
+    for (i = len; i >= 0; i--) {
+
         if (str[i] == c) {
             return (char *) &str[i];
         }

@@ -58,7 +58,7 @@ build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 
-override LDFLAGS += -lpcre
+# override LDFLAGS += -lssl -lcrypto
 build: override LDFLAGS += -static -static-libgcc
 
 CC = gcc
@@ -138,6 +138,10 @@ obj/%.o: %.c
 
 install: mkdirs build
 	install bin/$(BIN_FILE) $(INSTALL_DIR)
+	@if [ ! -d /etc/hcnse ]; then \
+		mkdir /etc/hcnse; \
+	fi
+	cp -R sample/config /etc/hcnse
 
 uninstall:
 	rm -f $(INSTALL_DIR)/$(BIN_FILE)

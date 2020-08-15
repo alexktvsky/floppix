@@ -29,7 +29,8 @@
 #define HCNSE_STDOUT                        STDOUT_FILENO
 #define HCNSE_STDERR                        STDERR_FILENO
 
-#define HCNSE_PATH_SEPARATOR                "/"
+#define HCNSE_PATH_SEPARATOR_STR            "/"
+#define HCNSE_PATH_SEPARATOR                '/'
 
 #if defined(PATH_MAX)
 #define HCNSE_MAX_PATH_LEN                  PATH_MAX
@@ -90,9 +91,11 @@ struct hcnse_dir_s {
 #define hcnse_dir_create(name, access)      mkdir((const char *) name, access)
 #define hcnse_dir_delete(name)              rmdir((const char *) name)
 
-#define hcnse_file_stat_by_path(path, st)   stat((const char *) path, st)
-#define hcnse_file_stat_by_fd(fd, st)       fstat(fd, st)
-#define hcnse_file_stat_by_link(path, st)   lstat((const char *) path, st)
+#define hcnse_file_stat_by_path(st, path)   stat((const char *) path, st)
+#define hcnse_file_stat_by_fd(st, fd)       fstat(fd, st)
+#define hcnse_file_stat_by_link(st, path)   lstat((const char *) path, st)
+
+#define hcnse_is_path_separator(c)          ((c) == '/')
 
 
 #elif (HCNSE_WIN32)
@@ -120,7 +123,8 @@ struct hcnse_dir_s {
 #define HCNSE_STDOUT                        GetStdHandle(STD_OUTPUT_HANDLE)
 #define HCNSE_STDERR                        GetStdHandle(STD_ERROR_HANDLE)
 
-#define HCNSE_PATH_SEPARATOR                "\\"
+#define HCNSE_PATH_SEPARATOR_STR            "\\"
+#define HCNSE_PATH_SEPARATOR                '\\'
 
 #define HCNSE_MAX_PATH_LEN                  MAX_PATH
 
@@ -146,14 +150,14 @@ struct hcnse_dir_s {
 #define hcnse_file_delete(name)             DeleteFile((const char *) name)
 
 #define hcnse_file_stat_by_fd(fd, fi)       GetFileInformationByHandle(fd, fi)
-#define hcnse_file_stat_by_link(name, fi)   hcnse_file_stat_by_path(name, fi)
+#define hcnse_file_stat_by_link(name, fi)   hcnse_file_stat_by_path(fi, name)
 
+#define hcnse_is_path_separator(c)          ((c) == '\\')
 
-int hcnse_file_stat_by_path(const char *path, hcnse_file_stat_t *stat);
+hcnse_err_t hcnse_file_stat_by_path(hcnse_file_stat_t *stat, const char *path);
 
 #endif
 
-#define hcnse_is_path_separator(c)          ((c) == HCNSE_PATH_SEPARATOR)
 #define hcnse_dir_current_namelen(dir) \
     hcnse_strlen(hcnse_dir_current_name(dir))
 
@@ -170,8 +174,8 @@ struct hcnse_file_info_s {
 };
 
 
-int hcnse_file_open(hcnse_file_t *file, const char *path, int mode, int create,
-    int access);
+hcnse_err_t hcnse_file_open(hcnse_file_t *file, const char *path, hcnse_uint_t mode,
+    hcnse_uint_t create, hcnse_uint_t access);
 ssize_t hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
     hcnse_off_t offset);
 ssize_t hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
@@ -185,18 +189,19 @@ ssize_t hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t n);
 ssize_t hcnse_write_stdout(const char *str);
 ssize_t hcnse_write_stderr(const char *str);
 
-int hcnse_file_info_by_path(hcnse_file_info_t *info, const char *path);
-int hcnse_file_info(hcnse_file_info_t *info, hcnse_file_t *file);
+hcnse_err_t hcnse_file_info_by_path(hcnse_file_info_t *info, const char *path);
+hcnse_err_t hcnse_file_info(hcnse_file_info_t *info, hcnse_file_t *file);
 
-int hcnse_dir_open(hcnse_dir_t *dir, const char *path);
-int hcnse_dir_read(hcnse_dir_t *dir);
+hcnse_err_t hcnse_dir_open(hcnse_dir_t *dir, const char *path);
+hcnse_err_t hcnse_dir_read(hcnse_dir_t *dir);
 const char *hcnse_dir_name(hcnse_dir_t *dir);
 const char *hcnse_dir_current_name(hcnse_dir_t *dir);
 hcnse_file_type_t hcnse_dir_current_file_type(hcnse_dir_t *dir);
-int hcnse_dir_current_is_file(hcnse_dir_t *dir);
+hcnse_err_t hcnse_dir_current_is_file(hcnse_dir_t *dir);
 void hcnse_dir_close(hcnse_dir_t *dir);
 
-size_t hcnse_file_full_path(char *buf, const char *path, const char *str);
-
+size_t hcnse_file_full_path(char *buf, const char *path, const char *file);
+hcnse_err_t hcnse_check_absolute_path(const char *path);
+hcnse_err_t hcnse_path_to_root_dir(char *res, const char *path);
 
 #endif /* INCLUDED_HCNSE_FILESYS_H */

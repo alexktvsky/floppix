@@ -6,7 +6,7 @@
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
-    hcnse_uint_t maxval, hcnse_flag_t flags)
+    hcnse_uint_t maxval, hcnse_bitmask_t params)
 {
     hcnse_uint_t shared;
     hcnse_err_t err;
@@ -14,10 +14,10 @@ hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
     (void) maxval;
     shared = 0;
 
-    if (flags & (HCNSE_SEMAPHORE_SHARED)) {
+    if (hcnse_bit_is_set(params, HCNSE_SEMAPHORE_SHARED)) {
         shared = 1;
-        /* Check conflict of shared flags */
-        if (flags & (HCNSE_SEMAPHORE_PRIVATE)) {
+        /* Check conflict of shared params */
+        if (params & (HCNSE_SEMAPHORE_PRIVATE)) {
             return HCNSE_FAILED;
         }
     }
@@ -80,22 +80,22 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
-    hcnse_uint_t maxval, hcnse_flag_t flags)
+    hcnse_uint_t maxval, hcnse_bitmask_t params)
 {
     HANDLE s;
     SECURITY_ATTRIBUTES attr;
     hcnse_uint_t shared;
     hcnse_err_t err;
 
-    (void) flags;
+    (void) params;
 
     shared = 1;
 
 #if 0
-    if (flags & (HCNSE_SEMAPHORE_SHARED)) {
+    if (hcnse_bit_is_set(params, HCNSE_SEMAPHORE_SHARED)) {
         shared = 1;
-        /* Check conflict of shared flags */
-        if (flags & (HCNSE_SEMAPHORE_PRIVATE)) {
+        /* Check conflict of shared params */
+        if (params & (HCNSE_SEMAPHORE_PRIVATE)) {
             return hcnse_get_errno();
         }
     }

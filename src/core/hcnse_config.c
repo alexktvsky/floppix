@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-static hcnse_flag_t hcnse_takes[] = {
+static hcnse_bitmask_t hcnse_takes[] = {
     HCNSE_TAKE0,
     HCNSE_TAKE1,
     HCNSE_TAKE2,
@@ -16,7 +16,8 @@ static hcnse_flag_t hcnse_takes[] = {
 
 static hcnse_err_t
 hcnse_config_save_directive(hcnse_config_t *config, hcnse_pool_t *pool,
-    const char *name, int argc, char **argv)
+    const char *name, int argc, char **argv, const char *filename,
+    hcnse_uint_t line)
 {
     hcnse_directive_t *directive;
     size_t argv_size;
@@ -29,6 +30,8 @@ hcnse_config_save_directive(hcnse_config_t *config, hcnse_pool_t *pool,
 
     directive->name = name;
     directive->argc = argc;
+    directive->filename = filename;
+    directive->line = line;
 
     argv_size = argc * sizeof(void *);
 
@@ -47,6 +50,9 @@ static hcnse_err_t
 hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *file_buf)
 {
+    hcnse_file_t *file;
+    const char *filename;
+
     const char *begin, *end;
     size_t len;
 
@@ -57,12 +63,16 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     char c;
 
     hcnse_uint_t found, comment, in_directive, end_line, end_file;
-    hcnse_uint_t i;
+    hcnse_uint_t i, line;
+
+    file = hcnse_list_last(config->conf_files)->data;
+    filename = file->name;
 
     begin = NULL;
     end = NULL;
 
     argc = 0;
+    line = 1;
 
     found = 0;
     comment = 0;
@@ -103,7 +113,8 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
         case '#':
             if (begin != NULL) {
                 hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                    "Unexpected \"#\", probably missing terminating character");
+                    "%s:%zu: Unexpected \"#\", probably missing terminating "
+                    "character", filename, line);
                 return HCNSE_ERR_CONFIG_SYNTAX;
             }
             comment = 1;
@@ -113,7 +124,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
 
             if (!hcnse_isascii(c)) {
                 hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                    "Unexpected non-ascii binary data");
+                    "%s:%zu: Unexpected non-ascii binary data", filename, line);
                 return HCNSE_ERR_CONFIG_SYNTAX;
             }
 
@@ -143,7 +154,8 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
                 argc += 1;
                 if (argc >= HCNSE_MAX_TAKES) {
                     hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                        "Too many arguments in directive \"%s\"", name);
+                        "%s:%zu: Too many arguments in directive \"%s\"",
+                        filename, line, name);
                     return HCNSE_ERR_CONFIG_SYNTAX;
                 }
             }
@@ -156,11 +168,13 @@ next:
         if (end_line) {
 
             if (in_directive) {
-                hcnse_config_save_directive(config, pool, name, argc, argv);
+                hcnse_config_save_directive(config, pool, name, argc, argv,
+                    filename, line);
             }
 
             in_directive = 0;
             argc = 0;
+            line += 1;
         }
 
         if (end_file) {
@@ -224,7 +238,7 @@ hcnse_check_directive_arguments(hcnse_directive_t *directive,
     argc = directive->argc;
 
     for (i = 0; i < HCNSE_MAX_TAKES; i++) {
-        if (hcnse_flag_is_set(cmd->takes, hcnse_takes[i])) {
+        if (hcnse_bit_is_set(cmd->takes, hcnse_takes[i])) {
             if (min_takes == 0) {
                 min_takes = i;
             }
@@ -241,93 +255,70 @@ hcnse_check_directive_arguments(hcnse_directive_t *directive,
     return HCNSE_OK;
 }
 
-
-hcnse_err_t
-hcnse_check_config(hcnse_config_t *config, hcnse_server_t *server)
+static hcnse_err_t
+hcnse_config_read_included_file(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *filename)
 {
-    hcnse_directive_t *directive;
-    hcnse_command_t *cmd;
-    hcnse_list_node_t *iter;
+    hcnse_file_t *file;
+    char *file_buf;
+    ssize_t file_size;
+    ssize_t bytes_read;
+
     hcnse_err_t err;
 
+    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
+    if (!file) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
 
-    iter = hcnse_list_first(config->conf_list);
+    err = hcnse_file_open(file, filename, HCNSE_FILE_RDONLY,
+                    HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
 
-    for ( ; iter; iter = iter->next) {
+    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
 
-        directive = iter->data;
+    file_size = hcnse_file_size(file);
+    if (file_size == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
 
-        cmd = hcnse_find_command_in_modules(server, directive->name);
-        if (!cmd) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                "Unknown directive \"%s\"", directive->name);
-            return HCNSE_ERR_CONFIG_SYNTAX;
-        }
+    file_buf = hcnse_palloc(pool, file_size + 1);
+    if (!file_buf) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
 
-        err = hcnse_check_directive_arguments(directive, cmd);
-        if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                "Invalid number of arguments in directive \"%s\"",
-                directive->name);
-            return HCNSE_ERR_CONFIG_SYNTAX;
-        }
+    bytes_read = hcnse_file_read(file, (uint8_t *) file_buf, file_size, 0);
+    if (bytes_read == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    file_buf[bytes_read] = '\0';
+
+    err = hcnse_list_push_back(config->conf_files, file);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    err = hcnse_config_parse(config, pool, file_buf);
+    if (err != HCNSE_OK) {
+        goto failed;
     }
 
     return HCNSE_OK;
+
+failed:
+
+    return err;
 }
 
 hcnse_err_t
-hcnse_process_config(hcnse_config_t *config, hcnse_server_t *server)
-{
-    hcnse_cmd_params_t params;
-
-    hcnse_directive_t *directive;
-    hcnse_command_t *cmd;
-    hcnse_module_t *module;
-    hcnse_list_node_t *iter;
-    hcnse_err_t err;
-
-
-    iter = hcnse_list_first(config->conf_list);
-    for ( ; iter; iter = iter->next) {
-        directive = iter->data;
-        cmd = hcnse_find_command_in_modules(server, directive->name);
-        if (!cmd) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                "Unknown directive \"%s\"", directive->name);
-            return HCNSE_ERR_CONFIG_SYNTAX;
-        }
-
-        err = hcnse_check_directive_arguments(directive, cmd);
-        if (err != HCNSE_OK) {
-            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-                "Invalid number of arguments in directive \"%s\"",
-                directive->name);
-            return HCNSE_ERR_CONFIG_SYNTAX;
-        }
-
-        module = hcnse_find_module_by_command(server, directive->name);
-        if (!module) {
-            return HCNSE_FAILED; /* Not possible */
-        }
-
-        params.server = server;
-        params.cmd = cmd;
-        params.directive = directive;
-        params.config = config;
-
-        err = cmd->handler(&params, module->cntx, directive->argc,
-            directive->argv);
-        if (err != HCNSE_OK) {
-            return err;
-        }
-    }
-
-    return HCNSE_OK;
-}
-
-hcnse_err_t
-hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
+hcnse_config_read(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *filename)
 {
     hcnse_list_t *conf_list;
@@ -360,7 +351,7 @@ hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
         goto failed;
     }
 
-    file_buf = hcnse_palloc(pool, file_size);
+    file_buf = hcnse_palloc(pool, file_size + 1);
     if (!file_buf) {
         err = hcnse_get_errno();
         goto failed;
@@ -371,6 +362,8 @@ hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
         err = hcnse_get_errno();
         goto failed;
     }
+
+    file_buf[bytes_read] = '\0';
 
     conf_list = hcnse_list_create(pool);
     if (!conf_list) {
@@ -407,73 +400,168 @@ failed:
 }
 
 hcnse_err_t
-hcnse_read_included_config(hcnse_config_t *config, hcnse_pool_t *pool,
-    const char *filename)
+hcnse_config_check(hcnse_config_t *config, hcnse_server_t *server)
 {
-    hcnse_file_t *file;
-    char *file_buf;
-    ssize_t file_size;
-    ssize_t bytes_read;
-
+    hcnse_cmd_params_t params;
+    hcnse_directive_t *directive;
+    hcnse_command_t *cmd;
+    hcnse_module_t *module;
+    hcnse_list_node_t *iter;
     hcnse_err_t err;
 
-    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
-    if (!file) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
+    iter = hcnse_list_first(config->conf_list);
 
-    err = hcnse_file_open(file, filename, HCNSE_FILE_RDONLY,
-                    HCNSE_FILE_OPEN, HCNSE_FILE_DEFAULT_ACCESS);
-    if (err != HCNSE_OK) {
-        goto failed;
-    }
+    for ( ; iter; iter = iter->next) {
 
-    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
+        directive = iter->data;
 
-    file_size = hcnse_file_size(file);
-    if (file_size == -1) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
+        cmd = hcnse_find_command_in_modules(server, directive->name);
+        if (!cmd) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                "%s:%zu: Unknown directive \"%s\"",
+                directive->filename, directive->line, directive->name);
+            return HCNSE_ERR_CONFIG_SYNTAX;
+        }
 
-    file_buf = hcnse_palloc(pool, file_size);
-    if (!file_buf) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
+        err = hcnse_check_directive_arguments(directive, cmd);
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                "%s:%zu: Invalid number of arguments in directive \"%s\"",
+                directive->filename, directive->line, directive->name);
+            return HCNSE_ERR_CONFIG_SYNTAX;
+        }
 
-    bytes_read = hcnse_file_read(file, (uint8_t *) file_buf, file_size, 0);
-    if (bytes_read == -1) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
+        if (hcnse_strcmp(directive->name, "include") != 0) {
+            continue;
+        }
 
-    err = hcnse_list_push_back(config->conf_files, file);
-    if (err != HCNSE_OK) {
-        goto failed;
-    }
+        module = hcnse_find_module_by_command(server, directive->name);
+        if (!module) {
+            /* Unreachable */
+            return HCNSE_FAILED;
+        }
 
-    err = hcnse_config_parse(config, pool, file_buf);
-    if (err != HCNSE_OK) {
-        goto failed;
+        params.server = server;
+        params.cmd = cmd;
+        params.directive = directive;
+        params.config = config;
+
+        err = cmd->handler(&params, module->cntx, directive->argc,
+            directive->argv);
+        if (err != HCNSE_OK) {
+            return err;
+        }
     }
 
     return HCNSE_OK;
-
-failed:
-
-    return err;
 }
 
 hcnse_err_t
-hcnse_read_included_dir_config(hcnse_config_t *config, hcnse_pool_t *pool,
-    const char *path, const char *extension)
+hcnse_config_process(hcnse_config_t *config, hcnse_server_t *server)
+{
+    hcnse_cmd_params_t params;
+    hcnse_directive_t *directive;
+    hcnse_command_t *cmd;
+    hcnse_module_t *module;
+    hcnse_list_node_t *iter;
+    hcnse_err_t err;
+
+
+    iter = hcnse_list_first(config->conf_list);
+    for ( ; iter; iter = iter->next) {
+        directive = iter->data;
+        cmd = hcnse_find_command_in_modules(server, directive->name);
+        if (!cmd) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                "%s:%zu: Unknown directive \"%s\"",
+                directive->filename, directive->line, directive->name);
+            return HCNSE_ERR_CONFIG_SYNTAX;
+        }
+
+        err = hcnse_check_directive_arguments(directive, cmd);
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                "%s:%zu: Invalid number of arguments in directive \"%s\"",
+                directive->filename, directive->line, directive->name);
+            return HCNSE_ERR_CONFIG_SYNTAX;
+        }
+
+        module = hcnse_find_module_by_command(server, directive->name);
+        if (!module) {
+            /* Unreachable */
+            return HCNSE_FAILED;
+        }
+
+        params.server = server;
+        params.cmd = cmd;
+        params.directive = directive;
+        params.config = config;
+
+        err = cmd->handler(&params, module->cntx, directive->argc,
+            directive->argv);
+        if (err != HCNSE_OK) {
+            return err;
+        }
+    }
+
+    return HCNSE_OK;
+}
+
+static hcnse_flag_t
+hcnse_is_part_has_wildcard(const char *str)
+{
+    char *ch;
+
+    ch = (char *) str;
+
+    while (*ch) {
+        switch (*ch) {
+        case '?':
+        case '*':
+            return 1;
+        }
+        ++ch;
+    }
+    return 0;
+}
+
+static hcnse_flag_t
+hcnse_is_glob_match(const char *str, const char *pattern)
+{
+    const char *rs, *rp;
+
+    rs = NULL;
+
+    while (1) {
+
+        if (*pattern == '*') {
+            rs = str;
+            rp = ++pattern;
+        }
+        else if (*str == '\0') {
+            return !*pattern;
+        }
+        else if (*str == *pattern || *pattern == '?') {
+            ++str;
+            ++pattern;
+        }
+        else if (rs) {
+            str = ++rs;
+            pattern = rp;
+        }
+        else {
+            return 0;
+        }
+    }
+}
+
+hcnse_err_t
+hcnse_config_walkdir_nonwildcard(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *path)
 {
     char fullpath[HCNSE_MAX_PATH_LEN];
     const char *fname;
     hcnse_dir_t dir;
-    size_t len, elen;
     hcnse_err_t err;
 
 
@@ -495,41 +583,143 @@ hcnse_read_included_dir_config(hcnse_config_t *config, hcnse_pool_t *pool,
 
         if (hcnse_dir_current_is_file(&dir)) {
 
-            if (extension) {
-
-                elen = hcnse_strlen(extension);
-                len = hcnse_strlen(fname);
-
-                if (len < elen) {
-                    continue;
-                }
-
-                if (hcnse_strcmp(fname + len - elen, extension) == 0) {
-                    hcnse_read_included_config(config, pool, fullpath);
-                }
-
-                continue;
+            err = hcnse_config_read_included_file(config, pool, fullpath);
+            if (err != HCNSE_OK) {
+                goto failed;
             }
-            else {
-                hcnse_read_included_config(config, pool, fullpath);
-            }
+
             continue;
         }
 
-        err = hcnse_read_included_dir_config(config, pool, fullpath, extension);
+        err = hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
         if (err != HCNSE_OK) {
-            hcnse_dir_close(&dir);
-            return err;
+            goto failed;
         }
     }
 
     hcnse_dir_close(&dir);
 
     return HCNSE_OK;
+
+failed:
+    hcnse_dir_close(&dir);
+    return err;
 }
 
 hcnse_err_t
-hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data, int argc,
+hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *path, const char *fname)
+{
+    char fullpath[HCNSE_MAX_PATH_LEN];
+    hcnse_dir_t dir;
+    const char *pos, *dir_name;
+    hcnse_err_t err;
+
+
+    pos = hcnse_strchr(fname, HCNSE_PATH_SEPARATOR);
+    if (pos) {
+        fname = hcnse_pstrndup(pool, fname, pos - fname);
+        pos += 1;
+    }
+
+    if (!hcnse_is_part_has_wildcard(fname)) {
+
+        hcnse_file_full_path(fullpath, path, fname);
+
+        if (!pos) {
+            return hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
+        }
+        else {
+            return hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+        }
+    }
+
+    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+        return err;
+    }
+
+    while (hcnse_dir_read(&dir) == HCNSE_OK) {
+
+        dir_name = hcnse_dir_current_name(&dir);
+
+        if ((hcnse_strcmp(dir_name, ".") == 0) ||
+            (hcnse_strcmp(dir_name, "..") == 0) ||
+            !hcnse_is_glob_match(dir_name, fname))
+        {
+            continue;
+        }
+
+        hcnse_file_full_path(fullpath, path, dir_name);
+
+        if (hcnse_dir_current_is_file(&dir)) {
+
+            if (!pos) {
+                err = hcnse_config_read_included_file(config, pool, fullpath);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+            continue;
+        }
+        else {
+            if (pos) {
+                err = hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+        }
+    }
+
+    hcnse_dir_close(&dir);
+
+    return HCNSE_OK;
+
+failed:
+
+    hcnse_dir_close(&dir);
+
+    return err;
+}
+
+
+hcnse_err_t
+hcnse_config_read_included(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *path)
+{
+    hcnse_file_info_t info;
+    char root_dir[HCNSE_MAX_PATH_LEN];
+    hcnse_err_t err;
+
+
+    err = hcnse_path_to_root_dir(root_dir, path);
+    if (err != HCNSE_OK) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "Failed to include \"%s\"", path);
+        return err;
+    }
+
+    if (!hcnse_is_part_has_wildcard(path)) {
+
+        hcnse_file_info_by_path(&info, path);
+
+        if (info.type == HCNSE_FILE_TYPE_FILE) {
+            err = hcnse_config_read_included_file(config, pool, path);
+        }
+        else {
+            err = hcnse_config_walkdir_nonwildcard(config, pool, path);
+        }
+    }
+    else {
+
+        err = hcnse_config_walkdir_wildcard(config, pool, root_dir, path);
+    }
+
+    return err;
+}
+
+hcnse_err_t
+hcnse_handler_flag(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
     hcnse_flag_t *ptr;
@@ -554,7 +744,7 @@ hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data, int argc,
 }
 
 hcnse_err_t
-hcnse_handler_set_str(hcnse_cmd_params_t *params, void *data, int argc,
+hcnse_handler_str(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
     char **ptr;
@@ -568,7 +758,7 @@ hcnse_handler_set_str(hcnse_cmd_params_t *params, void *data, int argc,
 }
 
 hcnse_err_t
-hcnse_handler_set_size(hcnse_cmd_params_t *params, void *data, int argc,
+hcnse_handler_size(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
     ssize_t *ptr, n;
@@ -590,7 +780,7 @@ hcnse_handler_set_size(hcnse_cmd_params_t *params, void *data, int argc,
 }
 
 hcnse_err_t
-hcnse_handler_set_uint(hcnse_cmd_params_t *params, void *data, int argc,
+hcnse_handler_uint(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
     hcnse_int_t *ptr, n;

@@ -19,53 +19,19 @@ static hcnse_err_t
 hcnse_handler_include(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
-    hcnse_file_info_t info;
     hcnse_pool_t *pool;
     hcnse_config_t *config;
-    char *extension, *path;
     hcnse_err_t err;
 
     (void) data;
     (void) argc;
 
-    pool = params->server->pool;
     config = params->config;
+    pool = params->server->pool;
 
-    extension = hcnse_strchr(argv[0], '*');
-
-    if (extension) {
-
-        path = hcnse_pstrndup(pool, argv[0], extension - argv[0]);
-        if (!path) {
-            return hcnse_get_errno();
-        }
-
-        extension = hcnse_pstrdup(pool, extension + 1);
-        if (!extension) {
-            return hcnse_get_errno();
-        }
-    }
-    else {
-        path = argv[0];
-    }
-
-    err = hcnse_file_info_by_path(&info, path);
+    err = hcnse_config_read_included(config, pool, argv[0]);
     if (err != HCNSE_OK) {
         return err;
-    }
-
-    if (info.type == HCNSE_FILE_TYPE_DIR) {
-        err = hcnse_read_included_dir_config(config, pool, path, extension);
-        return err;
-    }
-    else if (info.type == HCNSE_FILE_TYPE_FILE) {
-        err = hcnse_read_included_config(config, pool, argv[0]);
-        return err;
-    }
-    else {
-        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
-            "Failed to include \"%s\", not file or directory", argv[0]);
-        return HCNSE_ERR_CONFIG_SYNTAX;
     }
 
     return HCNSE_OK;
@@ -76,12 +42,13 @@ hcnse_handler_import(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
     hcnse_module_t *module;
+
     (void) data;
     (void) argc;
 
     module = hcnse_load_module(params->server, argv[0]);
     if (!module) {
-        return HCNSE_FAILED;
+        return hcnse_get_errno();
     }
 
     return hcnse_preinit_modules(params->server);
@@ -267,15 +234,15 @@ hcnse_command_t hcnse_core_cmd[] = {
     {"import", HCNSE_TAKE1, hcnse_handler_import, 0},
     {"listen", HCNSE_TAKE1, hcnse_handler_listen, 0},
     {"log", HCNSE_TAKE2|HCNSE_TAKE3, hcnse_handler_log, 0},
-    {"daemon", HCNSE_TAKE1, hcnse_handler_set_flag,
+    {"daemon", HCNSE_TAKE1, hcnse_handler_flag,
         offsetof(hcnse_server_t, daemon)},
-    {"workdir", HCNSE_TAKE1, hcnse_handler_set_str,
+    {"workdir", HCNSE_TAKE1, hcnse_handler_str,
         offsetof(hcnse_server_t, workdir)},
-    {"priority", HCNSE_TAKE1, hcnse_handler_set_uint,
+    {"priority", HCNSE_TAKE1, hcnse_handler_uint,
         offsetof(hcnse_server_t, priority)},
-    {"user", HCNSE_TAKE1, hcnse_handler_set_str,
+    {"user", HCNSE_TAKE1, hcnse_handler_str,
         offsetof(hcnse_server_t, user)},
-    {"group", HCNSE_TAKE1, hcnse_handler_set_str,
+    {"group", HCNSE_TAKE1, hcnse_handler_str,
         offsetof(hcnse_server_t, group)},
     HCNSE_NULL_COMMAND
 };

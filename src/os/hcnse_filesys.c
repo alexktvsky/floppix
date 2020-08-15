@@ -105,8 +105,8 @@ hcnse_stat_get_access(hcnse_file_stat_t *stat)
 }
 
 hcnse_err_t
-hcnse_file_open(hcnse_file_t *file, const char *path, int mode, int create,
-    int access)
+hcnse_file_open(hcnse_file_t *file, const char *path, hcnse_uint_t mode,
+    hcnse_uint_t create, hcnse_uint_t access)
 {
     hcnse_fd_t fd;
     hcnse_err_t err;
@@ -351,7 +351,7 @@ hcnse_dir_read(hcnse_dir_t *dir)
 
     hcnse_file_full_path(fullpath, dir->name, dir->dirent->d_name);
 
-    hcnse_file_stat_by_path(fullpath, &fstat);
+    hcnse_file_stat_by_path(&fstat, fullpath);
 
     dir->type = hcnse_stat_get_file_type(&fstat);
 
@@ -375,6 +375,27 @@ hcnse_dir_current_name(hcnse_dir_t *dir)
     return dir->dirent->d_name;
 }
 
+hcnse_err_t
+hcnse_check_absolute_path(const char *path)
+{
+    if (*path == '/') {
+        return HCNSE_OK;
+    }
+
+    return HCNSE_ERR_FILESYS_PATH;
+}
+
+hcnse_err_t
+hcnse_path_to_root_dir(char *res, const char *path)
+{
+    if (*path == '/') {
+        res[0] = '/';
+        res[1] = '\0';
+        return HCNSE_OK;
+    }
+
+    return HCNSE_ERR_FILESYS_PATH;
+}
 
 #elif (HCNSE_WIN32)
 
@@ -497,8 +518,8 @@ hcnse_stat_get_file_type(hcnse_file_stat_t *stat)
 }
 
 hcnse_err_t
-hcnse_file_open(hcnse_file_t *file, const char *path, int mode, int create,
-    int access)
+hcnse_file_open(hcnse_file_t *file, const char *path, hcnse_uint_t mode,
+    hcnse_uint_t create, hcnse_uint_t access)
 {
     uint16_t wpath[HCNSE_MAX_PATH_LEN];
     hcnse_fd_t fd;
@@ -640,7 +661,7 @@ hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
 }
 
 hcnse_err_t
-hcnse_file_stat_by_path(const char *path, hcnse_file_stat_t *stat)
+hcnse_file_stat_by_path(hcnse_file_stat_t *stat, const char *path)
 {
     WIN32_FILE_ATTRIBUTE_DATA file_attr;
     uint16_t wpath[HCNSE_MAX_PATH_LEN];
@@ -670,7 +691,7 @@ hcnse_file_info_by_path(hcnse_file_info_t *info, const char *path)
 {
     hcnse_err_t
 
-    err = hcnse_file_stat_by_path(path, &(info->stat));
+    err = hcnse_file_stat_by_path(&(info->stat), path);
     if (err != HCNSE_OK) {
         return err;
     }
@@ -772,7 +793,7 @@ hcnse_dir_read(hcnse_dir_t *dir)
 
     hcnse_file_full_path(fullpath, dir->name, dir->finddata.cFileName);
 
-    hcnse_file_stat_by_path(fullpath, &fstat);
+    hcnse_file_stat_by_path(&fstat, fullpath);
 
     dir->type = hcnse_stat_get_file_type(&fstat);
 
@@ -793,6 +814,48 @@ hcnse_dir_current_name(hcnse_dir_t *dir)
 {
     return dir->finddata.cFileName;
 }
+
+hcnse_err_t
+hcnse_check_absolute_path(const char *path)
+{
+    /*
+     * C:\path\to\foo.txt - absolute
+     * C:path\to\foo.txt  - non-absolute
+     * 
+     * UNC-paths
+     * \\server1\share\test\foo.txt
+     * 
+     */
+
+    if (hcnse_isalpha(path[0]) && path[1] == ':' && path[2] == '\\') {
+        return HCNSE_OK;
+    }
+    else if (path[0] == '\\' && path[1] == '\\') {
+        return HCNSE_OK;
+    }
+    else {
+        return HCNSE_ERR_FILESYS_PATH;
+    }
+}
+
+hcnse_err_t
+hcnse_path_to_root_dir(char *res, const char *path)
+{
+    if (hcnse_isalpha(path[0]) && path[1] == ':' && path[2] == '\\') {
+        hcnse_memmove(res, path, 3);
+        res[3] = '\0';
+        return res;
+    }
+    else if (path[0] == '\\' && path[1] == '\\') {
+        hcnse_memmove(res, path, 2);
+        res[2] = '\0';
+        return HCNSE_OK;
+    }
+    else {
+        return HCNSE_ERR_FILESYS_PATH;
+    }
+}
+
 
 #endif
 
@@ -821,14 +884,29 @@ hcnse_dir_current_is_file(hcnse_dir_t *dir)
 }
 
 size_t
-hcnse_file_full_path(char *buf, const char *path, const char *str)
+hcnse_file_full_path(char *buf, const char *path, const char *file)
 {
-    size_t len;
+    size_t path_len, file_len, copied;
 
-    /* +2 for path separator and '\0' */
-    len = hcnse_strlen(path) + hcnse_strlen(str) + 2;
-    len = hcnse_snprintf(buf, HCNSE_MAX_PATH_LEN,"%s" HCNSE_PATH_SEPARATOR "%s",
-        path, str);
+    path_len = hcnse_strlen(path);
+    file_len = hcnse_strlen(file);
 
-    return len;
+    if (hcnse_is_path_separator(path[path_len - 1])) {
+        path_len -= 1;
+    }
+
+    copied = 0;
+
+    hcnse_memmove(buf + copied, path, path_len);
+    copied += path_len;
+
+    hcnse_memmove(buf + copied, HCNSE_PATH_SEPARATOR_STR, 1);
+    copied += + 1;
+
+    hcnse_memmove(buf + copied, file, file_len);
+    copied += file_len;
+
+    buf[copied] = '\0';
+
+    return copied;
 }

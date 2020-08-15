@@ -7,8 +7,9 @@ static hcnse_uint_t hcnse_thread_counter_value;
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
-    hcnse_int_t prio, hcnse_thread_function_t start_routine, void *arg)
+hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
+    size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
+    void *arg)
 {
     static hcnse_uint_t thread_index = 1;
     pthread_attr_t attr;
@@ -25,7 +26,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
         return err;
     }
 
-    if (flags & (HCNSE_THREAD_SCOPE_SYSTEM)) {
+    if (hcnse_bit_is_set(params, HCNSE_THREAD_SCOPE_SYSTEM)) {
         done_scope = 1;
 
         if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0) {
@@ -35,8 +36,8 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
             return err;
         }
     }
-    if (flags & (HCNSE_THREAD_SCOPE_PROCESS)) {
-        /* Check conflict of scope flags */
+    if (hcnse_bit_is_set(params, HCNSE_THREAD_SCOPE_PROCESS)) {
+        /* Check conflict of scope params */
         if (done_scope) {
             return HCNSE_FAILED;
         }
@@ -50,7 +51,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
         }
     }
 
-    if (flags & (HCNSE_THREAD_CREATE_DETACHED)) {
+    if (hcnse_bit_is_set(params, HCNSE_THREAD_CREATE_DETACHED)) {
         done_detached = 1;
         if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
             err = hcnse_get_errno();
@@ -59,8 +60,8 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
             return err;
         }
     }
-    if (flags & (HCNSE_THREAD_CREATE_JOINABLE)) {
-        /* Check conflict of detached flags */
+    if (hcnse_bit_is_set(params, HCNSE_THREAD_CREATE_JOINABLE)) {
+        /* Check conflict of detached params */
         if (done_detached) {
             return HCNSE_FAILED;
         }
@@ -180,14 +181,15 @@ hcnse_thread_current_tid(void)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_thread_init(hcnse_thread_t *thread, hcnse_flag_t flags, size_t stack_size,
-    hcnse_int_t prio, hcnse_thread_function_t start_routine, void *arg)
+hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
+    size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
+    void *arg)
 {
     static hcnse_uint_t thread_index = 1;
     HANDLE *t;
     hcnse_err_t err;
 
-    (void) flags;
+    (void) params;
 
     t = CreateThread(NULL, stack_size, start_routine, arg, 0, NULL);
     if (t == NULL) {

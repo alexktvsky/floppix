@@ -74,7 +74,8 @@ typedef uintptr_t                      hcnse_uint_t;
 typedef size_t                         hcnse_size_t;
 typedef ssize_t                        hcnse_ssize_t;
 typedef intptr_t                       hcnse_off_t;
-typedef int32_t                        hcnse_flag_t;
+typedef intptr_t                       hcnse_flag_t;
+typedef uint32_t                       hcnse_bitmask_t;
 typedef uintptr_t                      hcnse_msec_t;
 typedef uintptr_t                      hcnse_file_access_t;
 typedef uintptr_t                      hcnse_file_type_t;
@@ -100,9 +101,9 @@ typedef struct hcnse_semaphore_s       hcnse_semaphore_t;
 #include "hcnse_cpuinfo.h"
 #include "hcnse_dso.h"
 
-#define hcnse_flag_set(x, flag)     (x |= flag)
-#define hcnse_flag_unset(x, flag)   (x &= ~(flag))
-#define hcnse_flag_is_set(x, flag)  (x & flag)
+#define hcnse_bit_set(x, bit)     (x |= bit)
+#define hcnse_bit_unset(x, bit)   (x &= ~(bit))
+#define hcnse_bit_is_set(x, bit)  (x & bit)
 
 
 #endif /* INCLUDED_HCNSE_PORTABLE_H */

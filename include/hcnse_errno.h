@@ -37,9 +37,11 @@
 #define HCNSE_ERR_CONFIG               HCNSE_ERROR_DOMAIN(1)
 #define HCNSE_ERR_CONFIG_SYNTAX        (HCNSE_ERR_CONFIG+1)
 
+#define HCNSE_ERR_FILESYS              HCNSE_ERROR_DOMAIN(2)
+#define HCNSE_ERR_FILESYS_PATH         (HCNSE_ERR_FILESYS+1)
 
 
-#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(2)
+#define HCNSE_ERR_SSL                  HCNSE_ERROR_DOMAIN(3)
 #define HCNSE_ERR_SSL_INIT             (HCNSE_ERR_SSL+1)
 
 

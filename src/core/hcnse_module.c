@@ -141,10 +141,18 @@ hcnse_load_module(hcnse_server_t *server, const char *fname)
     hcnse_err_t err;
 
 
+    err = hcnse_check_absolute_path(fname);
+    if (err != HCNSE_OK) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "Failed to load module \"%s\"", fname);
+        goto failed;
+    }
+
     handle = hcnse_dlopen(fname);
     if (!handle) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err, "hcnse_dlopen() failed (%d: %s)",
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "hcnse_dlopen() failed (%d: \"%s\")",
             err, hcnse_dlerror(errsetr, HCNSE_ERRNO_STR_SIZE));
         err = HCNSE_FAILED;
         goto failed;
@@ -153,7 +161,8 @@ hcnse_load_module(hcnse_server_t *server, const char *fname)
     module = hcnse_dlsym(handle, "hcnse_module");
     if (!module) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err, "hcnse_dlsym() failed (%d: %s)",
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "hcnse_dlsym() failed (%d: \"%s\")",
             err, hcnse_dlerror(errsetr, HCNSE_ERRNO_STR_SIZE));
         err = HCNSE_FAILED;
         goto failed;
@@ -172,6 +181,7 @@ hcnse_load_module(hcnse_server_t *server, const char *fname)
     return module;
 
 failed:
+    hcnse_set_errno(err);
     if (handle) {
         hcnse_dlclose(handle);
     }

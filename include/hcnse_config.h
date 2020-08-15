@@ -18,6 +18,13 @@
 
 #define HCNSE_NULL_COMMAND             {NULL, 0, NULL, 0}
 
+#if (HCNSE_POSIX)
+#define HCNSE_DEFAULT_CONFIG_PATH  "/etc/hcnse/hcnse.conf"
+#elif (HCNSE_WIN32)
+#define HCNSE_DEFAULT_CONFIG_PATH  "C:\\hcnse\\config\\hcnse.conf";
+#endif
+
+
 /*
  * The command record structure. Modules can define a table of these
  * to define the directives it will implement.
@@ -26,7 +33,7 @@ struct hcnse_command_s {
     /* Name of this command */
     const char *name;
     /* How many arguments takes directive */
-    hcnse_flag_t takes;
+    hcnse_bitmask_t takes;
     /* The function to be called when this directive is parsed */
     hcnse_cmd_handler_t handler;
     /* The offset of field in context structure */
@@ -59,11 +66,10 @@ struct hcnse_directive_s {
     int argc;
     /* The arguments for the current directive */
     char **argv;
-
     /* The name of the file this directive was found in */
-    /* const char *filename; */
+    const char *filename;
     /* The line number the directive was on */
-    /* hcnse_uint_t line; */
+    hcnse_uint_t line;
 };
 
 /*
@@ -78,24 +84,22 @@ struct hcnse_config_s {
 };
 
 
-hcnse_err_t hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
+hcnse_err_t hcnse_config_read(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *filename);
-hcnse_err_t hcnse_read_included_config(hcnse_config_t *config,
-    hcnse_pool_t *pool, const char *filename);
-hcnse_err_t hcnse_read_included_dir_config(hcnse_config_t *config,
-    hcnse_pool_t *pool, const char *path, const char *extension);
-hcnse_err_t hcnse_check_config(hcnse_config_t *config,
+hcnse_err_t hcnse_config_read_included(hcnse_config_t *config,
+    hcnse_pool_t *pool, const char *path);
+hcnse_err_t hcnse_config_check(hcnse_config_t *config,
     hcnse_server_t *server);
-hcnse_err_t hcnse_process_config(hcnse_config_t *config,
+hcnse_err_t hcnse_config_process(hcnse_config_t *config,
     hcnse_server_t *server);
 
-hcnse_err_t hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data,
+hcnse_err_t hcnse_handler_flag(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-hcnse_err_t hcnse_handler_set_str(hcnse_cmd_params_t *params, void *data,
+hcnse_err_t hcnse_handler_str(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-hcnse_err_t hcnse_handler_set_size(hcnse_cmd_params_t *params, void *data,
+hcnse_err_t hcnse_handler_size(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
-hcnse_err_t hcnse_handler_set_uint(hcnse_cmd_params_t *params, void *data,
+hcnse_err_t hcnse_handler_uint(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
 
 #endif /* INCLUDED_HCNSE_CONFIG_H */

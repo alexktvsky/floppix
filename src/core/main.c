@@ -1,7 +1,8 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-static const char *config_fname = "hcnse.conf";
+
+static const char *config_fname = HCNSE_DEFAULT_CONFIG_PATH;
 static hcnse_uint_t show_version;
 static hcnse_uint_t show_help;
 static hcnse_uint_t test_config;
@@ -12,14 +13,20 @@ static hcnse_err_t
 hcnse_parse_argv(int argc, const char *const *argv)
 {
     int i;
+    hcnse_uint_t long_argv;
     const char *p;
 
     for (i = 1; i < argc; i++) {
+
         p = argv[i];
         if (*p++ != '-') {
             return HCNSE_FAILED;
         }
+
         while (*p) {
+
+            long_argv = 0;
+
             switch (*p++) {
             case 'v':
                 show_version = 1;
@@ -46,11 +53,54 @@ hcnse_parse_argv(int argc, const char *const *argv)
                 }
                 break;
 
+            case '-':
+                long_argv = 1;
+                break;
+
             default:
                 return HCNSE_FAILED;
             }
+
+            if (!long_argv) {
+                continue;
+            }
+
+            if (hcnse_strcmp(p, "version") == 0) {
+                show_version = 1;
+                p += sizeof("version") - 1;
+                continue;
+            }
+
+            if (hcnse_strcmp(p, "help") == 0) {
+                show_help = 1;
+                p += sizeof("help") - 1;
+                continue;
+            }
+
+            if (hcnse_strcmp(p, "test-config") == 0) {
+                test_config = 1;
+                p += sizeof("test-config") - 1;
+                continue;
+            }
+
+            if (hcnse_strcmp(p, "quite-mode") == 0) {
+                quiet_mode = 1;
+                p += sizeof("quite-mode") - 1;
+                continue;
+            }
+
+            if (hcnse_strcmp(p, "config-file") == 0) {
+                if (argv[i++]) {
+                    config_fname = argv[i];
+                    p += sizeof("config-file") - 1;
+                    continue;
+                }
+            }
+
+            return HCNSE_FAILED;
         }
     }
+
     return HCNSE_OK;
 }
 
@@ -140,7 +190,7 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
-    if ((err = hcnse_read_config(config, pool, config_fname)) != HCNSE_OK) {
+    if ((err = hcnse_config_read(config, pool, config_fname)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to read config file");
         goto failed;
     }
@@ -160,7 +210,7 @@ main(int argc, const char *const *argv)
     }
 
     if (test_config) {
-        if (hcnse_check_config(config, server) == HCNSE_OK) {
+        if (hcnse_config_check(config, server) == HCNSE_OK) {
             hcnse_log_stderr(HCNSE_OK, "Configuration check succeeded");
         }
         else {
@@ -170,7 +220,7 @@ main(int argc, const char *const *argv)
         return 0;
     }
 
-    if ((err = hcnse_process_config(config, server)) != HCNSE_OK) {
+    if ((err = hcnse_config_process(config, server)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to process config");
         goto failed;
     }

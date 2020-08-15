@@ -4,7 +4,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-/* Mutex specific flags */
+/* Mutex specific parameters */
 #define HCNSE_MUTEX_SHARED             0x00000001
 #define HCNSE_MUTEX_PRIVATE            0x00000002
 
@@ -23,7 +23,7 @@ struct hcnse_mutex_s {
 
 #endif
 
-hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_flag_t flags);
+hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params);
 hcnse_err_t hcnse_mutex_lock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_trylock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_unlock(hcnse_mutex_t *mutex);
