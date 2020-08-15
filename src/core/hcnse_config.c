@@ -467,6 +467,68 @@ failed:
 }
 
 hcnse_err_t
+hcnse_read_included_dir_config(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *path, const char *extension)
+{
+    char fullpath[HCNSE_MAX_PATH_LEN];
+    const char *fname;
+    hcnse_dir_t dir;
+    size_t len, elen;
+    hcnse_err_t err;
+
+
+    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+        return err;
+    }
+
+    while (hcnse_dir_read(&dir) == HCNSE_OK) {
+
+        fname = hcnse_dir_current_name(&dir);
+
+        if ((hcnse_strcmp(fname, ".") == 0) ||
+            (hcnse_strcmp(fname, "..") == 0))
+        {
+            continue;
+        }
+
+        hcnse_file_full_path(fullpath, path, fname);
+
+        if (hcnse_dir_current_is_file(&dir)) {
+
+            if (extension) {
+
+                elen = hcnse_strlen(extension);
+                len = hcnse_strlen(fname);
+
+                if (len < elen) {
+                    continue;
+                }
+
+                if (hcnse_strcmp(fname + len - elen, extension) == 0) {
+                    hcnse_read_included_config(config, pool, fullpath);
+                }
+
+                continue;
+            }
+            else {
+                hcnse_read_included_config(config, pool, fullpath);
+            }
+            continue;
+        }
+
+        err = hcnse_read_included_dir_config(config, pool, fullpath, extension);
+        if (err != HCNSE_OK) {
+            hcnse_dir_close(&dir);
+            return err;
+        }
+    }
+
+    hcnse_dir_close(&dir);
+
+    return HCNSE_OK;
+}
+
+hcnse_err_t
 hcnse_handler_set_flag(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {

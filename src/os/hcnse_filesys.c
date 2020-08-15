@@ -317,9 +317,12 @@ hcnse_dir_read(hcnse_dir_t *dir)
     dir->dirent = readdir(dir->dir);
     if (!dir->dirent) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "readdir(%p) failed for \"%s\"", dir, dir->name);
-        return err;
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "readdir(%p) failed for \"%s\"", dir, dir->name);
+            return err;
+        }
+        return HCNSE_DONE;
     }
 
     dir->type = dir->dirent->d_type;
@@ -338,9 +341,12 @@ hcnse_dir_read(hcnse_dir_t *dir)
     dir->dirent = readdir(dir->dir);
     if (!dir->dirent) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "readdir(%p) failed for \"%s\"", dir, dir->name);
-        return err;
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "readdir(%p) failed for \"%s\"", dir, dir->name);
+            return err;
+        }
+        return HCNSE_DONE;
     }
 
     hcnse_file_full_path(fullpath, dir->name, dir->dirent->d_name);
@@ -729,9 +735,12 @@ hcnse_dir_open(hcnse_dir_t *dir, const char *path)
     dir->dir = FindFirstFile((const char *) str, &(dir->finddata));
     if (dir->dir == INVALID_HANDLE_VALUE) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "FindFirstFile(\"%s\", %p) failed", str, &(dir->finddata));
-        return err;
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "FindFirstFile(\"%s\", %p) failed", str, &(dir->finddata));
+            return err;
+        }
+        return HCNSE_DONE;
     }
 
     dir->name = path;
@@ -752,10 +761,13 @@ hcnse_dir_read(hcnse_dir_t *dir)
 
     if (FindNextFile(dir->dir, &dir->finddata) == 0) {
         err = hcnse_get_errno();
-        hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "FindNextFile(%p, %p) failed for \"%s\"",
-            dir->dir, &dir->finddata, dir->name);
-        return err;
+        if (err != HCNSE_OK) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "FindNextFile(%p) failed for \"%s\"",
+                dir->dir, &dir->finddata, dir->name);
+            return err;
+        }
+        return HCNSE_DONE;
     }
 
     hcnse_file_full_path(fullpath, dir->name, dir->finddata.cFileName);

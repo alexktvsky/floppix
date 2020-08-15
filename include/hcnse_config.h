@@ -82,6 +82,8 @@ hcnse_err_t hcnse_read_config(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *filename);
 hcnse_err_t hcnse_read_included_config(hcnse_config_t *config,
     hcnse_pool_t *pool, const char *filename);
+hcnse_err_t hcnse_read_included_dir_config(hcnse_config_t *config,
+    hcnse_pool_t *pool, const char *path, const char *extension);
 hcnse_err_t hcnse_check_config(hcnse_config_t *config,
     hcnse_server_t *server);
 hcnse_err_t hcnse_process_config(hcnse_config_t *config,

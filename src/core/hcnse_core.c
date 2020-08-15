@@ -19,32 +19,54 @@ static hcnse_err_t
 hcnse_handler_include(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
-    // char path[HCNSE_MAX_PATH_LEN];
-    // hcnse_dir_t dir;
-    // my_file_info_t info;
-    // hcnse_pool_t *pool;
-    // hcnse_err_t err;
+    hcnse_file_info_t info;
+    hcnse_pool_t *pool;
+    hcnse_config_t *config;
+    char *extension, *path;
+    hcnse_err_t err;
 
-    // (void) data;
-    // (void) argc;
+    (void) data;
+    (void) argc;
 
-    // pool = params->server->pool;
+    pool = params->server->pool;
+    config = params->config;
 
-    // err = hcnse_file_info_by_path(&info, argv[0]);
-    // if (err != HCNSE_OK) {
-    //     return err;
-    // }
+    extension = hcnse_strchr(argv[0], '*');
 
-    // if (info.type == HCNSE_FILE_TYPE_FILE) {
-    //     err = hcnse_read_included_config(params->config, pool, argv[0]);
-    //     if (err != HCNSE_OK) {
-    //         return err;
-    //     }
-    // }
-    // else {
-        
-    // }
+    if (extension) {
 
+        path = hcnse_pstrndup(pool, argv[0], extension - argv[0]);
+        if (!path) {
+            return hcnse_get_errno();
+        }
+
+        extension = hcnse_pstrdup(pool, extension + 1);
+        if (!extension) {
+            return hcnse_get_errno();
+        }
+    }
+    else {
+        path = argv[0];
+    }
+
+    err = hcnse_file_info_by_path(&info, path);
+    if (err != HCNSE_OK) {
+        return err;
+    }
+
+    if (info.type == HCNSE_FILE_TYPE_DIR) {
+        err = hcnse_read_included_dir_config(config, pool, path, extension);
+        return err;
+    }
+    else if (info.type == HCNSE_FILE_TYPE_FILE) {
+        err = hcnse_read_included_config(config, pool, argv[0]);
+        return err;
+    }
+    else {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+            "Failed to include \"%s\", not file or directory", argv[0]);
+        return HCNSE_ERR_CONFIG_SYNTAX;
+    }
 
     return HCNSE_OK;
 }
