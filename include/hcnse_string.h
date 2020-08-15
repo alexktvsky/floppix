@@ -26,6 +26,8 @@
 
 #define hcnse_isdigit(c) \
     ((c >= '0') && (c <= '9'))
+#define hcnse_isascii(c) \
+    ((((int8_t) c) >= 0x0) && (((uint8_t) c) <= 0x7f))
 #define hcnse_tolower(c) \
     ((char) ((c >= 'A' && c <= 'Z') ? (c | 0x20) : c))
 #define hcnse_toupper(c) \
@@ -36,6 +38,7 @@
 #define hcnse_value(x)                 hcnse_value_helper(x)
 #define hcnse_stringify(x)             hcnse_value_helper(x)
 
+#define hcnse_pstrcat(...)             hcnse_pstrcat1(__VA_ARGS__, NULL)
 
 hcnse_int_t hcnse_atoi(const char *str, size_t n);
 ssize_t hcnse_atosz(const char *str, size_t n);
@@ -46,5 +49,6 @@ hcnse_int_t hcnse_strncasecmp(char *str1, char *str2, size_t n);
 char *hcnse_strchr(const char *str, int c);
 char *hcnse_pstrdup(hcnse_pool_t *pool, const char *str);
 char *hcnse_pstrndup(hcnse_pool_t *pool, const char *str, size_t n);
+char *hcnse_pstrcat1(hcnse_pool_t *pool, ...);
 
 #endif /* INCLUDED_HCNSE_STRING_H */

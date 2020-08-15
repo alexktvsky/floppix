@@ -104,12 +104,19 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
             if (begin != NULL) {
                 hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
                     "Unexpected \"#\", probably missing terminating character");
-                return 1;
+                return HCNSE_ERR_CONFIG_SYNTAX;
             }
             comment = 1;
             break;
 
         default:
+
+            if (!hcnse_isascii(c)) {
+                hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                    "Unexpected non-ascii binary data");
+                return HCNSE_ERR_CONFIG_SYNTAX;
+            }
+
             /* Begin of word outside comment section */
             if (begin == NULL && !comment) {
                 begin = &file_buf[i];

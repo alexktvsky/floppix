@@ -129,7 +129,8 @@ hcnse_file_open(hcnse_file_t *file, const char *path, int mode, int create,
 }
 
 ssize_t
-hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size, hcnse_off_t offset)
+hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
+    hcnse_off_t offset)
 {
     ssize_t n;
 
@@ -534,7 +535,7 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
 
     if (ReadFile(file->fd, buf, size, &n, &ovlp) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "ReadFile(%d, %p, %zu, %p, %p) failed",
+            "ReadFile(%p, %p, %zu, %p, %p) failed",
             file->fd, buf, size, &n, &ovlp);
         return -1;
     }
@@ -557,7 +558,7 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
 
     if (WriteFile(file->fd, buf, size, &n, &ovlp) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "WriteFile(%d, %p, %zu, %p, %p) failed",
+            "WriteFile(%p, %p, %zu, %p, %p) failed",
             file->fd, buf, size, &n, &ovlp);
         return -1;
     }
@@ -580,7 +581,7 @@ hcnse_file_size(hcnse_file_t *file)
 
     if (GetFileSizeEx(file->fd, &info) != 1) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "GetFileSizeEx(%d, %p) failed", file->fd, &info);
+            "GetFileSizeEx(%p, %p) failed", file->fd, &info);
         return -1;
     }
     size = info.QuadPart;
@@ -597,7 +598,7 @@ hcnse_file_size(hcnse_file_t *file)
     size = (ssize_t) GetFileSize(file->fd, NULL);
     if (size == HCNSE_INVALID_FILE_SIZE) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "GetFileSize(%d, %p) failed", file->fd, NULL);
+            "GetFileSize(%p, %p) failed", file->fd, NULL);
         return -1;
     }
     return (ssize_t) size;
@@ -611,7 +612,7 @@ hcnse_read_fd(hcnse_fd_t fd, void *buf, size_t size)
 
     if (ReadFile(fd, buf, size, &n, NULL) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "ReadFile(%d, %p, %zu, %p, %p) failed",
+            "ReadFile(%p, %p, %zu, %p, %p) failed",
             fd, buf, size, &n, NULL);
         return -1;
     }
@@ -625,7 +626,7 @@ hcnse_write_fd(hcnse_fd_t fd, void *buf, size_t size)
 
     if (WriteFile(fd, buf, size, &n, NULL) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "WriteFile(%d, %p, %zu, %p, %p) failed",
+            "WriteFile(%p, %p, %zu, %p, %p) failed",
             fd, buf, size, &n, NULL);
         return -1;
     }
@@ -752,7 +753,8 @@ hcnse_dir_read(hcnse_dir_t *dir)
     if (FindNextFile(dir->dir, &dir->finddata) == 0) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "FindNextFile() failed for \"%s\"", dir->name);
+            "FindNextFile(%p, %p) failed for \"%s\"",
+            dir->dir, &dir->finddata, dir->name);
         return err;
     }
 

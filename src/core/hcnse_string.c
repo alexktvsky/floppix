@@ -197,3 +197,42 @@ hcnse_pstrndup(hcnse_pool_t *pool, const char *str, size_t n)
 
     return mem;
 }
+
+char *
+hcnse_pstrcat1(hcnse_pool_t *pool, ...)
+{
+    va_list args;
+    char *str, *argv, *pos;
+    size_t len;
+
+    len = 0;
+
+    va_start(args, pool);
+
+    while ((argv = va_arg(args, char *)) != NULL) {
+        len += hcnse_strlen(argv);
+    }
+
+    va_end(args);
+
+    str = hcnse_palloc(pool, len + 1);
+    if (!str) {
+        return NULL;
+    }
+
+    pos = str;
+
+    str[len] = '\0';
+
+    va_start(args, pool);
+
+    while ((argv = va_arg(args, char *)) != NULL) {
+        len = hcnse_strlen(argv);
+        hcnse_memmove(pos, argv, len);
+        pos += len;
+    }
+
+    va_end(args);
+
+    return str;
+}

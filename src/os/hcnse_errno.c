@@ -1,7 +1,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#define HCNSE_ERR_UNDEF  2147483647
+#define HCNSE_ERR_UNKNOW  2147483647
 
 static const struct {
     hcnse_err_t code;
@@ -22,7 +22,7 @@ static const struct {
     {HCNSE_ERR_SSL_INIT,             "Failed to initialize SSL library"},
 
     /* End of error list */
-    {HCNSE_ERR_UNDEF,                "Unknown error code"}
+    {HCNSE_ERR_UNKNOW,               "Unknown error code"}
 };
 
 
@@ -105,7 +105,7 @@ hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize)
     if (err > 0 && err < HCNSE_ERROR_DOMAIN_BASE) {
         str = hcnse_os_strerror(err, buf, bufsize);
         if (!str) {
-            return hcnse_strerror(HCNSE_ERR_UNDEF, buf, bufsize);
+            return hcnse_strerror(HCNSE_ERR_UNKNOW, buf, bufsize);
         }
 
         return str;
@@ -113,7 +113,7 @@ hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize)
 
     for (i = 0; ; i++) {
         if (error_list[i].code == err ||
-            error_list[i].code == HCNSE_ERR_UNDEF)
+            error_list[i].code == HCNSE_ERR_UNKNOW)
         {
             str = error_list[i].message;
             len = hcnse_strlen(str);

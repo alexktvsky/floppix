@@ -19,18 +19,32 @@ static hcnse_err_t
 hcnse_handler_include(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
-    hcnse_pool_t *pool;
-    hcnse_err_t err;
+    // char path[HCNSE_MAX_PATH_LEN];
+    // hcnse_dir_t dir;
+    // my_file_info_t info;
+    // hcnse_pool_t *pool;
+    // hcnse_err_t err;
 
-    (void) data;
-    (void) argc;
+    // (void) data;
+    // (void) argc;
 
-    pool = params->server->pool;
+    // pool = params->server->pool;
 
-    err = hcnse_read_included_config(params->config, pool, argv[0]);
-    if (err != HCNSE_OK) {
-        return err;
-    }
+    // err = hcnse_file_info_by_path(&info, argv[0]);
+    // if (err != HCNSE_OK) {
+    //     return err;
+    // }
+
+    // if (info.type == HCNSE_FILE_TYPE_FILE) {
+    //     err = hcnse_read_included_config(params->config, pool, argv[0]);
+    //     if (err != HCNSE_OK) {
+    //         return err;
+    //     }
+    // }
+    // else {
+        
+    // }
+
 
     return HCNSE_OK;
 }
