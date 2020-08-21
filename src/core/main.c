@@ -107,7 +107,7 @@ hcnse_parse_argv(int argc, const char *const *argv)
 static void
 hcnse_show_version_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK, "%s (%s)", HCNSE_PROJECT_INFO, HCNSE_BUILD_TIME);
+    hcnse_log_stdout(HCNSE_OK, "%s %s", HCNSE_PROJECT_INFO, HCNSE_BUILD_DATE);
     hcnse_log_stdout(HCNSE_OK, "Target system: %s %d-bit",
         HCNSE_SYSTEM_NAME, HCNSE_PTR_WIDTH);
 #ifdef HCNSE_COMPILER

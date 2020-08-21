@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <glob.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <dlfcn.h>

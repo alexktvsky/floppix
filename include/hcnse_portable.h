@@ -81,6 +81,7 @@ typedef uintptr_t                      hcnse_file_access_t;
 typedef uintptr_t                      hcnse_file_type_t;
 typedef struct hcnse_file_s            hcnse_file_t;
 typedef struct hcnse_dir_s             hcnse_dir_t;
+typedef struct hcnse_glob_s            hcnse_glob_t;
 typedef struct hcnse_file_info_s       hcnse_file_info_t;
 typedef struct hcnse_thread_s          hcnse_thread_t;
 typedef struct hcnse_mutex_s           hcnse_mutex_t;

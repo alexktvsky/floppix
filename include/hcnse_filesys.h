@@ -81,6 +81,13 @@ struct hcnse_dir_s {
     uint8_t type;
 };
 
+struct hcnse_glob_s {
+    glob_t glob;
+    const char *pattern;
+    size_t last;
+};
+
+
 #define hcnse_file_change_access(name, access) \
     chmod((const char *) name, access)
 
@@ -144,6 +151,15 @@ struct hcnse_dir_s {
     uint8_t type;
 };
 
+struct hcnse_glob_s {
+    HANDLE dir;
+    WIN32_FIND_DATA finddata;
+    const char *pattern;
+    hcnse_flag_t done;
+    const char *last_res;
+    size_t prefix_len;
+};
+
 #define hcnse_file_rename(from, to) \
     MoveFile((const char *) from, (const char *) to)
 
@@ -200,8 +216,12 @@ hcnse_file_type_t hcnse_dir_current_file_type(hcnse_dir_t *dir);
 hcnse_err_t hcnse_dir_current_is_file(hcnse_dir_t *dir);
 void hcnse_dir_close(hcnse_dir_t *dir);
 
+int hcnse_glob_open(hcnse_glob_t *gl, const char *pattern);
+int hcnse_glob_read(hcnse_glob_t *gl, char *res);
+void hcnse_glob_close(hcnse_glob_t *gl);
+
 size_t hcnse_file_full_path(char *buf, const char *path, const char *file);
+hcnse_flag_t hcnse_is_path_has_wildcard(const char *path);
 hcnse_err_t hcnse_check_absolute_path(const char *path);
-hcnse_err_t hcnse_path_to_root_dir(char *res, const char *path);
 
 #endif /* INCLUDED_HCNSE_FILESYS_H */

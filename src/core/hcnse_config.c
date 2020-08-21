@@ -507,54 +507,6 @@ hcnse_config_process(hcnse_config_t *config, hcnse_server_t *server)
     return HCNSE_OK;
 }
 
-static hcnse_flag_t
-hcnse_is_part_has_wildcard(const char *str)
-{
-    char *ch;
-
-    ch = (char *) str;
-
-    while (*ch) {
-        switch (*ch) {
-        case '?':
-        case '*':
-            return 1;
-        }
-        ++ch;
-    }
-    return 0;
-}
-
-static hcnse_flag_t
-hcnse_is_glob_match(const char *str, const char *pattern)
-{
-    const char *rs, *rp;
-
-    rs = NULL;
-
-    while (1) {
-
-        if (*pattern == '*') {
-            rs = str;
-            rp = ++pattern;
-        }
-        else if (*str == '\0') {
-            return !*pattern;
-        }
-        else if (*str == *pattern || *pattern == '?') {
-            ++str;
-            ++pattern;
-        }
-        else if (rs) {
-            str = ++rs;
-            pattern = rp;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-
 hcnse_err_t
 hcnse_config_walkdir_nonwildcard(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *path)
@@ -565,7 +517,7 @@ hcnse_config_walkdir_nonwildcard(hcnse_config_t *config, hcnse_pool_t *pool,
     hcnse_err_t err;
 
 
-    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_DONE) {
         return err;
     }
 
@@ -606,100 +558,135 @@ failed:
     return err;
 }
 
+// hcnse_err_t
+// hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,
+//     const char *path, const char *fname)
+// {
+//     char fullpath[HCNSE_MAX_PATH_LEN];
+//     hcnse_dir_t dir;
+//     const char *pos, *dir_name;
+//     hcnse_err_t err;
+
+
+//     pos = hcnse_strchr(fname, HCNSE_PATH_SEPARATOR);
+//     if (pos) {
+//         fname = hcnse_pstrndup(pool, fname, pos - fname);
+//         pos += 1;
+//     }
+
+//     if (!hcnse_is_part_has_wildcard(fname)) {
+
+//         hcnse_file_full_path(fullpath, path, fname);
+
+//         if (!pos) {
+//             return hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
+//         }
+//         else {
+//             return hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+//         }
+//     }
+
+//     if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+//         return err;
+//     }
+
+//     while (hcnse_dir_read(&dir) == HCNSE_OK) {
+
+//         dir_name = hcnse_dir_current_name(&dir);
+
+//         if ((hcnse_strcmp(dir_name, ".") == 0) ||
+//             (hcnse_strcmp(dir_name, "..") == 0) ||
+//             !hcnse_is_glob_match(dir_name, fname))
+//         {
+//             continue;
+//         }
+
+//         hcnse_file_full_path(fullpath, path, dir_name);
+
+//         if (hcnse_dir_current_is_file(&dir)) {
+
+//             if (!pos) {
+//                 err = hcnse_config_read_included_file(config, pool, fullpath);
+//                 if (err != HCNSE_OK) {
+//                     goto failed;
+//                 }
+//             }
+//             continue;
+//         }
+//         else {
+//             if (pos) {
+//                 err = hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+//                 if (err != HCNSE_OK) {
+//                     goto failed;
+//                 }
+//             }
+//         }
+//     }
+
+//     hcnse_dir_close(&dir);
+
+//     return HCNSE_OK;
+
+// failed:
+
+//     hcnse_dir_close(&dir);
+
+//     return err;
+// }
+
 hcnse_err_t
 hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,
-    const char *path, const char *fname)
+    const char *path)
 {
     char fullpath[HCNSE_MAX_PATH_LEN];
-    hcnse_dir_t dir;
-    const char *pos, *dir_name;
+    hcnse_file_info_t info;
+    hcnse_glob_t glob;
     hcnse_err_t err;
 
 
-    pos = hcnse_strchr(fname, HCNSE_PATH_SEPARATOR);
-    if (pos) {
-        fname = hcnse_pstrndup(pool, fname, pos - fname);
-        pos += 1;
-    }
-
-    if (!hcnse_is_part_has_wildcard(fname)) {
-
-        hcnse_file_full_path(fullpath, path, fname);
-
-        if (!pos) {
-            return hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
-        }
-        else {
-            return hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
-        }
-    }
-
-    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+    err = hcnse_glob_open(&glob, path);
+    if (err != HCNSE_OK) {
         return err;
     }
 
-    while (hcnse_dir_read(&dir) == HCNSE_OK) {
+    while (hcnse_glob_read(&glob, fullpath) != HCNSE_DONE) {
 
-        dir_name = hcnse_dir_current_name(&dir);
-
-        if ((hcnse_strcmp(dir_name, ".") == 0) ||
-            (hcnse_strcmp(dir_name, "..") == 0) ||
-            !hcnse_is_glob_match(dir_name, fname))
+        if ((hcnse_strcmp(fullpath, ".") == 0) ||
+            (hcnse_strcmp(fullpath, "..") == 0))
         {
             continue;
         }
 
-        hcnse_file_full_path(fullpath, path, dir_name);
-
-        if (hcnse_dir_current_is_file(&dir)) {
-
-            if (!pos) {
-                err = hcnse_config_read_included_file(config, pool, fullpath);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-            }
-            continue;
+        hcnse_file_info_by_path(&info, fullpath);
+        if (info.type == HCNSE_FILE_TYPE_FILE) {
+            err = hcnse_config_read_included_file(config, pool, fullpath);
         }
         else {
-            if (pos) {
-                err = hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
-                if (err != HCNSE_OK) {
-                    goto failed;
-                }
-            }
+            err = hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
         }
     }
 
-    hcnse_dir_close(&dir);
+    hcnse_glob_close(&glob);
 
     return HCNSE_OK;
-
-failed:
-
-    hcnse_dir_close(&dir);
-
-    return err;
 }
-
 
 hcnse_err_t
 hcnse_config_read_included(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *path)
 {
     hcnse_file_info_t info;
-    char root_dir[HCNSE_MAX_PATH_LEN];
     hcnse_err_t err;
 
 
-    err = hcnse_path_to_root_dir(root_dir, path);
+    err = hcnse_check_absolute_path(path);
     if (err != HCNSE_OK) {
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
             "Failed to include \"%s\"", path);
         return err;
     }
 
-    if (!hcnse_is_part_has_wildcard(path)) {
+    if (!hcnse_is_path_has_wildcard(path)) {
 
         hcnse_file_info_by_path(&info, path);
 
@@ -712,7 +699,7 @@ hcnse_config_read_included(hcnse_config_t *config, hcnse_pool_t *pool,
     }
     else {
 
-        err = hcnse_config_walkdir_wildcard(config, pool, root_dir, path);
+        err = hcnse_config_walkdir_wildcard(config, pool, path);
     }
 
     return err;

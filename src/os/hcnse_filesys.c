@@ -376,15 +376,65 @@ hcnse_dir_current_name(hcnse_dir_t *dir)
 }
 
 hcnse_err_t
+hcnse_glob_open(hcnse_glob_t *gl, const char *pattern)
+{
+    int rv;
+    hcnse_err_t err;
+
+    rv = glob(pattern, 0, NULL, &gl->glob);
+    if (rv != 0) {
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "glob(%s, %p) failed", gl->pattern, &gl->glob);
+        return err;
+    }
+
+    gl->pattern = pattern;
+    gl->last = 0;
+
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_glob_read(hcnse_glob_t *gl, char *res)
+{
+    size_t n, len;
+
+#ifdef GLOB_NOMATCH
+    n = (size_t) gl->glob.gl_pathc;
+#else
+    n = (size_t) gl->glob.gl_matchc;
+#endif
+
+    if (gl->last >= n) {
+        return HCNSE_DONE;
+    }
+
+    len = strlen(gl->glob.gl_pathv[gl->last]);
+    memmove(res, gl->glob.gl_pathv[gl->last], len + 1);
+    gl->last += 1;
+
+    return HCNSE_OK;
+}
+
+void
+hcnse_glob_close(hcnse_glob_t *gl)
+{
+    globfree(&gl->glob);
+}
+
+
+hcnse_err_t
 hcnse_check_absolute_path(const char *path)
 {
     if (*path == '/') {
         return HCNSE_OK;
     }
 
-    return HCNSE_ERR_FILESYS_PATH;
+    return HCNSE_ERR_FILESYS_ABS_PATH;
 }
 
+#if 0
 hcnse_err_t
 hcnse_path_to_root_dir(char *res, const char *path)
 {
@@ -394,8 +444,9 @@ hcnse_path_to_root_dir(char *res, const char *path)
         return HCNSE_OK;
     }
 
-    return HCNSE_ERR_FILESYS_PATH;
+    return HCNSE_ERR_FILESYS_ABS_PATH;
 }
+#endif
 
 #elif (HCNSE_WIN32)
 
@@ -782,7 +833,7 @@ hcnse_dir_read(hcnse_dir_t *dir)
 
     if (FindNextFile(dir->dir, &dir->finddata) == 0) {
         err = hcnse_get_errno();
-        if (err != HCNSE_OK) {
+        if (err != HCNSE_OK && err != ERROR_NO_MORE_FILES) {
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
                 "FindNextFile(%p) failed for \"%s\"",
                 dir->dir, &dir->finddata, dir->name);
@@ -807,6 +858,87 @@ hcnse_dir_close(hcnse_dir_t *dir)
         return;
     }
     FindClose(dir->dir);
+}
+
+hcnse_err_t
+hcnse_glob_open(hcnse_glob_t *gl, const char *pattern)
+{
+    hcnse_int_t i;
+    size_t len;
+    hcnse_err_t err;
+
+    gl->dir = FindFirstFile((const char *) pattern, &gl->finddata);
+    if (gl->dir == INVALID_HANDLE_VALUE) {
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "FindFirstFile(%s, %p) failed", pattern, &gl->finddata);
+        return HCNSE_FAILED;
+    }
+
+    len = 0;
+
+    for (i = hcnse_strlen(pattern); i >= 0; --i) {
+        if (pattern[i] == '\\') {
+            len = (size_t) i;
+            break;
+        }
+    }
+
+    if (len == 0) {
+        return HCNSE_ERR_FILESYS_ABS_PATH;
+    }
+
+    gl->prefix_len = len + 1;
+    gl->last_res = gl->finddata.cFileName;
+    gl->pattern = pattern;
+    gl->done = 0;
+
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_glob_read(hcnse_glob_t *gl, char *res)
+{
+    size_t len, temp;
+    hcnse_err_t err;
+
+    if (gl->done) {
+        return HCNSE_DONE;
+    }
+
+    temp = hcnse_strlen(gl->last_res);
+
+    len = gl->prefix_len + temp + 1;
+    if (HCNSE_MAX_PATH_LEN < len) {
+        return HCNSE_ERR_FILESYS_LONG_PATH;
+    }
+
+    hcnse_memmove(res, gl->pattern, gl->prefix_len);
+    hcnse_memmove(res + gl->prefix_len, gl->last_res, temp + 1);
+
+    if (FindNextFile(gl->dir, &gl->finddata) != 0) {
+
+        err = hcnse_get_errno();
+        if (err != HCNSE_OK && err != ERROR_NO_MORE_FILES) {
+            gl->done = 1;
+            hcnse_log_error1(HCNSE_LOG_ERROR, err,
+                "FindNextFile(%p, %p) failed for \"%s\"",
+                gl->dir, &gl->finddata, gl->pattern);
+            return err;
+        }
+        gl->last_res = gl->finddata.cFileName;
+    }
+    else {
+        gl->done = 1;
+    }
+
+    return HCNSE_OK;
+}
+
+void
+hcnse_glob_close(hcnse_glob_t *gl)
+{
+    FindClose(gl->dir);
 }
 
 const char *
@@ -834,10 +966,11 @@ hcnse_check_absolute_path(const char *path)
         return HCNSE_OK;
     }
     else {
-        return HCNSE_ERR_FILESYS_PATH;
+        return HCNSE_ERR_FILESYS_ABS_PATH;
     }
 }
 
+#if 0
 hcnse_err_t
 hcnse_path_to_root_dir(char *res, const char *path)
 {
@@ -852,10 +985,44 @@ hcnse_path_to_root_dir(char *res, const char *path)
         return HCNSE_OK;
     }
     else {
-        return HCNSE_ERR_FILESYS_PATH;
+        return HCNSE_ERR_FILESYS_ABS_PATH;
     }
 }
+#endif
 
+#endif
+
+#if 0
+
+static hcnse_flag_t
+hcnse_is_glob_match(const char *str, const char *pattern)
+{
+    const char *rs, *rp;
+
+    rs = NULL;
+
+    while (1) {
+
+        if (*pattern == '*') {
+            rs = str;
+            rp = ++pattern;
+        }
+        else if (*str == '\0') {
+            return !*pattern;
+        }
+        else if (*str == *pattern || *pattern == '?') {
+            ++str;
+            ++pattern;
+        }
+        else if (rs) {
+            str = ++rs;
+            pattern = rp;
+        }
+        else {
+            return 0;
+        }
+    }
+}
 
 #endif
 
@@ -909,4 +1076,22 @@ hcnse_file_full_path(char *buf, const char *path, const char *file)
     buf[copied] = '\0';
 
     return copied;
+}
+
+hcnse_flag_t
+hcnse_is_path_has_wildcard(const char *path)
+{
+    char *ch;
+
+    ch = (char *) path;
+
+    while (*ch) {
+        switch (*ch) {
+        case '?':
+        case '*':
+            return 1;
+        }
+        ++ch;
+    }
+    return 0;
 }
