@@ -26,7 +26,7 @@ failed:
 
 hcnse_err_t
 hcnse_socket_bind(hcnse_socket_t sockfd, const struct sockaddr *addr,
-    socklen_t addrlen)
+    hcnse_socklen_t addrlen)
 {
     char text_addr[HCNSE_MAX_ADDR_LEN];
     char text_port[HCNSE_MAX_PORT_LEN];
@@ -68,7 +68,7 @@ hcnse_socket_listen(hcnse_socket_t sockfd, int backlog)
 
 hcnse_err_t
 hcnse_socket_accept(hcnse_socket_t *new_sockfd, hcnse_socket_t sockfd,
-    struct sockaddr *addr, socklen_t *addrlen)
+    struct sockaddr *addr, hcnse_socklen_t *addrlen)
 {
     char text_addr[HCNSE_MAX_ADDR_LEN];
     char text_port[HCNSE_MAX_PORT_LEN];
@@ -101,7 +101,7 @@ failed:
 
 hcnse_err_t
 hcnse_socket_connect(hcnse_socket_t sockfd, const struct sockaddr *addr,
-    socklen_t addrlen)
+    hcnse_socklen_t addrlen)
 {
     char text_addr[HCNSE_MAX_ADDR_LEN];
     char text_port[HCNSE_MAX_PORT_LEN];

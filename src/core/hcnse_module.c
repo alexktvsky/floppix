@@ -141,6 +141,8 @@ hcnse_load_module(hcnse_server_t *server, const char *fname)
     hcnse_err_t err;
 
 
+    handle = NULL;
+
     err = hcnse_check_absolute_path(fname);
     if (err != HCNSE_OK) {
         hcnse_log_error1(HCNSE_LOG_ERROR, err,

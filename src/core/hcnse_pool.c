@@ -217,6 +217,9 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
     size_t align_size, npages, index;
     void *mem;
 
+    node = NULL;
+    mem = NULL;
+
     align_size = hcnse_align_allocation(size);
     if (!align_size) {
         goto failed;

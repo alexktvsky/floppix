@@ -50,6 +50,7 @@
 typedef int                            hcnse_fd_t;
 typedef struct stat                    hcnse_file_stat_t;
 typedef int                            hcnse_socket_t;
+typedef socklen_t                      hcnse_socklen_t;
 typedef pid_t                          hcnse_tid_t;
 typedef pthread_t                      hcnse_thread_handle_t;
 typedef void *                         hcnse_thread_value_t;

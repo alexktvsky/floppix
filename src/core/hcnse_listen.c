@@ -38,7 +38,7 @@ hcnse_listener_bind(hcnse_listener_t *listener)
     struct addrinfo hints, *result, *rp;
     const char *addr, *port;
     hcnse_socket_t fd;
-    socklen_t addrlen;
+    hcnse_socklen_t addrlen;
     hcnse_uint_t tries, done;
     hcnse_err_t err;
 

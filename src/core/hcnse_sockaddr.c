@@ -6,7 +6,7 @@ const char *
 hcnse_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
     size_t bufsize)
 {
-    socklen_t addrlen;
+    hcnse_socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);
 
@@ -23,7 +23,7 @@ const char *
 hcnse_sockaddr_get_port_text(const struct sockaddr *sockaddr, char *buf,
     size_t bufsize)
 {
-    socklen_t addrlen;
+    hcnse_socklen_t addrlen;
 
     addrlen = sizeof(struct sockaddr_storage);
 

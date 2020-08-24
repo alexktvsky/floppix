@@ -13,8 +13,12 @@
 #define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_FREEBSD)
-/* Details for FreeBSD */
+#define HCNSE_SHUT_RD                  SHUT_RD
+#define HCNSE_SHUT_WR                  SHUT_WR
+#define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
+
+#define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_SOLARIS)
 /* Details for Solaris */
@@ -43,12 +47,12 @@ hcnse_err_t hcnse_winsock_init_v22(void);
 hcnse_err_t hcnse_socket_init(hcnse_socket_t *sockfd, int domain, int type,
     int protocol);
 hcnse_err_t hcnse_socket_bind(hcnse_socket_t sockfd,
-    const struct sockaddr *addr, socklen_t addrlen);
+    const struct sockaddr *addr, hcnse_socklen_t addrlen);
 hcnse_err_t hcnse_socket_listen(hcnse_socket_t sockfd, int backlog);
 hcnse_err_t hcnse_socket_accept(hcnse_socket_t *new_sockfd,
-    hcnse_socket_t sockfd, struct sockaddr *addr, socklen_t *addrlen);
+    hcnse_socket_t sockfd, struct sockaddr *addr, hcnse_socklen_t *addrlen);
 hcnse_err_t hcnse_socket_connect(hcnse_socket_t sockfd,
-    const struct sockaddr *addr, socklen_t addrlen);
+    const struct sockaddr *addr, hcnse_socklen_t addrlen);
 hcnse_err_t hcnse_socket_shutdown(hcnse_socket_t sockfd, int how);
 void hcnse_socket_close(hcnse_socket_t sockf);
 

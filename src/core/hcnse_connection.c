@@ -25,7 +25,7 @@ hcnse_err_t
 hcnse_connection_accept(hcnse_connect_t *connect, hcnse_listener_t *listener)
 {
     hcnse_socket_t fd;
-    socklen_t addrlen;
+    hcnse_socklen_t addrlen;
     hcnse_err_t err;
 
     fd = HCNSE_INVALID_SOCKET;

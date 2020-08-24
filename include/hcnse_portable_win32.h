@@ -33,6 +33,7 @@
 typedef HANDLE                         hcnse_fd_t;
 typedef BY_HANDLE_FILE_INFORMATION     hcnse_file_stat_t;
 typedef SOCKET                         hcnse_socket_t;
+typedef socklen_t                      hcnse_socklen_t;
 typedef DWORD                          hcnse_tid_t;
 typedef HANDLE                         hcnse_thread_handle_t;
 typedef DWORD                          hcnse_thread_value_t;
