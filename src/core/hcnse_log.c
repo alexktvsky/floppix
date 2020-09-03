@@ -169,12 +169,12 @@ hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
     }
 
     iter = hcnse_list_first(conf->log_outputs);
-    for ( ; iter; iter = iter->next) {
-        printf("%s\n", (char *) iter->data);
-        iter = iter->next;
-        printf("%s\n", (char *) iter->data);
-        iter = iter->next;
-        printf("%s\n", (char *) iter->data);
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        printf("%s\n", (char *) hcnse_list_data(iter));
+        iter = hcnse_list_next(iter);
+        printf("%s\n", (char *) hcnse_list_data(iter));
+        iter = hcnse_list_next(iter);
+        printf("%s\n", (char *) hcnse_list_data(iter));
     }
 
 

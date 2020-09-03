@@ -16,7 +16,7 @@ hcnse_parse_argv(int argc, const char *const *argv)
     hcnse_uint_t long_argv;
     const char *p;
 
-    for (i = 1; i < argc; i++) {
+    for (i = 1; i < argc; ++i) {
 
         p = argv[i];
         if (*p++ != '-') {
@@ -45,7 +45,7 @@ hcnse_parse_argv(int argc, const char *const *argv)
                 break;
 
             case 'c':
-                if (argv[i++]) {
+                if (argv[++i]) {
                     config_fname = argv[i];
                 }
                 else {
@@ -90,7 +90,7 @@ hcnse_parse_argv(int argc, const char *const *argv)
             }
 
             if (hcnse_strcmp(p, "config-file") == 0) {
-                if (argv[i++]) {
+                if (argv[++i]) {
                     config_fname = argv[i];
                     p += sizeof("config-file") - 1;
                     continue;

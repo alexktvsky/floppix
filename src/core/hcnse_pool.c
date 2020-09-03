@@ -246,7 +246,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
     }
 
     /* Try to find suitable node */
-    for (i = index; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = index; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             if (node->size_avail >= align_size) {
@@ -356,7 +356,7 @@ hcnse_pool_get_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             size += node->size;
@@ -375,7 +375,7 @@ hcnse_pool_get_free_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             size += node->size_avail;
@@ -394,7 +394,7 @@ hcnse_pool_get_total_size(hcnse_pool_t *pool)
 
     size = 0;
 
-    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             size += HCNSE_PAGE_SIZE * (i + 1);
@@ -422,7 +422,7 @@ hcnse_pool_clean(hcnse_pool_t *pool)
         }
     }
 
-    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             node->first_avail = node->begin;
@@ -450,7 +450,7 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
         }
     }
 
-    for (i = 0; i < HCNSE_MAX_POOL_SLOT; i++) {
+    for (i = 0; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
         while (node) {
             temp = node;

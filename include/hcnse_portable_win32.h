@@ -18,12 +18,6 @@
 #include <process.h>
 #include <io.h>
 
-
-#if (HCNSE_HAVE_PCRE)
-#define PCRE_STATIC
-#include <pcre.h>
-#endif
-
 #if (HCNSE_HAVE_OPENSSL)
 #include <openssl/ssl.h>
 #include <openssl/evp.h>

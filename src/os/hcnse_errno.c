@@ -115,7 +115,7 @@ hcnse_strerror(hcnse_err_t err, char *buf, size_t bufsize)
         return str;
     }
 
-    for (i = 0; ; i++) {
+    for (i = 0; ; ++i) {
         if (error_list[i].code == err ||
             error_list[i].code == HCNSE_ERR_UNKNOW)
         {

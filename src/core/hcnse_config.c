@@ -80,7 +80,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     end_line = 0;
     end_file = 0;
 
-    for (i = 0; ; i++) {
+    for (i = 0; ; ++i) {
 
         c = file_buf[i];
 
@@ -195,9 +195,9 @@ hcnse_find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
     hcnse_uint_t i;
 
     iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = iter->next) {
-        module = iter->data;
-        for (i = 0; module->cmd[i].name != NULL; i++) {
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        module = hcnse_list_data(iter);
+        for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (hcnse_strcmp(module->cmd[i].name, cmd_name) == 0) {
                 return &(module->cmd[i]);
             }
@@ -214,9 +214,9 @@ hcnse_find_module_by_command(hcnse_server_t *server, const char *cmd_name)
     hcnse_uint_t i;
 
     iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = iter->next) {
-        module = iter->data;
-        for (i = 0; module->cmd[i].name != NULL; i++) {
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        module = hcnse_list_data(iter);
+        for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (hcnse_strcmp(module->cmd[i].name, cmd_name) == 0) {
                 return module;
             }
@@ -237,7 +237,7 @@ hcnse_check_directive_arguments(hcnse_directive_t *directive,
 
     argc = directive->argc;
 
-    for (i = 0; i < HCNSE_MAX_TAKES; i++) {
+    for (i = 0; i < HCNSE_MAX_TAKES; ++i) {
         if (hcnse_bit_is_set(cmd->takes, hcnse_takes[i])) {
             if (min_takes == 0) {
                 min_takes = i;
@@ -411,9 +411,9 @@ hcnse_config_check(hcnse_config_t *config, hcnse_server_t *server)
 
     iter = hcnse_list_first(config->conf_list);
 
-    for ( ; iter; iter = iter->next) {
+    for ( ; iter; iter = hcnse_list_next(iter)) {
 
-        directive = iter->data;
+        directive = hcnse_list_data(iter);
 
         cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
@@ -468,8 +468,8 @@ hcnse_config_process(hcnse_config_t *config, hcnse_server_t *server)
 
 
     iter = hcnse_list_first(config->conf_list);
-    for ( ; iter; iter = iter->next) {
-        directive = iter->data;
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        directive = hcnse_list_data(iter);
         cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,

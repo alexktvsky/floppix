@@ -18,8 +18,8 @@ hcnse_add_module(hcnse_server_t *server, hcnse_module_t *module)
 
     iter = hcnse_list_first(server->modules);
 
-    for ( ; iter; iter = iter->next) {
-        current = iter->data;
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        current = hcnse_list_data(iter);
         if (!hcnse_strcmp(current->name, module->name)) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
                 "Module \"%s\" is already plugged", module->name);
@@ -40,7 +40,7 @@ hcnse_setup_prelinked_modules(hcnse_server_t *server)
 
     n = sizeof(hcnse_preloaded_modules) / sizeof(hcnse_module_t *);
 
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; ++i) {
         err = hcnse_add_module(server, hcnse_preloaded_modules[i]);
         if (err != HCNSE_OK) {
             return err;
@@ -59,9 +59,9 @@ hcnse_preinit_modules(hcnse_server_t *server)
 
     iter = hcnse_list_first(server->modules);
 
-    for ( ; iter; iter = iter->next) {
+    for ( ; iter; iter = hcnse_list_next(iter)) {
 
-        module = iter->data;
+        module = hcnse_list_data(iter);
 
         if (module->preinited) {
             break;
@@ -91,9 +91,9 @@ hcnse_init_modules(hcnse_server_t *server)
 
     iter = hcnse_list_first(server->modules);
 
-    for ( ; iter; iter = iter->next) {
+    for ( ; iter; iter = hcnse_list_next(iter)) {
 
-        module = iter->data;
+        module = hcnse_list_data(iter);
 
         if (module->inited) {
             break;
@@ -120,8 +120,8 @@ hcnse_modules_fini(hcnse_server_t *server)
     hcnse_list_node_t *iter;
 
     iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = iter->next) {
-        module = iter->data;
+    for ( ; iter; iter = hcnse_list_next(iter)) {
+        module = hcnse_list_data(iter);
         if (module->fini) {
             module->fini(server, module->cntx);
         }

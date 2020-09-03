@@ -4,16 +4,6 @@
 #define HCNSE_LIST_INITIAL_SIZE  10
 
 
-struct hcnse_list_s {
-    hcnse_pool_t *pool;
-    hcnse_list_node_t *head;
-    hcnse_list_node_t *tail;
-    hcnse_list_node_t *free_nodes;
-    size_t size;
-    size_t free_nodes_size;
-};
-
-
 hcnse_err_t
 hcnse_list_create1(hcnse_list_t **out_list, hcnse_pool_t *pool)
 {
@@ -31,7 +21,7 @@ hcnse_list_create1(hcnse_list_t **out_list, hcnse_pool_t *pool)
      * list->tail = NULL;
      * list->free_nodes = NULL;
      * list->size = 0;
-     * list->free_nodes_size = 0;
+     * list->capacity = 0;
      *
      */
 
@@ -64,7 +54,7 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
     if (list->free_nodes) {
         node = list->free_nodes;
         list->free_nodes = node->next;
-        list->free_nodes_size -= 1;
+        list->capacity -= 1;
     }
     else {
         alloc_size = sizeof(hcnse_list_node_t) * HCNSE_LIST_INITIAL_SIZE;
@@ -76,12 +66,12 @@ hcnse_list_push_back(hcnse_list_t *list, void *data)
         node = &nodes[0];
         nodes = &nodes[1];
 
-        for (i = 0; i < (HCNSE_LIST_INITIAL_SIZE - 1); i++) {
+        for (i = 0; i < (HCNSE_LIST_INITIAL_SIZE - 1); ++i) {
             temp = list->free_nodes;
             list->free_nodes = &nodes[i];
             list->free_nodes->next = temp;
         }
-        list->free_nodes_size = HCNSE_LIST_INITIAL_SIZE - 1;
+        list->capacity = HCNSE_LIST_INITIAL_SIZE - 1;
     }
 
     node->next = NULL;
@@ -112,7 +102,7 @@ hcnse_list_push_front(hcnse_list_t *list, void *data)
     if (list->free_nodes) {
         node = list->free_nodes;
         list->free_nodes = node->next;
-        list->free_nodes_size -= 1;
+        list->capacity -= 1;
     }
     else {
         alloc_size = sizeof(hcnse_list_node_t) * HCNSE_LIST_INITIAL_SIZE;
@@ -124,12 +114,12 @@ hcnse_list_push_front(hcnse_list_t *list, void *data)
         node = &nodes[0];
         nodes = &nodes[1];
 
-        for (i = 0; i < (HCNSE_LIST_INITIAL_SIZE - 1); i++) {
+        for (i = 0; i < (HCNSE_LIST_INITIAL_SIZE - 1); ++i) {
             temp = list->free_nodes;
             list->free_nodes = &nodes[i];
             list->free_nodes->next = temp;
         }
-        list->free_nodes_size = HCNSE_LIST_INITIAL_SIZE - 1;
+        list->capacity = HCNSE_LIST_INITIAL_SIZE - 1;
     }
 
     node->prev = NULL;
@@ -163,12 +153,12 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
         return hcnse_get_errno();
     }
 
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; ++i) {
         temp = list->free_nodes;
         list->free_nodes = &nodes[i];
         list->free_nodes->next = temp;
     }
-    list->free_nodes_size += n;
+    list->capacity += n;
 
     return HCNSE_OK;
 }
@@ -216,7 +206,7 @@ hcnse_list_remove1(hcnse_list_t *list, hcnse_list_node_t *node)
     list->free_nodes = founded_node;
     founded_node->next = temp1;
 
-    list->free_nodes_size += 1;
+    list->capacity += 1;
 
     return HCNSE_OK;
 }
@@ -264,72 +254,9 @@ hcnse_list_remove(hcnse_list_t *list, void *data)
     list->free_nodes = founded_node;
     founded_node->next = temp1;
 
-    list->free_nodes_size += 1;
+    list->capacity += 1;
 
     return HCNSE_OK;
-}
-
-
-hcnse_list_node_t *
-hcnse_list_first(hcnse_list_t *list)
-{
-    if (list->head) {
-        return list->head;
-    }
-    else {
-        return NULL;
-    }
-}
-
-hcnse_list_node_t *
-hcnse_list_last(hcnse_list_t *list)
-{
-    if (list->tail) {
-        return list->tail;
-    }
-    else {
-        return NULL;
-    }
-}
-
-hcnse_list_node_t *
-hcnse_list_next(hcnse_list_node_t *node)
-{
-    if (node->next) {
-        return node->next;
-    }
-    else {
-        return NULL;        
-    }
-}
-
-hcnse_list_node_t *
-hcnse_list_prev(hcnse_list_node_t *node)
-{
-    if (node->prev) {
-        return node->prev;
-    }
-    else {
-        return NULL;
-    }
-}
-
-void *
-hcnse_list_data1(hcnse_list_node_t *node)
-{
-    return node->data;
-}
-
-size_t
-hcnse_list_size(hcnse_list_t *list)
-{
-    return list->size;
-}
-
-size_t
-hcnse_list_available_size(hcnse_list_t *list)
-{
-    return list->free_nodes_size;
 }
 
 void

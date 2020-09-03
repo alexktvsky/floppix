@@ -8,7 +8,7 @@ foo(hcnse_cmd_params_t *params, void *data, int argc, char **argv)
     int i;
     (void) data;
     printf("%s ", params->directive->name);
-    for (i = 0; i < argc; i++) {
+    for (i = 0; i < argc; ++i) {
         printf("%s ", argv[i]);
     }
     printf("\n");

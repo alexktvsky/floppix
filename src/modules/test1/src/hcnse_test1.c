@@ -12,7 +12,7 @@ test1_handler(hcnse_cmd_params_t *params, void *conf, int argc, char **argv)
 
     printf("%s ", params->directive->name);
 
-    for (i = 0; i < argc; i++) {
+    for (i = 0; i < argc; ++i) {
         printf("%s ", argv[i]);
     }
 

@@ -143,7 +143,7 @@ hcnse_epoll_process_events(hcnse_conf_t *conf)
         return HCNSE_OK;
     }
 
-    for (int i = 0; i < events; i++) {
+    for (int i = 0; i < events; ++i) {
         if (hcnse_is_listener(event_list[i].data.ptr)) {
             listener = (hcnse_listener_t *) event_list[i].data.ptr;
 
