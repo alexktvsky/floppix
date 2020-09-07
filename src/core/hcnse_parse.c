@@ -131,3 +131,17 @@ hcnse_config_parse_addr_port(char **addr, char **port, const char *str,
 
     return rv;
 }
+
+hcnse_uint_t
+hcnse_config_parse_log_level(const char *str)
+{
+    hcnse_uint_t i;
+
+    for (i = 0; hcnse_log_prio[i] != NULL; ++i) {
+        if (hcnse_strcmp(str, hcnse_log_prio[i]) == 0) {
+            return i;
+        }
+    }
+
+    return HCNSE_LOG_INVALID_LEVEL;
+}

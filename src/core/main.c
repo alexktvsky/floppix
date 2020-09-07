@@ -6,7 +6,6 @@ static const char *config_fname = HCNSE_DEFAULT_CONFIG_PATH;
 static hcnse_uint_t show_version;
 static hcnse_uint_t show_help;
 static hcnse_uint_t test_config;
-static hcnse_uint_t quiet_mode;
 
 
 static hcnse_err_t
@@ -38,10 +37,6 @@ hcnse_parse_argv(int argc, const char *const *argv)
 
             case 't':
                 test_config = 1;
-                break;
-
-            case 'q':
-                quiet_mode = 1;
                 break;
 
             case 'c':
@@ -83,12 +78,6 @@ hcnse_parse_argv(int argc, const char *const *argv)
                 continue;
             }
 
-            if (hcnse_strcmp(p, "quite-mode") == 0) {
-                quiet_mode = 1;
-                p += sizeof("quite-mode") - 1;
-                continue;
-            }
-
             if (hcnse_strcmp(p, "config-file") == 0) {
                 if (argv[++i]) {
                     config_fname = argv[i];
@@ -107,7 +96,7 @@ hcnse_parse_argv(int argc, const char *const *argv)
 static void
 hcnse_show_version_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK, "%s %s", HCNSE_PROJECT_INFO, HCNSE_BUILD_DATE);
+    hcnse_log_stdout(HCNSE_OK, "HCNSE %s %s", HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
     hcnse_log_stdout(HCNSE_OK, "Target system: %s %d-bit",
         HCNSE_SYSTEM_NAME, HCNSE_PTR_WIDTH);
 #ifdef HCNSE_COMPILER
@@ -118,7 +107,15 @@ hcnse_show_version_info(void)
 static void
 hcnse_show_help_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK, "%s", "Some help info");
+    hcnse_log_stdout(HCNSE_OK,
+        "Usage: hcnse [options...] [argments...]\n"
+        "HCNSE version %s %s\n\n"
+        "Options:\n"
+        "  -h, --help                     Displays this message.\n"
+        "  -v, --version                  Displays version information.\n"
+        "  -t, --test                     Test configuration and exit.\n"
+        "  -c, --config-file <file>       Specify configuration file.",
+        HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
 }
 
 static void
@@ -141,6 +138,7 @@ main(int argc, const char *const *argv)
 
     if ((err = hcnse_parse_argv(argc, argv)) != HCNSE_OK) {
         hcnse_log_stderr(0, "Invalid input parameters");
+        hcnse_show_help_info();
         goto failed;
     }
 
@@ -230,7 +228,8 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
-    // hcnse_logger_set_global(server->logger);
+    hcnse_logger_set_global(server->logger);
+
 
 
     while (1);

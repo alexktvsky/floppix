@@ -1,5 +1,5 @@
-#ifndef HCNSE_ARRAY_H
-#define HCNSE_ARRAY_H
+#ifndef INCLUDED_HCNSE_ARRAY_H
+#define INCLUDED_HCNSE_ARRAY_H
 
 struct hcnse_array_s {
     void *data;
@@ -14,4 +14,4 @@ hcnse_err_t hcnse_array_push(hcnse_array_t *array, void *data);
 void hcnse_array_clean(hcnse_array_t *array);
 
 
-#endif /* HCNSE_ARRAY_H */
+#endif /* INCLUDED_HCNSE_ARRAY_H */

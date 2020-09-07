@@ -16,6 +16,7 @@
 #define HCNSE_FILE_CREATE_OR_OPEN           O_CREAT
 #define HCNSE_FILE_TRUNCATE                 (O_CREAT|O_TRUNC)
 #define HCNSE_FILE_APPEND                   (O_WRONLY|O_APPEND)
+#define HCNSE_FILE_CREATE_OR_APPEND         (O_CREAT|O_APPEND|O_WRONLY)
 #define HCNSE_FILE_NONBLOCK                 O_NONBLOCK
 
 /* access */
@@ -117,6 +118,7 @@ struct hcnse_glob_s {
 #define HCNSE_FILE_OPEN                     OPEN_EXISTING
 #define HCNSE_FILE_TRUNCATE                 CREATE_ALWAYS
 #define HCNSE_FILE_APPEND                   FILE_APPEND_DATA|SYNCHRONIZE
+#define HCNSE_FILE_CREATE_OR_APPEND         OPEN_ALWAYS /* fixme */
 #define HCNSE_FILE_NONBLOCK                 0
 
 /* access */

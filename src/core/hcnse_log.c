@@ -9,7 +9,7 @@
 #define HCNSE_LOG_INIT_DELAY           500
 #define HCNSE_LOG_WORKER_DELAY         1000
 
-typedef void (*hcnse_log_handler_t) (hcnse_logger_t *log, hcnse_uint_t level,
+typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, hcnse_uint_t level,
     char *buf, size_t len);
 
 /*
@@ -25,28 +25,20 @@ typedef void (*hcnse_log_handler_t) (hcnse_logger_t *log, hcnse_uint_t level,
 
 typedef struct {
     hcnse_uint_t level;
-    hcnse_file_t *file;
-    size_t max_size;
-    hcnse_uint_t rewrite;
-    hcnse_log_handler_t handler;
-} hcnse_log_output_t;
-
-typedef struct {
-    hcnse_uint_t level;
     char time[HCNSE_LOG_TIMESTR_SIZE];
     char str[HCNSE_LOG_STR_SIZE];
 } hcnse_log_message_t;
 
+struct hcnse_log_s {
+    hcnse_uint_t level;
+    hcnse_file_t *file;
+    size_t size; // 0 - unlimited
+    hcnse_log_handler_t handler;
+};
+
 struct hcnse_logger_s {
     hcnse_pool_t *pool;
-    hcnse_list_t *outputs;
-
-
-    hcnse_uint_t level; /* remove */
-    hcnse_file_t *file;  /* remove */
-    size_t file_max_size;  /* remove */
-    hcnse_uint_t file_rewrite;  /* remove */
-
+    hcnse_list_t *logs; /* hcnse_log_t */
     hcnse_log_message_t *messages;
 
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
@@ -54,6 +46,8 @@ struct hcnse_logger_s {
 #else
     hcnse_thread_t *tid;
 #endif
+
+    hcnse_flag_t running;
 
     hcnse_uint_t front;
     hcnse_uint_t rear;
@@ -69,86 +63,100 @@ hcnse_logger_t *hcnse_logger_global;
 const char *hcnse_log_prio[] = {
     "emerg",
     "error",
-    "warning",
+    "warn",
     "info",
-    "debug"
+    "debug",
+    NULL
 };
 
 
+static void
+hcnse_write_to_log(hcnse_log_t *log, hcnse_uint_t level,
+    char *buf, size_t len)
+{
+    if (level > (log->level)) {
+        return;
+    }
+
+    if (log->size) {
+        if ((log->file->offset + len) > (log->size)) {
+            log->file->offset = 0;
+        }
+    }
+
+    hcnse_write_fd(log->file->fd, buf, len);
+}
+
 static hcnse_thread_value_t
-hcnse_log_worker(void *arg)
+hcnse_logger_worker(void *arg)
 {
     char buf[HCNSE_LOG_TOTAL_STR_SIZE];
-    hcnse_logger_t *log;
-    hcnse_log_message_t *messages, *msg;
+    hcnse_logger_t *logger;  
+    hcnse_log_message_t *messages, *message;
     size_t len;
+    hcnse_list_node_t *iter;
+    hcnse_log_t *log;
 
-
-    log = (hcnse_logger_t *) arg;
-    messages = log->messages;
+    logger = (hcnse_logger_t *) arg;
+    messages = logger->messages;
 
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
 
     while (1) {
-        hcnse_semaphore_wait(log->sem_full);
-        hcnse_mutex_lock(log->mutex_fetch);
+        hcnse_semaphore_wait(logger->sem_full);
+        hcnse_mutex_lock(logger->mutex_fetch);
 
-        msg = &(messages[log->front]);
-        log->front = ((log->front) + 1) % HCNSE_MAX_LOG_SLOTS;
+        message = &(messages[logger->front]);
+        logger->front = ((logger->front) + 1) % HCNSE_MAX_LOG_SLOTS;
 
         len = hcnse_snprintf(buf, HCNSE_LOG_TOTAL_STR_SIZE,
             "%s [%s] %s" HCNSE_EOL_STR, 
-            msg->time, hcnse_log_prio[msg->level], msg->str);
+            message->time, hcnse_log_prio[message->level], message->str);
 
-        /* TODO: Improve logs rotation */
-        if (log->file_max_size) {
-            if ((log->file->offset + len) > (log->file_max_size)) {
-                log->file->offset = 0;
-            }
+        iter = hcnse_list_first(logger->logs);
+        for ( ; iter; iter = hcnse_list_next(iter)) {
+            log = hcnse_list_data(iter);
+            log->handler(log, message->level, buf, len);
         }
 
-        if (hcnse_write_fd(log->file->fd, buf, len) == -1) {
-            /* XXX: What we need to do in this statement? */
-        }
+// #if (HCNSE_DEBUG && HCNSE_NO_DAEMON)
+//         hcnse_write_fd(HCNSE_STDOUT, buf, len);
+// #endif
 
-#if (HCNSE_DEBUG && HCNSE_NO_DAEMON)
-        hcnse_write_fd(HCNSE_STDOUT, buf, len);
-#endif
-
-        hcnse_mutex_unlock(log->mutex_fetch);
-        hcnse_semaphore_post(log->sem_empty);
+        hcnse_mutex_unlock(logger->mutex_fetch);
+        hcnse_semaphore_post(logger->sem_empty);
     }
     return 0;
 }
 
-#if 0
-hcnse_err_t
-hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
-{
 
+hcnse_err_t
+hcnse_logger_create1(hcnse_logger_t **out_logger)
+{
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
     hcnse_semaphore_t *sem_empty;
     hcnse_semaphore_t *sem_full;
-    void *ptr;
+    void *mem;
 
     hcnse_pool_t *pool;
-    hcnse_logger_t *log = NULL;
-    hcnse_file_t *file = NULL;
-    size_t mem_size = 0;
-    ssize_t file_size;
+    hcnse_logger_t *logger;
+    size_t mem_size;
+
+    hcnse_list_t *logs;
+    hcnse_err_t err;
+
 
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
-    hcnse_log_message_t *messages = MAP_FAILED;
-    pid_t pid;
+    hcnse_log_message_t *messages;
+    messages = MAP_FAILED;
 #else
-    hcnse_log_message_t *messages = NULL;
-    hcnse_thread_t *tid = NULL;
+    hcnse_log_message_t *messages;
+    messages = NULL;
 #endif
 
-    hcnse_list_node_t *iter;
-    hcnse_list_t *outputs;
-    hcnse_err_t err;
+    logger = NULL;
+    mem_size = 0;
 
     pool = hcnse_pool_create(0, NULL);
     if (!pool) {
@@ -156,53 +164,16 @@ hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
         goto failed;
     }
 
-    log = hcnse_pcalloc(pool, sizeof(hcnse_logger_t));
-    if (!log) {
+    logger = hcnse_pcalloc(pool, sizeof(hcnse_logger_t));
+    if (!logger) {
         err = hcnse_get_errno();
         goto failed;
     }
 
-    outputs = hcnse_list_create(pool);
-    if (!outputs) {
+    logs = hcnse_list_create(pool);
+    if (!logs) {
         err = hcnse_get_errno();
         goto failed;
-    }
-
-    iter = hcnse_list_first(conf->log_outputs);
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        printf("%s\n", (char *) hcnse_list_data(iter));
-        iter = hcnse_list_next(iter);
-        printf("%s\n", (char *) hcnse_list_data(iter));
-        iter = hcnse_list_next(iter);
-        printf("%s\n", (char *) hcnse_list_data(iter));
-    }
-
-
-    file = hcnse_palloc(pool, sizeof(hcnse_file_t));
-    if (!file) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
-
-    err = hcnse_file_open(file, conf->log_fname, HCNSE_FILE_WRONLY,
-                                    HCNSE_FILE_CREATE_OR_OPEN,
-                                            HCNSE_FILE_OWNER_ACCESS);
-    if (err != HCNSE_OK) {
-        goto failed;
-    }
-
-    hcnse_pool_cleanup_add(pool, file, hcnse_file_close);
-
-    file_size = hcnse_file_size(file);
-    if (file_size == -1) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
-    if (((size_t) file_size) >= conf->log_size || conf->log_rewrite) {
-        file->offset = 0;
-    }
-    else {
-        file->offset = file_size;
     }
 
     mem_size += sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS;
@@ -224,19 +195,19 @@ hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
     }
 #endif
 
-    ptr = messages;
-    ptr += sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS;
+    mem = messages;
+    mem += sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS;
 
-    mutex_deposit = (hcnse_mutex_t *) ptr;
-    ptr += sizeof(hcnse_mutex_t);
+    mutex_deposit = (hcnse_mutex_t *) mem;
+    mem += sizeof(hcnse_mutex_t);
 
-    mutex_fetch = (hcnse_mutex_t *) ptr;
-    ptr += sizeof(hcnse_mutex_t);
+    mutex_fetch = (hcnse_mutex_t *) mem;
+    mem += sizeof(hcnse_mutex_t);
 
-    sem_empty = (hcnse_semaphore_t *) ptr;
-    ptr += sizeof(hcnse_semaphore_t);
+    sem_empty = (hcnse_semaphore_t *) mem;
+    mem += sizeof(hcnse_semaphore_t);
 
-    sem_full = (hcnse_semaphore_t *) ptr;
+    sem_full = (hcnse_semaphore_t *) mem;
 
     err = hcnse_semaphore_init(sem_empty, HCNSE_MAX_LOG_SLOTS,
                             HCNSE_MAX_LOG_SLOTS, HCNSE_SEMAPHORE_SHARED);
@@ -264,57 +235,19 @@ hcnse_log_create1(hcnse_logger_t **in_log, hcnse_conf_t *conf)
     }
     hcnse_pool_cleanup_add(pool, mutex_fetch, hcnse_mutex_fini);
 
+    logger->pool = pool;
+    logger->logs = logs;
+    logger->messages = messages;
+    logger->running = 0;
+    logger->mutex_deposit = mutex_deposit;
+    logger->mutex_fetch = mutex_fetch;
+    logger->sem_empty = sem_empty;
+    logger->sem_full = sem_full;
 
-    /* XXX: Init all log struct fields before run worker */
-    log->pool = pool;
-    log->file = file;
-    log->level = conf->log_level;
-    log->file_max_size = conf->log_size;
-    log->file_rewrite = conf->log_rewrite;
-    log->messages = messages;
-    log->mutex_deposit = mutex_deposit;
-    log->mutex_fetch = mutex_fetch;
-    log->sem_empty = sem_empty;
-    log->sem_full = sem_full;
-
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
-    pid = fork();
-    if (pid == -1) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
-    if (!pid) {
-        hcnse_log_worker(log);
-    }
-    else {
-        log->pid = pid;
-    }
-#else
-    tid = hcnse_palloc(pool, sizeof(hcnse_thread_t));
-    if (!tid) {
-        err = hcnse_get_errno();
-        goto failed;
-    }
-
-    err = hcnse_thread_init(tid,
-        HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_DETACHED,
-        0, HCNSE_THREAD_PRIORITY_NORMAL, hcnse_log_worker, (void *) log);
-    if (err != HCNSE_OK) {
-        goto failed;
-    }
-    hcnse_pool_cleanup_add(pool, tid, hcnse_thread_fini);
-
-    log->tid = tid;
-#endif
-
-    hcnse_msleep(HCNSE_LOG_INIT_DELAY);
-
-    *in_log = log;
+    *out_logger = logger;
 
     return HCNSE_OK;
-#endif
 
-#if 0
 failed:
     if (pool) {
         hcnse_pool_destroy(pool);
@@ -326,72 +259,225 @@ failed:
     }
 #endif
     return err;
-
 }
 
 hcnse_logger_t *
-hcnse_log_create(hcnse_conf_t *conf)
+hcnse_logger_create(void)
 {
-    hcnse_logger_t *log;
+    hcnse_logger_t *logger;
 
-    if (hcnse_log_create1(&log, conf) != HCNSE_OK) {
+    if (hcnse_logger_create1(&logger) != HCNSE_OK) {
         return NULL;
     }
-    return log;
+    return logger;
 }
+
+
+hcnse_err_t
+hcnse_logger_add_log_fd(hcnse_logger_t *logger, hcnse_uint_t level,
+    hcnse_fd_t fd)
+{
+    hcnse_log_t *log;
+    hcnse_file_t *file;
+    hcnse_err_t err;
+
+    if (logger->running) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
+            "Failed to add logs to a running logger process");
+        err = HCNSE_FAILED;
+        goto failed;
+    }
+
+    log = hcnse_pcalloc(logger->pool, sizeof(hcnse_log_t));
+    if (!log) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    file = hcnse_palloc(logger->pool, sizeof(hcnse_file_t));
+    if (!file) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    file->fd = fd;
+
+    log->level = level;
+    log->file = file;
+    log->size = 0;
+    log->handler = hcnse_write_to_log;
+
+    hcnse_list_push_back(logger->logs, log);
+
+    return HCNSE_OK;
+
+failed:
+
+    return err;
+}
+
+
+hcnse_err_t
+hcnse_logger_add_log_file(hcnse_logger_t *logger, hcnse_uint_t level,
+    const char *fname, size_t size)
+{
+    hcnse_log_t *log;
+    hcnse_file_t *file;
+    ssize_t file_size;
+    hcnse_err_t err;
+
+    if (logger->running) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
+            "Failed to add logs to a running logger process");
+        err = HCNSE_FAILED;
+        goto failed;
+    }
+
+    log = hcnse_pcalloc(logger->pool, sizeof(hcnse_log_t));
+    if (!log) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    file = hcnse_palloc(logger->pool, sizeof(hcnse_file_t));
+    if (!file) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    err = hcnse_file_open(file, fname, HCNSE_FILE_WRONLY,
+        HCNSE_FILE_CREATE_OR_APPEND, HCNSE_FILE_OWNER_ACCESS);
+    if (err != HCNSE_OK) {
+        goto failed;
+    }
+
+    hcnse_pool_cleanup_add(logger->pool, file, hcnse_file_close);
+
+    file_size = hcnse_file_size(file);
+    if (file_size == -1) {
+        err = hcnse_get_errno();
+        goto failed;
+    }
+
+    if (size) { /* Not unlimited */
+        if (((size_t) file_size) >= size) {
+            file->offset = 0;
+        }
+        else {
+            file->offset = file_size;
+        }
+    }
+
+    log->level = level;
+    log->file = file;
+    log->size = size;
+    log->handler = hcnse_write_to_log;
+
+    hcnse_list_push_back(logger->logs, log);
+
+    return HCNSE_OK;
+
+failed:
+
+    return err;
+}
+
+hcnse_err_t
+hcnse_logger_start(hcnse_logger_t *logger)
+{
+    hcnse_err_t err;
+
+    logger->running = 1;
+
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+    logger->pid = fork();
+    if (logger->pid == -1) {
+        return hcnse_get_errno();
+    }
+    if (!pid) {
+        hcnse_logger_worker(logger);
+    }
+
+#else
+    logger->tid = hcnse_palloc(logger->pool, sizeof(hcnse_thread_t));
+    if (!logger->tid) {
+        return hcnse_get_errno();
+    }
+
+    err = hcnse_thread_init(logger->tid,
+        HCNSE_THREAD_SCOPE_SYSTEM|HCNSE_THREAD_CREATE_DETACHED, 0,
+            HCNSE_THREAD_PRIORITY_NORMAL, hcnse_logger_worker, (void *) logger);
+
+    if (err != HCNSE_OK) {
+        return err;
+    }
+    hcnse_pool_cleanup_add(logger->pool, logger->tid, hcnse_thread_fini);
 
 #endif
 
+    hcnse_msleep(HCNSE_LOG_INIT_DELAY);
+
+
+    return HCNSE_OK;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void
-hcnse_log_error(hcnse_uint_t level, hcnse_logger_t *log, hcnse_err_t err,
+hcnse_log_error(hcnse_uint_t level, hcnse_logger_t *logger, hcnse_err_t err,
     const char *fmt, ...)
 {
     char errstr[HCNSE_ERRNO_STR_SIZE];
     char *buf;
-    hcnse_log_message_t *messages, *msg;
+    hcnse_log_message_t *messages, *message;
     hcnse_tm_t tm;
     size_t len;
     va_list args;
-
-
-    if (level > (log->level)) {
-        return;
-    }
 
     /* Set time before slot waiting */
     hcnse_localtime(time(NULL), &tm);
 
     /* Wait to available log slot */
-    hcnse_semaphore_wait(log->sem_empty);
-    hcnse_mutex_lock(log->mutex_deposit);
+    hcnse_semaphore_wait(logger->sem_empty);
+    hcnse_mutex_lock(logger->mutex_deposit);
 
-    messages = log->messages;
-    msg = &(messages[log->rear]);
-    log->rear = ((log->rear) + 1) % HCNSE_MAX_LOG_SLOTS;
+    messages = logger->messages;
+    message = &(messages[logger->rear]);
+    logger->rear = ((logger->rear) + 1) % HCNSE_MAX_LOG_SLOTS;
 
     va_start(args, fmt);
-    len = hcnse_vsnprintf(msg->str, HCNSE_LOG_STR_SIZE, fmt, args);
+    len = hcnse_vsnprintf(message->str, HCNSE_LOG_STR_SIZE, fmt, args);
     va_end(args);
 
     /* If error code is OK, don't log description of error */
     if (err != HCNSE_OK) {
         if (len < HCNSE_LOG_STR_SIZE ) {
-            buf = (msg->str) + len;
+            buf = (message->str) + len;
             hcnse_snprintf(buf, HCNSE_LOG_STR_SIZE - len, " (%d: %s)",
                 err, hcnse_strerror(err, errstr, HCNSE_ERRNO_STR_SIZE));
         }
     }
 
-    hcnse_snprintf(msg->time, HCNSE_LOG_TIMESTR_SIZE,
+    hcnse_snprintf(message->time, HCNSE_LOG_TIMESTR_SIZE,
         "[%02d.%02d.%02d] [%02d:%02d:%02d]",
         tm.hcnse_tm_mday, tm.hcnse_tm_mon, tm.hcnse_tm_year,
         tm.hcnse_tm_hour, tm.hcnse_tm_min, tm.hcnse_tm_sec);
 
-    msg->level = level;
+    message->level = level;
 
     /* Post to available log slot */
-    hcnse_mutex_unlock(log->mutex_deposit);
-    hcnse_semaphore_post(log->sem_full);
+    hcnse_mutex_unlock(logger->mutex_deposit);
+    hcnse_semaphore_post(logger->sem_full);
 }
 
 void
@@ -430,7 +516,7 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 }
 
 void
-hcnse_log_destroy(hcnse_logger_t *log)
+hcnse_logger_destroy(hcnse_logger_t *log)
 {
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
     hcnse_log_message_t *temp;

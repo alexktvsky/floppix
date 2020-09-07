@@ -100,6 +100,46 @@ static hcnse_err_t
 hcnse_handler_log(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
+    hcnse_uint_t level;
+    ssize_t size;
+
+    (void) data;
+
+    level = hcnse_config_parse_log_level(argv[1]);
+    if (level == HCNSE_LOG_INVALID_LEVEL) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+            "%s:%zu: \"%s\" is unknown log level",
+            params->directive->filename, params->directive->line, argv[1]);
+        return HCNSE_ERR_CONFIG_SYNTAX;        
+    }
+
+
+    if (argc == 2 && hcnse_strcmp(argv[0], "stdout") == 0) {
+        hcnse_logger_add_log_fd(params->server->logger, level, HCNSE_STDOUT);
+        return HCNSE_OK;
+    }
+    else if (argc == 2 && hcnse_strcmp(argv[0], "stderr") == 0) {
+        hcnse_logger_add_log_fd(params->server->logger, level, HCNSE_STDERR);
+    }
+    else if (argc == 2 && hcnse_strcmp(argv[0], "syslog") == 0) {
+        hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
+            "Syslog is not available now");
+    }
+    else if (argc == 2) {
+        hcnse_logger_add_log_file(params->server->logger, level, argv[0], 0);
+    }
+
+    if (argc == 3) {
+        size = hcnse_config_parse_size(argv[2]);
+        if (size == -1) {
+            hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
+                "%s:%zu: Invalid argument \"%s\" in log directive",
+                params->directive->filename, params->directive->line, argv[2]);
+            return HCNSE_ERR_CONFIG_SYNTAX;
+        }
+
+        hcnse_logger_add_log_file(params->server->logger, level, argv[0], size);
+    }
 
     return HCNSE_OK;
 }
@@ -115,8 +155,7 @@ hcnse_core_preinit(hcnse_server_t *server)
     hcnse_list_t *listeners;
     hcnse_list_t *connections;
     hcnse_list_t *free_connections;
-
-    // hcnse_logger_t *logger;
+    hcnse_logger_t *logger;
 
     listeners = hcnse_list_create(server->pool);
     if (!listeners) {
@@ -139,7 +178,13 @@ hcnse_core_preinit(hcnse_server_t *server)
         return NULL;
     }
 
-    // hcnse_logger_create();
+    logger = hcnse_logger_create();
+    if (!logger) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
+            "Failed to create logger process");
+        return NULL;
+    }
+
 
 
 
@@ -149,7 +194,7 @@ hcnse_core_preinit(hcnse_server_t *server)
     // server->user = HCNSE_DEFAULT_USER;
     // server->group = HCNSE_DEFAULT_GROUP;
     
-    // server->logger = logger;
+    server->logger = logger;
 
     server->listeners = listeners;
     server->connections = connections;
@@ -200,6 +245,11 @@ hcnse_core_init(hcnse_server_t *server, void *data)
     if ((err = hcnse_process_set_workdir(server->workdir)) != HCNSE_OK) {
         goto failed;
     }
+
+    if ((err = hcnse_logger_start(server->logger)) != HCNSE_OK) {
+        goto failed;
+    }
+
 
     // if ((err = hcnse_process_set_user(server->user)) != HCNSE_OK) {
     //     goto failed;
