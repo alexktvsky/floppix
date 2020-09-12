@@ -164,8 +164,8 @@ hcnse_core_preinit(hcnse_server_t *server)
     server->daemon = 1;
     server->workdir = HCNSE_DEFAULT_WORKDIR;
     server->priority = HCNSE_DEFAULT_PRIORITY;
-    // server->user = HCNSE_DEFAULT_USER;
-    // server->group = HCNSE_DEFAULT_GROUP;
+    server->user = HCNSE_DEFAULT_USER;
+    server->group = HCNSE_DEFAULT_GROUP;
     
     server->logger = logger;
 
@@ -185,9 +185,7 @@ hcnse_core_init(hcnse_server_t *server, void *data)
     hcnse_err_t err;
 
     /* For core module contex is a server run time context */
-    if (server != data) { // TODO: change to hcnse_assert()
-        return HCNSE_FAILED;
-    }
+    hcnse_assert(server == data);
 
     if (hcnse_list_size(server->listeners) == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
@@ -213,24 +211,29 @@ hcnse_core_init(hcnse_server_t *server, void *data)
         hcnse_pool_cleanup_add(server->pool, listener, hcnse_listener_close);
     }
 
-
-
     if ((err = hcnse_process_set_workdir(server->workdir)) != HCNSE_OK) {
         goto failed;
     }
+
+    if (server->user != HCNSE_DEFAULT_USER) {
+        if ((err = hcnse_process_set_user(server->user)) != HCNSE_OK) {
+            goto failed;
+        }
+    }
+
+    if (server->group != HCNSE_DEFAULT_GROUP) {
+        if ((err = hcnse_process_set_group(server->group)) != HCNSE_OK) {
+            goto failed;
+        }
+    }
+
+
+
 
     if ((err = hcnse_logger_start(server->logger)) != HCNSE_OK) {
         goto failed;
     }
 
-
-    // if ((err = hcnse_process_set_user(server->user)) != HCNSE_OK) {
-    //     goto failed;
-    // }
-
-    // if ((err = hcnse_process_set_group(server->user)) != HCNSE_OK) {
-    //     goto failed;
-    // }
 
     /*
      * Now log file is available and server can write error mesages in it, so

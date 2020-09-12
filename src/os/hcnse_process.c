@@ -58,11 +58,63 @@ hcnse_process_set_workdir(const char *workdir)
 hcnse_err_t
 hcnse_process_set_user(const char *user)
 {
+    struct passwd *pwd;
+    hcnse_int_t uid;
+    hcnse_err_t err;
 
+    /* Not root, OK */
+    if (geteuid() != 0) {
+        return HCNSE_OK;
+    }
+
+    pwd = getpwnam(user);
+    if (!pwd) {
+        err = HCNSE_FAILED;
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "getpwnam(\"%s\") failed", user);
+        return err;
+    }
+
+    uid = pwd->pw_uid;
+
+    if (setuid(uid) == -1) {
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setuid(%d) failed", uid);
+        return err;
+    }
 
     return HCNSE_OK;
 }
 
+hcnse_err_t
+hcnse_process_set_group(const char *group)
+{
+    struct group *grp;
+    hcnse_int_t gid;
+    hcnse_err_t err;
+
+    /* Not root, OK */
+    if (getegid() != 0) {
+        return HCNSE_OK;
+    }
+
+    grp = getgrnam(group);
+    if (!grp) {
+        err = HCNSE_FAILED;
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "getgrnam(\"%s\") failed", group);
+        return err;
+    }
+
+    gid = grp->gr_gid;
+
+    if (setgid(gid) == -1) {
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "setgid(%d) failed", gid);
+        return err;
+    }
+
+    return HCNSE_OK;
+}
 
 #elif (HCNSE_WIN32)
 
@@ -94,5 +146,23 @@ hcnse_process_set_workdir(const char *workdir)
     }
     return HCNSE_OK;
 }
+
+hcnse_err_t
+hcnse_process_set_user(const char *user)
+{
+    hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
+        "\"user\" is not supported on this platform");
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_process_set_group(const char *group)
+{
+    hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
+        "\"group\" is not supported on this platform");
+    return HCNSE_OK;
+}
+
+
 
 #endif

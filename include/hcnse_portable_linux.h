@@ -21,6 +21,8 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/syscall.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
