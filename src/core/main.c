@@ -130,6 +130,7 @@ main(int argc, const char *const *argv)
 {
     hcnse_server_t *server;
     hcnse_pool_t *pool;
+    hcnse_pool_t *ptemp; /* Pool for temporary config stuff */
     hcnse_config_t *config;
 
     hcnse_list_t *modules;
@@ -158,37 +159,17 @@ main(int argc, const char *const *argv)
     }
 #endif
 
-    pool = hcnse_pool_create(0, NULL);
-    if (!pool) {
-        err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create server pool");
-        goto failed;
-    }
+    hcnse_assert(pool = hcnse_pool_create(0, NULL));
+    hcnse_assert(ptemp = hcnse_pool_create(0, NULL));
 
-    server = hcnse_pcalloc(pool, sizeof(hcnse_server_t));
-    if (!server) {
-        err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to allocate server run time context");
-        goto failed;
-    }
+    hcnse_assert(server = hcnse_pcalloc(pool, sizeof(hcnse_server_t)));
 
     hcnse_save_argv(server, argc, argv);
 
-    modules = hcnse_list_create(pool);
-    if (!modules) {
-        err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to allocate list of modules");
-        goto failed;
-    }
+    hcnse_assert(modules = hcnse_list_create(pool));
+    hcnse_assert(config = hcnse_palloc(ptemp, sizeof(hcnse_config_t)));
 
-    config = hcnse_palloc(pool, sizeof(hcnse_config_t));
-    if (!config) {
-        err = hcnse_get_errno();
-        hcnse_log_stderr(err, "Failed to create server config");
-        goto failed;
-    }
-
-    if ((err = hcnse_config_read(config, pool, config_fname)) != HCNSE_OK) {
+    if ((err = hcnse_config_read(config, ptemp, config_fname)) != HCNSE_OK) {
         hcnse_log_stderr(err, "Failed to read config file");
         goto failed;
     }
@@ -228,7 +209,17 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
+    hcnse_pool_destroy(ptemp);
+
     hcnse_logger_set_global(server->logger);
+
+
+
+
+
+
+
+
 
 
 

@@ -41,30 +41,31 @@
 
 #define HCNSE_FILE_LINE  (__FILE__ ":" hcnse_stringify(__LINE__))
 
+#define hcnse_assert(exp) \
+    if (hcnse_logger_get_global()) { \
+        if (!(exp)) { \
+            hcnse_log_error(HCNSE_LOG_ERROR, hcnse_logger_get_global(), \
+                HCNSE_OK, "%s: Assertion \"%s\" failed", HCNSE_FILE_LINE, \
+                hcnse_stringify(exp)); \
+            abort(); \
+        } \
+    } \
+    else { \
+        if (!(exp)) { \
+            hcnse_log_stderr(HCNSE_OK, "%s: Assertion \"%s\" failed", \
+                HCNSE_FILE_LINE, hcnse_stringify(exp)); \
+            abort(); \
+        } \
+    }
+
 
 extern hcnse_logger_t *hcnse_logger_global;
 extern const char *hcnse_log_prio[];
-
-/*
-
-
-#define hcnse_assert(exp) ((exp) ? (void) 0 : hcnse_log_assert(#exp, __FILE__, __LINE__))
-void hcnse_log_assert(hcnse_logger_t *logger, const char *expr, const char *file, int line);
-
-
-
-hcnse_err_t hcnse_logger_add_log(hcnse_logger_t *logger, hcnse_log_t *log);
-hcnse_err_t hcnse_logger_remove_log(hcnse_logger_t *logger, hcnse_log_t *log);
-hcnse_err_t hcnse_logger_suspend(hcnse_logger_t *logger);
-hcnse_err_t hcnse_logger_resume(hcnse_logger_t *logger);
-
- */
 
 
 void hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...);
 void hcnse_log_error(hcnse_uint_t level, hcnse_logger_t *logger,
     hcnse_err_t err, const char *fmt, ...);
-
 
 hcnse_logger_t *hcnse_logger_create(void);
 hcnse_err_t hcnse_logger_create1(hcnse_logger_t **logger);

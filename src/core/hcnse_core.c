@@ -113,7 +113,6 @@ hcnse_handler_log(hcnse_cmd_params_t *params, void *data, int argc,
         return HCNSE_ERR_CONFIG_SYNTAX;        
     }
 
-
     if (argc == 2 && hcnse_strcmp(argv[0], "stdout") == 0) {
         hcnse_logger_add_log_fd(params->server->logger, level, HCNSE_STDOUT);
         return HCNSE_OK;
@@ -157,36 +156,10 @@ hcnse_core_preinit(hcnse_server_t *server)
     hcnse_list_t *free_connections;
     hcnse_logger_t *logger;
 
-    listeners = hcnse_list_create(server->pool);
-    if (!listeners) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "Failed to allocate list of listeners");
-        return NULL;
-    }
-
-    connections = hcnse_list_create(server->pool);
-    if (!connections) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "Failed to allocate list of connections");
-        return NULL;
-    }
-
-    free_connections = hcnse_list_create(server->pool);
-    if (!free_connections) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "Failed to allocate list of free connections");
-        return NULL;
-    }
-
-    logger = hcnse_logger_create();
-    if (!logger) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, hcnse_get_errno(),
-            "Failed to create logger process");
-        return NULL;
-    }
-
-
-
+    hcnse_assert(listeners = hcnse_list_create(server->pool));
+    hcnse_assert(connections = hcnse_list_create(server->pool));
+    hcnse_assert(free_connections = hcnse_list_create(server->pool));
+    hcnse_assert(logger = hcnse_logger_create());
 
     server->daemon = 1;
     server->workdir = HCNSE_DEFAULT_WORKDIR;

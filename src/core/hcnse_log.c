@@ -119,10 +119,6 @@ hcnse_logger_worker(void *arg)
             log->handler(log, message->level, buf, len);
         }
 
-// #if (HCNSE_DEBUG && HCNSE_NO_DAEMON)
-//         hcnse_write_fd(HCNSE_STDOUT, buf, len);
-// #endif
-
         hcnse_mutex_unlock(logger->mutex_fetch);
         hcnse_semaphore_post(logger->sem_empty);
     }
@@ -420,18 +416,6 @@ hcnse_logger_start(hcnse_logger_t *logger)
 
     return HCNSE_OK;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 void
 hcnse_log_error(hcnse_uint_t level, hcnse_logger_t *logger, hcnse_err_t err,
