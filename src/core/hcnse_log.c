@@ -122,7 +122,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     hcnse_mutex_t *mutex_fetch;
     hcnse_semaphore_t *sem_empty;
     hcnse_semaphore_t *sem_full;
-    void *mem;
+    uint8_t *mem;
 
     hcnse_pool_t *pool;
     hcnse_logger_t *logger;
@@ -180,7 +180,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     }
 #endif
 
-    mem = messages;
+    mem = (uint8_t *) messages;
     mem += sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS;
 
     mutex_deposit = (hcnse_mutex_t *) mem;

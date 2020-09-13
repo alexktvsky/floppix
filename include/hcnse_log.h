@@ -35,8 +35,9 @@
         hcnse_log_stderr(err, __VA_ARGS__))
 #else
 #define hcnse_log_debug1(err, ...) \
-    (hcnse_logger_get_global() ? \
-        hcnse_log_debug(hcnse_logger_get_global(), err, __VA_ARGS__) : 0)
+    if (hcnse_logger_get_global()) { \
+        hcnse_log_debug(hcnse_logger_get_global(), err, __VA_ARGS__) \
+    }
 #endif
 
 #define HCNSE_FILE_LINE  (__FILE__ ":" hcnse_stringify(__LINE__))

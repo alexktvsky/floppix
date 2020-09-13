@@ -150,6 +150,8 @@ hcnse_process_set_workdir(const char *workdir)
 hcnse_err_t
 hcnse_process_set_user(const char *user)
 {
+    (void) user;
+
     hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
         "\"user\" is not supported on this platform");
     return HCNSE_OK;
@@ -158,6 +160,8 @@ hcnse_process_set_user(const char *user)
 hcnse_err_t
 hcnse_process_set_group(const char *group)
 {
+    (void) group;
+
     hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
         "\"group\" is not supported on this platform");
     return HCNSE_OK;

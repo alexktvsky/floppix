@@ -26,6 +26,13 @@ SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
 
+ifeq ($(target), linux)
+	VPATH += src/os/unix
+endif
+
+ifeq ($(target), win32)
+	VPATH += src/os/win32
+endif
 
 # SRC_FILES += hcnse_signal.c
 # SRC_FILES += hcnse_mmap.c
@@ -41,7 +48,6 @@ SRC_FILES += hcnse_module.c
 # SRC_FILES += hcnse_event_timer.c
 
 
-
 VPATH += src/core
 VPATH += src/event
 VPATH += src/os
@@ -53,9 +59,9 @@ INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra
-# override CFLAGS += -Wuninitialized
-override CFLAGS += -Wno-uninitialized
-override CFLAGS += -ansi
+override CFLAGS += -Wuninitialized
+# override CFLAGS += -Wno-uninitialized
+override CFLAGS += -std=c99
 override CFLAGS += -pedantic
 override CFLAGS += -pipe
 

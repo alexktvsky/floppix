@@ -35,7 +35,7 @@ hcnse_array_push(hcnse_array_t *array, void *data)
         return HCNSE_FAILED;
     }
 
-    mem = array->data + (array->n_current * array->size);
+    mem = ((uint8_t *) array->data) + (array->n_current * array->size);
 
     hcnse_memmove(mem, data, array->size);
 

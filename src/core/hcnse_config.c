@@ -714,7 +714,7 @@ hcnse_handler_flag(hcnse_cmd_params_t *params, void *data, int argc,
     hcnse_flag_t *ptr;
     (void) argc;
 
-    ptr = (hcnse_flag_t *) (data + params->cmd->offset);
+    ptr = (hcnse_flag_t *) (((uint8_t *) data) + params->cmd->offset);
 
     if (hcnse_strcasecmp(argv[0], "on") == 0) {
         *ptr = 1;
@@ -739,7 +739,7 @@ hcnse_handler_str(hcnse_cmd_params_t *params, void *data, int argc,
     char **ptr;
     (void) argc;
 
-    ptr = (char **) (data + params->cmd->offset);
+    ptr = (char **) (((uint8_t *) data) + params->cmd->offset);
 
     *ptr = argv[0];
 
@@ -753,7 +753,7 @@ hcnse_handler_size(hcnse_cmd_params_t *params, void *data, int argc,
     ssize_t *ptr, n;
     (void) argc;
 
-    ptr = (ssize_t *) (data + params->cmd->offset);
+    ptr = (ssize_t *) (((uint8_t *) data) + params->cmd->offset);
 
     n = hcnse_config_parse_size(argv[0]);
     if (n == -1) {
@@ -775,7 +775,7 @@ hcnse_handler_uint(hcnse_cmd_params_t *params, void *data, int argc,
     hcnse_int_t *ptr, n;
     (void) argc;
 
-    ptr = (hcnse_int_t *) (data + params->cmd->offset);
+    ptr = (hcnse_int_t *) (((uint8_t *) data) + params->cmd->offset);
 
     n = hcnse_config_parse_size(argv[0]);
     if (n == -1) {
