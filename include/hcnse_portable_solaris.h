@@ -1,6 +1,7 @@
 #ifndef INCLUDED_HCNSE_PORTABLE_SOLARIS_H
 #define INCLUDED_HCNSE_PORTABLE_SOLARIS_H
 
+#define _SVID_SOURCE
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>

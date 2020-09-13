@@ -608,7 +608,7 @@ hcnse_file_read(hcnse_file_t *file, uint8_t *buf, size_t size,
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
-    // ovlp.OffsetHigh = (DWORD) (offset >> 32);
+    /* ovlp.OffsetHigh = (DWORD) (offset >> 32); */
     ovlp.hEvent = NULL;
 
     if (ReadFile(file->fd, buf, size, &n, &ovlp) == 0) {
@@ -631,7 +631,7 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
     ovlp.Internal = 0;
     ovlp.InternalHigh = 0;
     ovlp.Offset = (DWORD) offset;
-    // ovlp.OffsetHigh = (DWORD) (offset >> 32);
+    /* ovlp.OffsetHigh = (DWORD) (offset >> 32); */
     ovlp.hEvent = NULL;
 
     if (WriteFile(file->fd, buf, size, &n, &ovlp) == 0) {

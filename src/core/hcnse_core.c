@@ -1,7 +1,7 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-
+#if 0
 static hcnse_err_t
 foo(hcnse_cmd_params_t *params, void *data, int argc, char **argv)
 {
@@ -14,6 +14,7 @@ foo(hcnse_cmd_params_t *params, void *data, int argc, char **argv)
     printf("\n");
     return HCNSE_OK;
 }
+#endif
 
 static hcnse_err_t
 hcnse_handler_include(hcnse_cmd_params_t *params, void *data, int argc,
@@ -114,10 +115,18 @@ hcnse_handler_log(hcnse_cmd_params_t *params, void *data, int argc,
     }
 
     if (argc == 2 && hcnse_strcmp(argv[0], "stdout") == 0) {
+        if (params->server->daemon) {
+            hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
+                "stdout is not available in daemon mode");
+        }
         hcnse_logger_add_log_fd(params->server->logger, level, HCNSE_STDOUT);
         return HCNSE_OK;
     }
     else if (argc == 2 && hcnse_strcmp(argv[0], "stderr") == 0) {
+        if (params->server->daemon) {
+            hcnse_log_error1(HCNSE_LOG_WARN, HCNSE_OK,
+                "stderr is not available in daemon mode");
+        }
         hcnse_logger_add_log_fd(params->server->logger, level, HCNSE_STDERR);
     }
     else if (argc == 2 && hcnse_strcmp(argv[0], "syslog") == 0) {

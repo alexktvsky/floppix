@@ -56,7 +56,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     const char *begin, *end;
     size_t len;
 
-    const char *name;
+    const char *str;
     int argc;
     char *argv[HCNSE_MAX_TAKES];
     char *alloc_str;
@@ -145,7 +145,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
 
             if (!in_directive) {
                 in_directive = 1;
-                name = alloc_str;
+                str = alloc_str;
                 goto next;
             }
 
@@ -155,7 +155,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
                 if (argc >= HCNSE_MAX_TAKES) {
                     hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,
                         "%s:%zu: Too many arguments in directive \"%s\"",
-                        filename, line, name);
+                        filename, line, str);
                     return HCNSE_ERR_CONFIG_SYNTAX;
                 }
             }
@@ -168,7 +168,7 @@ next:
         if (end_line) {
 
             if (in_directive) {
-                hcnse_config_save_directive(config, pool, name, argc, argv,
+                hcnse_config_save_directive(config, pool, str, argc, argv,
                     filename, line);
             }
 
@@ -558,81 +558,83 @@ failed:
     return err;
 }
 
-// hcnse_err_t
-// hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,
-//     const char *path, const char *fname)
-// {
-//     char fullpath[HCNSE_MAX_PATH_LEN];
-//     hcnse_dir_t dir;
-//     const char *pos, *dir_name;
-//     hcnse_err_t err;
+#if 0
+hcnse_err_t
+hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,
+    const char *path, const char *fname)
+{
+    char fullpath[HCNSE_MAX_PATH_LEN];
+    hcnse_dir_t dir;
+    const char *pos, *dir_name;
+    hcnse_err_t err;
 
 
-//     pos = hcnse_strchr(fname, HCNSE_PATH_SEPARATOR);
-//     if (pos) {
-//         fname = hcnse_pstrndup(pool, fname, pos - fname);
-//         pos += 1;
-//     }
+    pos = hcnse_strchr(fname, HCNSE_PATH_SEPARATOR);
+    if (pos) {
+        fname = hcnse_pstrndup(pool, fname, pos - fname);
+        pos += 1;
+    }
 
-//     if (!hcnse_is_part_has_wildcard(fname)) {
+    if (!hcnse_is_part_has_wildcard(fname)) {
 
-//         hcnse_file_full_path(fullpath, path, fname);
+        hcnse_file_full_path(fullpath, path, fname);
 
-//         if (!pos) {
-//             return hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
-//         }
-//         else {
-//             return hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
-//         }
-//     }
+        if (!pos) {
+            return hcnse_config_walkdir_nonwildcard(config, pool, fullpath);
+        }
+        else {
+            return hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+        }
+    }
 
-//     if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
-//         return err;
-//     }
+    if ((err = hcnse_dir_open(&dir, path)) != HCNSE_OK) {
+        return err;
+    }
 
-//     while (hcnse_dir_read(&dir) == HCNSE_OK) {
+    while (hcnse_dir_read(&dir) == HCNSE_OK) {
 
-//         dir_name = hcnse_dir_current_name(&dir);
+        dir_name = hcnse_dir_current_name(&dir);
 
-//         if ((hcnse_strcmp(dir_name, ".") == 0) ||
-//             (hcnse_strcmp(dir_name, "..") == 0) ||
-//             !hcnse_is_glob_match(dir_name, fname))
-//         {
-//             continue;
-//         }
+        if ((hcnse_strcmp(dir_name, ".") == 0) ||
+            (hcnse_strcmp(dir_name, "..") == 0) ||
+            !hcnse_is_glob_match(dir_name, fname))
+        {
+            continue;
+        }
 
-//         hcnse_file_full_path(fullpath, path, dir_name);
+        hcnse_file_full_path(fullpath, path, dir_name);
 
-//         if (hcnse_dir_current_is_file(&dir)) {
+        if (hcnse_dir_current_is_file(&dir)) {
 
-//             if (!pos) {
-//                 err = hcnse_config_read_included_file(config, pool, fullpath);
-//                 if (err != HCNSE_OK) {
-//                     goto failed;
-//                 }
-//             }
-//             continue;
-//         }
-//         else {
-//             if (pos) {
-//                 err = hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
-//                 if (err != HCNSE_OK) {
-//                     goto failed;
-//                 }
-//             }
-//         }
-//     }
+            if (!pos) {
+                err = hcnse_config_read_included_file(config, pool, fullpath);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+            continue;
+        }
+        else {
+            if (pos) {
+                err = hcnse_config_walkdir_wildcard(config, pool, fullpath, pos);
+                if (err != HCNSE_OK) {
+                    goto failed;
+                }
+            }
+        }
+    }
 
-//     hcnse_dir_close(&dir);
+    hcnse_dir_close(&dir);
 
-//     return HCNSE_OK;
+    return HCNSE_OK;
 
-// failed:
+failed:
 
-//     hcnse_dir_close(&dir);
+    hcnse_dir_close(&dir);
 
-//     return err;
-// }
+    return err;
+}
+#endif
 
 hcnse_err_t
 hcnse_config_walkdir_wildcard(hcnse_config_t *config, hcnse_pool_t *pool,

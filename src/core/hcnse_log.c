@@ -12,17 +12,6 @@
 typedef void (*hcnse_log_handler_t) (hcnse_log_t *log, hcnse_uint_t level,
     char *buf, size_t len);
 
-/*
- * TODO:
- * A logger instance can be a chain of loggers, linked to each other
- * with the next field. In this case, each message is written to all loggers
- * in the chain
- * 
- * fix conf to:
- * # log <file> <level> <size/nolimit>
- * 
- */
-
 typedef struct {
     hcnse_uint_t level;
     char time[HCNSE_LOG_TIMESTR_SIZE];
@@ -32,7 +21,7 @@ typedef struct {
 struct hcnse_log_s {
     hcnse_uint_t level;
     hcnse_file_t *file;
-    size_t size; // 0 - unlimited
+    size_t size; /* 0 - unlimited */
     hcnse_log_handler_t handler;
 };
 

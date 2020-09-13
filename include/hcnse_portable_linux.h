@@ -1,6 +1,7 @@
 #ifndef INCLUDED_HCNSE_PORTABLE_LINUX_H
 #define INCLUDED_HCNSE_PORTABLE_LINUX_H
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>

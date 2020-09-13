@@ -28,7 +28,7 @@
         hcnse_log_error(level, hcnse_logger_get_global(), err, __VA_ARGS__) : \
         hcnse_log_stderr(err, __VA_ARGS__))
 
-#if (HCNSE_LOG_REDIRECT_TO_STDERR)
+#if (HCNSE_DEBUG)
 #define hcnse_log_debug1(err, ...) \
     (hcnse_logger_get_global() ? \
         hcnse_log_debug(hcnse_logger_get_global(), err, __VA_ARGS__) : \

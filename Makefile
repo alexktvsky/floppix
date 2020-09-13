@@ -52,14 +52,20 @@ MODULE_DIRS += src/module/test2
 INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
-override CFLAGS += -Wall -Wextra -Wuninitialized
+override CFLAGS += -Wall -Wextra
+# override CFLAGS += -Wuninitialized
+override CFLAGS += -Wno-uninitialized
+override CFLAGS += -ansi
+override CFLAGS += -pedantic
 override CFLAGS += -pipe
+
+
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 
 # override LDFLAGS += -lssl -lcrypto
-build: override LDFLAGS += -static -static-libgcc
+# build: override LDFLAGS += -static -static-libgcc
 
 CC = gcc
 

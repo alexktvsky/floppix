@@ -9,9 +9,9 @@ static hcnse_uint_t test_config;
 
 
 static hcnse_err_t
-hcnse_parse_argv(int argc, const char *const *argv)
+hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
 {
-    int i;
+    hcnse_uint_t i;
     hcnse_uint_t long_argv;
     const char *p;
 

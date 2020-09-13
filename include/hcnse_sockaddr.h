@@ -5,8 +5,8 @@
 #define HCNSE_ADDR_IPV4                0
 #define HCNSE_ADDR_IPV6                1
 
-#define HCNSE_MAX_ADDR_LEN             NI_MAXHOST
-#define HCNSE_MAX_PORT_LEN             NI_MAXSERV
+#define HCNSE_NI_MAXHOST               NI_MAXHOST
+#define HCNSE_NI_MAXSERV               NI_MAXSERV
 
 #define hcnse_sockaddr_is_ipv4(sockaddr) \
     (sockaddr->ss_family == AF_INET)

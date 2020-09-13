@@ -6,20 +6,20 @@
 
 #if (HCNSE_POSIX)
 
-/* mode */
+/* Mode */
 #define HCNSE_FILE_RDONLY                   O_RDONLY
 #define HCNSE_FILE_WRONLY                   O_WRONLY
 #define HCNSE_FILE_RDWR                     O_RDWR
 
-/* create */
-#define HCNSE_FILE_OPEN                     0 // Don't open if already existing
+/* Create */
+#define HCNSE_FILE_OPEN                     0 /* Don't open if already existing */
 #define HCNSE_FILE_CREATE_OR_OPEN           O_CREAT
 #define HCNSE_FILE_TRUNCATE                 (O_CREAT|O_TRUNC)
 #define HCNSE_FILE_APPEND                   (O_WRONLY|O_APPEND)
 #define HCNSE_FILE_CREATE_OR_APPEND         (O_CREAT|O_APPEND|O_WRONLY)
 #define HCNSE_FILE_NONBLOCK                 O_NONBLOCK
 
-/* access */
+/* Access */
 #define HCNSE_FILE_DEFAULT_ACCESS           0644
 #define HCNSE_FILE_OWNER_ACCESS             0600
 
@@ -108,12 +108,12 @@ struct hcnse_glob_s {
 
 #elif (HCNSE_WIN32)
 
-/* mode */
+/* Mode */
 #define HCNSE_FILE_RDONLY                   GENERIC_READ
 #define HCNSE_FILE_WRONLY                   GENERIC_WRITE
 #define HCNSE_FILE_RDWR                     GENERIC_READ|GENERIC_WRITE
 
-/* create */
+/* Create */
 #define HCNSE_FILE_CREATE_OR_OPEN           OPEN_ALWAYS
 #define HCNSE_FILE_OPEN                     OPEN_EXISTING
 #define HCNSE_FILE_TRUNCATE                 CREATE_ALWAYS
@@ -121,7 +121,7 @@ struct hcnse_glob_s {
 #define HCNSE_FILE_CREATE_OR_APPEND         OPEN_ALWAYS /* fixme */
 #define HCNSE_FILE_NONBLOCK                 0
 
-/* access */
+/* Access */
 #define HCNSE_FILE_DEFAULT_ACCESS           0
 #define HCNSE_FILE_OWNER_ACCESS             0
 

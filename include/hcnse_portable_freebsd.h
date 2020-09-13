@@ -1,6 +1,7 @@
 #ifndef INCLUDED_HCNSE_PORTABLE_FREEBSD_H
 #define INCLUDED_HCNSE_PORTABLE_FREEBSD_H
 
+#define _BSD_SOURCE
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
