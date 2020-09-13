@@ -83,7 +83,7 @@ hcnse_memnode_allocate_and_init(size_t size)
     hcnse_memnode_t *node;
     uint8_t *mem;
 
-#if (HCNSE_HAVE_MMAP)
+#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USE_MMAP)
     mem = mmap(NULL, size, PROT_READ|PROT_WRITE,
                                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if (mem == MAP_FAILED) {
@@ -455,7 +455,7 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
         while (node) {
             temp = node;
             node = node->next;
-#if (HCNSE_HAVE_MMAP)
+#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USE_MMAP)
             munmap(temp, HCNSE_PAGE_SIZE * (i + 1));
 #else
             hcnse_free(temp);

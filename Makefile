@@ -26,13 +26,13 @@ SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
 
-ifeq ($(target), linux)
-	VPATH += src/os/unix
-endif
+# ifeq ($(target), linux)
+# 	VPATH += src/os/unix
+# endif
 
-ifeq ($(target), win32)
-	VPATH += src/os/win32
-endif
+# ifeq ($(target), win32)
+# 	VPATH += src/os/win32
+# endif
 
 # SRC_FILES += hcnse_signal.c
 # SRC_FILES += hcnse_mmap.c
@@ -49,7 +49,6 @@ endif
 
 
 VPATH += src/core
-VPATH += src/event
 VPATH += src/os
 
 MODULE_DIRS += src/module/test1

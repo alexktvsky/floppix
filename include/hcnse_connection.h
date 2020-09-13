@@ -9,7 +9,7 @@
 
 
 struct hcnse_connect_s {
-    hcnse_flag_t type_id;
+    bool type_id;
     hcnse_socket_t fd;
     struct sockaddr_storage sockaddr;
     char *addr_text;

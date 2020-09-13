@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <inttypes.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>

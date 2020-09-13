@@ -157,7 +157,7 @@ struct hcnse_glob_s {
     HANDLE dir;
     WIN32_FIND_DATA finddata;
     const char *pattern;
-    hcnse_flag_t done;
+    bool done;
     const char *last_res;
     size_t prefix_len;
 };
@@ -223,7 +223,7 @@ int hcnse_glob_read(hcnse_glob_t *gl, char *res);
 void hcnse_glob_close(hcnse_glob_t *gl);
 
 size_t hcnse_file_full_path(char *buf, const char *path, const char *file);
-hcnse_flag_t hcnse_is_path_has_wildcard(const char *path);
+bool hcnse_is_path_has_wildcard(const char *path);
 hcnse_err_t hcnse_check_absolute_path(const char *path);
 
 #endif /* INCLUDED_HCNSE_FILESYS_H */

@@ -2,17 +2,17 @@
 #include "hcnse_core.h"
 
 
+static bool show_version;
+static bool show_help;
+static bool test_config;
 static const char *config_fname = HCNSE_DEFAULT_CONFIG_PATH;
-static hcnse_uint_t show_version;
-static hcnse_uint_t show_help;
-static hcnse_uint_t test_config;
 
 
 static hcnse_err_t
 hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
 {
+    bool long_argv;
     hcnse_uint_t i;
-    hcnse_uint_t long_argv;
     const char *p;
 
     for (i = 1; i < argc; ++i) {
@@ -24,19 +24,19 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
 
         while (*p) {
 
-            long_argv = 0;
+            long_argv = false;
 
             switch (*p++) {
             case 'v':
-                show_version = 1;
+                show_version = true;
                 break;
 
             case 'h':
-                show_help = 1;
+                show_help = true;
                 break;
 
             case 't':
-                test_config = 1;
+                test_config = true;
                 break;
 
             case 'c':
@@ -49,7 +49,7 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
                 break;
 
             case '-':
-                long_argv = 1;
+                long_argv = true;
                 break;
 
             default:
@@ -61,19 +61,19 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
             }
 
             if (hcnse_strcmp(p, "version") == 0) {
-                show_version = 1;
+                show_version = true;
                 p += sizeof("version") - 1;
                 continue;
             }
 
             if (hcnse_strcmp(p, "help") == 0) {
-                show_help = 1;
+                show_help = true;
                 p += sizeof("help") - 1;
                 continue;
             }
 
             if (hcnse_strcmp(p, "test-config") == 0) {
-                test_config = 1;
+                test_config = true;
                 p += sizeof("test-config") - 1;
                 continue;
             }
@@ -209,6 +209,7 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
+    /* Fixme: Segfault with flag HCNSE_POOL_USE_MMAP */
     hcnse_pool_destroy(ptemp);
 
     hcnse_logger_set_global(server->logger);

@@ -69,7 +69,7 @@ struct hcnse_server_s {
     hcnse_list_t *connections;
     hcnse_list_t *free_connections;
 
-    hcnse_flag_t daemon;
+    bool daemon;
     hcnse_int_t priority;
 
     char *workdir;

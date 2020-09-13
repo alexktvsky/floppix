@@ -36,7 +36,7 @@
 #else
 #define hcnse_log_debug1(err, ...) \
     if (hcnse_logger_get_global()) { \
-        hcnse_log_debug(hcnse_logger_get_global(), err, __VA_ARGS__) \
+        hcnse_log_debug(hcnse_logger_get_global(), err, __VA_ARGS__); \
     }
 #endif
 

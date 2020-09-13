@@ -34,8 +34,8 @@ struct hcnse_module_s {
     void (*fini)(hcnse_server_t *server, void *cntx);
     void *cntx;
     void *handle;
-    hcnse_flag_t preinited;
-    hcnse_flag_t inited;
+    bool preinited;
+    bool inited;
 };
 
 

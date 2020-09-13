@@ -36,7 +36,7 @@ struct hcnse_logger_s {
     hcnse_thread_t *tid;
 #endif
 
-    hcnse_flag_t running;
+    bool running;
 
     hcnse_uint_t front;
     hcnse_uint_t rear;
@@ -223,7 +223,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     logger->pool = pool;
     logger->logs = logs;
     logger->messages = messages;
-    logger->running = 0;
+    logger->running = false;
     logger->mutex_deposit = mutex_deposit;
     logger->mutex_fetch = mutex_fetch;
     logger->sem_empty = sem_empty;
@@ -372,16 +372,20 @@ hcnse_logger_start(hcnse_logger_t *logger)
 {
     hcnse_err_t err;
 
-    logger->running = 1;
+    logger->running = true;
 
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+
     logger->pid = fork();
     if (logger->pid == -1) {
         return hcnse_get_errno();
     }
-    if (!pid) {
+    else if (logger->pid == 0) {
         hcnse_logger_worker(logger);
     }
+
+    hcnse_log_debug1(HCNSE_OK,
+        "The logging process has been started with pid %d", logger->pid);
 
 #else
     logger->tid = hcnse_palloc(logger->pool, sizeof(hcnse_thread_t));
@@ -495,6 +499,7 @@ hcnse_logger_destroy(hcnse_logger_t *log)
     hcnse_log_message_t *temp;
     temp = log->messages;
     kill(log->pid, SIGKILL);
+    wait(NULL);
     hcnse_pool_destroy(log->pool);
     munmap(temp, sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS);
 #else

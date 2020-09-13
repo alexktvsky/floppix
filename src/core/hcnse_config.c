@@ -53,60 +53,56 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     hcnse_file_t *file;
     const char *filename;
 
-    const char *begin, *end;
+    const char *begin = NULL;
+    const char *end = NULL;
     size_t len;
 
     const char *str;
-    int argc;
+    int argc = 0;
     char *argv[HCNSE_MAX_TAKES];
     char *alloc_str;
     char c;
 
-    hcnse_uint_t found, comment, in_directive, end_line, end_file;
-    hcnse_uint_t i, line;
+    bool found = false;
+    bool comment = false;
+    bool in_directive = false;
+    bool end_line = false;
+    bool end_file = false;
+
+    hcnse_uint_t i;
+    hcnse_uint_t line = 1;
+
 
     file = hcnse_list_last(config->conf_files)->data;
     filename = file->name;
-
-    begin = NULL;
-    end = NULL;
-
-    argc = 0;
-    line = 1;
-
-    found = 0;
-    comment = 0;
-    in_directive = 0;
-    end_line = 0;
-    end_file = 0;
 
     for (i = 0; ; ++i) {
 
         c = file_buf[i];
 
-        end_line = 0;
+        end_line = false;
 
         switch (c) {
         case HCNSE_NULL:
-            end_file = 1;
+            end_file = true;
             break;
 
         case HCNSE_TAB:
         case HCNSE_SPACE:
             if (begin != NULL) {
                 end = &file_buf[i];
-                found = 1;
+                found = true;
             }
             break;
 
         case HCNSE_LF:
         case HCNSE_CR:
-            end_line = 1;
-            comment = 0;
+            end_line = true;
+            comment = false;
 
             if (begin != NULL) {
                 end = &file_buf[i];
-                found = 1;
+                found = true;
             }
             break;
 
@@ -117,7 +113,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
                     "character", filename, line);
                 return HCNSE_ERR_CONFIG_SYNTAX;
             }
-            comment = 1;
+            comment = true;
             break;
 
         default:
@@ -144,7 +140,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
             }
 
             if (!in_directive) {
-                in_directive = 1;
+                in_directive = true;
                 str = alloc_str;
                 goto next;
             }
@@ -162,7 +158,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
 next:
             begin = NULL;
             end = NULL;
-            found = 0;
+            found = false;
         }
 
         if (end_line) {
@@ -172,8 +168,8 @@ next:
                     filename, line);
             }
 
-            in_directive = 0;
-            argc = 0;
+            in_directive = false;
+            argc = false;
             line += 1;
         }
 
@@ -711,10 +707,10 @@ hcnse_err_t
 hcnse_handler_flag(hcnse_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
-    hcnse_flag_t *ptr;
+    bool *ptr;
     (void) argc;
 
-    ptr = (hcnse_flag_t *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (bool *) (((uint8_t *) data) + params->cmd->offset);
 
     if (hcnse_strcasecmp(argv[0], "on") == 0) {
         *ptr = 1;

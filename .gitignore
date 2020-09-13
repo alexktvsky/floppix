@@ -45,6 +45,7 @@
 
 # Temporary project folders
 bin
+build
 obj
 docs/html
 *.log

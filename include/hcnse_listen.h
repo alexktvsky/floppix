@@ -14,14 +14,14 @@
 
 
 struct hcnse_listener_s {
-    hcnse_flag_t type_id;
+    bool type_id;
     hcnse_socket_t fd;
     struct sockaddr_storage sockaddr;
     const char *text_addr;
     const char *text_port;
 
     /* hcnse_list_t *connections; */
-    /* hcnse_flag_t proto; */
+    /* bool proto; */
     /* The accept function for this socket */
 };
 

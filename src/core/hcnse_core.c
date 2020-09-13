@@ -170,7 +170,7 @@ hcnse_core_preinit(hcnse_server_t *server)
     hcnse_assert(free_connections = hcnse_list_create(server->pool));
     hcnse_assert(logger = hcnse_logger_create());
 
-    server->daemon = 1;
+    server->daemon = true;
     server->workdir = HCNSE_DEFAULT_WORKDIR;
     server->priority = HCNSE_DEFAULT_PRIORITY;
     server->user = HCNSE_DEFAULT_USER;
@@ -284,7 +284,7 @@ hcnse_command_t hcnse_core_cmd[] = {
 
 hcnse_module_t hcnse_core_module = {
     "core",
-    0x00000003,
+    0x00000004,
     hcnse_core_cmd,
     hcnse_core_preinit,
     hcnse_core_init,
