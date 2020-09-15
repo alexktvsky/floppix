@@ -12,6 +12,7 @@
 
 #if (HCNSE_POSIX)
 
+/* TODO: Add priority for unix threads */
 #define HCNSE_THREAD_PRIORITY_HIGHEST       0
 #define HCNSE_THREAD_PRIORITY_ABOVE_NORMAL  0
 #define HCNSE_THREAD_PRIORITY_NORMAL        0
@@ -19,6 +20,7 @@
 #define HCNSE_THREAD_PRIORITY_LOWEST        0
 
 #define hcnse_thread_current_handle()       pthread_self()
+#define hcnse_thread_equal(t1, t2)          pthread_equal(t1, t2)
 #define hcnse_thread_exit(retval)  pthread_exit((hcnse_thread_value_t) retval)
 
 #if (HCNSE_LINUX)
@@ -40,6 +42,7 @@
 #define HCNSE_THREAD_PRIORITY_LOWEST        THREAD_PRIORITY_LOWEST
 
 #define hcnse_thread_current_handle()       GetCurrentThread()
+#define hcnse_thread_equal(t1, t2)          (t1 == t2)
 #define hcnse_thread_exit(retval)  ExitThread((hcnse_thread_value_t) retval)
 
 #define HCNSE_FMT_TID_T                     "%lu"
@@ -48,7 +51,8 @@
 
 struct hcnse_thread_s {
     hcnse_thread_handle_t handle;
-    hcnse_uint_t index;
+
+    /* ... */
 };
 
 
@@ -60,7 +64,5 @@ hcnse_err_t hcnse_thread_cancel(hcnse_thread_t *thread);
 void hcnse_thread_fini(hcnse_thread_t *thread);
 
 hcnse_tid_t hcnse_thread_current_tid(void);
-
-hcnse_uint_t hcnse_get_thread_counter(void);
 
 #endif /* INCLUDED_HCNSE_THREAD_H */

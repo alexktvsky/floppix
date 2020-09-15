@@ -8,6 +8,8 @@
     hcnse_align_default(sizeof(hcnse_memnode_t))
 #define HCNSE_SIZEOF_MEMPOOL_T_ALIGN \
     hcnse_align_default(sizeof(hcnse_pool_t))
+#define HCNSE_SIZEOF_MUTEX_T_ALIGN \
+    hcnse_align_default(sizeof(hcnse_mutex_t))
 
 /* 
  * Slot  0: size 4096
@@ -28,6 +30,7 @@ struct hcnse_memnode_s {
     uint8_t *first_avail;
     size_t size;
     size_t size_avail; /* To increase search speed */
+    size_t dealloc_size;
 };
 
 struct hcnse_cleanup_node_s {
@@ -44,7 +47,11 @@ struct hcnse_pool_s {
 
     hcnse_cleanup_node_t *cleanups;
     hcnse_cleanup_node_t *free_cleanups;
-    /* hcnse_mutex_t mutex; */
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_t *mutex;
+    hcnse_thread_handle_t owner;
+#endif
 };
 
 
@@ -78,12 +85,12 @@ hcnse_get_npages(size_t size)
 }
 
 static hcnse_memnode_t *
-hcnse_memnode_allocate_and_init(size_t size)
+hcnse_memnode_allocate(size_t size)
 {
     hcnse_memnode_t *node;
     uint8_t *mem;
 
-#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USE_MMAP)
+#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USES_MMAP)
     mem = mmap(NULL, size, PROT_READ|PROT_WRITE,
                                 MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
     if (mem == MAP_FAILED) {
@@ -104,12 +111,23 @@ hcnse_memnode_allocate_and_init(size_t size)
     node->first_avail = node->begin;
     node->size = size - HCNSE_SIZEOF_MEMNODE_T_ALIGN;
     node->size_avail = node->size;
+    node->dealloc_size = size;
 
     return node;
 }
 
 static void
-hcnse_pool_cleanup_run(hcnse_pool_t *pool)
+hcnse_memnode_deallocate(hcnse_memnode_t *node)
+{
+#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USES_MMAP)
+    munmap(node, node->dealloc_size);
+#else
+    hcnse_free(node);
+#endif
+}
+
+static void
+hcnse_pool_cleanup_run_all(hcnse_pool_t *pool)
 {
     hcnse_cleanup_node_t *temp1, *temp2;
 
@@ -157,9 +175,17 @@ hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
     hcnse_pool_t *pool;
     size_t npages, index, align_size;
 
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_t *mutex;
+#endif
+    hcnse_err_t err;
+
+    node = NULL;
+
     align_size = hcnse_align_allocation(size);
     if (align_size == 0) {
-        return HCNSE_FAILED;
+        err = HCNSE_FAILED;
+        goto failed;
     }
 
     align_size += HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
@@ -170,19 +196,44 @@ hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
             "Initial pool size (%zu) out of range (0 - %zu)",
             size, HCNSE_MAX_POOL_SLOT * HCNSE_PAGE_SIZE);
-        return HCNSE_FAILED;
+        err = HCNSE_FAILED;
+        goto failed;
     }
 
-    node = hcnse_memnode_allocate_and_init(npages * HCNSE_PAGE_SIZE);
+    node = hcnse_memnode_allocate(npages * HCNSE_PAGE_SIZE);
     if (!node) {
-        return hcnse_get_errno();
+        err = hcnse_get_errno();
+        goto failed;
     }
 
+    /* Reserve memory for service info */
     pool = (hcnse_pool_t *) node->begin;
     hcnse_memset(pool, 0, sizeof(hcnse_pool_t));
-
     node->begin += HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
     node->size -= HCNSE_SIZEOF_MEMPOOL_T_ALIGN;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+
+    if (parent) {
+        mutex = parent->mutex;
+    }
+    else {
+        mutex = (hcnse_mutex_t *) node->begin;
+        node->begin += HCNSE_SIZEOF_MUTEX_T_ALIGN;
+        node->size -= HCNSE_SIZEOF_MUTEX_T_ALIGN;
+
+        err = hcnse_mutex_init(mutex, HCNSE_MUTEX_SHARED|HCNSE_MUTEX_NESTED);
+        if (err != HCNSE_OK) {
+            goto failed;
+        }
+    }
+
+    pool->mutex = mutex;
+    pool->owner = hcnse_thread_current_handle();
+
+#endif
+
+    /* Modify memnode service info */
     node->first_avail = node->begin;
     node->size_avail = node->size;
 
@@ -195,7 +246,15 @@ hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
     }
 
     *newpool = pool;
+
     return HCNSE_OK;
+
+failed:
+    if (node) {
+        hcnse_memnode_deallocate(node);
+    }
+
+    return err;
 }
 
 hcnse_pool_t *
@@ -245,6 +304,10 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
         goto done;
     }
 
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_lock(pool->mutex);
+#endif
+
     /* Try to find suitable node */
     for (i = index; i < HCNSE_MAX_POOL_SLOT; ++i) {
         node = (pool->nodes)[i];
@@ -261,7 +324,7 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
 
     /* If we haven't got a suitable node, allocate a new one */
     if (!node) {
-        node = hcnse_memnode_allocate_and_init(npages * HCNSE_PAGE_SIZE);
+        node = hcnse_memnode_allocate(npages * HCNSE_PAGE_SIZE);
         if (!node) {
             goto failed;
         }
@@ -278,8 +341,15 @@ hcnse_palloc(hcnse_pool_t *pool, size_t size)
     }
 
 done:
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
     return mem;
+
 failed:
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
     return NULL;
 }
 
@@ -301,6 +371,10 @@ hcnse_pool_cleanup_add1(hcnse_pool_t *pool, void *data,
 {
     hcnse_cleanup_node_t *node;
 
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_lock(pool->mutex);
+#endif
+
     if (pool->free_cleanups) {
         node = pool->free_cleanups;
         pool->free_cleanups = node->next;
@@ -312,6 +386,52 @@ hcnse_pool_cleanup_add1(hcnse_pool_t *pool, void *data,
     node->handler = handler;
     node->next = pool->cleanups;
     pool->cleanups = node;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
+}
+
+void
+hcnse_pool_cleanup_run1(hcnse_pool_t *pool, void *data,
+    hcnse_cleanup_handler_t handler)
+{
+    hcnse_cleanup_node_t *node, *prev;
+
+    node = pool->cleanups;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_lock(pool->mutex);
+#endif
+
+    while (node) {
+        if (node->data == data && node->handler == handler) {
+            node->handler(node->data);
+            break;
+        }
+        prev = node;
+        node = node->next;
+    }
+
+    if (!node) {
+        /* Not found */
+        return;
+    }
+
+    if (pool->cleanups == node) {
+        pool->cleanups = node->next;
+    }
+    else {
+        prev->next = node->next;
+    }
+
+    /* Reserve node */
+    node->next = pool->free_cleanups;
+    pool->free_cleanups = node;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
 }
 
 void
@@ -321,6 +441,10 @@ hcnse_pool_cleanup_remove1(hcnse_pool_t *pool, void *data,
     hcnse_cleanup_node_t *node, *prev;
 
     node = pool->cleanups;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_lock(pool->mutex);
+#endif
 
     while (node) {
         if (node->data == data && node->handler == handler) {
@@ -345,7 +469,12 @@ hcnse_pool_cleanup_remove1(hcnse_pool_t *pool, void *data,
     /* Reserve node */
     node->next = pool->free_cleanups;
     pool->free_cleanups = node;
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
 }
+
 
 size_t
 hcnse_pool_get_size(hcnse_pool_t *pool)
@@ -411,7 +540,18 @@ hcnse_pool_clean(hcnse_pool_t *pool)
     hcnse_memnode_t *node;
     hcnse_uint_t i;
 
-    hcnse_pool_cleanup_run(pool);
+#if (HCNSE_POOL_THREAD_SAFETY)
+    if (!hcnse_thread_equal(pool->owner, hcnse_thread_current_handle())) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
+            "Unexpected access to a pool from a thread with tid "
+            HCNSE_FMT_TID_T, hcnse_thread_current_tid());
+        return;
+    }
+
+    hcnse_mutex_lock(pool->mutex);
+#endif
+
+    hcnse_pool_cleanup_run_all(pool);
 
     if (pool->child) {
         temp1 = pool->child;
@@ -430,6 +570,10 @@ hcnse_pool_clean(hcnse_pool_t *pool)
             node = node->next;
         }
     }
+
+#if (HCNSE_POOL_THREAD_SAFETY)
+    hcnse_mutex_unlock(pool->mutex);
+#endif
 }
 
 void
@@ -439,7 +583,16 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
     hcnse_memnode_t *node, *temp;
     hcnse_uint_t i;
 
-    hcnse_pool_cleanup_run(pool);
+#if (HCNSE_POOL_THREAD_SAFETY)
+    if (!hcnse_thread_equal(pool->owner, hcnse_thread_current_handle())) {
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
+            "Unexpected access to a pool from a thread with tid "
+            HCNSE_FMT_TID_T, hcnse_thread_current_tid());
+        return;
+    }
+#endif
+
+    hcnse_pool_cleanup_run_all(pool);
 
     if (pool->child) {
         temp1 = pool->child;
@@ -455,11 +608,7 @@ hcnse_pool_destroy(hcnse_pool_t *pool)
         while (node) {
             temp = node;
             node = node->next;
-#if (HCNSE_HAVE_MMAP && HCNSE_POOL_USE_MMAP)
-            munmap(temp, HCNSE_PAGE_SIZE * (i + 1));
-#else
-            hcnse_free(temp);
-#endif
+            hcnse_memnode_deallocate(temp);
         }
     }
 }

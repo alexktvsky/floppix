@@ -30,7 +30,7 @@ struct hcnse_logger_s {
     hcnse_list_t *logs; /* hcnse_log_t */
     hcnse_log_message_t *messages;
 
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     pid_t pid;
 #else
     hcnse_thread_t *tid;
@@ -91,6 +91,17 @@ hcnse_logger_worker(void *arg)
 
     hcnse_msleep(HCNSE_LOG_WORKER_DELAY);
 
+    /*
+     * Fixme: Why process log can not get in time?
+     */
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
+    hcnse_log_debug1(HCNSE_OK,
+        "The logging process has been started with pid %d", getpid());
+#else
+    hcnse_log_debug1(HCNSE_OK, "The logging process has been started with tid "
+        HCNSE_FMT_TID_T, hcnse_thread_current_tid());
+#endif
+
     while (1) {
         hcnse_semaphore_wait(logger->sem_full);
         hcnse_mutex_lock(logger->mutex_fetch);
@@ -132,7 +143,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     hcnse_err_t err;
 
 
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     hcnse_log_message_t *messages;
     messages = MAP_FAILED;
 #else
@@ -165,7 +176,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     mem_size += sizeof(hcnse_mutex_t) * 2;
     mem_size += sizeof(hcnse_semaphore_t) * 2;
 
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     messages = mmap(NULL, mem_size, PROT_READ|PROT_WRITE,
                                     MAP_SHARED|MAP_ANONYMOUS, -1, 0);
     if (messages == MAP_FAILED) {
@@ -238,7 +249,7 @@ failed:
         hcnse_pool_destroy(pool);
     }
 
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     if (messages != MAP_FAILED) {
         munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS);
     }
@@ -374,7 +385,9 @@ hcnse_logger_start(hcnse_logger_t *logger)
 
     logger->running = true;
 
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
+
+    (void) err;
 
     logger->pid = fork();
     if (logger->pid == -1) {
@@ -384,10 +397,8 @@ hcnse_logger_start(hcnse_logger_t *logger)
         hcnse_logger_worker(logger);
     }
 
-    hcnse_log_debug1(HCNSE_OK,
-        "The logging process has been started with pid %d", logger->pid);
-
 #else
+
     logger->tid = hcnse_palloc(logger->pool, sizeof(hcnse_thread_t));
     if (!logger->tid) {
         return hcnse_get_errno();
@@ -495,7 +506,7 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 void
 hcnse_logger_destroy(hcnse_logger_t *log)
 {
-#if (HCNSE_POSIX && HCNSE_HAVE_MMAP)
+#if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     hcnse_log_message_t *temp;
     temp = log->messages;
     kill(log->pid, SIGKILL);

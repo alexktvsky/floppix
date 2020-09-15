@@ -2,8 +2,6 @@
 #include "hcnse_core.h"
 
 
-static hcnse_uint_t hcnse_thread_counter_value;
-
 #if (HCNSE_POSIX)
 
 hcnse_err_t
@@ -11,13 +9,9 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
     size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg)
 {
-    static hcnse_uint_t thread_index = 1;
     pthread_attr_t attr;
-    hcnse_uint_t done_scope, done_detached;
     hcnse_err_t err;
 
-    done_scope = 0;
-    done_detached = 0;
     (void) prio;
 
     if (pthread_attr_init(&attr) != 0) {
@@ -27,8 +21,6 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
     }
 
     if (hcnse_bit_is_set(params, HCNSE_THREAD_SCOPE_SYSTEM)) {
-        done_scope = 1;
-
         if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -36,13 +28,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
             return err;
         }
     }
-    if (hcnse_bit_is_set(params, HCNSE_THREAD_SCOPE_PROCESS)) {
-        /* Check conflict of scope params */
-        if (done_scope) {
-            return HCNSE_FAILED;
-        }
-        done_scope = 1;
-
+    else if (hcnse_bit_is_set(params, HCNSE_THREAD_SCOPE_PROCESS)) {
         if (pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -52,7 +38,6 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
     }
 
     if (hcnse_bit_is_set(params, HCNSE_THREAD_CREATE_DETACHED)) {
-        done_detached = 1;
         if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -60,13 +45,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
             return err;
         }
     }
-    if (hcnse_bit_is_set(params, HCNSE_THREAD_CREATE_JOINABLE)) {
-        /* Check conflict of detached params */
-        if (done_detached) {
-            return HCNSE_FAILED;
-        }
-        done_detached = 1;
-
+    else if (hcnse_bit_is_set(params, HCNSE_THREAD_CREATE_JOINABLE)) {
         if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -96,13 +75,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
         /* Ignore error here */
     }
 
-    thread->index = thread_index;
-    thread_index += 1;
-
-    hcnse_thread_counter_value += 1;
-
-    hcnse_log_debug1(HCNSE_OK, "Create thread %zu, total %zu",
-        thread->index, hcnse_thread_counter_value);
+    hcnse_log_debug1(HCNSE_OK, "Create new thread");
 
     return HCNSE_OK;
 }
@@ -131,10 +104,7 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
         return err;
     }
 
-    hcnse_thread_counter_value -= 1;
-
-    hcnse_log_debug1(HCNSE_OK, "Terminate thread %zu, total %zu",
-        thread->index, hcnse_thread_counter_value);
+    hcnse_log_debug1(HCNSE_OK, "Terminate thread");
 
     return HCNSE_OK;
 }
@@ -185,7 +155,6 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
     size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg)
 {
-    static hcnse_uint_t thread_index = 1;
     HANDLE *t;
     hcnse_err_t err;
 
@@ -206,13 +175,7 @@ hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
 
     thread->handle = t;
 
-    thread->index = thread_index;
-    thread_index += 1;
-
-    hcnse_thread_counter_value += 1;
-
-    hcnse_log_debug1(HCNSE_OK, "Create thread %zu, total %zu",
-        thread->index, hcnse_thread_counter_value);
+    hcnse_log_debug1(HCNSE_OK, "Create new thread");
 
     return HCNSE_OK;
 }
@@ -241,10 +204,7 @@ hcnse_thread_cancel(hcnse_thread_t *thread)
         return err;
     }
 
-    hcnse_thread_counter_value -= 1;
-
-    hcnse_log_debug1(HCNSE_OK, "Terminate thread %zu, total %zu",
-        thread->index, hcnse_thread_counter_value);
+    hcnse_log_debug1(HCNSE_OK, "Terminate thread");
 
     return HCNSE_OK;
 }
@@ -267,10 +227,3 @@ hcnse_thread_current_tid(void)
 }
 
 #endif
-
-
-hcnse_uint_t
-hcnse_get_thread_counter(void)
-{
-    return hcnse_thread_counter_value;
-}
