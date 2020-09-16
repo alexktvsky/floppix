@@ -11,20 +11,22 @@ static const char *config_fname = HCNSE_DEFAULT_CONFIG_PATH;
 static hcnse_err_t
 hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
 {
-    bool long_argv;
-    hcnse_uint_t i;
+    hcnse_uint_t i, saved_index;
     const char *p;
+    bool long_option;
 
     for (i = 1; i < argc; ++i) {
 
+        saved_index = i;
         p = argv[i];
-        if (*p++ != '-') {
+
+        if (*p++ != '-' || *p == '\0') {
             return HCNSE_FAILED;
         }
 
         while (*p) {
 
-            long_argv = false;
+            long_option = false;
 
             switch (*p++) {
             case 'v':
@@ -44,19 +46,19 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
                     config_fname = argv[i];
                 }
                 else {
-                    return HCNSE_FAILED;
+                    goto missing_argment;
                 }
                 break;
 
             case '-':
-                long_argv = true;
+                long_option = true;
                 break;
 
             default:
-                return HCNSE_FAILED;
+                goto invalid_option;
             }
 
-            if (!long_argv) {
+            if (!long_option) {
                 continue;
             }
 
@@ -84,19 +86,32 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
                     p += sizeof("config-file") - 1;
                     continue;
                 }
+                else {
+                    goto missing_argment;
+                }
             }
 
-            return HCNSE_FAILED;
+            goto invalid_option;
         }
     }
 
     return HCNSE_OK;
+
+invalid_option:
+    hcnse_log_stderr(HCNSE_OK, "Invalid options \"%s\"", argv[saved_index]);
+    return HCNSE_FAILED;
+
+missing_argment:
+    hcnse_log_stderr(HCNSE_OK, "Missing argment for options \"%s\"",
+        argv[saved_index]);
+    return HCNSE_FAILED;
 }
 
 static void
 hcnse_show_version_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK, "HCNSE %s %s", HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
+    hcnse_log_stdout(HCNSE_OK, "HCNSE %s %s",
+        HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
     hcnse_log_stdout(HCNSE_OK, "Target system: %s %d-bit",
         HCNSE_SYSTEM_NAME, HCNSE_PTR_WIDTH);
 #ifdef HCNSE_COMPILER
@@ -138,7 +153,6 @@ main(int argc, const char *const *argv)
 
 
     if ((err = hcnse_parse_argv(argc, argv)) != HCNSE_OK) {
-        hcnse_log_stderr(0, "Invalid input parameters");
         hcnse_show_help_info();
         goto failed;
     }
@@ -154,7 +168,7 @@ main(int argc, const char *const *argv)
 
 #if (HCNSE_WIN32)
     if ((err = hcnse_winsock_init_v22()) != HCNSE_OK) {
-        hcnse_log_stderr(0, "Failed to initialize Winsock 2.2");
+        hcnse_log_stderr(HCNSE_OK, "Failed to initialize Winsock 2.2");
         goto failed;
     }
 #endif
@@ -195,6 +209,8 @@ main(int argc, const char *const *argv)
         else {
             hcnse_log_stderr(HCNSE_OK, "Configuration check failed");
         }
+        hcnse_logger_destroy(server->logger);
+        hcnse_pool_destroy(ptemp);
         hcnse_pool_destroy(pool);
         return 0;
     }
@@ -214,17 +230,7 @@ main(int argc, const char *const *argv)
 
     hcnse_logger_set_global(server->logger);
 
-
-
-
-
-
-
-
-
-
-
-    while (1);
+    hcnse_server_cycle(server);
 
     return 0;
 

@@ -103,6 +103,8 @@ struct hcnse_glob_s {
 #define hcnse_file_stat_by_fd(st, fd)       fstat(fd, st)
 #define hcnse_file_stat_by_link(st, path)   lstat((const char *) path, st)
 
+#define hcnse_fsync(fd)                     fsync(fd)
+
 #define hcnse_is_path_separator(c)          ((c) == '/')
 
 
@@ -169,6 +171,8 @@ struct hcnse_glob_s {
 
 #define hcnse_file_stat_by_fd(fd, fi)       GetFileInformationByHandle(fd, fi)
 #define hcnse_file_stat_by_link(name, fi)   hcnse_file_stat_by_path(fi, name)
+
+#define hcnse_fsync(fd)                     FlushFileBuffers(fd)
 
 #define hcnse_is_path_separator(c)          ((c) == '\\')
 

@@ -7,8 +7,8 @@
 /* Mutex specific parameters */
 #define HCNSE_MUTEX_SHARED             0x00000001
 #define HCNSE_MUTEX_PRIVATE            0x00000002
-#define HCNSE_MUTEX_NESTED             0x00000004
-#define HCNSE_MUTEX_UNNESTED           0x00000008
+#define HCNSE_MUTEX_RECURSIVE          0x00000004
+#define HCNSE_MUTEX_NONRECURSIVE       0x00000008
 #define HCNSE_MUTEX_DEFAULT            0x00000010
 
 

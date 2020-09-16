@@ -42,10 +42,10 @@
 
 #define HCNSE_FILE_LINE  (__FILE__ ":" hcnse_stringify(__LINE__))
 
-#define hcnse_assert(exp) \
+#define hcnse_assert(exp) { \
     if (hcnse_logger_get_global()) { \
         if (!(exp)) { \
-            hcnse_log_error(HCNSE_LOG_ERROR, hcnse_logger_get_global(), \
+            hcnse_log_error(HCNSE_LOG_EMERG, hcnse_logger_get_global(), \
                 HCNSE_OK, "%s: Assertion \"%s\" failed", HCNSE_FILE_LINE, \
                 hcnse_stringify(exp)); \
             abort(); \
@@ -57,7 +57,8 @@
                 HCNSE_FILE_LINE, hcnse_stringify(exp)); \
             abort(); \
         } \
-    }
+    } \
+}
 
 
 extern hcnse_logger_t *hcnse_logger_global;

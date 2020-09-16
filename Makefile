@@ -25,6 +25,7 @@ SRC_FILES += hcnse_connection.c
 SRC_FILES += hcnse_process.c
 SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
+SRC_FILES += hcnse_cycle.c
 
 # ifeq ($(target), linux)
 # 	VPATH += src/os/unix
@@ -63,7 +64,7 @@ override CFLAGS += -Wuninitialized
 override CFLAGS += -std=c99
 override CFLAGS += -pedantic
 override CFLAGS += -pipe
-
+override CFLAGS += -DHCNSE_POOL_THREAD_SAFETY
 
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3

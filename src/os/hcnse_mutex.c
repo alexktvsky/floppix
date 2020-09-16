@@ -36,7 +36,7 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
         }
     }
 
-    if (hcnse_bit_is_set(params, HCNSE_MUTEX_NESTED)) {
+    if (hcnse_bit_is_set(params, HCNSE_MUTEX_RECURSIVE)) {
         if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) != 0) {
             err = hcnse_get_errno();
             hcnse_log_error1(HCNSE_LOG_ERROR, err,
@@ -118,7 +118,7 @@ hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
 
     (void) params;
 
-    if (hcnse_bit_is_set(params, HCNSE_MUTEX_NESTED)) {
+    if (hcnse_bit_is_set(params, HCNSE_MUTEX_RECURSIVE)) {
         InitializeCriticalSection(&mutex->section);
         mutex->handle = NULL;
         mutex->type = hcnse_mutex_critical_section;

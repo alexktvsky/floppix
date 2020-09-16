@@ -222,7 +222,7 @@ hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
         node->begin += HCNSE_SIZEOF_MUTEX_T_ALIGN;
         node->size -= HCNSE_SIZEOF_MUTEX_T_ALIGN;
 
-        err = hcnse_mutex_init(mutex, HCNSE_MUTEX_SHARED|HCNSE_MUTEX_NESTED);
+        err = hcnse_mutex_init(mutex, HCNSE_MUTEX_SHARED|HCNSE_MUTEX_RECURSIVE);
         if (err != HCNSE_OK) {
             goto failed;
         }

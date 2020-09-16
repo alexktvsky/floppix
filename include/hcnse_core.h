@@ -43,6 +43,7 @@ typedef void (*hcnse_cleanup_handler_t)(void *data);
 #include "hcnse_string.h"
 #include "hcnse_release.h"
 #include "hcnse_module.h"
+#include "hcnse_cycle.h"
 
 #if 0
 #include "hcnse_rbtree.h"

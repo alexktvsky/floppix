@@ -74,6 +74,9 @@ hcnse_write_to_log(hcnse_log_t *log, hcnse_uint_t level,
     }
 
     hcnse_write_fd(log->file->fd, buf, len);
+
+    /* TODO: What about high performance? */
+    hcnse_fsync(log->file->fd);
 }
 
 static hcnse_thread_value_t
@@ -142,7 +145,6 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     hcnse_list_t *logs;
     hcnse_err_t err;
 
-
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     hcnse_log_message_t *messages;
     messages = MAP_FAILED;
@@ -183,6 +185,9 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
         err = hcnse_get_errno();
         goto failed;
     }
+
+    /* Fixme: add cleanup for mmap */
+
 #else
     messages = hcnse_palloc(pool, mem_size);
     if (messages == NULL) {
@@ -190,6 +195,8 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
         goto failed;
     }
 #endif
+
+
 
     mem = (uint8_t *) messages;
     mem += sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS;
@@ -504,18 +511,26 @@ hcnse_log_console(hcnse_fd_t fd, hcnse_err_t err, const char *fmt, ...)
 }
 
 void
-hcnse_logger_destroy(hcnse_logger_t *log)
+hcnse_logger_destroy(hcnse_logger_t *logger)
 {
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
-    hcnse_log_message_t *temp;
-    temp = log->messages;
-    kill(log->pid, SIGKILL);
-    wait(NULL);
-    hcnse_pool_destroy(log->pool);
-    munmap(temp, sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS);
+    hcnse_log_message_t *messages;
+
+    messages = logger->messages;
+    if (running) {
+        kill(logger->pid, SIGKILL);
+        wait(NULL);
+    }
+    hcnse_pool_destroy(logger->pool);
+
+    /* Fixme: add cleanup for mmap to pool */
+    munmap(messages, sizeof(hcnse_log_message_t) * HCNSE_MAX_LOG_SLOTS);
+
 #else
-    hcnse_thread_cancel(log->tid);
-    hcnse_msleep(100); /* Wait thread terminate */
-    hcnse_pool_destroy(log->pool);
+    if (logger->running) {
+        hcnse_thread_cancel(logger->tid);
+        hcnse_msleep(100); /* Wait thread terminate */
+    }
+    hcnse_pool_destroy(logger->pool);
 #endif
 }
