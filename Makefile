@@ -1,5 +1,3 @@
-BIN_FILE = hcnse
-
 SRC_FILES += main.c
 SRC_FILES += hcnse_memory.c
 SRC_FILES += hcnse_string.c
@@ -27,14 +25,6 @@ SRC_FILES += hcnse_dso.c
 SRC_FILES += hcnse_module.c
 SRC_FILES += hcnse_cycle.c
 
-# ifeq ($(target), linux)
-# 	VPATH += src/os/unix
-# endif
-
-# ifeq ($(target), win32)
-# 	VPATH += src/os/win32
-# endif
-
 # SRC_FILES += hcnse_signal.c
 # SRC_FILES += hcnse_mmap.c
 # SRC_FILES += hcnse_send.c
@@ -48,6 +38,13 @@ SRC_FILES += hcnse_cycle.c
 # SRC_FILES += hcnse_event_write.c
 # SRC_FILES += hcnse_event_timer.c
 
+# ifeq ($(target), linux)
+# 	VPATH += src/os/unix
+# endif
+
+# ifeq ($(target), win32)
+# 	VPATH += src/os/win32
+# endif
 
 VPATH += src/core
 VPATH += src/os
@@ -55,6 +52,7 @@ VPATH += src/os
 MODULE_DIRS += src/module/test1
 MODULE_DIRS += src/module/test2
 
+BIN_FILE = hcnse
 INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
@@ -69,6 +67,7 @@ override CFLAGS += -DHCNSE_POOL_THREAD_SAFETY
 build: override CFLAGS += -g0 -O3 -s
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
+test:  override CFLAGS += -DHCNSE_TEST
 
 # override LDFLAGS += -lssl -lcrypto
 # build: override LDFLAGS += -static -static-libgcc
@@ -140,7 +139,8 @@ modules:
 		fi; \
 	done;
 
-test:
+test: $(OBJ_FILES)
+	cd test && $(MAKE)
 
 docs:
 	doxygen docs/Doxyfile
