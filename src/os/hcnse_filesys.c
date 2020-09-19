@@ -243,7 +243,6 @@ hcnse_file_info_by_path(hcnse_file_info_t *info, const char *path)
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
             "stat(\"%s\", %p) failed", path, info);
-        err = hcnse_get_errno();
         return err;
     }
     info->type = hcnse_stat_get_file_type(&(info->stat));

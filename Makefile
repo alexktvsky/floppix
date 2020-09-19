@@ -57,10 +57,10 @@ INSTALL_DIR = /usr/local/bin
 
 override CFLAGS += -Iinclude
 override CFLAGS += -Wall -Wextra
-override CFLAGS += -Wuninitialized
-# override CFLAGS += -Wno-uninitialized
+# override CFLAGS += -Wuninitialized
+override CFLAGS += -Wno-uninitialized
 override CFLAGS += -std=c99
-override CFLAGS += -pedantic
+# override CFLAGS += -pedantic
 override CFLAGS += -pipe
 override CFLAGS += -DHCNSE_POOL_THREAD_SAFETY
 

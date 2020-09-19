@@ -24,6 +24,7 @@
 #define HCNSE_FILE_OWNER_ACCESS             0600
 
 #define HCNSE_INVALID_FILE                 -1
+#define HCNSE_INVALID_FILE_SIZE            -1
 #define HCNSE_FILE_ERROR                   -1
 
 #define HCNSE_STDIN                         STDIN_FILENO
@@ -128,6 +129,7 @@ struct hcnse_glob_s {
 #define HCNSE_FILE_OWNER_ACCESS             0
 
 #define HCNSE_INVALID_FILE                  INVALID_HANDLE_VALUE
+#define HCNSE_INVALID_FILE_SIZE             INVALID_FILE_SIZE
 #define HCNSE_FILE_ERROR                    0
 
 #define HCNSE_STDIN                         GetStdHandle(STD_INPUT_HANDLE)
