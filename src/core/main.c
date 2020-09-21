@@ -1,8 +1,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
 
-#if (!HCNSE_TEST)
-
 static bool show_version;
 static bool show_help;
 static bool test_config;
@@ -242,5 +240,3 @@ failed:
 #endif
     return 1;
 }
-
-#endif

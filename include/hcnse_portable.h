@@ -92,6 +92,7 @@ typedef struct hcnse_semaphore_s       hcnse_semaphore_t;
 #include "hcnse_limits.h"
 #include "hcnse_socket.h"
 #include "hcnse_sockopt.h"
+#include "hcnse_sockaddr.h"
 #include "hcnse_filesys.h"
 #include "hcnse_process.h"
 #include "hcnse_signal.h"

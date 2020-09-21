@@ -36,7 +36,6 @@ typedef void (*hcnse_cleanup_handler_t)(void *data);
 #include "hcnse_config.h"
 #include "hcnse_parse.h"
 #include "hcnse_log.h"
-#include "hcnse_sockaddr.h"
 #include "hcnse_listen.h"
 #include "hcnse_connection.h"
 #include "hcnse_send.h"
