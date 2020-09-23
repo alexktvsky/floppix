@@ -79,6 +79,13 @@ hcnse_write_to_log(hcnse_log_t *log, hcnse_uint_t level,
     hcnse_fsync(log->file->fd);
 }
 
+/*
+ * Notes on log rotation:
+ * The only way to replace text in a file, or add lines in the middle of
+ * a file, is to rewrite the entire file from the point of the first
+ * modification. You cannot "make space" in the middle of a file for new lines.
+ */
+
 static hcnse_thread_value_t
 hcnse_logger_worker(void *arg)
 {

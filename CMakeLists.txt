@@ -82,18 +82,16 @@ endif()
 # option(OPTION_BUILD_DOCS "Build documentation" OFF)
 
 target_link_libraries(${PROJECT_NAME}
-	${CMAKE_DL_LIBS}
 	${CMAKE_REQUIRED_LIBRARIES}
 	${ALL_LIBRARIES}
 )
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} system_name)
 if (system_name STREQUAL windows)
-	find_library(WSOCK32_LIBRARY ws2_32)
-	target_link_libraries(${PROJECT_NAME} ${WSOCK32_LIBRARY})
+	target_link_libraries(${PROJECT_NAME} ws2_32)
 else()
-	find_library(PTHREAD_LIBRARY pthread)
-	target_link_libraries(${PROJECT_NAME} ${PTHREAD_LIBRARY})
+	target_link_libraries(${PROJECT_NAME} pthread)
+	target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
 endif()
 
 enable_testing()

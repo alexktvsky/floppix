@@ -160,7 +160,7 @@ uninstall:
 	rm -f $(INSTALL_DIR)/$(BIN_FILE)
 
 clean:
-	rm -f obj/* bin/*
+	@rm -f obj/* bin/*
 # 	@for dir in $(MODULE_DIRS); do \
 # 		if [ -d $$dir ]; then \
 # 			$(MAKE) -C $$dir clean; \
