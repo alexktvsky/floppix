@@ -21,7 +21,11 @@ test_pool_create_when_malloc_failed(void)
 hcnse_err_t
 test_a2(void)
 {
-
+    hcnse_assert_int32_equal(1, 1);
     return HCNSE_OK;
 }
 
+hcnse_init_suite_tests(hcnse_pool_tests,
+    hcnse_unit_test(test_pool_create_when_malloc_failed),
+    hcnse_unit_test(test_a2)
+);

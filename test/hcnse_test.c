@@ -8,12 +8,7 @@
 int
 main(void)
 {
-    hcnse_unit_test_t tests[] = hcnse_init_suite_tests(
-        hcnse_unit_test(test_pool_create_when_malloc_failed),
-        hcnse_unit_test(test_a2)
-    );
-    hcnse_run_suite_tests(tests, "hcnse_pool");
-
+    hcnse_run_suite_tests(hcnse_pool_tests);
 
     return 0;
 }

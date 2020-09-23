@@ -124,6 +124,7 @@ export LDFLAGS
 all: build
 build: mkdirs _build
 debug: mkdirs _debug
+test: mkdirs _test
 
 _build: $(OBJ_FILES)
 	$(CC) $^ -o bin/$(BIN_FILE) $(LDFLAGS)
@@ -139,7 +140,7 @@ modules:
 		fi; \
 	done;
 
-test: $(OBJ_FILES)
+_test: $(OBJ_FILES)
 	cd test && $(MAKE)
 
 docs:
