@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-static hcnse_bitmask_t hcnse_takes[] = {
+static hcnse_bitfield_t hcnse_takes[] = {
     HCNSE_TAKE0,
     HCNSE_TAKE1,
     HCNSE_TAKE2,

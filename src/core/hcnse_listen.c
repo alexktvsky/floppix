@@ -155,7 +155,7 @@ hcnse_listener_close(hcnse_listener_t *listener)
 }
 
 void
-hcnse_listener_clean(hcnse_listener_t *listener)
+hcnse_listener_clear(hcnse_listener_t *listener)
 {
     hcnse_listener_close(listener);
     hcnse_memzero(listener, sizeof(hcnse_listener_t));

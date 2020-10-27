@@ -32,7 +32,7 @@ hcnse_err_t hcnse_listener_init_ipv6(hcnse_listener_t *listener,
 hcnse_err_t hcnse_listener_bind(hcnse_listener_t *listener);
 hcnse_err_t hcnse_listener_open(hcnse_listener_t *listener);
 void hcnse_listener_close(hcnse_listener_t *listener);
-void hcnse_listener_clean(hcnse_listener_t *listener);
+void hcnse_listener_clear(hcnse_listener_t *listener);
 
 const char *hcnse_listener_get_addr_text(hcnse_listener_t *listener, char *buf,
     size_t bufsize);

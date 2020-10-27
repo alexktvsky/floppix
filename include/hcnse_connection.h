@@ -27,7 +27,7 @@ hcnse_err_t hcnse_connection_init(hcnse_connect_t *connect);
 hcnse_err_t hcnse_connection_accept(hcnse_connect_t *connect,
     hcnse_listener_t *listen);
 void hcnse_connection_close(hcnse_connect_t *connect);
-void hcnse_connection_clean(hcnse_connect_t *connect);
+void hcnse_connection_clear(hcnse_connect_t *connect);
 void hcnse_connection_destroy(hcnse_connect_t *connect);
 
 const char *hcnse_connection_get_addr_text(hcnse_connect_t *connect, char *buf,

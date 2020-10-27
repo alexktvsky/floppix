@@ -33,7 +33,7 @@ struct hcnse_command_s {
     /* Name of this command */
     const char *name;
     /* How many arguments takes directive */
-    hcnse_bitmask_t takes;
+    hcnse_bitfield_t takes;
     /* The function to be called when this directive is parsed */
     hcnse_cmd_handler_t handler;
     /* The offset of field in context structure */

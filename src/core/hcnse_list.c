@@ -260,7 +260,7 @@ hcnse_list_remove(hcnse_list_t *list, void *data)
 }
 
 void
-hcnse_list_clean(hcnse_list_t *list)
+hcnse_list_clear(hcnse_list_t *list)
 {
     hcnse_list_node_t *node, *temp;
 

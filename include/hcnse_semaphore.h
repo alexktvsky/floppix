@@ -23,7 +23,7 @@ struct hcnse_semaphore_s {
 #endif
 
 hcnse_err_t hcnse_semaphore_init(hcnse_semaphore_t *semaphore,
-    hcnse_uint_t value, hcnse_uint_t maxval, hcnse_bitmask_t params);
+    hcnse_uint_t value, hcnse_uint_t maxval, hcnse_bitfield_t params);
 hcnse_err_t hcnse_semaphore_wait(hcnse_semaphore_t *semaphore);
 hcnse_err_t hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore);
 hcnse_err_t hcnse_semaphore_post(hcnse_semaphore_t *semaphore);

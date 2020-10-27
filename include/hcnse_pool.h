@@ -26,7 +26,7 @@ void hcnse_pool_cleanup_run1(hcnse_pool_t *pool, void *data,
     hcnse_cleanup_handler_t handler);
 void hcnse_pool_cleanup_remove1(hcnse_pool_t *pool, void *data,
     hcnse_cleanup_handler_t handler);
-void hcnse_pool_clean(hcnse_pool_t *pool);
+void hcnse_pool_clear(hcnse_pool_t *pool);
 void hcnse_pool_destroy(hcnse_pool_t *pool);
 
 size_t hcnse_pool_get_size(hcnse_pool_t *pool);

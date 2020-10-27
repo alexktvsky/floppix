@@ -534,7 +534,7 @@ hcnse_pool_get_total_size(hcnse_pool_t *pool)
 }
 
 void
-hcnse_pool_clean(hcnse_pool_t *pool)
+hcnse_pool_clear(hcnse_pool_t *pool)
 {
     hcnse_pool_t *temp1, *temp2;
     hcnse_memnode_t *node;
@@ -558,7 +558,7 @@ hcnse_pool_clean(hcnse_pool_t *pool)
         while (temp1) {
             temp2 = temp1;
             temp1 = temp1->brother;
-            hcnse_pool_clean(temp2);
+            hcnse_pool_clear(temp2);
         }
     }
 

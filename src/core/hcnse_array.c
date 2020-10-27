@@ -45,7 +45,7 @@ hcnse_array_push(hcnse_array_t *array, void *data)
 }
 
 void
-hcnse_array_clean(hcnse_array_t *array)
+hcnse_array_clear(hcnse_array_t *array)
 {
     array->n_current = 0;
     array->data = NULL;

@@ -6,7 +6,7 @@
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
-    hcnse_uint_t maxval, hcnse_bitmask_t params)
+    hcnse_uint_t maxval, hcnse_bitfield_t params)
 {
     hcnse_uint_t shared;
     hcnse_err_t err;
@@ -80,7 +80,7 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
-    hcnse_uint_t maxval, hcnse_bitmask_t params)
+    hcnse_uint_t maxval, hcnse_bitfield_t params)
 {
     HANDLE s;
     SECURITY_ATTRIBUTES attr;

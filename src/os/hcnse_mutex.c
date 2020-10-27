@@ -5,7 +5,7 @@
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitfield_t params)
 {
     pthread_mutexattr_t attr;
     hcnse_err_t err;
@@ -111,7 +111,7 @@ hcnse_mutex_fini(hcnse_mutex_t *mutex)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params)
+hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitfield_t params)
 {
     HANDLE handle;
     hcnse_err_t err;

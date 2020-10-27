@@ -58,10 +58,10 @@ hcnse_connection_close(hcnse_connect_t *connect)
 }
 
 void
-hcnse_connection_clean(hcnse_connect_t *connect)
+hcnse_connection_clear(hcnse_connect_t *connect)
 {
     hcnse_connection_close(connect);
-    hcnse_pool_clean(connect->pool);
+    hcnse_pool_clear(connect->pool);
 }
 
 void

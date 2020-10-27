@@ -38,6 +38,6 @@ hcnse_err_t hcnse_list_remove1(hcnse_list_t *list, hcnse_list_node_t *node);
 
 hcnse_err_t hcnse_list_reserve(hcnse_list_t *list, size_t n);
 
-void hcnse_list_clean(hcnse_list_t *list);
+void hcnse_list_clear(hcnse_list_t *list);
 
 #endif /* INCLUDED_HCNSE_LIST_H */

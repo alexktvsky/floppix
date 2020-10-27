@@ -74,7 +74,7 @@ typedef uintptr_t                      hcnse_uint_t;
 typedef size_t                         hcnse_size_t;
 typedef ssize_t                        hcnse_ssize_t;
 typedef intptr_t                       hcnse_off_t;
-typedef uint32_t                       hcnse_bitmask_t;
+typedef uint32_t                       hcnse_bitfield_t;
 typedef uintptr_t                      hcnse_msec_t;
 typedef uintptr_t                      hcnse_file_access_t;
 typedef uintptr_t                      hcnse_file_type_t;

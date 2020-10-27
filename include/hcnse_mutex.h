@@ -36,7 +36,7 @@ struct hcnse_mutex_s {
 
 #endif
 
-hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitmask_t params);
+hcnse_err_t hcnse_mutex_init(hcnse_mutex_t *mutex, hcnse_bitfield_t params);
 hcnse_err_t hcnse_mutex_lock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_trylock(hcnse_mutex_t *mutex);
 hcnse_err_t hcnse_mutex_unlock(hcnse_mutex_t *mutex);

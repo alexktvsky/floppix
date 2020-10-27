@@ -5,7 +5,7 @@
 #if (HCNSE_POSIX)
 
 hcnse_err_t
-hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
+hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitfield_t params,
     size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg)
 {
@@ -151,7 +151,7 @@ hcnse_thread_current_tid(void)
 #elif (HCNSE_WIN32)
 
 hcnse_err_t
-hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitmask_t params,
+hcnse_thread_init(hcnse_thread_t *thread, hcnse_bitfield_t params,
     size_t stack_size, hcnse_int_t prio, hcnse_thread_function_t start_routine,
     void *arg)
 {
