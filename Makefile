@@ -70,7 +70,7 @@ debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 test:  override CFLAGS += -DHCNSE_TEST
 
 # override LDFLAGS += -lssl -lcrypto
-# build: override LDFLAGS += -static -static-libgcc
+build: override LDFLAGS += -static -static-libgcc
 
 CC = gcc
 
@@ -98,6 +98,7 @@ ifeq ($(CC), x86_64-w64-mingw32-gcc)
 	override CFLAGS += -DHCNSE_COMPILER="\"mingw $(MINGW_VER)\""
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
+	override LDFLAGS += -lssp
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
@@ -106,6 +107,7 @@ ifeq ($(CC), i686-w64-mingw32-gcc)
 	override CFLAGS += -DHCNSE_COMPILER="\"mingw $(MINGW_VER)\""
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
+	override LDFLAGS += -lssp
 endif
 
 
