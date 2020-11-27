@@ -106,9 +106,9 @@ hcnse_logger_worker(void *arg)
      */
 #if (HCNSE_POSIX && HCNSE_HAVE_MMAP && HCNSE_LOGGER_IS_PROC)
     hcnse_log_debug1(HCNSE_OK,
-        "The logging process has been started with pid %d", getpid());
+        "The log process has been started with pid %d", getpid());
 #else
-    hcnse_log_debug1(HCNSE_OK, "The logging process has been started with tid "
+    hcnse_log_debug1(HCNSE_OK, "The log thread has been started with tid "
         HCNSE_FMT_TID_T, hcnse_thread_current_tid());
 #endif
 

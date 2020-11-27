@@ -70,7 +70,7 @@ debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 test:  override CFLAGS += -DHCNSE_TEST
 
 # override LDFLAGS += -lssl -lcrypto
-build: override LDFLAGS += -static -static-libgcc
+# override LDFLAGS += -static -static-libgcc
 
 CC = gcc
 
@@ -79,7 +79,7 @@ ifeq ($(CC), gcc)
 		| sed -e 's/^.* version \(.*\)/\1/')
 	override CFLAGS += -DHCNSE_COMPILER="\"gcc $(GCC_VER)\""
 	override LDFLAGS += -ldl
-	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+	override LDFLAGS += -lpthread
 endif
 
 ifeq ($(CC), clang)
@@ -89,7 +89,7 @@ ifeq ($(CC), clang)
 	override CFLAGS += -DHCNSE_COMPILER="\"clang $(CLANG_VER)\""
 	override CFLAGS += -Qunused-arguments
 	override LDFLAGS += -ldl
-	override LDFLAGS += -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+	override LDFLAGS += -lpthread
 endif
 
 ifeq ($(CC), x86_64-w64-mingw32-gcc)
@@ -99,6 +99,7 @@ ifeq ($(CC), x86_64-w64-mingw32-gcc)
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
 	override LDFLAGS += -lssp
+	override LDFLAGS += -static
 endif
 
 ifeq ($(CC), i686-w64-mingw32-gcc)
@@ -108,6 +109,7 @@ ifeq ($(CC), i686-w64-mingw32-gcc)
 	override CFLAGS += -D__USE_MINGW_ANSI_STDIO
 	override LDFLAGS += -lws2_32
 	override LDFLAGS += -lssp
+	override LDFLAGS += -static
 endif
 
 

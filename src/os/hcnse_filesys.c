@@ -116,7 +116,7 @@ hcnse_file_open(hcnse_file_t *file, const char *path, hcnse_uint_t mode,
     if (fd == HCNSE_INVALID_FILE) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "open(\"%s\", %d|%d, %o) failed", path, mode, create, access);
+            "open(\"%s\", %zu|%zu, %o) failed", path, mode, create, access);
         return err;
     }
 
@@ -570,7 +570,7 @@ hcnse_file_open(hcnse_file_t *file, const char *path, hcnse_uint_t mode,
     if (fd == HCNSE_INVALID_FILE) {
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err,
-            "CreateFileW(\"%s\", %d, %d, %p, %d, %d, %p) failed",
+            "CreateFileW(\"%s\", %zu, %d, %p, %zu, %d, %p) failed",
             path, mode, 0, NULL, create, 0, NULL);
         return err;
     }
@@ -626,7 +626,8 @@ hcnse_file_write(hcnse_file_t *file, const char *buf, size_t size,
     }
 
     if (((size_t) n) != size) {
-        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED, "((size_t) n) != size");
+        hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
+            "((size_t) n) != size");
         return -1;
     }
     file->offset += n;
