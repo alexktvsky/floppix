@@ -156,6 +156,77 @@ hcnse_socket_blocking(hcnse_socket_t sockfd)
 
 
 #elif (HCNSE_DARWIN)
+hcnse_err_t
+hcnse_socket_nopush(hcnse_socket_t sockfd)
+{
+    int option;
+    hcnse_err_t err;
+
+    option = 1;
+
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NOPUSH,
+            (const void *) &option, sizeof(int)) == -1)
+    {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "setsockopt(%d, TCP_NOPUSH, 1) failed", sockfd);
+        return err;
+    }
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_socket_push(hcnse_socket_t sockfd)
+{
+    int option;
+    hcnse_err_t err;
+
+    option = 0;
+
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NOPUSH,
+            (const void *) &hcnse_socket_nopush, sizeof(int)) == -1)
+    {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "setsockopt(%d, TCP_NOPUSH, 0) failed", sockfd);
+        return err;
+    }
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_socket_nonblocking(hcnse_socket_t sockfd)
+{
+    int nb;
+    hcnse_err_t err;
+
+    nb = 1;
+
+    if (ioctl(sockfd, FIONBIO, &nb) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "ioctl(%d, FIONBIO, 1) failed", sockfd);
+        return err;
+    }
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_socket_blocking(hcnse_socket_t sockfd)
+{
+    int nb;
+    hcnse_err_t err;
+
+    nb = 0;
+
+    if (ioctl(sockfd, FIONBIO, &nb) == -1) {
+        err = hcnse_get_socket_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err,
+            "ioctl(%d, FIONBIO, 0) failed", sockfd);
+        return err;
+    }
+    return HCNSE_OK;
+}
 
 
 #elif (HCNSE_SOLARIS)

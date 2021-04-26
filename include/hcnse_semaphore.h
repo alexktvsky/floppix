@@ -8,10 +8,16 @@
 #define HCNSE_SEMAPHORE_PRIVATE        0x00000001
 #define HCNSE_SEMAPHORE_SHARED         0x00000002
 
-#if (HCNSE_POSIX)
+#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM)
 
 struct hcnse_semaphore_s {
     sem_t handle;
+};
+
+#elif (HCNSE_POSIX && HCNSE_HAVE_GCD_SEM)
+
+struct hcnse_semaphore_s {
+    dispatch_semaphore_t handle;
 };
 
 #elif (HCNSE_WIN32)

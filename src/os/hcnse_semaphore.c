@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_POSIX)
+#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
@@ -74,6 +74,59 @@ hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
         err = hcnse_get_errno();
         hcnse_log_error1(HCNSE_LOG_ERROR, err, "sem_destroy() failed");
     }
+}
+
+#elif (HCNSE_POSIX && HCNSE_HAVE_GCD_SEM)
+
+hcnse_err_t
+hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
+    hcnse_uint_t maxval, hcnse_bitfield_t params)
+{
+    hcnse_err_t err;
+    dispatch_semaphore_t s;
+
+    (void) params;
+    (void) maxval;
+
+    s = dispatch_semaphore_create(value);
+    if (!s) {
+        err = hcnse_get_errno();
+        hcnse_log_error1(HCNSE_LOG_ERROR, err, "dispatch_semaphore_create() failed");
+        return err;
+    }
+
+    semaphore->handle = s;
+
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_semaphore_wait(hcnse_semaphore_t *semaphore)
+{
+    dispatch_semaphore_wait(semaphore->handle, DISPATCH_TIME_FOREVER);
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_semaphore_trywait(hcnse_semaphore_t *semaphore)
+{
+    if (dispatch_semaphore_wait(semaphore->handle, DISPATCH_TIME_NOW) != 0) {
+        return HCNSE_BUSY;
+    }
+    return HCNSE_OK;
+}
+
+hcnse_err_t
+hcnse_semaphore_post(hcnse_semaphore_t *semaphore)
+{
+    dispatch_semaphore_signal(semaphore->handle);
+    return HCNSE_OK;
+}
+
+void
+hcnse_semaphore_fini(hcnse_semaphore_t *semaphore)
+{
+    (void) semaphore;
 }
 
 #elif (HCNSE_WIN32)

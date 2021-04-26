@@ -64,7 +64,7 @@ override CFLAGS += -std=c99
 override CFLAGS += -pipe
 override CFLAGS += -DHCNSE_POOL_THREAD_SAFETY
 
-build: override CFLAGS += -g0 -O3 -s
+build: override CFLAGS += -g0 -O3
 debug: override CFLAGS += -g3 -O0 -ggdb3
 debug: override CFLAGS += -DHCNSE_DEBUG -DHCNSE_HAVE_VALGRIND
 test:  override CFLAGS += -DHCNSE_TEST

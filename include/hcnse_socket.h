@@ -9,7 +9,6 @@
 #define HCNSE_SHUT_WR                  SHUT_WR
 #define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
-
 #define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_FREEBSD)
@@ -17,7 +16,6 @@
 #define HCNSE_SHUT_WR                  SHUT_WR
 #define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
-
 #define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_SOLARIS)
@@ -25,8 +23,11 @@
 #define HCNSE_INVALID_SOCKET           -1
 
 #elif (HCNSE_DARWIN)
-/* Details for Darwin */
+#define HCNSE_SHUT_RD                  SHUT_RD
+#define HCNSE_SHUT_WR                  SHUT_WR
+#define HCNSE_SHUT_RDWR                SHUT_RDWR
 #define HCNSE_INVALID_SOCKET           -1
+#define HCNSE_FMT_SOCKET_T             "%d"
 
 #elif (HCNSE_WIN32)
 #define HCNSE_SHUT_RD                  SD_RECEIVE
