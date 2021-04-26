@@ -8,7 +8,7 @@
 #define HCNSE_SEMAPHORE_PRIVATE        0x00000001
 #define HCNSE_SEMAPHORE_SHARED         0x00000002
 
-#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM)
+#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM && !HCNSE_DARWIN)
 
 struct hcnse_semaphore_s {
     sem_t handle;

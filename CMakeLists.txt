@@ -1,15 +1,11 @@
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.14.0)
 
-project(hcnse
-	VERSION 0.0.4
-	LANGUAGES C
-	DESCRIPTION "High Concurrency Network Server Engine"
-	HOMEPAGE_URL "https://..."
-)
+project(hcnse)
 
 add_executable(${PROJECT_NAME})
 
 include(cmake/hcnse_options.cmake)
+include(cmake/hcnse_have.cmake)
 
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
@@ -50,10 +46,14 @@ target_compile_options(${PROJECT_NAME}
 PRIVATE
 	-Wall
 	-Wextra
-	-Wno-uninitialized # -Wuninitialized
+	-Wno-uninitialized
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
+target_compile_definitions(${PROJECT_NAME}
+PRIVATE
+	HCNSE_COMPILER="${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}"
+)
 
 if (NOT CMAKE_BUILD_TYPE)
 	set (build_type release)
@@ -64,7 +64,7 @@ endif()
 if (build_type STREQUAL debug)
 	target_compile_options(${PROJECT_NAME}
 	PRIVATE
-		-g0 -O3 -s
+		-g0 -O3
 	)
 	target_compile_definitions(${PROJECT_NAME}
 	PRIVATE
@@ -99,8 +99,3 @@ enable_testing()
 if (BUILD_TESTING)
 	add_subdirectory(test)
 endif()
-
-# if (WIN32)
-# elseif (MSVC)
-# elseif (UNIX)
-# endif()

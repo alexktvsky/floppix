@@ -5,7 +5,7 @@ HCNSE (High Concurrency Network Server Engine)
 
 
 ## Supported systems
-* GNU/Linux (Debian 9/10, Fedora 32)
+* GNU/Linux
 * FreeBSD
 * macOS
 * Solaris

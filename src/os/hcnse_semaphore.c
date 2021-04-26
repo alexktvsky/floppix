@@ -2,7 +2,7 @@
 #include "hcnse_core.h"
 
 
-#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM)
+#if (HCNSE_POSIX && HCNSE_HAVE_POSIX_SEM && !HCNSE_DARWIN)
 
 hcnse_err_t
 hcnse_semaphore_init(hcnse_semaphore_t *semaphore, hcnse_uint_t value,
