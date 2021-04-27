@@ -1,5 +1,5 @@
-#ifndef HCNSE_UNIT_TEST_H
-#define HCNSE_UNIT_TEST_H
+#ifndef INCLUDED_HCNSE_TEST_H
+#define INCLUDED_HCNSE_TEST_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -231,4 +231,4 @@ typedef struct {
 
 
 
-#endif /* HCNSE_UNIT_TEST_H */
+#endif /* INCLUDED_HCNSE_TEST_H */

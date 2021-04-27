@@ -1,6 +1,6 @@
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
-#include "hcnse_unit_test.h"
+#include "hcnse_test.h"
 #include "hcnse_stubs.h"
 
 

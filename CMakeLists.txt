@@ -91,12 +91,11 @@ target_link_libraries(${PROJECT_NAME}
     ${ALL_LIBRARIES}
 )
 
-string(TOLOWER ${CMAKE_SYSTEM_NAME} system_name)
-if (system_name STREQUAL windows)
-    target_link_libraries(${PROJECT_NAME} ws2_32)
-else()
+if (HCNSE_POSIX)
     target_link_libraries(${PROJECT_NAME} pthread)
     target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
+elseif(HCNSE_WIN32)
+    target_link_libraries(${PROJECT_NAME} ws2_32)
 endif()
 
 enable_testing()

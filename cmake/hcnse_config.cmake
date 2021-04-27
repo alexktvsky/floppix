@@ -1,19 +1,55 @@
 include(CheckCSourceCompiles)
 
-if (UNIX)
-    set(HCNSE_POSIX 1)
+check_c_source_compiles("
+int main(void) {
+#if defined(__linux__) || defined(__gnu_linux__)
+#elif
+    generete_error;
+#endif
+}" HCNSE_LINUX)
+
+check_c_source_compiles("
+int main(void) {
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif
+    generete_error();
+#endif
+}" HCNSE_FREEBSD)
+
+check_c_source_compiles("
+int main(void) {
+#if defined(__APPLE__) || defined(__MACH__)
+#elif
+    generete_error();
+#endif
+}" HCNSE_DARWIN)
+
+check_c_source_compiles("
+int main(void) {
+#if defined(__sun) && defined(__SVR4)
+#elif
+    generete_error();
+#endif
+}" HCNSE_SOLARIS)
+
+check_c_source_compiles("
+int main(void) {
+#if defined(_WIN32) || defined(__WIN32__)
+#elif
+    generete_error();
+#endif
+}" HCNSE_WIN32)
+
+if (NOT(HCNSE_LINUX OR
+        HCNSE_FREEBSD OR
+        HCNSE_DARWIN OR
+        HCNSE_SOLARIS OR
+        HCNSE_WIN32))
+    message(FATAL_ERROR "Not supported platform")
 endif()
 
-if (LINUX)
-    set(HCNSE_LINUX 1)
-elseif (APPLE)
-    set(HCNSE_DARWIN 1)
-elseif (FREEBSD)
-    set(HCNSE_FREEBSD 1)
-elseif (SOLARIS)
-    set(HCNSE_SOLARIS 1)
-elseif (WIN32)
-    set(HCNSE_WIN32 1)
+if (HCNSE_LINUX OR HCNSE_FREEBSD OR HCNSE_DARWIN OR HCNSE_SOLARIS)
+    set(HCNSE_POSIX 1)
 endif()
 
 check_c_source_compiles("
@@ -79,10 +115,10 @@ int main(void) {
 
 set(CMAKE_REQUIRED_LINK_OPTIONS -lssl -lcrypto)
 check_c_source_compiles("
-<openssl/opensslv.h>
-<openssl/crypto.h>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 int main(void) {
-    OpenSSL_version();
+    OpenSSL_version(OPENSSL_VERSION);
     return 0;
 }" HCNSE_HAVE_OPENSSL)
 
