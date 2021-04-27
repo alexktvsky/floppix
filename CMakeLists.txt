@@ -67,20 +67,13 @@ else()
 endif()
 
 if (build_type STREQUAL debug)
-    target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        -g0 -O3
-    )
-    target_compile_definitions(${PROJECT_NAME}
-    PRIVATE
+    target_compile_options(${PROJECT_NAME} PRIVATE -g3 -O0 -ggdb3)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
         HCNSE_DEBUG
         HCNSE_HAVE_VALGRIND
     )
 elseif (build_type STREQUAL release)
-    target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        -g3 -O0 -ggdb3
-    )
+    target_compile_options(${PROJECT_NAME} PRIVATE -g0 -O3)
 endif()
 
 
@@ -88,7 +81,6 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
     ${CMAKE_REQUIRED_LIBRARIES}
-    ${ALL_LIBRARIES}
 )
 
 if (HCNSE_POSIX)

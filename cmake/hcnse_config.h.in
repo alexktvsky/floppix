@@ -9,12 +9,14 @@
 #cmakedefine HCNSE_WIN32 1
 
 #cmakedefine HCNSE_HAVE_MMAP 1
+#cmakedefine HCNSE_HAVE_D_TYPE 1
+#cmakedefine HCNSE_HAVE_SC_PAGESIZE 1
+#cmakedefine HCNSE_HAVE_SC_NPROC 1
 #cmakedefine HCNSE_HAVE_POSIX_SEM 1
 #cmakedefine HCNSE_HAVE_GCD_SEM 1
 #cmakedefine HCNSE_HAVE_SELECT 1
 #cmakedefine HCNSE_HAVE_EPOLL 1
 #cmakedefine HCNSE_HAVE_KQUEUE 1
-#cmakedefine HCNSE_HAVE_D_TYPE 1
 #cmakedefine HCNSE_HAVE_OPENSSL 1
 
 #endif /* INCLUDED_HCNSE_CONFIG_H */

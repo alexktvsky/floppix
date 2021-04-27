@@ -70,6 +70,20 @@ int main(void) {
     return 0;
 }" HCNSE_HAVE_D_TYPE)
 
+check_c_source_compiles("
+#include <unistd.h>
+int main(void) {
+    sysconf(_SC_PAGESIZE);
+    return 0;
+}" HCNSE_HAVE_SC_PAGESIZE)
+
+check_c_source_compiles("
+#include <unistd.h>
+int main(void) {
+    sysconf(_SC_NPROCESSORS_ONLN);
+    return 0;
+}" HCNSE_HAVE_SC_NPROC)
+
 set(CMAKE_REQUIRED_LINK_OPTIONS -lpthread)
 check_c_source_compiles("
 #include <semaphore.h>

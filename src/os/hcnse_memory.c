@@ -73,10 +73,10 @@ hcnse_get_page_size(void)
 {
     size_t page_size;
 
-#if defined(_SC_PAGESIZE)
+#if (HCNSE_HAVE_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
 #else
-#error "Failed to determine page size"
+    page_size = 4096;
 #endif
 
     return page_size;
