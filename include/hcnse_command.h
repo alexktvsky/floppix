@@ -1,5 +1,5 @@
-#ifndef INCLUDED_HCNSE_CONFIG_H
-#define INCLUDED_HCNSE_CONFIG_H
+#ifndef INCLUDED_HCNSE_COMMAND_H
+#define INCLUDED_HCNSE_COMMAND_H
 
 #include "hcnse_portable.h"
 #include "hcnse_core.h"
@@ -102,4 +102,4 @@ hcnse_err_t hcnse_handler_size(hcnse_cmd_params_t *params, void *data,
 hcnse_err_t hcnse_handler_uint(hcnse_cmd_params_t *params, void *data,
     int argc, char **argv);
 
-#endif /* INCLUDED_HCNSE_CONFIG_H */
+#endif /* INCLUDED_HCNSE_COMMAND_H */

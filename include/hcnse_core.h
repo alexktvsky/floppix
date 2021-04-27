@@ -33,7 +33,7 @@ typedef void (*hcnse_cleanup_handler_t)(void *data);
 #include "hcnse_pool.h"
 #include "hcnse_list.h"
 #include "hcnse_array.h"
-#include "hcnse_config.h"
+#include "hcnse_command.h"
 #include "hcnse_parse.h"
 #include "hcnse_log.h"
 #include "hcnse_listen.h"
