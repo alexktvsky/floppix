@@ -10,36 +10,46 @@ include(cmake/hcnse_config.cmake)
 target_include_directories(${PROJECT_NAME}
 PRIVATE
     include
+    include/container
+    include/core
+    include/system
+    include/system/net
+    include/system/os
+    include/system/sync
+    include/type
+    include/util
     ${PROJECT_BINARY_DIR}
 )
 
 target_sources(${PROJECT_NAME}
 PRIVATE
-    src/core/hcnse_array.c
-    src/core/hcnse_command.c
-    src/core/hcnse_connection.c
-    src/core/hcnse_core.c
-    src/core/hcnse_cycle.c
-    src/core/hcnse_list.c
-    src/core/hcnse_listen.c
-    src/core/hcnse_log.c
-    src/core/hcnse_module.c
-    src/core/hcnse_parse.c
-    src/core/hcnse_pool.c
-    src/core/hcnse_string.c
-    src/os/hcnse_memory.c
-    src/os/hcnse_filesys.c
-    src/os/hcnse_errno.c
-    src/os/hcnse_sockaddr.c
-    src/os/hcnse_socket.c
-    src/os/hcnse_sockopt.c
-    src/os/hcnse_time.c
-    src/os/hcnse_thread.c
-    src/os/hcnse_mutex.c
-    src/os/hcnse_semaphore.c
-    src/os/hcnse_cpuinfo.c
-    src/os/hcnse_dso.c
-    src/os/hcnse_process.c
+    src/container/hcnse.container.array.c
+    src/container/hcnse.container.list.c
+    src/core/hcnse.core.module.c
+    src/core/hcnse.core.parse.c
+    src/core/hcnse.core.listen.c
+    src/core/hcnse.core.cycle.c
+    src/core/hcnse.core.server.c
+    src/core/hcnse.core.log.c
+    src/core/hcnse.core.connection.c
+    src/core/hcnse.core.command.c
+    src/system/hcnse.system.process.c
+    src/system/net/hcnse.system.net.sockaddr.c
+    src/system/net/hcnse.system.net.socket.c
+    src/system/net/hcnse.system.net.sockopt.c
+    src/system/hcnse.system.pool.c
+    src/system/hcnse.system.thread.c
+    src/system/hcnse.system.dso.c
+    src/system/hcnse.system.time.c
+    src/system/hcnse.system.memory.c
+    src/system/hcnse.system.errno.c
+    src/system/hcnse.system.signal.c
+    src/system/hcnse.system.filesys.c
+    src/system/hcnse.system.cpuinfo.c
+    src/system/sync/hcnse.system.sync.semaphore.c
+    src/system/sync/hcnse.system.sync.mutex.c
+    src/util/hcnse.util.string.c
+    src/core/main.c
 )
 
 if (NOT BUILD_TESTING)

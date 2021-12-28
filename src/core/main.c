@@ -1,5 +1,12 @@
-#include "hcnse_portable.h"
-#include "hcnse_core.h"
+#include "hcnse.system.os.portable.h"
+#include "hcnse.system.errno.h"
+#include "hcnse.system.memory.h"
+#include "hcnse.util.string.h"
+#include "hcnse.core.command.h"
+#include "hcnse.core.module.h"
+#include "hcnse.core.cycle.h"
+#include "hcnse.release.h"
+
 
 #if !(HCNSE_TEST)
 

@@ -50,3 +50,5 @@ obj
 docs/html
 *.log
 
+# CLion files
+.idea

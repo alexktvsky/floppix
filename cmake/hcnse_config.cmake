@@ -137,6 +137,6 @@ int main(void) {
 }" HCNSE_HAVE_OPENSSL)
 
 configure_file(
-    "cmake/hcnse_config.h.in"
-    "${PROJECT_BINARY_DIR}/hcnse_config.h"
+    "cmake/hcnse.system.os.config.h.in"
+    "${PROJECT_BINARY_DIR}/hcnse.system.os.config.h"
 )
