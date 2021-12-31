@@ -14,12 +14,12 @@ static hcnse_err_t
 hcnse_add_module(hcnse_server_t *server, hcnse_module_t *module)
 {
     hcnse_module_t *current;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
 
-    iter = hcnse_list_first(server->modules);
+    node = server->modules->head;
 
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        current = hcnse_list_data(iter);
+    for ( ; node; node = node->next) {
+        current = (hcnse_module_t *) node->data;
         if (!hcnse_strcmp(current->name, module->name)) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
                 "Module \"%s\" is already plugged", module->name);
@@ -54,14 +54,14 @@ hcnse_err_t
 hcnse_preinit_modules(hcnse_server_t *server)
 {
     hcnse_module_t *module;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     void *cntx;
 
-    iter = hcnse_list_first(server->modules);
+    node = server->modules->head;
 
-    for ( ; iter; iter = hcnse_list_next(iter)) {
+    for ( ; node; node = node->next) {
 
-        module = hcnse_list_data(iter);
+        module = (hcnse_module_t *) node->data;
 
         if (module->preinited) {
             break;
@@ -86,14 +86,14 @@ hcnse_err_t
 hcnse_init_modules(hcnse_server_t *server)
 {
     hcnse_module_t *module;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_err_t err;
 
-    iter = hcnse_list_first(server->modules);
+    node = server->modules->head;
 
-    for ( ; iter; iter = hcnse_list_next(iter)) {
+    for ( ; node; node = node->next) {
 
-        module = hcnse_list_data(iter);
+        module = (hcnse_module_t *) node->data;
 
         if (module->inited) {
             break;
@@ -117,11 +117,11 @@ hcnse_err_t
 hcnse_modules_fini(hcnse_server_t *server)
 {
     hcnse_module_t *module;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
 
-    iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        module = hcnse_list_data(iter);
+    node = server->modules->head;
+    for ( ; node; node = node->next) {
+        module = (hcnse_module_t *) node->data;
         if (module->fini) {
             module->fini(server, module->cntx);
         }

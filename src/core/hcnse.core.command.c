@@ -75,7 +75,7 @@ hcnse_config_parse(hcnse_config_t *config, hcnse_pool_t *pool,
     hcnse_uint_t line = 1;
 
 
-    file = hcnse_list_last(config->conf_files)->data;
+    file = config->conf_files->tail->data;
     filename = file->name;
 
     for (i = 0; ; ++i) {
@@ -188,13 +188,13 @@ next:
 static hcnse_command_t *
 hcnse_find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
 {
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_module_t *module;
     hcnse_uint_t i;
 
-    iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        module = hcnse_list_data(iter);
+    node = server->modules->head;
+    for ( ; node; node = node->next) {
+        module = (hcnse_module_t *) node->data;
         for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (hcnse_strcmp(module->cmd[i].name, cmd_name) == 0) {
                 return &(module->cmd[i]);
@@ -207,13 +207,13 @@ hcnse_find_command_in_modules(hcnse_server_t *server, const char *cmd_name)
 static hcnse_module_t *
 hcnse_find_module_by_command(hcnse_server_t *server, const char *cmd_name)
 {
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_module_t *module;
     hcnse_uint_t i;
 
-    iter = hcnse_list_first(server->modules);
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        module = hcnse_list_data(iter);
+    node = server->modules->head;
+    for ( ; node; node = node->next) {
+        module = (hcnse_module_t *) node->data;
         for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (hcnse_strcmp(module->cmd[i].name, cmd_name) == 0) {
                 return module;
@@ -363,15 +363,11 @@ hcnse_config_read(hcnse_config_t *config, hcnse_pool_t *pool,
 
     file_buf[bytes_read] = '\0';
 
-    conf_list = hcnse_list_create(pool);
-    if (!conf_list) {
-        err = hcnse_get_errno();
+    if ((err = hcnse_list_init(&conf_list, pool)) != HCNSE_OK) {
         goto failed;
     }
 
-    conf_files = hcnse_list_create(pool);
-    if (!conf_files) {
-        err = hcnse_get_errno();
+    if ((err = hcnse_list_init(&conf_files, pool)) != HCNSE_OK) {
         goto failed;
     }
 
@@ -404,14 +400,14 @@ hcnse_config_check(hcnse_config_t *config, hcnse_server_t *server)
     hcnse_directive_t *directive;
     hcnse_command_t *cmd;
     hcnse_module_t *module;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_err_t err;
 
-    iter = hcnse_list_first(config->conf_list);
+    node = config->conf_list->head;
 
-    for ( ; iter; iter = hcnse_list_next(iter)) {
+    for ( ; node; node = node->next) {
 
-        directive = hcnse_list_data(iter);
+        directive = (hcnse_directive_t *) node->data;
 
         cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
@@ -461,13 +457,13 @@ hcnse_config_process(hcnse_config_t *config, hcnse_server_t *server)
     hcnse_directive_t *directive;
     hcnse_command_t *cmd;
     hcnse_module_t *module;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_err_t err;
 
 
-    iter = hcnse_list_first(config->conf_list);
-    for ( ; iter; iter = hcnse_list_next(iter)) {
-        directive = hcnse_list_data(iter);
+    node = config->conf_list->head;
+    for ( ; node; node = node->next) {
+        directive = (hcnse_directive_t *) node->data;
         cmd = hcnse_find_command_in_modules(server, directive->name);
         if (!cmd) {
             hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_ERR_CONFIG_SYNTAX,

@@ -9,7 +9,7 @@ struct hcnse_array_s {
 };
 
 hcnse_array_t *
-hcnse_array_create(hcnse_pool_t *pool, size_t size, size_t n)
+hcnse_array_init(hcnse_pool_t *pool, size_t size, size_t n)
 {
     hcnse_array_t *array;
     void *data;

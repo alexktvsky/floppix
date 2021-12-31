@@ -15,8 +15,7 @@
 typedef struct hcnse_pool_s hcnse_pool_t;
 typedef void (*hcnse_cleanup_handler_t)(void *data);
 
-hcnse_pool_t *hcnse_pool_create(size_t size, hcnse_pool_t *parent);
-hcnse_err_t hcnse_pool_create1(hcnse_pool_t **newpool, size_t size,
+hcnse_err_t hcnse_pool_create(hcnse_pool_t **newpool, size_t size,
     hcnse_pool_t *parent);
 void hcnse_pool_add_child(hcnse_pool_t *parent, hcnse_pool_t *new_child);
 void *hcnse_palloc(hcnse_pool_t *pool, size_t size);

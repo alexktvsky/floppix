@@ -173,7 +173,7 @@ hcnse_pool_add_child(hcnse_pool_t *parent, hcnse_pool_t *new_child)
 }
 
 hcnse_err_t
-hcnse_pool_create1(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
+hcnse_pool_create(hcnse_pool_t **newpool, size_t size, hcnse_pool_t *parent)
 {
     hcnse_memnode_t *node;
     hcnse_pool_t *pool;
@@ -259,17 +259,6 @@ failed:
     }
 
     return err;
-}
-
-hcnse_pool_t *
-hcnse_pool_create(size_t size, hcnse_pool_t *parent)
-{
-    hcnse_pool_t *pool;
-
-    if (hcnse_pool_create1(&pool, size, parent) != HCNSE_OK) {
-        return NULL;
-    }
-    return pool;
 }
 
 void *

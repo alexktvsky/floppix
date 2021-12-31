@@ -7,12 +7,12 @@ hcnse_err_t
 hcnse_connection_init(hcnse_connect_t *connect)
 {
     hcnse_pool_t *pool;
+    hcnse_err_t err;
 
     hcnse_memzero(connect, sizeof(hcnse_connect_t));
 
-    pool = hcnse_pool_create(0, NULL);
-    if (!pool) {
-        return hcnse_get_errno();
+    if ((err = hcnse_pool_create(&pool, 0, NULL)) != HCNSE_OK) {
+        return err;
     }
 
     connect->type_id = HCNSE_CONNECTION_ID;

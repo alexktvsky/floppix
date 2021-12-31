@@ -181,14 +181,14 @@ main(int argc, const char *const *argv)
     }
 #endif
 
-    hcnse_assert(pool = hcnse_pool_create(0, NULL));
-    hcnse_assert(ptemp = hcnse_pool_create(0, NULL));
+    hcnse_assert(hcnse_pool_create(&pool, 0, NULL) == HCNSE_OK);
+    hcnse_assert(hcnse_pool_create(&ptemp, 0, NULL) == HCNSE_OK);
 
     hcnse_assert(server = hcnse_pcalloc(pool, sizeof(hcnse_server_t)));
 
     hcnse_save_argv(server, argc, argv);
 
-    hcnse_assert(modules = hcnse_list_create(pool));
+    hcnse_assert(hcnse_list_init(&modules, pool) == HCNSE_OK);
     hcnse_assert(config = hcnse_palloc(ptemp, sizeof(hcnse_config_t)));
 
     if ((err = hcnse_config_read(config, ptemp, config_fname)) != HCNSE_OK) {

@@ -99,7 +99,7 @@ hcnse_logger_worker(void *arg)
     hcnse_logger_t *logger;  
     hcnse_log_message_t *messages, *message;
     size_t len;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_log_t *log;
 
     logger = (hcnse_logger_t *) arg;
@@ -129,9 +129,9 @@ hcnse_logger_worker(void *arg)
             "%s [%s] %s" HCNSE_EOL_STR, 
             message->time, hcnse_log_prio[message->level], message->str);
 
-        iter = hcnse_list_first(logger->logs);
-        for ( ; iter; iter = hcnse_list_next(iter)) {
-            log = hcnse_list_data(iter);
+        node = logger->logs->head;
+        for ( ; node; node = node->next) {
+            log = (hcnse_log_t *) node->data;
             log->handler(log, message->level, buf, len);
         }
 
@@ -143,7 +143,7 @@ hcnse_logger_worker(void *arg)
 
 
 hcnse_err_t
-hcnse_logger_create1(hcnse_logger_t **out_logger)
+hcnse_logger_init(hcnse_logger_t **out_logger)
 {
     hcnse_mutex_t *mutex_deposit;
     hcnse_mutex_t *mutex_fetch;
@@ -169,9 +169,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
     logger = NULL;
     mem_size = 0;
 
-    pool = hcnse_pool_create(0, NULL);
-    if (!pool) {
-        err = hcnse_get_errno();
+    if ((err = hcnse_pool_create(&pool, 0, NULL)) != HCNSE_OK) {
         goto failed;
     }
 
@@ -181,9 +179,7 @@ hcnse_logger_create1(hcnse_logger_t **out_logger)
         goto failed;
     }
 
-    logs = hcnse_list_create(pool);
-    if (!logs) {
-        err = hcnse_get_errno();
+    if ((err = hcnse_list_init(&logs, pool)) != HCNSE_OK) {
         goto failed;
     }
 
@@ -276,18 +272,6 @@ failed:
 #endif
     return err;
 }
-
-hcnse_logger_t *
-hcnse_logger_create(void)
-{
-    hcnse_logger_t *logger;
-
-    if (hcnse_logger_create1(&logger) != HCNSE_OK) {
-        return NULL;
-    }
-    return logger;
-}
-
 
 hcnse_err_t
 hcnse_logger_add_log_fd(hcnse_logger_t *logger, hcnse_uint_t level,

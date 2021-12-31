@@ -4,7 +4,7 @@
 
 
 hcnse_err_t
-hcnse_list_create1(hcnse_list_t **out_list, hcnse_pool_t *pool)
+hcnse_list_init(hcnse_list_t **out_list, hcnse_pool_t *pool)
 {
     hcnse_list_t *list;
 
@@ -29,18 +29,6 @@ hcnse_list_create1(hcnse_list_t **out_list, hcnse_pool_t *pool)
     *out_list = list;
 
     return HCNSE_OK;
-}
-
-hcnse_list_t *
-hcnse_list_create(hcnse_pool_t *pool)
-{
-    hcnse_list_t *list;
-
-    if (hcnse_list_create1(&list, pool) != HCNSE_OK) {
-        return NULL;
-    }
-
-    return list;
 }
 
 hcnse_err_t
@@ -163,7 +151,7 @@ hcnse_list_reserve(hcnse_list_t *list, size_t n)
 }
 
 hcnse_err_t
-hcnse_list_remove1(hcnse_list_t *list, hcnse_list_node_t *node)
+hcnse_list_remove_node(hcnse_list_t *list, hcnse_list_node_t *node)
 {
     hcnse_list_node_t *founded_node, *temp1;
 

@@ -169,10 +169,10 @@ hcnse_core_preinit(hcnse_server_t *server)
     hcnse_list_t *free_connections;
     hcnse_logger_t *logger;
 
-    hcnse_assert(listeners = hcnse_list_create(server->pool));
-    hcnse_assert(connections = hcnse_list_create(server->pool));
-    hcnse_assert(free_connections = hcnse_list_create(server->pool));
-    hcnse_assert(logger = hcnse_logger_create());
+    hcnse_assert(hcnse_list_init(&listeners, server->pool) == HCNSE_OK);
+    hcnse_assert(hcnse_list_init(&connections, server->pool) == HCNSE_OK);
+    hcnse_assert(hcnse_list_init(&free_connections, server->pool) == HCNSE_OK);
+    hcnse_assert(hcnse_logger_init(&logger) == HCNSE_OK);
 
     server->daemon = true;
     server->workdir = HCNSE_DEFAULT_WORKDIR;
@@ -194,21 +194,21 @@ static hcnse_err_t
 hcnse_core_init(hcnse_server_t *server, void *data)
 {
     hcnse_listener_t *listener;
-    hcnse_list_node_t *iter;
+    hcnse_list_node_t *node;
     hcnse_err_t err;
 
     /* For core module contex is a server run time context */
     hcnse_assert(server == data);
 
-    if (hcnse_list_size(server->listeners) == 0) {
+    if (server->listeners->size == 0) {
         hcnse_log_error1(HCNSE_LOG_ERROR, HCNSE_FAILED,
             "Listen address and port not specified");
         return HCNSE_FAILED;
     }
 
-    iter = hcnse_list_first(server->listeners);
-    for ( ; iter; iter = iter->next) {
-        listener = (hcnse_listener_t *) (iter->data);
+    node = server->listeners->head;
+    for ( ; node; node = node->next) {
+        listener = (hcnse_listener_t *) node->data;
 
         if ((err = hcnse_listener_bind(listener)) != HCNSE_OK) {
             hcnse_log_error1(HCNSE_LOG_ERROR, err, "Listener (%s:%s) failed",
