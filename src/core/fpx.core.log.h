@@ -76,7 +76,7 @@ void fpx_log_error(fpx_uint_t level, fpx_logger_t *logger,
 fpx_err_t fpx_logger_init(fpx_logger_t **logger);
 fpx_err_t fpx_logger_start(fpx_logger_t *logger);
 fpx_err_t fpx_logger_add_log_file(fpx_logger_t *logger,
-    fpx_uint_t level, const char *fname, size_t size);
+    fpx_uint_t level, const char *fname, fpx_size_t size);
 fpx_err_t fpx_logger_add_log_fd(fpx_logger_t *logger,
     fpx_uint_t level, fpx_fd_t fd);
 

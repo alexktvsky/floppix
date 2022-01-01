@@ -170,7 +170,7 @@ fpx_listener_clear(fpx_listener_t *listener)
 
 const char *
 fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,
-    size_t bufsize)
+    fpx_size_t bufsize)
 {
     return fpx_sockaddr_get_addr_text(
         (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);
@@ -178,7 +178,7 @@ fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,
 
 const char *
 fpx_listener_get_port_text(fpx_listener_t *listener, char *buf,
-    size_t bufsize)
+    fpx_size_t bufsize)
 {
     return fpx_sockaddr_get_port_text(
         (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);

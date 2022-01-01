@@ -2,6 +2,7 @@
 #define FPX_SYSTEM_NET_SOCKADDR_H
 
 #include "fpx.system.os.portable.h"
+#include "fpx.system.type.h"
 
 #define FPX_ADDR_INVALID            -1
 #define FPX_ADDR_IPV4                0
@@ -17,8 +18,8 @@
 
 
 const char * fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr,
-    char *buf, size_t bufsize);
+    char *buf, fpx_size_t bufsize);
 const char *fpx_sockaddr_get_port_text(const struct sockaddr *sockaddr,
-    char *buf, size_t bufsize);
+    char *buf, fpx_size_t bufsize);
 
 #endif /* FPX_SYSTEM_NET_SOCKADDR_H */

@@ -14,7 +14,7 @@ static uint64_t fpx_memory_counter_value;
 
 
 void *
-fpx_malloc(size_t size)
+fpx_malloc(fpx_size_t size)
 {
     void *mem;
 
@@ -33,7 +33,7 @@ fpx_malloc(size_t size)
 }
 
 void *
-fpx_calloc(size_t size)
+fpx_calloc(fpx_size_t size)
 {
     void *mem;
 
@@ -52,14 +52,14 @@ fpx_free(void *mem)
     fpx_log_debug1(FPX_OK, "free %p", mem);
 }
 
-size_t
+fpx_size_t
 fpx_get_memory_counter(void)
 {
     return fpx_memory_counter_value;
 }
 
 void
-fpx_explicit_memzero(void *buf, size_t n)
+fpx_explicit_memzero(void *buf, fpx_size_t n)
 {
     fpx_memset(buf, 0, n);
     memory_barrier();
@@ -68,10 +68,10 @@ fpx_explicit_memzero(void *buf, size_t n)
 
 #if (FPX_POSIX)
 
-size_t
+fpx_size_t
 fpx_get_page_size(void)
 {
-    size_t page_size;
+    fpx_size_t page_size;
 
 #if (FPX_HAVE_SC_PAGESIZE)
     page_size = sysconf(_SC_PAGESIZE);
@@ -84,11 +84,11 @@ fpx_get_page_size(void)
 
 #elif (FPX_WIN32)
 
-size_t
+fpx_size_t
 fpx_get_page_size(void)
 {
     SYSTEM_INFO si;
-    size_t page_size;
+    fpx_size_t page_size;
 
     GetSystemInfo(&si);
     page_size = si.dwPageSize;

@@ -19,8 +19,8 @@ typedef struct fpx_list_s {
     fpx_list_node_t *head;
     fpx_list_node_t *tail;
     fpx_list_node_t *free_nodes;
-    size_t size;
-    size_t capacity;
+    fpx_size_t size;
+    fpx_size_t capacity;
 } fpx_list_t;
 
 
@@ -29,7 +29,7 @@ fpx_err_t fpx_list_push_back(fpx_list_t *list, void *data);
 fpx_err_t fpx_list_push_front(fpx_list_t *list, void *data);
 fpx_err_t fpx_list_remove(fpx_list_t *list, void *data);
 fpx_err_t fpx_list_remove_node(fpx_list_t *list, fpx_list_node_t *node);
-fpx_err_t fpx_list_reserve(fpx_list_t *list, size_t n);
+fpx_err_t fpx_list_reserve(fpx_list_t *list, fpx_size_t n);
 void fpx_list_clear(fpx_list_t *list);
 
 #endif /* FPX_ALGO_LIST_H */

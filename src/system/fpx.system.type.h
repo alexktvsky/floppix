@@ -2,8 +2,8 @@
 #define FPX_SYSTEM_TYPE_H
 
 #include "fpx.system.os.portable.h"
-#include "fpx.system.memory.h"
 
+#define FPX_PTR_SIZE                 __SIZEOF_POINTER__
 
 #define FPX_INT32_MAX_VALUE          (uint32_t) 0x7fffffff
 #define FPX_UINT32_MAX_VALUE         (uint32_t) 0xffffffff

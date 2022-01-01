@@ -7,9 +7,9 @@
 
 #if 0
 static fpx_err_t
-foo(fpx_cmd_params_t *params, void *data, int argc, char **argv)
+foo(fpx_cmd_params_t *params, void *data, fpx_int_t argc, char **argv)
 {
-    int i;
+    fpx_int_t i;
     (void) data;
     printf("%s ", params->directive->name);
     for (i = 0; i < argc; ++i) {
@@ -21,7 +21,7 @@ foo(fpx_cmd_params_t *params, void *data, int argc, char **argv)
 #endif
 
 static fpx_err_t
-fpx_handler_include(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_include(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     fpx_pool_t *pool;
@@ -43,7 +43,7 @@ fpx_handler_include(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 static fpx_err_t
-fpx_handler_import(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_import(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     fpx_module_t *module;
@@ -60,7 +60,7 @@ fpx_handler_import(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 static fpx_err_t
-fpx_handler_listen(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_listen(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     fpx_listener_t *listener;
@@ -102,11 +102,11 @@ fpx_handler_listen(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 static fpx_err_t
-fpx_handler_log(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_log(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     fpx_uint_t level;
-    ssize_t size;
+    fpx_ssize_t size;
 
     (void) data;
 

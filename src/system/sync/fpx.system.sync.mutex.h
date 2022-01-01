@@ -38,7 +38,7 @@ struct fpx_mutex_s {
 
 #endif
 
-fpx_err_t fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitfield_t params);
+fpx_err_t fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params);
 fpx_err_t fpx_mutex_lock(fpx_mutex_t *mutex);
 fpx_err_t fpx_mutex_trylock(fpx_mutex_t *mutex);
 fpx_err_t fpx_mutex_unlock(fpx_mutex_t *mutex);

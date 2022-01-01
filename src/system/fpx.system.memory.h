@@ -2,6 +2,7 @@
 #define FPX_SYSTEM_MEMORY_H
 
 #include "fpx.system.os.portable.h"
+#include "fpx.system.type.h"
 
 #define FPX_PTR_SIZE                 __SIZEOF_POINTER__
 #define FPX_PTR_WIDTH                (8 * FPX_PTR_SIZE)
@@ -18,12 +19,12 @@
 #define fpx_memmove(dst, src, n)     memmove(dst, src, n)
 
 
-void *fpx_malloc(size_t size);
-void *fpx_calloc(size_t size);
+void *fpx_malloc(fpx_size_t size);
+void *fpx_calloc(fpx_size_t size);
 void fpx_free(void *mem);
-size_t fpx_get_memory_counter(void);
+fpx_size_t fpx_get_memory_counter(void);
 
-void fpx_explicit_memzero(void *buf, size_t n);
-size_t fpx_get_page_size(void);
+void fpx_explicit_memzero(void *buf, fpx_size_t n);
+fpx_size_t fpx_get_page_size(void);
 
 #endif /* FPX_SYSTEM_MEMORY_H */

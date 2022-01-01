@@ -37,7 +37,7 @@ fpx_list_push_back(fpx_list_t *list, void *data)
 {
     fpx_list_node_t *nodes, *node, *temp;
     fpx_uint_t i;
-    size_t alloc_size;
+    fpx_size_t alloc_size;
 
     if (list->free_nodes) {
         node = list->free_nodes;
@@ -85,7 +85,7 @@ fpx_list_push_front(fpx_list_t *list, void *data)
 {
     fpx_list_node_t *nodes, *node, *temp;
     fpx_uint_t i;
-    size_t alloc_size;
+    fpx_size_t alloc_size;
 
     if (list->free_nodes) {
         node = list->free_nodes;
@@ -129,11 +129,11 @@ fpx_list_push_front(fpx_list_t *list, void *data)
 }
 
 fpx_err_t
-fpx_list_reserve(fpx_list_t *list, size_t n)
+fpx_list_reserve(fpx_list_t *list, fpx_size_t n)
 {
     fpx_list_node_t *nodes, *temp;
     fpx_uint_t i;
-    size_t alloc_size;
+    fpx_size_t alloc_size;
 
     alloc_size = sizeof(fpx_list_node_t) * n;
     nodes = fpx_palloc(list->pool, alloc_size);

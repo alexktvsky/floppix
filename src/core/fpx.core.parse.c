@@ -7,12 +7,12 @@
 #include "fpx.system.memory.h"
 
 
-ssize_t
+fpx_ssize_t
 fpx_config_parse_size(const char *str)
 {
     char prefix;
-    size_t len;
-    ssize_t size, scale, max;
+    fpx_size_t len;
+    fpx_ssize_t size, scale, max;
 
     len = fpx_strlen(str);
 
@@ -66,7 +66,7 @@ fpx_config_parse_addr_port(char **addr, char **port, const char *str,
     const char *pos, *end, *close_bracket;
     fpx_int_t int_port;
     fpx_uint_t rv;
-    size_t len;
+    fpx_size_t len;
 
     len = fpx_strlen(str);
     end = str + len - 1;

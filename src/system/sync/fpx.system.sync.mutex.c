@@ -4,7 +4,7 @@
 #if (FPX_POSIX)
 
 fpx_err_t
-fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitfield_t params)
+fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params)
 {
     pthread_mutexattr_t attr;
     fpx_err_t err;
@@ -111,7 +111,7 @@ fpx_mutex_fini(fpx_mutex_t *mutex)
 
 
 fpx_err_t
-fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitfield_t params)
+fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params)
 {
     HANDLE handle;
     fpx_err_t err;

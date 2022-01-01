@@ -3,13 +3,13 @@
 
 struct fpx_array_s {
     void *data;
-    size_t size;
-    size_t n_total;
-    size_t n_current;
+    fpx_size_t size;
+    fpx_size_t n_total;
+    fpx_size_t n_current;
 };
 
 fpx_array_t *
-fpx_array_init(fpx_pool_t *pool, size_t size, size_t n)
+fpx_array_init(fpx_pool_t *pool, fpx_size_t size, fpx_size_t n)
 {
     fpx_array_t *array;
     void *data;

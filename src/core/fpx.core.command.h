@@ -25,7 +25,7 @@
 #endif
 
 typedef fpx_err_t (*fpx_cmd_handler_t)(fpx_cmd_params_t *params,
-    void *data, int argc, char **argv);
+    void *data, fpx_int_t argc, char **argv);
 
 /*
  * The command record structure. Modules can define a table of these
@@ -35,7 +35,7 @@ struct fpx_command_s {
     /* Name of this command */
     const char *name;
     /* How many arguments takes directive */
-    fpx_bitfield_t takes;
+    fpx_bitmask_t takes;
     /* The function to be called when this directive is parsed */
     fpx_cmd_handler_t handler;
     /* The offset of field in context structure */
@@ -65,7 +65,7 @@ struct fpx_directive_s {
     /* The current directive name */
     const char *name;
     /*  Number of arguments */
-    int argc;
+    fpx_int_t argc;
     /* The arguments for the current directive */
     char **argv;
     /* The name of the file this directive was found in */
@@ -96,12 +96,12 @@ fpx_err_t fpx_config_process(fpx_config_t *config,
     fpx_server_t *server);
 
 fpx_err_t fpx_handler_flag(fpx_cmd_params_t *params, void *data,
-    int argc, char **argv);
+    fpx_int_t argc, char **argv);
 fpx_err_t fpx_handler_str(fpx_cmd_params_t *params, void *data,
-    int argc, char **argv);
+    fpx_int_t argc, char **argv);
 fpx_err_t fpx_handler_size(fpx_cmd_params_t *params, void *data,
-    int argc, char **argv);
+    fpx_int_t argc, char **argv);
 fpx_err_t fpx_handler_uint(fpx_cmd_params_t *params, void *data,
-    int argc, char **argv);
+    fpx_int_t argc, char **argv);
 
 #endif /* FPX_CORE_COMMAND_H */

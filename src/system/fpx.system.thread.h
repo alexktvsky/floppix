@@ -59,8 +59,8 @@ struct fpx_thread_s {
 
 };
 
-fpx_err_t fpx_thread_init(fpx_thread_t *thread, fpx_bitfield_t params,
-    size_t stack_size, fpx_int_t prio, fpx_thread_function_t start_routine,
+fpx_err_t fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params,
+    fpx_size_t stack_size, fpx_int_t prio, fpx_thread_function_t start_routine,
     void *arg);
 fpx_err_t fpx_thread_join(fpx_thread_t *thread);
 fpx_err_t fpx_thread_cancel(fpx_thread_t *thread);

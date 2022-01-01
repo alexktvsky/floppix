@@ -4,7 +4,7 @@
 #include "fpx.core.module.h"
 #include "fpx.core.parse.h"
 
-static fpx_bitfield_t fpx_takes[] = {
+static fpx_bitmask_t fpx_takes[] = {
     FPX_TAKE0,
     FPX_TAKE1,
     FPX_TAKE2,
@@ -18,11 +18,11 @@ static fpx_bitfield_t fpx_takes[] = {
 
 static fpx_err_t
 fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
-    const char *name, int argc, char **argv, const char *filename,
+    const char *name, fpx_int_t argc, char **argv, const char *filename,
     fpx_uint_t line)
 {
     fpx_directive_t *directive;
-    size_t argv_size;
+    fpx_size_t argv_size;
 
 
     directive = fpx_pcalloc(pool, sizeof(fpx_directive_t));
@@ -57,19 +57,19 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool,
 
     const char *begin = NULL;
     const char *end = NULL;
-    size_t len;
+    fpx_size_t len;
 
     const char *str;
-    int argc = 0;
+    fpx_int_t argc = 0;
     char *argv[FPX_MAX_TAKES];
     char *alloc_str;
     char c;
 
-    bool found = false;
-    bool comment = false;
-    bool in_directive = false;
-    bool end_line = false;
-    bool end_file = false;
+    fpx_bool_t found = false;
+    fpx_bool_t comment = false;
+    fpx_bool_t in_directive = false;
+    fpx_bool_t end_line = false;
+    fpx_bool_t end_file = false;
 
     fpx_uint_t i;
     fpx_uint_t line = 1;
@@ -134,7 +134,7 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool,
 
         if (found) {
 
-            len = (size_t) (end - begin);
+            len = (fpx_size_t) (end - begin);
 
             alloc_str = fpx_pstrndup(pool, begin, len);
             if (!alloc_str) {
@@ -259,8 +259,8 @@ fpx_config_read_included_file(fpx_config_t *config, fpx_pool_t *pool,
 {
     fpx_file_t *file;
     char *file_buf;
-    ssize_t file_size;
-    ssize_t bytes_read;
+    fpx_ssize_t file_size;
+    fpx_ssize_t bytes_read;
 
     fpx_err_t err;
 
@@ -323,8 +323,8 @@ fpx_config_read(fpx_config_t *config, fpx_pool_t *pool,
     fpx_list_t *conf_files;
     fpx_file_t *file;
     char *file_buf;
-    ssize_t file_size;
-    ssize_t bytes_read;
+    fpx_ssize_t file_size;
+    fpx_ssize_t bytes_read;
 
     fpx_err_t err;
 
@@ -702,13 +702,13 @@ fpx_config_read_included(fpx_config_t *config, fpx_pool_t *pool,
 }
 
 fpx_err_t
-fpx_handler_flag(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_flag(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
-    bool *ptr;
+    fpx_bool_t *ptr;
     (void) argc;
 
-    ptr = (bool *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (fpx_bool_t *) (((uint8_t *) data) + params->cmd->offset);
 
     if (fpx_strcasecmp(argv[0], "on") == 0) {
         *ptr = 1;
@@ -727,7 +727,7 @@ fpx_handler_flag(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 fpx_err_t
-fpx_handler_str(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_str(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     char **ptr;
@@ -741,13 +741,13 @@ fpx_handler_str(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 fpx_err_t
-fpx_handler_size(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_size(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
-    ssize_t *ptr, n;
+    fpx_ssize_t *ptr, n;
     (void) argc;
 
-    ptr = (ssize_t *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (fpx_ssize_t *) (((uint8_t *) data) + params->cmd->offset);
 
     n = fpx_config_parse_size(argv[0]);
     if (n == -1) {
@@ -763,7 +763,7 @@ fpx_handler_size(fpx_cmd_params_t *params, void *data, int argc,
 }
 
 fpx_err_t
-fpx_handler_uint(fpx_cmd_params_t *params, void *data, int argc,
+fpx_handler_uint(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     char **argv)
 {
     fpx_int_t *ptr, n;

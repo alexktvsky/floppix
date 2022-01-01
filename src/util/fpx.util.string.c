@@ -4,7 +4,7 @@
 #include "fpx.system.memory.h"
 
 fpx_int_t
-fpx_atoi(const char *str, size_t n)
+fpx_atoi(const char *str, fpx_size_t n)
 {
     fpx_int_t value, temp;
     fpx_int_t cutoff, cutlim;
@@ -36,11 +36,11 @@ fpx_atoi(const char *str, size_t n)
     return value;
 }
 
-ssize_t
-fpx_atosz(const char *str, size_t n)
+fpx_ssize_t
+fpx_atosz(const char *str, fpx_size_t n)
 {
-    ssize_t value, temp;
-    ssize_t cutoff, cutlim;
+    fpx_ssize_t value, temp;
+    fpx_ssize_t cutoff, cutlim;
     fpx_uint_t i;
 
     if (n == 0) {
@@ -69,7 +69,7 @@ fpx_atosz(const char *str, size_t n)
     return value;
 }
 
-size_t
+fpx_size_t
 fpx_strlen(const char *str)
 {
     fpx_uint_t i;
@@ -82,8 +82,8 @@ fpx_strlen(const char *str)
     }
 }
 
-size_t
-fpx_strnlen(const char *str, size_t n)
+fpx_size_t
+fpx_strnlen(const char *str, fpx_size_t n)
 {
     fpx_uint_t i;
 
@@ -123,7 +123,7 @@ fpx_strcasecmp(char *str1, char *str2)
 }
 
 fpx_int_t
-fpx_strncasecmp(char *str1, char *str2, size_t n)
+fpx_strncasecmp(char *str1, char *str2, fpx_size_t n)
 {
     fpx_uint_t c1, c2;
 
@@ -151,9 +151,9 @@ fpx_strncasecmp(char *str1, char *str2, size_t n)
 }
 
 char *
-fpx_strchr(const char *str, int c)
+fpx_strchr(const char *str, fpx_int_t c)
 {
-    size_t len, i;
+    fpx_size_t len, i;
 
     len = fpx_strlen(str);
 
@@ -167,9 +167,9 @@ fpx_strchr(const char *str, int c)
 }
 
 char *
-fpx_strrchr(const char *str, int c)
+fpx_strrchr(const char *str, fpx_int_t c)
 {
-    size_t len;
+    fpx_size_t len;
     fpx_int_t i;
 
     len = fpx_strlen(str);
@@ -187,7 +187,7 @@ char *
 fpx_pstrdup(fpx_pool_t *pool, const char *str)
 {
     char *mem;
-    size_t len;
+    fpx_size_t len;
 
     len = fpx_strlen(str) + 1;
 
@@ -202,7 +202,7 @@ fpx_pstrdup(fpx_pool_t *pool, const char *str)
 }
 
 char *
-fpx_pstrndup(fpx_pool_t *pool, const char *str, size_t n)
+fpx_pstrndup(fpx_pool_t *pool, const char *str, fpx_size_t n)
 {
     char *mem;
 
@@ -222,7 +222,7 @@ fpx_pstrcat1(fpx_pool_t *pool, ...)
 {
     va_list args;
     char *str, *argv, *pos;
-    size_t len;
+    fpx_size_t len;
 
     len = 0;
 

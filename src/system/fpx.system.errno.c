@@ -34,10 +34,10 @@ static const struct {
 #if (FPX_POSIX)
 
 static const char *
-fpx_os_strerror(fpx_err_t err, char *buf, size_t bufsize)
+fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
 {
     char *str;
-    size_t len;
+    fpx_size_t len;
 
     str = strerror(err);
     len = fpx_strlen(str);
@@ -57,7 +57,7 @@ fpx_os_strerror(fpx_err_t err, char *buf, size_t bufsize)
 #elif (FPX_WIN32)
 
 static const char *
-fpx_os_strerror(fpx_err_t err, char *buf, size_t bufsize)
+fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
 {
     DWORD lang, len;
 
@@ -101,10 +101,10 @@ fpx_os_strerror(fpx_err_t err, char *buf, size_t bufsize)
 #endif
 
 const char *
-fpx_strerror(fpx_err_t err, char *buf, size_t bufsize)
+fpx_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
 {
     const char *str;
-    size_t len;
+    fpx_size_t len;
     fpx_uint_t i;
 
     if (err > 0 && err < FPX_ERROR_DOMAIN_BASE) {

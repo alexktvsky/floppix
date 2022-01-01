@@ -30,7 +30,7 @@ typedef struct fpx_event_s           fpx_event_t;
  */
 struct fpx_server_s {
     /* Number of command line arguments passed to the program */
-    int argc;
+    fpx_int_t argc;
     /* The command line arguments */
     const char *const *argv;
 
@@ -44,7 +44,7 @@ struct fpx_server_s {
     fpx_list_t *connections;
     fpx_list_t *free_connections;
 
-    bool daemon;
+    fpx_bool_t daemon;
     fpx_int_t priority;
 
     char *workdir;

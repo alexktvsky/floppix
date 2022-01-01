@@ -2,7 +2,7 @@
 #define FPX_SYSTEM_ERRNO_H
 
 #include "fpx.system.os.portable.h"
-
+#include "fpx.system.type.h"
 
 #define FPX_ERRNO_STR_SIZE           1024
 
@@ -46,6 +46,6 @@
 
 typedef int fpx_err_t;
 
-const char *fpx_strerror(fpx_err_t err, char *buf, size_t bufsize);
+const char *fpx_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize);
 
 #endif /* FPX_SYSTEM_ERRNO_H */

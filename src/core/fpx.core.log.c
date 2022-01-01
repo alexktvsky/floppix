@@ -16,7 +16,7 @@
 #define FPX_LOG_WORKER_DELAY         1000
 
 typedef void (*fpx_log_handler_t) (fpx_log_t *log, fpx_uint_t level,
-    char *buf, size_t len);
+    char *buf, fpx_size_t len);
 
 typedef struct {
     fpx_uint_t level;
@@ -27,7 +27,7 @@ typedef struct {
 struct fpx_log_s {
     fpx_uint_t level;
     fpx_file_t *file;
-    size_t size; /* 0 - unlimited */
+    fpx_size_t size; /* 0 - unlimited */
     fpx_log_handler_t handler;
 };
 
@@ -42,7 +42,7 @@ struct fpx_logger_s {
     fpx_thread_t *tid;
 #endif
 
-    bool running;
+    fpx_bool_t running;
 
     fpx_uint_t front;
     fpx_uint_t rear;
@@ -67,7 +67,7 @@ const char *fpx_log_prio[] = {
 
 static void
 fpx_write_to_log(fpx_log_t *log, fpx_uint_t level,
-    char *buf, size_t len)
+    char *buf, fpx_size_t len)
 {
     if (level > (log->level)) {
         return;
@@ -98,7 +98,7 @@ fpx_logger_worker(void *arg)
     char buf[FPX_LOG_TOTAL_STR_SIZE];
     fpx_logger_t *logger;
     fpx_log_message_t *messages, *message;
-    size_t len;
+    fpx_size_t len;
     fpx_list_node_t *node;
     fpx_log_t *log;
 
@@ -153,7 +153,7 @@ fpx_logger_init(fpx_logger_t **out_logger)
 
     fpx_pool_t *pool;
     fpx_logger_t *logger;
-    size_t mem_size;
+    fpx_size_t mem_size;
 
     fpx_list_t *logs;
     fpx_err_t err;
@@ -319,11 +319,11 @@ failed:
 
 fpx_err_t
 fpx_logger_add_log_file(fpx_logger_t *logger, fpx_uint_t level,
-    const char *fname, size_t size)
+    const char *fname, fpx_size_t size)
 {
     fpx_log_t *log;
     fpx_file_t *file;
-    ssize_t file_size;
+    fpx_ssize_t file_size;
     fpx_err_t err;
 
     if (logger->running) {
@@ -360,7 +360,7 @@ fpx_logger_add_log_file(fpx_logger_t *logger, fpx_uint_t level,
     }
 
     if (size) { /* Not unlimited */
-        if (((size_t) file_size) >= size) {
+        if (((fpx_size_t) file_size) >= size) {
             file->offset = 0;
         }
         else {
@@ -433,7 +433,7 @@ fpx_log_error(fpx_uint_t level, fpx_logger_t *logger, fpx_err_t err,
     char *buf;
     fpx_log_message_t *messages, *message;
     fpx_tm_t tm;
-    size_t len;
+    fpx_size_t len;
     va_list args;
 
     /* Set time before slot waiting */
@@ -478,7 +478,7 @@ fpx_log_console(fpx_fd_t fd, fpx_err_t err, const char *fmt, ...)
     char logstr[FPX_LOG_STR_SIZE];
     char errstr[FPX_ERRNO_STR_SIZE];
     char *pos;
-    size_t len, n;
+    fpx_size_t len, n;
     va_list args;
 
 

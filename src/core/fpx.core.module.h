@@ -34,8 +34,8 @@ struct fpx_module_s {
     void (*fini)(fpx_server_t *server, void *cntx);
     void *cntx;
     void *handle;
-    bool preinited;
-    bool inited;
+    fpx_bool_t preinited;
+    fpx_bool_t inited;
 };
 
 

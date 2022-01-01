@@ -20,14 +20,14 @@
 typedef struct fpx_listener_s fpx_listener_t;
 
 struct fpx_listener_s {
-    bool type_id;
+    fpx_bool_t type_id;
     fpx_socket_t fd;
     struct sockaddr_storage sockaddr;
     const char *text_addr;
     const char *text_port;
 
     /* fpx_list_t *connections; */
-    /* bool proto; */
+    /* fpx_bool_t proto; */
     /* The accept function for this socket */
 };
 
@@ -42,8 +42,8 @@ void fpx_listener_close(fpx_listener_t *listener);
 void fpx_listener_clear(fpx_listener_t *listener);
 
 const char *fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,
-    size_t bufsize);
+    fpx_size_t bufsize);
 const char *fpx_listener_get_port_text(fpx_listener_t *listener, char *buf,
-    size_t bufsize);
+    fpx_size_t bufsize);
 
 #endif /* FPX_CORE_LISTEN_H */
