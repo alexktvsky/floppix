@@ -1,8 +1,8 @@
-#ifndef INCLUDED_TEST_HCNSE_POOL_H
-#define INCLUDED_TEST_HCNSE_POOL_H
+#ifndef INCLUDED_TEST_FPX_POOL_H
+#define INCLUDED_TEST_FPX_POOL_H
 
 
-hcnse_declare_suite_tests(hcnse_pool_tests);
+fpx_declare_suite_tests(fpx_pool_tests);
 
 
-#endif /* INCLUDED_TEST_HCNSE_POOL_H */
+#endif /* INCLUDED_TEST_FPX_POOL_H */

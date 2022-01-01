@@ -1,4 +1,4 @@
-HCNSE coding style
+FPX coding style
 ==================
 
 https://nginx.org/en/docs/dev/development_guide.html#code_style
@@ -11,7 +11,7 @@ General rules
 - no tabs, no trailing spaces
 - list elements on the same line are separated with spaces
 - hexadecimal literals are lowercase
-- global variables have the "hcnse_" prefix
+- global variables have the "fpx_" prefix
 
 Comments
 --------
@@ -21,7 +21,7 @@ Comments
 
 Preprocessor
 ------------
-- macro names start from "hcnse_" or "HCNSE_" prefix
+- macro names start from "fpx_" or "FPX_" prefix
 - macro names for constants are uppercase
 - parameterized macros and macros for initializers are lowercase
 - macro name and value are separated by at least two spaces

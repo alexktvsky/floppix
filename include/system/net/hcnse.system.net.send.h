@@ -1,7 +1,0 @@
-#ifndef HCNSE_SYSTEM_NET_SEND_H
-#define HCNSE_SYSTEM_NET_SEND_H
-
-
-
-
-#endif /* HCNSE_SYSTEM_NET_SEND_H */

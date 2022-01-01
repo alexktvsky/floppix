@@ -1,7 +1,7 @@
 BIN_FILE = module_test1.so
-SRC_FILES += hcnse_test1.c
+SRC_FILES += fpx_test1.c
 
-CFLAGS += -DHCNSE_BUILDING_DSO
+CFLAGS += -DFPX_BUILDING_DSO
 CFLAGS += -Iinclude -I../../../include
 CFLAGS += -Wall -Wextra -Wuninitialized
 CFLAGS += -fPIC

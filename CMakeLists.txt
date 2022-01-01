@@ -1,54 +1,54 @@
 cmake_minimum_required(VERSION 3.14.0)
 
-project(hcnse)
+project(floppix)
 
 add_executable(${PROJECT_NAME})
 
-include(cmake/hcnse_options.cmake)
-include(cmake/hcnse_config.cmake)
+include(cmake/fpx_options.cmake)
+include(cmake/fpx_config.cmake)
 
 target_include_directories(${PROJECT_NAME}
 PRIVATE
-    include
-    include/container
-    include/core
-    include/system
-    include/system/net
-    include/system/os
-    include/system/sync
-    include/type
-    include/util
+    src
+    src/algo
+    src/core
+    src/system
+    src/system/net
+    src/system/os
+    src/system/sync
+    src/type
+    src/util
     ${PROJECT_BINARY_DIR}
 )
 
 target_sources(${PROJECT_NAME}
 PRIVATE
-    src/container/hcnse.container.array.c
-    src/container/hcnse.container.list.c
-    src/core/hcnse.core.module.c
-    src/core/hcnse.core.parse.c
-    src/core/hcnse.core.listen.c
-    src/core/hcnse.core.cycle.c
-    src/core/hcnse.core.server.c
-    src/core/hcnse.core.log.c
-    src/core/hcnse.core.connection.c
-    src/core/hcnse.core.command.c
-    src/system/hcnse.system.process.c
-    src/system/net/hcnse.system.net.sockaddr.c
-    src/system/net/hcnse.system.net.socket.c
-    src/system/net/hcnse.system.net.sockopt.c
-    src/system/hcnse.system.pool.c
-    src/system/hcnse.system.thread.c
-    src/system/hcnse.system.dso.c
-    src/system/hcnse.system.time.c
-    src/system/hcnse.system.memory.c
-    src/system/hcnse.system.errno.c
-    src/system/hcnse.system.signal.c
-    src/system/hcnse.system.filesys.c
-    src/system/hcnse.system.cpuinfo.c
-    src/system/sync/hcnse.system.sync.semaphore.c
-    src/system/sync/hcnse.system.sync.mutex.c
-    src/util/hcnse.util.string.c
+    src/algo/fpx.algo.array.c
+    src/algo/fpx.algo.list.c
+    src/core/fpx.core.module.c
+    src/core/fpx.core.parse.c
+    src/core/fpx.core.listen.c
+    src/core/fpx.core.cycle.c
+    src/core/fpx.core.server.c
+    src/core/fpx.core.log.c
+    src/core/fpx.core.connection.c
+    src/core/fpx.core.command.c
+    src/system/fpx.system.process.c
+    src/system/net/fpx.system.net.sockaddr.c
+    src/system/net/fpx.system.net.socket.c
+    src/system/net/fpx.system.net.sockopt.c
+    src/system/fpx.system.pool.c
+    src/system/fpx.system.thread.c
+    src/system/fpx.system.dso.c
+    src/system/fpx.system.time.c
+    src/system/fpx.system.memory.c
+    src/system/fpx.system.errno.c
+    src/system/fpx.system.signal.c
+    src/system/fpx.system.filesys.c
+    src/system/fpx.system.cpuinfo.c
+    src/system/sync/fpx.system.sync.semaphore.c
+    src/system/sync/fpx.system.sync.mutex.c
+    src/util/fpx.util.string.c
     src/core/main.c
 )
 
@@ -66,8 +66,8 @@ PRIVATE
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
 target_compile_definitions(${PROJECT_NAME}
 PRIVATE
-    HCNSE_COMPILER="${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}"
-    HCNSE_SYSTEM_NAME="${CMAKE_SYSTEM_NAME}"
+    FPX_COMPILER="${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}"
+    FPX_SYSTEM_NAME="${CMAKE_SYSTEM_NAME}"
 )
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -79,8 +79,8 @@ endif()
 if (build_type STREQUAL debug)
     target_compile_options(${PROJECT_NAME} PRIVATE -g3 -O0 -ggdb3)
     target_compile_definitions(${PROJECT_NAME} PRIVATE
-        HCNSE_DEBUG
-        HCNSE_HAVE_VALGRIND
+        FPX_DEBUG
+        FPX_HAVE_VALGRIND
     )
 elseif (build_type STREQUAL release)
     target_compile_options(${PROJECT_NAME} PRIVATE -g0 -O3)
@@ -93,10 +93,10 @@ target_link_libraries(${PROJECT_NAME}
     ${CMAKE_REQUIRED_LIBRARIES}
 )
 
-if (HCNSE_POSIX)
+if (FPX_POSIX)
     target_link_libraries(${PROJECT_NAME} pthread)
     target_link_libraries(${PROJECT_NAME} ${CMAKE_DL_LIBS})
-elseif(HCNSE_WIN32)
+elseif(FPX_WIN32)
     target_link_libraries(${PROJECT_NAME} ws2_32)
 endif()
 

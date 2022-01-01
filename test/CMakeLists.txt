@@ -11,14 +11,14 @@ PRIVATE
 target_sources(${PROJECT_NAME}
 PRIVATE
     unit/test.c
-    unit/hcnse_stubs.c
-    unit/test_hcnse_pool.c
+    unit/fpx_stubs.c
+    unit/test_fpx_pool.c
 )
 
 target_link_options(${PROJECT_NAME}
 PRIVATE
-    -Wl,--wrap=hcnse_malloc
-    -Wl,--wrap=hcnse_palloc
+    -Wl,--wrap=fpx_malloc
+    -Wl,--wrap=fpx_palloc
 )
 
 # add_dependencies(${PROJECT_NAME}_test ${PROJECT_NAME})

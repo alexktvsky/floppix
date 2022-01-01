@@ -1,7 +1,5 @@
-# HCNSE
+# Floppix
 
-
-HCNSE (High Concurrency Network Server Engine)
 
 
 ## Supported systems

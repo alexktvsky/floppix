@@ -1,11 +1,11 @@
-#include "hcnse_test.h"
-#include "hcnse_portable.h"
-#include "hcnse_core.h"
+#include "fpx_test.h"
+#include "fpx_portable.h"
+#include "fpx_core.h"
 
 
-hcnse_init_stub_head(void *, hcnse_malloc, size_t n);
-hcnse_init_stub_body(hcnse_malloc, n);
+fpx_init_stub_head(void *, fpx_malloc, size_t n);
+fpx_init_stub_body(fpx_malloc, n);
 
-hcnse_init_stub_head(void *, hcnse_palloc, hcnse_pool_t *pool, size_t n);
-hcnse_init_stub_body(hcnse_palloc, pool, n);
+fpx_init_stub_head(void *, fpx_palloc, fpx_pool_t *pool, size_t n);
+fpx_init_stub_body(fpx_palloc, pool, n);
 

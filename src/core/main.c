@@ -1,25 +1,25 @@
-#include "hcnse.system.os.portable.h"
-#include "hcnse.system.errno.h"
-#include "hcnse.system.memory.h"
-#include "hcnse.util.string.h"
-#include "hcnse.core.command.h"
-#include "hcnse.core.module.h"
-#include "hcnse.core.cycle.h"
-#include "hcnse.release.h"
+#include "fpx.system.os.portable.h"
+#include "fpx.system.errno.h"
+#include "fpx.system.memory.h"
+#include "fpx.util.string.h"
+#include "fpx.core.command.h"
+#include "fpx.core.module.h"
+#include "fpx.core.cycle.h"
+#include "fpx.core.release.h"
 
 
-#if !(HCNSE_TEST)
+#if !(FPX_TEST)
 
 static bool show_version;
 static bool show_help;
 static bool test_config;
-static const char *config_fname = HCNSE_DEFAULT_CONFIG_PATH;
+static const char *config_fname = FPX_DEFAULT_CONFIG_PATH;
 
 
-static hcnse_err_t
-hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
+static fpx_err_t
+fpx_parse_argv(fpx_uint_t argc, const char *const *argv)
 {
-    hcnse_uint_t i, saved_index;
+    fpx_uint_t i, saved_index;
     const char *p;
     bool long_option;
 
@@ -29,7 +29,7 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
         p = argv[i];
 
         if (*p++ != '-' || *p == '\0') {
-            return HCNSE_FAILED;
+            return FPX_FAILED;
         }
 
         while (*p) {
@@ -70,25 +70,25 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
                 continue;
             }
 
-            if (hcnse_strcmp(p, "version") == 0) {
+            if (fpx_strcmp(p, "version") == 0) {
                 show_version = true;
                 p += sizeof("version") - 1;
                 continue;
             }
 
-            if (hcnse_strcmp(p, "help") == 0) {
+            if (fpx_strcmp(p, "help") == 0) {
                 show_help = true;
                 p += sizeof("help") - 1;
                 continue;
             }
 
-            if (hcnse_strcmp(p, "test-config") == 0) {
+            if (fpx_strcmp(p, "test-config") == 0) {
                 test_config = true;
                 p += sizeof("test-config") - 1;
                 continue;
             }
 
-            if (hcnse_strcmp(p, "config-file") == 0) {
+            if (fpx_strcmp(p, "config-file") == 0) {
                 if (argv[++i]) {
                     config_fname = argv[i];
                     p += sizeof("config-file") - 1;
@@ -103,46 +103,46 @@ hcnse_parse_argv(hcnse_uint_t argc, const char *const *argv)
         }
     }
 
-    return HCNSE_OK;
+    return FPX_OK;
 
 invalid_option:
-    hcnse_log_stderr(HCNSE_OK, "Invalid options \"%s\"", argv[saved_index]);
-    return HCNSE_FAILED;
+    fpx_log_stderr(FPX_OK, "Invalid options \"%s\"", argv[saved_index]);
+    return FPX_FAILED;
 
 missing_argment:
-    hcnse_log_stderr(HCNSE_OK, "Missing argment for options \"%s\"",
+    fpx_log_stderr(FPX_OK, "Missing argment for options \"%s\"",
         argv[saved_index]);
-    return HCNSE_FAILED;
+    return FPX_FAILED;
 }
 
 static void
-hcnse_show_version_info(void)
+fpx_show_version_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK, "HCNSE %s %s",
-        HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
-    hcnse_log_stdout(HCNSE_OK, "Target system: %s %d-bit",
-        HCNSE_SYSTEM_NAME, HCNSE_PTR_WIDTH);
-#ifdef HCNSE_COMPILER
-    hcnse_log_stdout(HCNSE_OK, "Built by %s", HCNSE_COMPILER);
+    fpx_log_stdout(FPX_OK, "FPX %s %s",
+        FPX_VERSION_STR, FPX_BUILD_DATE);
+    fpx_log_stdout(FPX_OK, "Target system: %s %d-bit",
+        FPX_SYSTEM_NAME, FPX_PTR_WIDTH);
+#ifdef FPX_COMPILER
+    fpx_log_stdout(FPX_OK, "Built by %s", FPX_COMPILER);
 #endif
 }
 
 static void
-hcnse_show_help_info(void)
+fpx_show_help_info(void)
 {
-    hcnse_log_stdout(HCNSE_OK,
-        "Usage: hcnse [options...] [argments...]\n"
-        "HCNSE version %s %s\n\n"
+    fpx_log_stdout(FPX_OK,
+        "Usage: fpx [options...] [argments...]\n"
+        "FPX version %s %s\n\n"
         "Options:\n"
         "  -h, --help                     Displays this message.\n"
         "  -v, --version                  Displays version information.\n"
         "  -t, --test                     Test configuration and exit.\n"
         "  -c, --config-file <file>       Specify configuration file.",
-        HCNSE_VERSION_STR, HCNSE_BUILD_DATE);
+        FPX_VERSION_STR, FPX_BUILD_DATE);
 }
 
 static void
-hcnse_save_argv(hcnse_server_t *server, int argc, const char *const *argv)
+fpx_save_argv(fpx_server_t *server, int argc, const char *const *argv)
 {
     server->argc = argc;
     server->argv = argv;
@@ -151,48 +151,48 @@ hcnse_save_argv(hcnse_server_t *server, int argc, const char *const *argv)
 int
 main(int argc, const char *const *argv)
 {
-    hcnse_server_t *server;
-    hcnse_pool_t *pool;
-    hcnse_pool_t *ptemp; /* Pool for temporary config stuff */
-    hcnse_config_t *config;
+    fpx_server_t *server;
+    fpx_pool_t *pool;
+    fpx_pool_t *ptemp; /* Pool for temporary config stuff */
+    fpx_config_t *config;
 
-    hcnse_list_t *modules;
-    hcnse_err_t err;
+    fpx_list_t *modules;
+    fpx_err_t err;
 
 
-    if ((err = hcnse_parse_argv(argc, argv)) != HCNSE_OK) {
-        hcnse_show_help_info();
+    if ((err = fpx_parse_argv(argc, argv)) != FPX_OK) {
+        fpx_show_help_info();
         goto failed;
     }
 
     if (show_version) {
-        hcnse_show_version_info();
+        fpx_show_version_info();
         return 0;
     }
     if (show_help) {
-        hcnse_show_help_info();
+        fpx_show_help_info();
         return 0;
     }
 
-#if (HCNSE_WIN32)
-    if ((err = hcnse_winsock_init_v22()) != HCNSE_OK) {
-        hcnse_log_stderr(HCNSE_OK, "Failed to initialize Winsock 2.2");
+#if (FPX_WIN32)
+    if ((err = fpx_winsock_init_v22()) != FPX_OK) {
+        fpx_log_stderr(FPX_OK, "Failed to initialize Winsock 2.2");
         goto failed;
     }
 #endif
 
-    hcnse_assert(hcnse_pool_create(&pool, 0, NULL) == HCNSE_OK);
-    hcnse_assert(hcnse_pool_create(&ptemp, 0, NULL) == HCNSE_OK);
+    fpx_assert(fpx_pool_create(&pool, 0, NULL) == FPX_OK);
+    fpx_assert(fpx_pool_create(&ptemp, 0, NULL) == FPX_OK);
 
-    hcnse_assert(server = hcnse_pcalloc(pool, sizeof(hcnse_server_t)));
+    fpx_assert(server = fpx_pcalloc(pool, sizeof(fpx_server_t)));
 
-    hcnse_save_argv(server, argc, argv);
+    fpx_save_argv(server, argc, argv);
 
-    hcnse_assert(hcnse_list_init(&modules, pool) == HCNSE_OK);
-    hcnse_assert(config = hcnse_palloc(ptemp, sizeof(hcnse_config_t)));
+    fpx_assert(fpx_list_init(&modules, pool) == FPX_OK);
+    fpx_assert(config = fpx_palloc(ptemp, sizeof(fpx_config_t)));
 
-    if ((err = hcnse_config_read(config, ptemp, config_fname)) != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to read config file");
+    if ((err = fpx_config_read(config, ptemp, config_fname)) != FPX_OK) {
+        fpx_log_stderr(err, "Failed to read config file");
         goto failed;
     }
 
@@ -200,51 +200,51 @@ main(int argc, const char *const *argv)
     server->config = config;
     server->modules = modules;
 
-    if ((err = hcnse_setup_prelinked_modules(server)) != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to setup prelinked modules");
+    if ((err = fpx_setup_prelinked_modules(server)) != FPX_OK) {
+        fpx_log_stderr(err, "Failed to setup prelinked modules");
         goto failed;
     }
 
-    if ((err = hcnse_preinit_modules(server)) != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to preinit modules");
+    if ((err = fpx_preinit_modules(server)) != FPX_OK) {
+        fpx_log_stderr(err, "Failed to preinit modules");
         goto failed;
     }
 
     if (test_config) {
-        if (hcnse_config_check(config, server) == HCNSE_OK) {
-            hcnse_log_stderr(HCNSE_OK, "Configuration check succeeded");
+        if (fpx_config_check(config, server) == FPX_OK) {
+            fpx_log_stderr(FPX_OK, "Configuration check succeeded");
         }
         else {
-            hcnse_log_stderr(HCNSE_OK, "Configuration check failed");
+            fpx_log_stderr(FPX_OK, "Configuration check failed");
         }
-        hcnse_logger_destroy(server->logger);
-        hcnse_pool_destroy(ptemp);
-        hcnse_pool_destroy(pool);
+        fpx_logger_destroy(server->logger);
+        fpx_pool_destroy(ptemp);
+        fpx_pool_destroy(pool);
         return 0;
     }
 
-    if ((err = hcnse_config_process(config, server)) != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to process config");
+    if ((err = fpx_config_process(config, server)) != FPX_OK) {
+        fpx_log_stderr(err, "Failed to process config");
         goto failed;
     }
 
-    if ((err = hcnse_init_modules(server)) != HCNSE_OK) {
-        hcnse_log_stderr(err, "Failed to init modules");
+    if ((err = fpx_init_modules(server)) != FPX_OK) {
+        fpx_log_stderr(err, "Failed to init modules");
         goto failed;
     }
 
-    /* Fixme: Segfault with flag HCNSE_POOL_USE_MMAP */
-    hcnse_pool_destroy(ptemp);
+    /* Fixme: Segfault with flag FPX_POOL_USE_MMAP */
+    fpx_pool_destroy(ptemp);
 
-    hcnse_logger_set_global(server->logger);
+    fpx_logger_set_global(server->logger);
 
-    hcnse_server_cycle(server);
+    fpx_server_cycle(server);
 
     return 0;
 
 failed:
 
-#if (HCNSE_WIN32)
+#if (FPX_WIN32)
     system("pause");
 #endif
     return 1;

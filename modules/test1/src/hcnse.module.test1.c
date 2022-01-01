@@ -1,12 +1,12 @@
-#include "hcnse_portable.h"
-#include "hcnse_core.h"
+#include "fpx_portable.h"
+#include "fpx_core.h"
 
 typedef struct {
     int data;
-} hcnse_test1_cntx_t;
+} fpx_test1_cntx_t;
 
-hcnse_err_t
-test1_handler(hcnse_cmd_params_t *params, void *conf, int argc, char **argv)
+fpx_err_t
+test1_handler(fpx_cmd_params_t *params, void *conf, int argc, char **argv)
 {
     int i;
 
@@ -18,42 +18,42 @@ test1_handler(hcnse_cmd_params_t *params, void *conf, int argc, char **argv)
 
     printf("\n");
 
-    return HCNSE_OK;
+    return FPX_OK;
 }
 
 
 
 void *
-hcnse_test1_preinit(hcnse_server_t *server)
+fpx_test1_preinit(fpx_server_t *server)
 {
-    hcnse_test1_cntx_t *cntx;
+    fpx_test1_cntx_t *cntx;
 
-    cntx = malloc(sizeof(hcnse_test1_cntx_t));
+    cntx = malloc(sizeof(fpx_test1_cntx_t));
 
     return cntx;
 }
 
 
-hcnse_err_t
-hcnse_test1_init(hcnse_server_t *server, void *cntx)
+fpx_err_t
+fpx_test1_init(fpx_server_t *server, void *cntx)
 {
 
-    return HCNSE_OK;
+    return FPX_OK;
 }
 
 
 
-hcnse_command_t hcnse_test1_cmd[] = {
-    {"test1", HCNSE_TAKE1, test1_handler},
-    HCNSE_NULL_COMMAND
+fpx_command_t fpx_test1_cmd[] = {
+    {"test1", FPX_TAKE1, test1_handler},
+    FPX_NULL_COMMAND
 };
 
-hcnse_module_t hcnse_module = {
+fpx_module_t fpx_module = {
     "test1",
     0x00000003,
-    hcnse_test1_cmd,
-    hcnse_test1_preinit,
-    hcnse_test1_init,
+    fpx_test1_cmd,
+    fpx_test1_preinit,
+    fpx_test1_init,
     NULL,
-    HCNSE_MODULE_RUN_TIME_PART
+    FPX_MODULE_RUN_TIME_PART
 };
