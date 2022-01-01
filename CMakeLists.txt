@@ -49,7 +49,6 @@ PRIVATE
     src/system/sync/fpx.system.sync.semaphore.c
     src/system/sync/fpx.system.sync.mutex.c
     src/util/fpx.util.string.c
-    src/core/main.c
 )
 
 if (NOT BUILD_TESTING)

@@ -1,8 +1,7 @@
-#include "fpx_test.h"
-#include "fpx_portable.h"
-#include "fpx_core.h"
+#include "fpx.test.h"
+#include "fpx.test.unit.stubs.h"
 
-#include "test_fpx_pool.h"
+#include "fpx.test.unit.pool.h"
 
 
 int

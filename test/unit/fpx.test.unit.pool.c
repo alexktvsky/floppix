@@ -1,7 +1,4 @@
-#include "fpx_portable.h"
-#include "fpx_core.h"
-#include "fpx_test.h"
-#include "fpx_stubs.h"
+#include "fpx.test.unit.pool.h"
 
 
 fpx_err_t
@@ -10,10 +7,9 @@ test_pool_create_when_malloc_failed(void)
     fpx_pool_t *pool;
 
     fpx_set_errno(FPX_FAILED);
-    fpx_stub_will_return(fpx_malloc, NULL);
+    fpx_stub_will_return(fpx_malloc1, NULL);
 
-    pool = fpx_pool_create(0, NULL);
-    fpx_assert_null(pool);
+    fpx_assert_true(fpx_pool_create(&pool, 0, NULL) != FPX_OK);
 
     return FPX_OK;
 }
