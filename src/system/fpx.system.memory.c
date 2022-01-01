@@ -14,7 +14,7 @@ static uint64_t fpx_memory_counter_value;
 
 
 void *
-fpx_malloc(fpx_size_t size)
+fpx_malloc1(const char *filename, fpx_int_t line, fpx_size_t size)
 {
     void *mem;
 
@@ -25,19 +25,19 @@ fpx_malloc(fpx_size_t size)
     }
     else {
         fpx_memory_counter_value += size;
-        fpx_log_debug1(FPX_OK, "malloc %p:%zu total %zu",
-            mem, size, fpx_memory_counter_value);
+        fpx_log_debug1(FPX_OK, "malloc %p %zu in %s:" FPX_FMT_UINT_T
+            " total %zu", mem, size, filename, line, fpx_memory_counter_value);
     }
 
     return mem;
 }
 
 void *
-fpx_calloc(fpx_size_t size)
+fpx_calloc1(const char *filename, fpx_int_t line, fpx_size_t size)
 {
     void *mem;
 
-    mem = fpx_malloc(size);
+    mem = fpx_malloc1(filename, line, size);
     if (!mem) {
         return mem;
     }

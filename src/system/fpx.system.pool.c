@@ -262,7 +262,8 @@ failed:
 }
 
 void *
-fpx_palloc(fpx_pool_t *pool, fpx_size_t size)
+fpx_palloc1(const char *filename, fpx_int_t line, fpx_pool_t *pool,
+    fpx_size_t size)
 {
     fpx_memnode_t *node, *temp;
     fpx_uint_t i;
@@ -337,6 +338,8 @@ done:
 #if (FPX_POOL_THREAD_SAFETY)
     fpx_mutex_unlock(pool->mutex);
 #endif
+    fpx_log_debug1(FPX_OK, "palloc %p %zu in %s:" FPX_FMT_UINT_T, mem, size,
+        filename, line);
     return mem;
 
 failed:
@@ -347,11 +350,12 @@ failed:
 }
 
 void *
-fpx_pcalloc(fpx_pool_t *pool, fpx_size_t size)
+fpx_pcalloc1(const char *filename, fpx_int_t line, fpx_pool_t *pool,
+    fpx_size_t size)
 {
     void *mem;
 
-    mem = fpx_palloc(pool, size);
+    mem = fpx_palloc1(filename, line, pool, size);
     if (mem) {
         fpx_memset(mem, 0, size);
     }

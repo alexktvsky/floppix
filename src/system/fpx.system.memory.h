@@ -17,10 +17,12 @@
 #define fpx_memcmp(s1, s2, n)        memcmp(s1, s2, n)
 #define fpx_memcpy(dst, src, n)      memcpy(dst, src, n)
 #define fpx_memmove(dst, src, n)     memmove(dst, src, n)
+#define fpx_malloc(size)             fpx_malloc1(__FILE__, __LINE__, size)
+#define fpx_calloc(size)             fpx_calloc1(__FILE__, __LINE__, size)
 
 
-void *fpx_malloc(fpx_size_t size);
-void *fpx_calloc(fpx_size_t size);
+void *fpx_malloc1(const char *filename, fpx_int_t line, fpx_size_t size);
+void *fpx_calloc1(const char *filename, fpx_int_t line, fpx_size_t size);
 void fpx_free(void *mem);
 fpx_size_t fpx_get_memory_counter(void);
 

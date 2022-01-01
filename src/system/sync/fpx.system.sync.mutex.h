@@ -5,6 +5,7 @@
 #include "fpx.system.errno.h"
 #include "fpx.util.bitmask.h"
 
+
 /* Mutex specific parameters */
 #define FPX_MUTEX_SHARED             0x00000001
 #define FPX_MUTEX_PRIVATE            0x00000002
@@ -18,9 +19,6 @@ typedef struct fpx_mutex_s fpx_mutex_t;
 
 struct fpx_mutex_s {
     pthread_mutex_t handle;
-
-
-
 };
 
 #elif (FPX_WIN32)
