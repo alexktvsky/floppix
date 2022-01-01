@@ -13,10 +13,10 @@ PRIVATE
     src/algo
     src/core
     src/system
+    src/system/event
     src/system/net
     src/system/os
     src/system/sync
-    src/type
     src/util
     ${PROJECT_BINARY_DIR}
 )
