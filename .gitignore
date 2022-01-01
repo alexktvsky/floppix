@@ -48,7 +48,10 @@ bin
 build
 obj
 docs/html
+cmake-build-debug
+cmake-build-release
+
 *.log
 
 # CLion files
-.idea
+.idea/workspace.xml
