@@ -27,14 +27,13 @@ fpx_localtime(time_t sec, fpx_tm_t *tm)
     tm->tm_year += 1900;
 }
 
-
 #elif (FPX_WIN32)
 
 void
 fpx_gettimeofday(struct timeval *tv)
 {
 
-    /* 
+    /*
      * It is not recommended that you add and subtract values
      * from the SYSTEMTIME structure to obtain relative times.
      * Instead, you should:

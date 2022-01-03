@@ -1,8 +1,7 @@
 #include "fpx.algo.list.h"
 #include "fpx.system.type.h"
 
-#define FPX_LIST_INITIAL_SIZE  10
-
+#define FPX_LIST_INITIAL_SIZE 10
 
 fpx_err_t
 fpx_list_init(fpx_list_t **out_list, fpx_pool_t *pool)

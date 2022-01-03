@@ -1,7 +1,6 @@
 #ifndef FPX_CORE_FORWARDS_H
 #define FPX_CORE_FORWARDS_H
 
-
 typedef struct fpx_server_s fpx_server_t;
 typedef struct fpx_config_s fpx_config_t;
 typedef struct fpx_command_s fpx_command_t;

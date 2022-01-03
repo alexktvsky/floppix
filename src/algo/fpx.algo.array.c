@@ -20,9 +20,9 @@ fpx_array_init(fpx_pool_t *pool, fpx_size_t size, fpx_size_t n)
 
     /*
      * Next fields set by fpx_pcalloc()
-     * 
+     *
      * array->n_current = 0;
-     * 
+     *
      */
 
     array->size = size;

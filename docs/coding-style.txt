@@ -1,5 +1,6 @@
-FPX coding style
-==================
+====================
+Floppix coding style
+====================
 
 https://nginx.org/en/docs/dev/development_guide.html#code_style
 https://www.kernel.org/doc/html/v4.10/_sources/process/coding-style.txt

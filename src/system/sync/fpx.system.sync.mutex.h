@@ -5,13 +5,12 @@
 #include "fpx.system.errno.h"
 #include "fpx.util.bitmask.h"
 
-
 /* Mutex specific parameters */
-#define FPX_MUTEX_SHARED             0x00000001
-#define FPX_MUTEX_PRIVATE            0x00000002
-#define FPX_MUTEX_RECURSIVE          0x00000004
-#define FPX_MUTEX_NONRECURSIVE       0x00000008
-#define FPX_MUTEX_DEFAULT            0x00000010
+#define FPX_MUTEX_SHARED       0x00000001
+#define FPX_MUTEX_PRIVATE      0x00000002
+#define FPX_MUTEX_RECURSIVE    0x00000004
+#define FPX_MUTEX_NONRECURSIVE 0x00000008
+#define FPX_MUTEX_DEFAULT      0x00000010
 
 typedef struct fpx_mutex_s fpx_mutex_t;
 
@@ -23,10 +22,7 @@ struct fpx_mutex_s {
 
 #elif (FPX_WIN32)
 
-typedef enum {
-    fpx_mutex_mutex,
-    fpx_mutex_critical_section
-} fpx_mutex_type_t;
+typedef enum { fpx_mutex_mutex, fpx_mutex_critical_section } fpx_mutex_type_t;
 
 struct fpx_mutex_s {
     HANDLE handle;

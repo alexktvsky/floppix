@@ -7,10 +7,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-
-
-
-
 #include <sys/ioctl.h>
 
 typedef int fpx_socket_t;

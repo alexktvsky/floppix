@@ -55,13 +55,13 @@
 #include <openssl/x509v3.h>
 #endif
 
-typedef int                            fpx_fd_t;
-typedef struct stat                    fpx_file_stat_t;
-typedef int                            fpx_socket_t;
-typedef socklen_t                      fpx_socklen_t;
-typedef uint64_t                       fpx_tid_t;
-typedef pthread_t                      fpx_thread_handle_t;
-typedef void *                         fpx_thread_value_t;
-typedef struct tm                      fpx_tm_t;
+typedef int fpx_fd_t;
+typedef struct stat fpx_file_stat_t;
+typedef int fpx_socket_t;
+typedef socklen_t fpx_socklen_t;
+typedef uint64_t fpx_tid_t;
+typedef pthread_t fpx_thread_handle_t;
+typedef void *fpx_thread_value_t;
+typedef struct tm fpx_tm_t;
 
 #endif /* FPX_SYSTEM_OS_DARWIN_H */

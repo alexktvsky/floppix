@@ -5,23 +5,17 @@
 #include "fpx.core.server.h"
 #include "fpx.core.command.h"
 
-#define FPX_MODULE_RUN_TIME_PART \
-    NULL, \
-    NULL, \
-    0, \
-    0
+#define FPX_MODULE_RUN_TIME_PART NULL, NULL, 0, 0
 
 /*
 #define fpx_use_module(name) \
     extern fpx_module_t fpx_##name##_module;
 
-#define fpx_declare_module(name, version, cmd, create_cntx, init_cntx, fini_cntx) \
+#define fpx_declare_module(name, version, cmd, create_cntx, init_cntx,
+fini_cntx) \
     fpx_use_module(name); \
     fpx_module_t fpx_##name##_module
 */
-
-
-
 
 typedef struct fpx_module_s fpx_module_t;
 
@@ -37,7 +31,6 @@ struct fpx_module_s {
     fpx_bool_t preinited;
     fpx_bool_t inited;
 };
-
 
 fpx_err_t fpx_setup_prelinked_modules(fpx_server_t *server);
 fpx_err_t fpx_preinit_modules(fpx_server_t *server);

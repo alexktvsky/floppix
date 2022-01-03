@@ -5,25 +5,21 @@
 #include "fpx.system.sync.mutex.h"
 #include "fpx.core.log.h"
 
-#define FPX_MIN_ORDER  1
-#define FPX_MIN_ALLOC  (FPX_ALIGN_SIZE << FPX_MIN_ORDER)
+#define FPX_MIN_ORDER              1
+#define FPX_MIN_ALLOC              (FPX_ALIGN_SIZE << FPX_MIN_ORDER)
 
-#define FPX_SIZEOF_MEMNODE_T_ALIGN \
-    fpx_align_default(sizeof(fpx_memnode_t))
-#define FPX_SIZEOF_MEMPOOL_T_ALIGN \
-    fpx_align_default(sizeof(fpx_pool_t))
-#define FPX_SIZEOF_MUTEX_T_ALIGN \
-    fpx_align_default(sizeof(fpx_mutex_t))
+#define FPX_SIZEOF_MEMNODE_T_ALIGN fpx_align_default(sizeof(fpx_memnode_t))
+#define FPX_SIZEOF_MEMPOOL_T_ALIGN fpx_align_default(sizeof(fpx_pool_t))
+#define FPX_SIZEOF_MUTEX_T_ALIGN   fpx_align_default(sizeof(fpx_mutex_t))
 
-/* 
+/*
  * Slot  0: size 4096
  * Slot  1: size 8192
  * Slot  2: size 12288
  * ...
  * Slot 19: size 81920
  */
-#define FPX_MAX_POOL_SLOT  20
-
+#define FPX_MAX_POOL_SLOT          20
 
 typedef struct fpx_memnode_s fpx_memnode_t;
 typedef struct fpx_cleanup_node_s fpx_cleanup_node_t;
@@ -57,7 +53,6 @@ struct fpx_pool_s {
     fpx_thread_handle_t owner;
 #endif
 };
-
 
 static fpx_size_t
 fpx_align_allocation(fpx_size_t size)
@@ -95,8 +90,8 @@ fpx_memnode_allocate(fpx_size_t size)
     uint8_t *mem;
 
 #if (FPX_HAVE_MMAP && FPX_POOL_USES_MMAP)
-    mem = mmap(NULL, size, PROT_READ|PROT_WRITE,
-                                MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,
+        -1, 0);
     if (mem == MAP_FAILED) {
         return NULL;
     }
@@ -198,8 +193,8 @@ fpx_pool_create(fpx_pool_t **newpool, fpx_size_t size, fpx_pool_t *parent)
     index = npages - 1;
     if (index > FPX_MAX_POOL_SLOT) {
         fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
-            "Initial pool size (%zu) out of range (0 - %zu)",
-            size, FPX_MAX_POOL_SLOT * FPX_PAGE_SIZE);
+            "Initial pool size (%zu) out of range (0 - %zu)", size,
+            FPX_MAX_POOL_SLOT * FPX_PAGE_SIZE);
         err = FPX_FAILED;
         goto failed;
     }
@@ -226,7 +221,7 @@ fpx_pool_create(fpx_pool_t **newpool, fpx_size_t size, fpx_pool_t *parent)
         node->begin += FPX_SIZEOF_MUTEX_T_ALIGN;
         node->size -= FPX_SIZEOF_MUTEX_T_ALIGN;
 
-        err = fpx_mutex_init(mutex, FPX_MUTEX_SHARED|FPX_MUTEX_RECURSIVE);
+        err = fpx_mutex_init(mutex, FPX_MUTEX_SHARED | FPX_MUTEX_RECURSIVE);
         if (err != FPX_OK) {
             goto failed;
         }
@@ -472,7 +467,6 @@ fpx_pool_cleanup_remove1(fpx_pool_t *pool, void *data,
 #endif
 }
 
-
 fpx_size_t
 fpx_pool_get_size(fpx_pool_t *pool)
 {
@@ -540,8 +534,8 @@ fpx_pool_clear(fpx_pool_t *pool)
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {
         fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
-            "Unexpected access to a pool from a thread with tid "
-            FPX_FMT_TID_T, fpx_thread_current_tid());
+            "Unexpected access to a pool from a thread with tid " FPX_FMT_TID_T,
+            fpx_thread_current_tid());
         return;
     }
 
@@ -583,8 +577,8 @@ fpx_pool_destroy(fpx_pool_t *pool)
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {
         fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
-            "Unexpected access to a pool from a thread with tid "
-            FPX_FMT_TID_T, fpx_thread_current_tid());
+            "Unexpected access to a pool from a thread with tid " FPX_FMT_TID_T,
+            fpx_thread_current_tid());
         return;
     }
 #endif

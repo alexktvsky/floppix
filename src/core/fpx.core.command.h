@@ -5,27 +5,30 @@
 #include "fpx.system.os.portable.h"
 #include "fpx.core.server.h"
 
-#define FPX_TAKE0                    0x00000001
-#define FPX_TAKE1                    0x00000002
-#define FPX_TAKE2                    0x00000004
-#define FPX_TAKE3                    0x00000008
-#define FPX_TAKE4                    0x00000010
-#define FPX_TAKE5                    0x00000020
-#define FPX_TAKE6                    0x00000040
-#define FPX_TAKE7                    0x00000080
+#define FPX_TAKE0     0x00000001
+#define FPX_TAKE1     0x00000002
+#define FPX_TAKE2     0x00000004
+#define FPX_TAKE3     0x00000008
+#define FPX_TAKE4     0x00000010
+#define FPX_TAKE5     0x00000020
+#define FPX_TAKE6     0x00000040
+#define FPX_TAKE7     0x00000080
 
-#define FPX_MAX_TAKES                8
+#define FPX_MAX_TAKES 8
 
-#define FPX_NULL_COMMAND             {NULL, 0, NULL, 0}
+#define FPX_NULL_COMMAND                                                       \
+    {                                                                          \
+        NULL, 0, NULL, 0                                                       \
+    }
 
 #if (FPX_POSIX)
-#define FPX_DEFAULT_CONFIG_PATH  "/etc/fpx/fpx.conf"
+#define FPX_DEFAULT_CONFIG_PATH "/etc/fpx/fpx.conf"
 #elif (FPX_WIN32)
-#define FPX_DEFAULT_CONFIG_PATH  "C:\\fpx\\config\\fpx.conf";
+#define FPX_DEFAULT_CONFIG_PATH "C:\\fpx\\config\\fpx.conf";
 #endif
 
-typedef fpx_err_t (*fpx_cmd_handler_t)(fpx_cmd_params_t *params,
-    void *data, fpx_int_t argc, char **argv);
+typedef fpx_err_t (*fpx_cmd_handler_t)(fpx_cmd_params_t *params, void *data,
+    fpx_int_t argc, char **argv);
 
 /*
  * The command record structure. Modules can define a table of these
@@ -85,23 +88,20 @@ struct fpx_config_s {
     fpx_list_t *conf_files;
 };
 
-
 fpx_err_t fpx_config_read(fpx_config_t *config, fpx_pool_t *pool,
     const char *filename);
-fpx_err_t fpx_config_read_included(fpx_config_t *config,
-    fpx_pool_t *pool, const char *path);
-fpx_err_t fpx_config_check(fpx_config_t *config,
-    fpx_server_t *server);
-fpx_err_t fpx_config_process(fpx_config_t *config,
-    fpx_server_t *server);
+fpx_err_t fpx_config_read_included(fpx_config_t *config, fpx_pool_t *pool,
+    const char *path);
+fpx_err_t fpx_config_check(fpx_config_t *config, fpx_server_t *server);
+fpx_err_t fpx_config_process(fpx_config_t *config, fpx_server_t *server);
 
-fpx_err_t fpx_handler_flag(fpx_cmd_params_t *params, void *data,
-    fpx_int_t argc, char **argv);
-fpx_err_t fpx_handler_str(fpx_cmd_params_t *params, void *data,
-    fpx_int_t argc, char **argv);
-fpx_err_t fpx_handler_size(fpx_cmd_params_t *params, void *data,
-    fpx_int_t argc, char **argv);
-fpx_err_t fpx_handler_uint(fpx_cmd_params_t *params, void *data,
-    fpx_int_t argc, char **argv);
+fpx_err_t fpx_handler_flag(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+    char **argv);
+fpx_err_t fpx_handler_str(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+    char **argv);
+fpx_err_t fpx_handler_size(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+    char **argv);
+fpx_err_t fpx_handler_uint(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+    char **argv);
 
 #endif /* FPX_CORE_COMMAND_H */

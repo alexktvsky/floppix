@@ -11,8 +11,7 @@ fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params)
 
     if (pthread_mutexattr_init(&attr) != 0) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "pthread_mutexattr_init() failed");
+        fpx_log_error1(FPX_LOG_ERROR, err, "pthread_mutexattr_init() failed");
         return err;
     }
 
@@ -101,14 +100,11 @@ fpx_mutex_fini(fpx_mutex_t *mutex)
 
     if (pthread_mutex_destroy(&(mutex->handle)) != 0) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "pthread_mutex_destroy() failed");
+        fpx_log_error1(FPX_LOG_ERROR, err, "pthread_mutex_destroy() failed");
     }
 }
 
-
 #elif (FPX_WIN32)
-
 
 fpx_err_t
 fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params)
@@ -133,7 +129,7 @@ fpx_mutex_init(fpx_mutex_t *mutex, fpx_bitmask_t params)
         mutex->handle = handle;
         mutex->type = fpx_mutex_mutex;
     }
-    
+
     return FPX_OK;
 }
 

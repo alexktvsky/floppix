@@ -6,5 +6,4 @@
 #include "fpx.system.thread.h"
 #include "fpx.system.time.h"
 
-
 #endif /* FPX_SYSTEM_SIGNAL_H */

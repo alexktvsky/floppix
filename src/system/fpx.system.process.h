@@ -4,22 +4,20 @@
 #include "fpx.system.os.portable.h"
 #include "fpx.system.errno.h"
 
-#define FPX_DEFAULT_USER             NULL
-#define FPX_DEFAULT_GROUP            NULL
-
+#define FPX_DEFAULT_USER  NULL
+#define FPX_DEFAULT_GROUP NULL
 
 #if (FPX_POSIX)
 
-#define FPX_DEFAULT_WORKDIR          "/"
-#define FPX_DEFAULT_PRIORITY         0
+#define FPX_DEFAULT_WORKDIR  "/"
+#define FPX_DEFAULT_PRIORITY 0
 
 #elif (FPX_WIN32)
 
-#define FPX_DEFAULT_WORKDIR          "C:\\"
-#define FPX_DEFAULT_PRIORITY         0
+#define FPX_DEFAULT_WORKDIR  "C:\\"
+#define FPX_DEFAULT_PRIORITY 0
 
 #endif
-
 
 fpx_err_t fpx_process_become_daemon(void);
 fpx_err_t fpx_process_set_workdir(const char *workdir);

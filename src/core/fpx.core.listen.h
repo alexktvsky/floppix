@@ -7,15 +7,14 @@
 #include "fpx.system.os.portable.h"
 
 /* Some operating systems do not support a value more than 5 */
-#define FPX_MAX_CONNECT_QUEUELEN     5
-#define FPX_MAX_BIND_ATTEMPTS        3
-#define FPX_BIND_ATTEMPT_PAUSE       500
+#define FPX_MAX_CONNECT_QUEUELEN 5
+#define FPX_MAX_BIND_ATTEMPTS    3
+#define FPX_BIND_ATTEMPT_PAUSE   500
 
-#define FPX_LISTENER_ID              0x00000001
-#define fpx_is_listener(x)           ((x->type_id) == FPX_LISTENER_ID)
-#define fpx_listener_is_ipv4(x)      fpx_sockaddr_is_ipv4((&(x->sockaddr)))
-#define fpx_listener_is_ipv6(x)      fpx_sockaddr_is_ipv6((&(x->sockaddr)))
-
+#define FPX_LISTENER_ID          0x00000001
+#define fpx_is_listener(x)       ((x->type_id) == FPX_LISTENER_ID)
+#define fpx_listener_is_ipv4(x)  fpx_sockaddr_is_ipv4((&(x->sockaddr)))
+#define fpx_listener_is_ipv6(x)  fpx_sockaddr_is_ipv6((&(x->sockaddr)))
 
 typedef struct fpx_listener_s fpx_listener_t;
 
@@ -31,11 +30,10 @@ struct fpx_listener_s {
     /* The accept function for this socket */
 };
 
-
-fpx_err_t fpx_listener_init_ipv4(fpx_listener_t *listener,
-    const char *addr, const char *port);
-fpx_err_t fpx_listener_init_ipv6(fpx_listener_t *listener,
-    const char *addr, const char *port);
+fpx_err_t fpx_listener_init_ipv4(fpx_listener_t *listener, const char *addr,
+    const char *port);
+fpx_err_t fpx_listener_init_ipv6(fpx_listener_t *listener, const char *addr,
+    const char *port);
 fpx_err_t fpx_listener_bind(fpx_listener_t *listener);
 fpx_err_t fpx_listener_open(fpx_listener_t *listener);
 void fpx_listener_close(fpx_listener_t *listener);

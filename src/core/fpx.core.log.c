@@ -7,16 +7,16 @@
 #include "fpx.algo.list.h"
 #include "fpx.util.string.h"
 
-#define FPX_MAX_LOG_SLOTS            32
-#define FPX_LOG_STR_SIZE             1000
-#define FPX_LOG_TIMESTR_SIZE         24
-#define FPX_LOG_TOTAL_STR_SIZE  (FPX_LOG_STR_SIZE + FPX_LOG_TIMESTR_SIZE)
+#define FPX_MAX_LOG_SLOTS      32
+#define FPX_LOG_STR_SIZE       1000
+#define FPX_LOG_TIMESTR_SIZE   24
+#define FPX_LOG_TOTAL_STR_SIZE (FPX_LOG_STR_SIZE + FPX_LOG_TIMESTR_SIZE)
 
-#define FPX_LOG_INIT_DELAY           500
-#define FPX_LOG_WORKER_DELAY         1000
+#define FPX_LOG_INIT_DELAY     500
+#define FPX_LOG_WORKER_DELAY   1000
 
-typedef void (*fpx_log_handler_t) (fpx_log_t *log, fpx_uint_t level,
-    char *buf, fpx_size_t len);
+typedef void (*fpx_log_handler_t)(fpx_log_t *log, fpx_uint_t level, char *buf,
+    fpx_size_t len);
 
 typedef struct {
     fpx_uint_t level;
@@ -52,7 +52,6 @@ struct fpx_logger_s {
     fpx_mutex_t *mutex_fetch;
 };
 
-
 fpx_logger_t *fpx_logger_global;
 
 const char *fpx_log_prio[] = {
@@ -61,13 +60,11 @@ const char *fpx_log_prio[] = {
     "warn",
     "info",
     "debug",
-    NULL
+    NULL,
 };
 
-
 static void
-fpx_write_to_log(fpx_log_t *log, fpx_uint_t level,
-    char *buf, fpx_size_t len)
+fpx_write_to_log(fpx_log_t *log, fpx_uint_t level, char *buf, fpx_size_t len)
 {
     if (level > (log->level)) {
         return;
@@ -111,11 +108,12 @@ fpx_logger_worker(void *arg)
      * Fixme: Why process log can not get in time?
      */
 #if (FPX_POSIX && FPX_HAVE_MMAP && FPX_LOGGER_IS_PROC)
-    fpx_log_debug1(FPX_OK,
-        "The log process has been started with pid %d", getpid());
+    fpx_log_debug1(FPX_OK, "The log process has been started with pid %d",
+        getpid());
 #else
-    fpx_log_debug1(FPX_OK, "The log thread has been started with tid "
-        FPX_FMT_TID_T, fpx_thread_current_tid());
+    fpx_log_debug1(FPX_OK,
+        "The log thread has been started with tid " FPX_FMT_TID_T,
+        fpx_thread_current_tid());
 #endif
 
     while (1) {
@@ -125,12 +123,12 @@ fpx_logger_worker(void *arg)
         message = &(messages[logger->front]);
         logger->front = ((logger->front) + 1) % FPX_MAX_LOG_SLOTS;
 
-        len = fpx_snprintf(buf, FPX_LOG_TOTAL_STR_SIZE,
-            "%s [%s] %s" FPX_EOL_STR,
-            message->time, fpx_log_prio[message->level], message->str);
+        len =
+            fpx_snprintf(buf, FPX_LOG_TOTAL_STR_SIZE, "%s [%s] %s" FPX_EOL_STR,
+                message->time, fpx_log_prio[message->level], message->str);
 
         node = logger->logs->head;
-        for ( ; node; node = node->next) {
+        for (; node; node = node->next) {
             log = (fpx_log_t *) node->data;
             log->handler(log, message->level, buf, len);
         }
@@ -140,7 +138,6 @@ fpx_logger_worker(void *arg)
     }
     return 0;
 }
-
 
 fpx_err_t
 fpx_logger_init(fpx_logger_t **out_logger)
@@ -188,8 +185,8 @@ fpx_logger_init(fpx_logger_t **out_logger)
     mem_size += sizeof(fpx_semaphore_t) * 2;
 
 #if (FPX_POSIX && FPX_HAVE_MMAP && FPX_LOGGER_IS_PROC)
-    messages = mmap(NULL, mem_size, PROT_READ|PROT_WRITE,
-                                    MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    messages = mmap(NULL, mem_size, PROT_READ | PROT_WRITE,
+        MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (messages == MAP_FAILED) {
         err = fpx_get_errno();
         goto failed;
@@ -205,8 +202,6 @@ fpx_logger_init(fpx_logger_t **out_logger)
     }
 #endif
 
-
-
     mem = (uint8_t *) messages;
     mem += sizeof(fpx_log_message_t) * FPX_MAX_LOG_SLOTS;
 
@@ -221,15 +216,15 @@ fpx_logger_init(fpx_logger_t **out_logger)
 
     sem_full = (fpx_semaphore_t *) mem;
 
-    err = fpx_semaphore_init(sem_empty, FPX_MAX_LOG_SLOTS,
-                            FPX_MAX_LOG_SLOTS, FPX_SEMAPHORE_SHARED);
+    err = fpx_semaphore_init(sem_empty, FPX_MAX_LOG_SLOTS, FPX_MAX_LOG_SLOTS,
+        FPX_SEMAPHORE_SHARED);
     if (err != FPX_OK) {
         goto failed;
     }
     fpx_pool_cleanup_add(pool, sem_empty, fpx_semaphore_fini);
 
-    err = fpx_semaphore_init(sem_full, 0,
-                            FPX_MAX_LOG_SLOTS, FPX_SEMAPHORE_SHARED);
+    err = fpx_semaphore_init(sem_full, 0, FPX_MAX_LOG_SLOTS,
+        FPX_SEMAPHORE_SHARED);
     if (err != FPX_OK) {
         goto failed;
     }
@@ -274,8 +269,7 @@ failed:
 }
 
 fpx_err_t
-fpx_logger_add_log_fd(fpx_logger_t *logger, fpx_uint_t level,
-    fpx_fd_t fd)
+fpx_logger_add_log_fd(fpx_logger_t *logger, fpx_uint_t level, fpx_fd_t fd)
 {
     fpx_log_t *log;
     fpx_file_t *file;
@@ -316,7 +310,6 @@ failed:
     return err;
 }
 
-
 fpx_err_t
 fpx_logger_add_log_file(fpx_logger_t *logger, fpx_uint_t level,
     const char *fname, fpx_size_t size)
@@ -345,8 +338,8 @@ fpx_logger_add_log_file(fpx_logger_t *logger, fpx_uint_t level,
         goto failed;
     }
 
-    err = fpx_file_open(file, fname, FPX_FILE_WRONLY,
-        FPX_FILE_CREATE_OR_APPEND, FPX_FILE_OWNER_ACCESS);
+    err = fpx_file_open(file, fname, FPX_FILE_WRONLY, FPX_FILE_CREATE_OR_APPEND,
+        FPX_FILE_OWNER_ACCESS);
     if (err != FPX_OK) {
         goto failed;
     }
@@ -409,8 +402,8 @@ fpx_logger_start(fpx_logger_t *logger)
     }
 
     err = fpx_thread_init(logger->tid,
-        FPX_THREAD_SCOPE_SYSTEM|FPX_THREAD_CREATE_DETACHED, 0,
-            FPX_THREAD_PRIORITY_NORMAL, fpx_logger_worker, (void *) logger);
+        FPX_THREAD_SCOPE_SYSTEM | FPX_THREAD_CREATE_DETACHED, 0,
+        FPX_THREAD_PRIORITY_NORMAL, fpx_logger_worker, (void *) logger);
 
     if (err != FPX_OK) {
         return err;
@@ -420,7 +413,6 @@ fpx_logger_start(fpx_logger_t *logger)
 #endif
 
     fpx_msleep(FPX_LOG_INIT_DELAY);
-
 
     return FPX_OK;
 }
@@ -453,17 +445,16 @@ fpx_log_error(fpx_uint_t level, fpx_logger_t *logger, fpx_err_t err,
 
     /* If error code is OK, don't log description of error */
     if (err != FPX_OK) {
-        if (len < FPX_LOG_STR_SIZE ) {
+        if (len < FPX_LOG_STR_SIZE) {
             buf = (message->str) + len;
-            fpx_snprintf(buf, FPX_LOG_STR_SIZE - len, " (%d: %s)",
-                err, fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
+            fpx_snprintf(buf, FPX_LOG_STR_SIZE - len, " (%d: %s)", err,
+                fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
         }
     }
 
     fpx_snprintf(message->time, FPX_LOG_TIMESTR_SIZE,
-        "[%02d.%02d.%02d] [%02d:%02d:%02d]",
-        tm.fpx_tm_mday, tm.fpx_tm_mon, tm.fpx_tm_year,
-        tm.fpx_tm_hour, tm.fpx_tm_min, tm.fpx_tm_sec);
+        "[%02d.%02d.%02d] [%02d:%02d:%02d]", tm.fpx_tm_mday, tm.fpx_tm_mon,
+        tm.fpx_tm_year, tm.fpx_tm_hour, tm.fpx_tm_min, tm.fpx_tm_sec);
 
     message->level = level;
 
@@ -481,7 +472,6 @@ fpx_log_console(fpx_fd_t fd, fpx_err_t err, const char *fmt, ...)
     fpx_size_t len, n;
     va_list args;
 
-
     va_start(args, fmt);
     len = fpx_vsnprintf(logstr, FPX_LOG_STR_SIZE, fmt, args);
     va_end(args);
@@ -491,8 +481,8 @@ fpx_log_console(fpx_fd_t fd, fpx_err_t err, const char *fmt, ...)
         pos = logstr + len;
 
         if (err != FPX_OK) {
-            n = fpx_snprintf(pos, FPX_LOG_STR_SIZE - len, " (%d: %s)\n",
-                err, fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
+            n = fpx_snprintf(pos, FPX_LOG_STR_SIZE - len, " (%d: %s)\n", err,
+                fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
         }
         else {
             n = fpx_snprintf(pos, FPX_LOG_STR_SIZE - len, "\n");

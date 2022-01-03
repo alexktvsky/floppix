@@ -3,10 +3,8 @@
 
 #if (FPX_HAVE_EPOLL && FPX_LINUX)
 
-static fpx_err_t fpx_epoll_add_listener(fpx_listener_t *listener,
-    int flags);
-static fpx_err_t fpx_epoll_del_listener(fpx_listener_t *listener,
-    int flags);
+static fpx_err_t fpx_epoll_add_listener(fpx_listener_t *listener, int flags);
+static fpx_err_t fpx_epoll_del_listener(fpx_listener_t *listener, int flags);
 static fpx_err_t fpx_epoll_add_connect(fpx_conf_t *conf,
     fpx_listener_t *listener);
 static fpx_err_t fpx_epoll_del_connect(fpx_conf_t *conf,
@@ -24,9 +22,8 @@ fpx_event_actions_t fpx_event_actions_epoll = {
     fpx_epoll_add_connect,
     fpx_epoll_del_connect,
     fpx_epoll_process_events,
-    fpx_epoll_init
+    fpx_epoll_init,
 };
-
 
 static fpx_err_t
 fpx_epoll_add_listener(fpx_listener_t *listener, int flags)
@@ -68,7 +65,7 @@ fpx_epoll_add_connect(fpx_conf_t *conf, fpx_listener_t *listener)
     fpx_err_t err;
 
     connect = fpx_try_use_already_exist_node(sizeof(fpx_connect_t),
-                            conf->free_connects, listener->connects);
+        conf->free_connects, listener->connects);
     if (!connect) {
         err = fpx_get_errno();
         goto failed;
@@ -79,7 +76,7 @@ fpx_epoll_add_connect(fpx_conf_t *conf, fpx_listener_t *listener)
         goto failed;
     }
 
-    ee.events = EPOLLIN|EPOLLOUT|EPOLLET|EPOLLRDHUP;
+    ee.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLRDHUP;
     ee.data.ptr = connect;
 
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, connect->fd, &ee) == -1) {
@@ -106,7 +103,7 @@ fpx_epoll_del_connect(fpx_conf_t *conf, fpx_connect_t *connect)
 
     fpx_connection_cleanup(connect);
     fpx_list_reserve_node(connect, conf->free_connects,
-                                        connect->owner->connects);
+        connect->owner->connects);
 
     return FPX_OK;
 }
@@ -120,7 +117,6 @@ fpx_epoll_process_events(fpx_conf_t *conf)
     int events;
     int ready_events;
     fpx_err_t err;
-
 
     /* TODO: Change to epoll_pwait when signal handler will be ready */
     events = epoll_wait(epfd, event_list, max_events, (int) timer);
@@ -199,9 +195,10 @@ fpx_epoll_init(fpx_conf_t *conf)
         return fpx_get_errno();
     }
 
-    for (listener = fpx_list_first(conf->listeners);
-                            listener; listener = fpx_list_next(listener)) {
-        err = fpx_epoll_add_listener(listener, EPOLLIN|EPOLLET);
+    for (listener = fpx_list_first(conf->listeners); listener;
+         listener = fpx_list_next(listener))
+    {
+        err = fpx_epoll_add_listener(listener, EPOLLIN | EPOLLET);
         if (err != FPX_OK) {
             return err;
         }
@@ -209,7 +206,5 @@ fpx_epoll_init(fpx_conf_t *conf)
 
     return FPX_OK;
 }
-
-
 
 #endif /* FPX_HAVE_EPOLL && FPX_LINUX */

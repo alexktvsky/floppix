@@ -114,11 +114,11 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
 
     fpx_memzero(file, sizeof(fpx_file_t));
 
-    fd = open(path, mode|create, access);
+    fd = open(path, mode | create, access);
     if (fd == FPX_INVALID_FILE) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "open(\"%s\", %zu|%zu, %o) failed", path, mode, create, access);
+        fpx_log_error1(FPX_LOG_ERROR, err, "open(\"%s\", %zu|%zu, %o) failed",
+            path, mode, create, access);
         return err;
     }
 
@@ -130,8 +130,7 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
 }
 
 fpx_ssize_t
-fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size,
-    fpx_off_t offset)
+fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
 {
     fpx_ssize_t n;
 
@@ -159,12 +158,11 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, %s) failed", file->fd, offset,
-            fpx_value(SEEK_SET));
+            "lseek(%d, %zd, %s) failed", file->fd, offset, fpx_value(SEEK_SET));
         return -1;
     }
 
-    for ( ; ; ) {
+    for (;;) {
         n = write(file->fd, buf + written, size);
         if (n == -1) {
             fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
@@ -235,7 +233,6 @@ fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t n)
     return rv;
 }
 
-
 fpx_err_t
 fpx_file_info_by_path(fpx_file_info_t *info, const char *path)
 {
@@ -243,8 +240,8 @@ fpx_file_info_by_path(fpx_file_info_t *info, const char *path)
 
     if (stat(path, &(info->stat)) == -1) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "stat(\"%s\", %p) failed", path, info);
+        fpx_log_error1(FPX_LOG_ERROR, err, "stat(\"%s\", %p) failed", path,
+            info);
         return err;
     }
     info->type = fpx_stat_get_file_type(&(info->stat));
@@ -260,8 +257,8 @@ fpx_file_info(fpx_file_info_t *info, fpx_file_t *file)
 
     if (fstat(file->fd, &(info->stat)) == -1) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "fstat(%d, %p) failed", file->fd, info);
+        fpx_log_error1(FPX_LOG_ERROR, err, "fstat(%d, %p) failed", file->fd,
+            info);
         return err;
     }
     info->type = fpx_stat_get_file_type(&(info->stat));
@@ -293,8 +290,8 @@ fpx_dir_open(fpx_dir_t *dir, const char *path)
     dir->dir = opendir(path);
     if (dir->dir == NULL) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "opendir(%p, \"%s\") failed", dir, path);
+        fpx_log_error1(FPX_LOG_ERROR, err, "opendir(%p, \"%s\") failed", dir,
+            path);
         return err;
     }
 
@@ -318,8 +315,8 @@ fpx_dir_read(fpx_dir_t *dir)
     if (!dir->dirent) {
         err = fpx_get_errno();
         if (err != FPX_OK) {
-            fpx_log_error1(FPX_LOG_ERROR, err,
-                "readdir(%p) failed for \"%s\"", dir, dir->name);
+            fpx_log_error1(FPX_LOG_ERROR, err, "readdir(%p) failed for \"%s\"",
+                dir, dir->name);
             return err;
         }
         return FPX_DONE;
@@ -342,8 +339,8 @@ fpx_dir_read(fpx_dir_t *dir)
     if (!dir->dirent) {
         err = fpx_get_errno();
         if (err != FPX_OK) {
-            fpx_log_error1(FPX_LOG_ERROR, err,
-                "readdir(%p) failed for \"%s\"", dir, dir->name);
+            fpx_log_error1(FPX_LOG_ERROR, err, "readdir(%p) failed for \"%s\"",
+                dir, dir->name);
             return err;
         }
         return FPX_DONE;
@@ -358,7 +355,6 @@ fpx_dir_read(fpx_dir_t *dir)
     return FPX_OK;
 }
 #endif
-
 
 void
 fpx_dir_close(fpx_dir_t *dir)
@@ -384,8 +380,8 @@ fpx_glob_open(fpx_glob_t *gl, const char *pattern)
     rv = glob(pattern, 0, NULL, &gl->glob);
     if (rv != 0) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "glob(%s, %p) failed", gl->pattern, &gl->glob);
+        fpx_log_error1(FPX_LOG_ERROR, err, "glob(%s, %p) failed", gl->pattern,
+            &gl->glob);
         return err;
     }
 
@@ -422,7 +418,6 @@ fpx_glob_close(fpx_glob_t *gl)
 {
     globfree(&gl->glob);
 }
-
 
 fpx_err_t
 fpx_check_absolute_path(const char *path)
@@ -490,8 +485,7 @@ fpx_utf8_decode(u_char **p, fpx_size_t n)
 }
 
 static uint16_t *
-fpx_path_to_wchar(uint16_t *outstr, fpx_size_t outlen,
-    const uint8_t *instr)
+fpx_path_to_wchar(uint16_t *outstr, fpx_size_t outlen, const uint8_t *instr)
 {
     uint8_t *p;
     uint16_t *u, *last;
@@ -572,8 +566,8 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
     if (fd == FPX_INVALID_FILE) {
         err = fpx_get_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "CreateFileW(\"%s\", %zu, %d, %p, %zu, %d, %p) failed",
-            path, mode, 0, NULL, create, 0, NULL);
+            "CreateFileW(\"%s\", %zu, %d, %p, %zu, %d, %p) failed", path, mode,
+            0, NULL, create, 0, NULL);
         return err;
     }
 
@@ -585,8 +579,7 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
 }
 
 fpx_ssize_t
-fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size,
-    fpx_off_t offset)
+fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -599,8 +592,8 @@ fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size,
 
     if (ReadFile(file->fd, buf, size, &n, &ovlp) == 0) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "ReadFile(%p, %p, %zu, %p, %p) failed",
-            file->fd, buf, size, &n, &ovlp);
+            "ReadFile(%p, %p, %zu, %p, %p) failed", file->fd, buf, size, &n,
+            &ovlp);
         return -1;
     }
     file->offset += n;
@@ -622,14 +615,13 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
 
     if (WriteFile(file->fd, buf, size, &n, &ovlp) == 0) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "WriteFile(%p, %p, %zu, %p, %p) failed",
-            file->fd, buf, size, &n, &ovlp);
+            "WriteFile(%p, %p, %zu, %p, %p) failed", file->fd, buf, size, &n,
+            &ovlp);
         return -1;
     }
 
     if (((fpx_size_t) n) != size) {
-        fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
-            "((fpx_size_t) n) != size");
+        fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED, "((fpx_size_t) n) != size");
         return -1;
     }
     file->offset += n;
@@ -677,8 +669,7 @@ fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
 
     if (ReadFile(fd, buf, size, &n, NULL) == 0) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "ReadFile(%p, %p, %zu, %p, %p) failed",
-            fd, buf, size, &n, NULL);
+            "ReadFile(%p, %p, %zu, %p, %p) failed", fd, buf, size, &n, NULL);
         return -1;
     }
     return (fpx_ssize_t) n;
@@ -691,8 +682,7 @@ fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
 
     if (WriteFile(fd, buf, size, &n, NULL) == 0) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "WriteFile(%p, %p, %zu, %p, %p) failed",
-            fd, buf, size, &n, NULL);
+            "WriteFile(%p, %p, %zu, %p, %p) failed", fd, buf, size, &n, NULL);
         return -1;
     }
     return (fpx_ssize_t) n;
@@ -729,7 +719,7 @@ fpx_file_info_by_path(fpx_file_info_t *info, const char *path)
 {
     fpx_err_t
 
-    err = fpx_file_stat_by_path(&(info->stat), path);
+        err = fpx_file_stat_by_path(&(info->stat), path);
     if (err != FPX_OK) {
         return err;
     }
@@ -822,8 +812,8 @@ fpx_dir_read(fpx_dir_t *dir)
         err = fpx_get_errno();
         if (err != FPX_OK && err != ERROR_NO_MORE_FILES) {
             fpx_log_error1(FPX_LOG_ERROR, err,
-                "FindNextFile(%p) failed for \"%s\"",
-                dir->dir, &dir->finddata, dir->name);
+                "FindNextFile(%p) failed for \"%s\"", dir->dir, &dir->finddata,
+                dir->name);
             return err;
         }
         return FPX_DONE;
@@ -857,8 +847,8 @@ fpx_glob_open(fpx_glob_t *gl, const char *pattern)
     gl->dir = FindFirstFile((const char *) pattern, &gl->finddata);
     if (gl->dir == INVALID_HANDLE_VALUE) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "FindFirstFile(%s, %p) failed", pattern, &gl->finddata);
+        fpx_log_error1(FPX_LOG_ERROR, err, "FindFirstFile(%s, %p) failed",
+            pattern, &gl->finddata);
         return FPX_FAILED;
     }
 
@@ -909,8 +899,8 @@ fpx_glob_read(fpx_glob_t *gl, char *res)
         if (err != FPX_OK && err != ERROR_NO_MORE_FILES) {
             gl->done = 1;
             fpx_log_error1(FPX_LOG_ERROR, err,
-                "FindNextFile(%p, %p) failed for \"%s\"",
-                gl->dir, &gl->finddata, gl->pattern);
+                "FindNextFile(%p, %p) failed for \"%s\"", gl->dir,
+                &gl->finddata, gl->pattern);
             return err;
         }
         gl->last_res = gl->finddata.cFileName;
@@ -940,10 +930,10 @@ fpx_check_absolute_path(const char *path)
     /*
      * C:\path\to\foo.txt - absolute
      * C:path\to\foo.txt  - non-absolute
-     * 
+     *
      * UNC-paths
      * \\server1\share\test\foo.txt
-     * 
+     *
      */
 
     if (fpx_isalpha(path[0]) && path[1] == ':' && path[2] == '\\') {
@@ -1021,7 +1011,7 @@ fpx_file_full_path(char *buf, const char *path, const char *file)
     copied += path_len;
 
     fpx_memmove(buf + copied, FPX_PATH_SEPARATOR_STR, 1);
-    copied += + 1;
+    copied += +1;
 
     fpx_memmove(buf + copied, file, file_len);
     copied += file_len;

@@ -25,13 +25,13 @@
 #include <openssl/x509v3.h>
 #endif
 
-typedef HANDLE                         fpx_fd_t;
-typedef BY_HANDLE_FILE_INFORMATION     fpx_file_stat_t;
-typedef SOCKET                         fpx_socket_t;
-typedef socklen_t                      fpx_socklen_t;
-typedef DWORD                          fpx_tid_t;
-typedef HANDLE                         fpx_thread_handle_t;
-typedef DWORD                          fpx_thread_value_t;
-typedef SYSTEMTIME                     fpx_tm_t;
+typedef HANDLE fpx_fd_t;
+typedef BY_HANDLE_FILE_INFORMATION fpx_file_stat_t;
+typedef SOCKET fpx_socket_t;
+typedef socklen_t fpx_socklen_t;
+typedef DWORD fpx_tid_t;
+typedef HANDLE fpx_thread_handle_t;
+typedef DWORD fpx_thread_value_t;
+typedef SYSTEMTIME fpx_tm_t;
 
 #endif /* FPX_SYSTEM_OS_WIN32_H */

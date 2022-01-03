@@ -11,19 +11,9 @@
 #include "fpx.core.listen.h"
 #include "fpx.core.parse.h"
 
-
-
-
-
-
-
-
-
 /*
 typedef struct fpx_event_s           fpx_event_t;
-*/ 
-
-
+*/
 
 /*
  * A structure to store information of cintext for each virtual server
@@ -50,12 +40,7 @@ struct fpx_server_s {
     char *workdir;
     char *user;
     char *group;
-
-
 };
-
-
-
 
 /*
 
@@ -63,6 +48,5 @@ void fpx_server_single_process(fpx_server_t *server);
 void fpx_server_master_process(fpx_server_t *server);
 
  */
-
 
 #endif /* FPX_CORE_SERVER_H */

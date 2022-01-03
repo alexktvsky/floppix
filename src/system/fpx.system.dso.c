@@ -23,7 +23,7 @@ fpx_dlerror(char *buf, fpx_size_t bufsize)
     }
     else {
         fpx_memmove(buf, str, bufsize);
-        buf[bufsize-1] = '\0';
+        buf[bufsize - 1] = '\0';
     }
     return buf;
 }

@@ -74,7 +74,7 @@ fpx_strlen(const char *str)
 {
     fpx_uint_t i;
 
-    for (i = 0; ; ++i) {
+    for (i = 0;; ++i) {
 
         if (str[i] == '\0') {
             return i;
@@ -102,7 +102,7 @@ fpx_strcasecmp(char *str1, char *str2)
 {
     fpx_uint_t c1, c2;
 
-    for ( ; ; ) {
+    for (;;) {
         c1 = (fpx_uint_t) *str1++;
         c2 = (fpx_uint_t) *str2++;
 

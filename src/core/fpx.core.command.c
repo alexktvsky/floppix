@@ -12,9 +12,8 @@ static fpx_bitmask_t fpx_takes[] = {
     FPX_TAKE4,
     FPX_TAKE5,
     FPX_TAKE6,
-    FPX_TAKE7
+    FPX_TAKE7,
 };
-
 
 static fpx_err_t
 fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
@@ -23,7 +22,6 @@ fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
 {
     fpx_directive_t *directive;
     fpx_size_t argv_size;
-
 
     directive = fpx_pcalloc(pool, sizeof(fpx_directive_t));
     if (!directive) {
@@ -49,8 +47,7 @@ fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
 }
 
 static fpx_err_t
-fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool,
-    const char *file_buf)
+fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool, const char *file_buf)
 {
     fpx_file_t *file;
     const char *filename;
@@ -74,11 +71,10 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool,
     fpx_uint_t i;
     fpx_uint_t line = 1;
 
-
     file = config->conf_files->tail->data;
     filename = file->name;
 
-    for (i = 0; ; ++i) {
+    for (i = 0;; ++i) {
 
         c = file_buf[i];
 
@@ -112,7 +108,8 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool,
             if (begin != NULL) {
                 fpx_log_error1(FPX_LOG_ERROR, FPX_ERR_CONFIG_SYNTAX,
                     "%s:%zu: Unexpected \"#\", probably missing terminating "
-                    "character", filename, line);
+                    "character",
+                    filename, line);
                 return FPX_ERR_CONFIG_SYNTAX;
             }
             comment = true;
@@ -193,7 +190,7 @@ fpx_find_command_in_modules(fpx_server_t *server, const char *cmd_name)
     fpx_uint_t i;
 
     node = server->modules->head;
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         module = (fpx_module_t *) node->data;
         for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (fpx_strcmp(module->cmd[i].name, cmd_name) == 0) {
@@ -212,7 +209,7 @@ fpx_find_module_by_command(fpx_server_t *server, const char *cmd_name)
     fpx_uint_t i;
 
     node = server->modules->head;
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         module = (fpx_module_t *) node->data;
         for (i = 0; module->cmd[i].name != NULL; ++i) {
             if (fpx_strcmp(module->cmd[i].name, cmd_name) == 0) {
@@ -224,11 +221,9 @@ fpx_find_module_by_command(fpx_server_t *server, const char *cmd_name)
 }
 
 static fpx_err_t
-fpx_check_directive_arguments(fpx_directive_t *directive,
-    fpx_command_t *cmd)
+fpx_check_directive_arguments(fpx_directive_t *directive, fpx_command_t *cmd)
 {
     fpx_uint_t min_takes, max_takes, i, argc;
-
 
     min_takes = 0;
     max_takes = 0;
@@ -242,7 +237,7 @@ fpx_check_directive_arguments(fpx_directive_t *directive,
             }
             if (max_takes < i) {
                 max_takes = i;
-            } 
+            }
         }
     }
 
@@ -270,8 +265,8 @@ fpx_config_read_included_file(fpx_config_t *config, fpx_pool_t *pool,
         goto failed;
     }
 
-    err = fpx_file_open(file, filename, FPX_FILE_RDONLY,
-                    FPX_FILE_OPEN, FPX_FILE_DEFAULT_ACCESS);
+    err = fpx_file_open(file, filename, FPX_FILE_RDONLY, FPX_FILE_OPEN,
+        FPX_FILE_DEFAULT_ACCESS);
     if (err != FPX_OK) {
         goto failed;
     }
@@ -316,8 +311,7 @@ failed:
 }
 
 fpx_err_t
-fpx_config_read(fpx_config_t *config, fpx_pool_t *pool,
-    const char *filename)
+fpx_config_read(fpx_config_t *config, fpx_pool_t *pool, const char *filename)
 {
     fpx_list_t *conf_list;
     fpx_list_t *conf_files;
@@ -328,15 +322,14 @@ fpx_config_read(fpx_config_t *config, fpx_pool_t *pool,
 
     fpx_err_t err;
 
-
     file = fpx_palloc(pool, sizeof(fpx_file_t));
     if (!file) {
         err = fpx_get_errno();
         goto failed;
     }
 
-    err = fpx_file_open(file, filename, FPX_FILE_RDONLY,
-                    FPX_FILE_OPEN, FPX_FILE_DEFAULT_ACCESS);
+    err = fpx_file_open(file, filename, FPX_FILE_RDONLY, FPX_FILE_OPEN,
+        FPX_FILE_DEFAULT_ACCESS);
     if (err != FPX_OK) {
         goto failed;
     }
@@ -405,15 +398,15 @@ fpx_config_check(fpx_config_t *config, fpx_server_t *server)
 
     node = config->conf_list->head;
 
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
 
         directive = (fpx_directive_t *) node->data;
 
         cmd = fpx_find_command_in_modules(server, directive->name);
         if (!cmd) {
             fpx_log_error1(FPX_LOG_ERROR, FPX_ERR_CONFIG_SYNTAX,
-                "%s:%zu: Unknown directive \"%s\"",
-                directive->filename, directive->line, directive->name);
+                "%s:%zu: Unknown directive \"%s\"", directive->filename,
+                directive->line, directive->name);
             return FPX_ERR_CONFIG_SYNTAX;
         }
 
@@ -460,15 +453,14 @@ fpx_config_process(fpx_config_t *config, fpx_server_t *server)
     fpx_list_node_t *node;
     fpx_err_t err;
 
-
     node = config->conf_list->head;
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         directive = (fpx_directive_t *) node->data;
         cmd = fpx_find_command_in_modules(server, directive->name);
         if (!cmd) {
             fpx_log_error1(FPX_LOG_ERROR, FPX_ERR_CONFIG_SYNTAX,
-                "%s:%zu: Unknown directive \"%s\"",
-                directive->filename, directive->line, directive->name);
+                "%s:%zu: Unknown directive \"%s\"", directive->filename,
+                directive->line, directive->name);
             return FPX_ERR_CONFIG_SYNTAX;
         }
 
@@ -510,7 +502,6 @@ fpx_config_walkdir_nonwildcard(fpx_config_t *config, fpx_pool_t *pool,
     fpx_dir_t dir;
     fpx_err_t err;
 
-
     if ((err = fpx_dir_open(&dir, path)) != FPX_DONE) {
         return err;
     }
@@ -519,9 +510,7 @@ fpx_config_walkdir_nonwildcard(fpx_config_t *config, fpx_pool_t *pool,
 
         fname = fpx_dir_current_name(&dir);
 
-        if ((fpx_strcmp(fname, ".") == 0) ||
-            (fpx_strcmp(fname, "..") == 0))
-        {
+        if ((fpx_strcmp(fname, ".") == 0) || (fpx_strcmp(fname, "..") == 0)) {
             continue;
         }
 
@@ -639,7 +628,6 @@ fpx_config_walkdir_wildcard(fpx_config_t *config, fpx_pool_t *pool,
     fpx_glob_t glob;
     fpx_err_t err;
 
-
     err = fpx_glob_open(&glob, path);
     if (err != FPX_OK) {
         return err;
@@ -647,9 +635,8 @@ fpx_config_walkdir_wildcard(fpx_config_t *config, fpx_pool_t *pool,
 
     while (fpx_glob_read(&glob, fullpath) != FPX_DONE) {
 
-        if ((fpx_strcmp(fullpath, ".") == 0) ||
-            (fpx_strcmp(fullpath, "..") == 0))
-        {
+        if ((fpx_strcmp(fullpath, ".") == 0)
+            || (fpx_strcmp(fullpath, "..") == 0)) {
             continue;
         }
 
@@ -674,11 +661,9 @@ fpx_config_read_included(fpx_config_t *config, fpx_pool_t *pool,
     fpx_file_info_t info;
     fpx_err_t err;
 
-
     err = fpx_check_absolute_path(path);
     if (err != FPX_OK) {
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "Failed to include \"%s\"", path);
+        fpx_log_error1(FPX_LOG_ERROR, err, "Failed to include \"%s\"", path);
         return err;
     }
 

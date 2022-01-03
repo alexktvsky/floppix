@@ -4,7 +4,6 @@
 #include "fpx.system.process.h"
 #include "fpx.util.string.h"
 
-
 #if 0
 static fpx_err_t
 foo(fpx_cmd_params_t *params, void *data, fpx_int_t argc, char **argv)
@@ -21,7 +20,9 @@ foo(fpx_cmd_params_t *params, void *data, fpx_int_t argc, char **argv)
 #endif
 
 static fpx_err_t
-fpx_handler_include(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_handler_include(fpx_cmd_params_t *params,
+    void *data,
+    fpx_int_t argc,
     char **argv)
 {
     fpx_pool_t *pool;
@@ -43,7 +44,9 @@ fpx_handler_include(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 static fpx_err_t
-fpx_handler_import(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_handler_import(fpx_cmd_params_t *params,
+    void *data,
+    fpx_int_t argc,
     char **argv)
 {
     fpx_module_t *module;
@@ -60,7 +63,9 @@ fpx_handler_import(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 static fpx_err_t
-fpx_handler_listen(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_handler_listen(fpx_cmd_params_t *params,
+    void *data,
+    fpx_int_t argc,
     char **argv)
 {
     fpx_listener_t *listener;
@@ -102,7 +107,9 @@ fpx_handler_listen(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 static fpx_err_t
-fpx_handler_log(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_handler_log(fpx_cmd_params_t *params,
+    void *data,
+    fpx_int_t argc,
     char **argv)
 {
     fpx_uint_t level;
@@ -112,30 +119,32 @@ fpx_handler_log(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 
     level = fpx_config_parse_log_level(argv[1]);
     if (level == FPX_LOG_INVALID_LEVEL) {
-        fpx_log_error1(FPX_LOG_ERROR, FPX_ERR_CONFIG_SYNTAX,
+        fpx_log_error1(FPX_LOG_ERROR,
+            FPX_ERR_CONFIG_SYNTAX,
             "%s:%zu: \"%s\" is unknown log level",
-            params->directive->filename, params->directive->line, argv[1]);
+            params->directive->filename,
+            params->directive->line,
+            argv[1]);
         return FPX_ERR_CONFIG_SYNTAX;
     }
 
     if (argc == 2 && fpx_strcmp(argv[0], "stdout") == 0) {
         if (params->server->daemon) {
-            fpx_log_error1(FPX_LOG_WARN, FPX_OK,
-                "stdout is not available in daemon mode");
+            fpx_log_error1(
+                FPX_LOG_WARN, FPX_OK, "stdout is not available in daemon mode");
         }
         fpx_logger_add_log_fd(params->server->logger, level, FPX_STDOUT);
         return FPX_OK;
     }
     else if (argc == 2 && fpx_strcmp(argv[0], "stderr") == 0) {
         if (params->server->daemon) {
-            fpx_log_error1(FPX_LOG_WARN, FPX_OK,
-                "stderr is not available in daemon mode");
+            fpx_log_error1(
+                FPX_LOG_WARN, FPX_OK, "stderr is not available in daemon mode");
         }
         fpx_logger_add_log_fd(params->server->logger, level, FPX_STDERR);
     }
     else if (argc == 2 && fpx_strcmp(argv[0], "syslog") == 0) {
-        fpx_log_error1(FPX_LOG_WARN, FPX_OK,
-            "Syslog is not available now");
+        fpx_log_error1(FPX_LOG_WARN, FPX_OK, "Syslog is not available now");
     }
     else if (argc == 2) {
         fpx_logger_add_log_file(params->server->logger, level, argv[0], 0);
@@ -144,9 +153,12 @@ fpx_handler_log(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
     if (argc == 3) {
         size = fpx_config_parse_size(argv[2]);
         if (size == -1) {
-            fpx_log_error1(FPX_LOG_ERROR, FPX_ERR_CONFIG_SYNTAX,
+            fpx_log_error1(FPX_LOG_ERROR,
+                FPX_ERR_CONFIG_SYNTAX,
                 "%s:%zu: Invalid argument \"%s\" in log directive",
-                params->directive->filename, params->directive->line, argv[2]);
+                params->directive->filename,
+                params->directive->line,
+                argv[2]);
             return FPX_ERR_CONFIG_SYNTAX;
         }
 
@@ -179,7 +191,7 @@ fpx_core_preinit(fpx_server_t *server)
     server->priority = FPX_DEFAULT_PRIORITY;
     server->user = FPX_DEFAULT_USER;
     server->group = FPX_DEFAULT_GROUP;
-    
+
     server->logger = logger;
 
     server->listeners = listeners;
@@ -188,7 +200,6 @@ fpx_core_preinit(fpx_server_t *server)
 
     return server;
 }
-
 
 static fpx_err_t
 fpx_core_init(fpx_server_t *server, void *data)
@@ -201,24 +212,30 @@ fpx_core_init(fpx_server_t *server, void *data)
     fpx_assert(server == data);
 
     if (server->listeners->size == 0) {
-        fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
-            "Listen address and port not specified");
+        fpx_log_error1(
+            FPX_LOG_ERROR, FPX_FAILED, "Listen address and port not specified");
         return FPX_FAILED;
     }
 
     node = server->listeners->head;
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         listener = (fpx_listener_t *) node->data;
 
         if ((err = fpx_listener_bind(listener)) != FPX_OK) {
-            fpx_log_error1(FPX_LOG_ERROR, err, "Listener (%s:%s) failed",
-                listener->text_addr, listener->text_port);
+            fpx_log_error1(FPX_LOG_ERROR,
+                err,
+                "Listener (%s:%s) failed",
+                listener->text_addr,
+                listener->text_port);
             return FPX_FAILED;
         }
 
         if ((err = fpx_listener_open(listener)) != FPX_OK) {
-            fpx_log_error1(FPX_LOG_ERROR, err, "Listener (%s:%s) failed",
-                listener->text_addr, listener->text_port);
+            fpx_log_error1(FPX_LOG_ERROR,
+                err,
+                "Listener (%s:%s) failed",
+                listener->text_addr,
+                listener->text_port);
             return FPX_FAILED;
         }
         fpx_pool_cleanup_add(server->pool, listener, fpx_listener_close);
@@ -240,13 +257,9 @@ fpx_core_init(fpx_server_t *server, void *data)
         }
     }
 
-
-
-
     if ((err = fpx_logger_start(server->logger)) != FPX_OK) {
         goto failed;
     }
-
 
     /*
      * Now log file is available and server can write error mesages in it, so
@@ -259,39 +272,27 @@ fpx_core_init(fpx_server_t *server, void *data)
         }
     }
 
-
-
     return FPX_OK;
 
 failed:
     return err;
 }
 
-
-fpx_command_t fpx_core_cmd[] = {
-    {"include", FPX_TAKE1, fpx_handler_include, 0},
+fpx_command_t fpx_core_cmd[] = {{"include", FPX_TAKE1, fpx_handler_include, 0},
     {"import", FPX_TAKE1, fpx_handler_import, 0},
     {"listen", FPX_TAKE1, fpx_handler_listen, 0},
-    {"log", FPX_TAKE2|FPX_TAKE3, fpx_handler_log, 0},
-    {"daemon", FPX_TAKE1, fpx_handler_flag,
-        offsetof(fpx_server_t, daemon)},
-    {"workdir", FPX_TAKE1, fpx_handler_str,
-        offsetof(fpx_server_t, workdir)},
-    {"priority", FPX_TAKE1, fpx_handler_uint,
-        offsetof(fpx_server_t, priority)},
-    {"user", FPX_TAKE1, fpx_handler_str,
-        offsetof(fpx_server_t, user)},
-    {"group", FPX_TAKE1, fpx_handler_str,
-        offsetof(fpx_server_t, group)},
-    FPX_NULL_COMMAND
-};
+    {"log", FPX_TAKE2 | FPX_TAKE3, fpx_handler_log, 0},
+    {"daemon", FPX_TAKE1, fpx_handler_flag, offsetof(fpx_server_t, daemon)},
+    {"workdir", FPX_TAKE1, fpx_handler_str, offsetof(fpx_server_t, workdir)},
+    {"priority", FPX_TAKE1, fpx_handler_uint, offsetof(fpx_server_t, priority)},
+    {"user", FPX_TAKE1, fpx_handler_str, offsetof(fpx_server_t, user)},
+    {"group", FPX_TAKE1, fpx_handler_str, offsetof(fpx_server_t, group)},
+    FPX_NULL_COMMAND};
 
-fpx_module_t fpx_core_module = {
-    "core",
+fpx_module_t fpx_core_module = {"core",
     0x00000004,
     fpx_core_cmd,
     fpx_core_preinit,
     fpx_core_init,
     NULL,
-    FPX_MODULE_RUN_TIME_PART
-};
+    FPX_MODULE_RUN_TIME_PART};

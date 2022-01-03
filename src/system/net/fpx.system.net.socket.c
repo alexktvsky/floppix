@@ -2,10 +2,8 @@
 #include "fpx.system.net.sockaddr.h"
 #include "fpx.core.log.h"
 
-
 fpx_err_t
-fpx_socket_init(fpx_socket_t *new_sockfd, int domain, int type,
-    int protocol)
+fpx_socket_init(fpx_socket_t *new_sockfd, int domain, int type, int protocol)
 {
     fpx_socket_t sockfd;
     fpx_err_t err;
@@ -41,8 +39,7 @@ fpx_socket_bind(fpx_socket_t sockfd, const struct sockaddr *addr,
         return err;
     }
 
-    fpx_log_debug1(FPX_OK, "Bind socket " FPX_FMT_SOCKET_T " to %s:%s",
-        sockfd,
+    fpx_log_debug1(FPX_OK, "Bind socket " FPX_FMT_SOCKET_T " to %s:%s", sockfd,
         fpx_sockaddr_get_addr_text(addr, text_addr, FPX_NI_MAXHOST),
         fpx_sockaddr_get_port_text(addr, text_port, FPX_NI_MAXSERV));
 
@@ -56,13 +53,12 @@ fpx_socket_listen(fpx_socket_t sockfd, int backlog)
 
     if (listen(sockfd, backlog) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "listen(%d, %d) failed",
-            sockfd, backlog);
+        fpx_log_error1(FPX_LOG_ERROR, err, "listen(%d, %d) failed", sockfd,
+            backlog);
         return err;
     }
 
-    fpx_log_debug1(FPX_OK, "Start listening socket " FPX_FMT_SOCKET_T,
-        sockfd);
+    fpx_log_debug1(FPX_OK, "Start listening socket " FPX_FMT_SOCKET_T, sockfd);
 
     return FPX_OK;
 }
@@ -88,11 +84,9 @@ fpx_socket_accept(fpx_socket_t *new_sockfd, fpx_socket_t sockfd,
     *new_sockfd = sockfd1;
 
     fpx_log_debug1(FPX_OK,
-        "Accept socket " FPX_FMT_SOCKET_T " from %s:%s to %d",
-        sockfd1,
+        "Accept socket " FPX_FMT_SOCKET_T " from %s:%s to %d", sockfd1,
         fpx_sockaddr_get_addr_text(addr, text_addr, FPX_NI_MAXHOST),
-        fpx_sockaddr_get_port_text(addr, text_port, FPX_NI_MAXSERV),
-        sockfd);
+        fpx_sockaddr_get_port_text(addr, text_port, FPX_NI_MAXSERV), sockfd);
 
     return FPX_OK;
 
@@ -117,8 +111,7 @@ fpx_socket_connect(fpx_socket_t sockfd, const struct sockaddr *addr,
     }
 
     fpx_log_debug1(FPX_OK, "Connect socket " FPX_FMT_SOCKET_T " to %s:%s",
-        sockfd,
-        fpx_sockaddr_get_addr_text(addr, text_addr, FPX_NI_MAXHOST),
+        sockfd, fpx_sockaddr_get_addr_text(addr, text_addr, FPX_NI_MAXHOST),
         fpx_sockaddr_get_port_text(addr, text_port, FPX_NI_MAXSERV));
 
     return FPX_OK;
@@ -131,8 +124,8 @@ fpx_socket_shutdown(fpx_socket_t sockfd, int how)
 
     if (shutdown(sockfd, how) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "shutdown(%d, %d) failed",
-            sockfd, how);
+        fpx_log_error1(FPX_LOG_ERROR, err, "shutdown(%d, %d) failed", sockfd,
+            how);
         return err;
     }
 

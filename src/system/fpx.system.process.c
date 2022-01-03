@@ -18,7 +18,7 @@ fpx_process_become_daemon(void)
         exit(0);
     }
     /* Become session leader */
-    if (setsid() < 0) { 
+    if (setsid() < 0) {
         return fpx_get_errno();
     }
 
@@ -99,8 +99,7 @@ fpx_process_set_group(const char *group)
     grp = getgrnam(group);
     if (!grp) {
         err = FPX_FAILED;
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "getgrnam(\"%s\") failed", group);
+        fpx_log_error1(FPX_LOG_ERROR, err, "getgrnam(\"%s\") failed", group);
         return err;
     }
 
@@ -165,7 +164,5 @@ fpx_process_set_group(const char *group)
         "\"group\" is not supported on this platform");
     return FPX_OK;
 }
-
-
 
 #endif

@@ -3,27 +3,19 @@
 
 #if (FPX_HAVE_IOCP && FPX_WIN32)
 
-#define FPX_IOCP_ACCEPT      0
-#define FPX_IOCP_RW          1
+#define FPX_IOCP_ACCEPT 0
+#define FPX_IOCP_RW     1
 
-#define FPX_NTHREAD  1
+#define FPX_NTHREAD     1
 
 typedef struct {
     WSAOVERLAPPED ovlp;
     void *instance;
 } fpx_ovlp_t;
 
-
-
-
-
-
-
 static fpx_err_t fpx_iocp_add_listener(fpx_listener_t *listener);
 static fpx_err_t fpx_iocp_process_events(fpx_conf_t *conf);
 static fpx_err_t fpx_iocp_init(fpx_conf_t *conf);
-
-
 
 fpx_event_actions_t fpx_event_actions_iocp = {
     NULL,
@@ -31,13 +23,8 @@ fpx_event_actions_t fpx_event_actions_iocp = {
     NULL,
     NULL,
     fpx_iocp_process_events,
-    fpx_iocp_init
+    fpx_iocp_init,
 };
-
-
-
-
-
 
 static HANDLE iocp;
 
@@ -51,12 +38,8 @@ fpx_iocp_add_connect(fpx_listener_t *listener, fpx_connect_t *connect)
         return fpx_get_errno();
     }
 
-
-
-
     return FPX_OK;
 }
-
 
 static fpx_err_t
 fpx_iocp_add_listener(fpx_listener_t *listener)
@@ -67,13 +50,8 @@ fpx_iocp_add_listener(fpx_listener_t *listener)
         return fpx_get_errno();
     }
 
-
-
-
     return FPX_OK;
 }
-
-
 
 static fpx_err_t
 fpx_iocp_process_events(fpx_conf_t *conf)
@@ -85,9 +63,8 @@ fpx_iocp_process_events(fpx_conf_t *conf)
     LPOVERLAPPED *ovlp;
     fpx_err_t err;
 
-
     events = GetQueuedCompletionStatus(iocp, (LPDWORD) &bytes,
-                (PULONG_PTR) &key, (LPOVERLAPPED *) &ovlp, timer);
+        (PULONG_PTR) &key, (LPOVERLAPPED *) &ovlp, timer);
     if (events == 0) {
         err = fpx_get_errno();
     }
@@ -102,7 +79,8 @@ fpx_iocp_process_events(fpx_conf_t *conf)
             }
         }
         else if (err == ERROR_NETNAME_DELETED || /* the socket was closed */
-            err == ERROR_OPERATION_ABORTED) { /* the operation was canceled */
+            err == ERROR_OPERATION_ABORTED)
+        { /* the operation was canceled */
             return FPX_OK;
         }
         else {
@@ -130,13 +108,11 @@ failed:
     return err;
 }
 
-
 static fpx_err_t
 fpx_iocp_init(fpx_conf_t *conf)
 {
     fpx_listener_t *listener;
     fpx_err_t err;
-
 
     iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, FPX_NTHREAD);
     if (iocp == NULL) {
@@ -144,8 +120,9 @@ fpx_iocp_init(fpx_conf_t *conf)
         goto failed;
     }
 
-    for (listener = fpx_list_first(conf->listeners);
-                    listener; listener = fpx_list_next(listener)) {
+    for (listener = fpx_list_first(conf->listeners); listener;
+         listener = fpx_list_next(listener))
+    {
         err = fpx_iocp_add_listener(listener);
         if (err != FPX_OK) {
             goto failed;

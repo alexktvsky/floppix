@@ -23,7 +23,6 @@ typedef struct fpx_list_s {
     fpx_size_t capacity;
 } fpx_list_t;
 
-
 fpx_err_t fpx_list_init(fpx_list_t **list, fpx_pool_t *pool);
 fpx_err_t fpx_list_push_back(fpx_list_t *list, void *data);
 fpx_err_t fpx_list_push_front(fpx_list_t *list, void *data);

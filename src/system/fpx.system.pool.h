@@ -3,16 +3,16 @@
 
 #include "fpx.system.errno.h"
 
-#define fpx_palloc(pool, size)   fpx_palloc1(__FILE__, __LINE__, pool, size)
-#define fpx_pcalloc(pool, size)  fpx_pcalloc1(__FILE__, __LINE__, pool, size)
+#define fpx_palloc(pool, size)  fpx_palloc1(__FILE__, __LINE__, pool, size)
+#define fpx_pcalloc(pool, size) fpx_pcalloc1(__FILE__, __LINE__, pool, size)
 
-#define fpx_pool_cleanup_add(pool, data, handler) \
+#define fpx_pool_cleanup_add(pool, data, handler)                              \
     fpx_pool_cleanup_add1(pool, data, (fpx_cleanup_handler_t) handler)
 
-#define fpx_pool_cleanup_run(pool, data, handler) \
+#define fpx_pool_cleanup_run(pool, data, handler)                              \
     fpx_pool_cleanup_run1(pool, data, (fpx_cleanup_handler_t) handler)
 
-#define fpx_pool_cleanup_remove(pool, data, handler) \
+#define fpx_pool_cleanup_remove(pool, data, handler)                           \
     fpx_pool_cleanup_remove1(pool, data, (fpx_cleanup_handler_t) handler)
 
 typedef struct fpx_pool_s fpx_pool_t;

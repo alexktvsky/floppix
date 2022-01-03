@@ -5,8 +5,8 @@
 #include "fpx.system.pool.h"
 #include "fpx.core.listen.h"
 
-#define FPX_CONNECTION_ID            0x00000002
-#define fpx_is_connection(x)         ((x->type_id) == FPX_CONNECTION_ID)
+#define FPX_CONNECTION_ID    0x00000002
+#define fpx_is_connection(x) ((x->type_id) == FPX_CONNECTION_ID)
 
 typedef struct fpx_connect_s fpx_connect_t;
 
@@ -24,10 +24,8 @@ struct fpx_connect_s {
     /* fpx_uint_t ready_to_write; */
 };
 
-
 fpx_err_t fpx_connection_init(fpx_connect_t *connect);
-fpx_err_t fpx_connection_accept(fpx_connect_t *connect,
-    fpx_listener_t *listen);
+fpx_err_t fpx_connection_accept(fpx_connect_t *connect, fpx_listener_t *listen);
 void fpx_connection_close(fpx_connect_t *connect);
 void fpx_connection_clear(fpx_connect_t *connect);
 void fpx_connection_destroy(fpx_connect_t *connect);

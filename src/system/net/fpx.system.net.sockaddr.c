@@ -1,6 +1,5 @@
 #include "fpx.system.net.sockaddr.h"
 
-
 const char *
 fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
     fpx_size_t bufsize)
@@ -9,8 +8,7 @@ fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
 
     addrlen = sizeof(struct sockaddr_storage);
 
-    if (getnameinfo(sockaddr, addrlen, buf, bufsize, 0, 0,
-        NI_NUMERICHOST) != 0)
+    if (getnameinfo(sockaddr, addrlen, buf, bufsize, 0, 0, NI_NUMERICHOST) != 0)
     {
         return NULL;
     }
@@ -27,7 +25,8 @@ fpx_sockaddr_get_port_text(const struct sockaddr *sockaddr, char *buf,
     addrlen = sizeof(struct sockaddr_storage);
 
     if (getnameinfo(sockaddr, addrlen, NULL, 0, buf, bufsize,
-        NI_NUMERICHOST|NI_NUMERICSERV) != 0)
+            NI_NUMERICHOST | NI_NUMERICSERV)
+        != 0)
     {
         return NULL;
     }

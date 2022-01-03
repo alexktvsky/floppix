@@ -1,7 +1,6 @@
 #include "fpx.system.sync.semaphore.h"
 #include "fpx.core.log.h"
 
-
 #if (FPX_POSIX && FPX_HAVE_POSIX_SEM && !FPX_DARWIN)
 
 fpx_err_t
@@ -76,7 +75,6 @@ fpx_semaphore_fini(fpx_semaphore_t *semaphore)
     }
 }
 
-
 #elif (FPX_POSIX && FPX_HAVE_GCD_SEM)
 
 fpx_err_t
@@ -92,7 +90,8 @@ fpx_semaphore_init(fpx_semaphore_t *semaphore, fpx_uint_t value,
     s = dispatch_semaphore_create(value);
     if (!s) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "dispatch_semaphore_create() failed");
+        fpx_log_error1(FPX_LOG_ERROR, err,
+            "dispatch_semaphore_create() failed");
         return err;
     }
 
@@ -130,9 +129,7 @@ fpx_semaphore_fini(fpx_semaphore_t *semaphore)
     (void) semaphore;
 }
 
-
 #elif (FPX_WIN32)
-
 
 fpx_err_t
 fpx_semaphore_init(fpx_semaphore_t *semaphore, fpx_uint_t value,

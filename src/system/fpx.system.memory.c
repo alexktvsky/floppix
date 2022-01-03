@@ -4,14 +4,15 @@
 #if defined(__GNUC__)
 #define memory_barrier() __sync_synchronize()
 #elif defined(__sparc) || defined(__sparc__)
-#define memory_barrier() __asm (".volatile"); __asm (".nonvolatile")
+#define memory_barrier()                                                       \
+    __asm(".volatile");                                                        \
+    __asm(".nonvolatile")
 #else
 #define memory_barrier()
 /* TODO: etc */
 #endif
 
 static uint64_t fpx_memory_counter_value;
-
 
 void *
 fpx_malloc1(const char *filename, fpx_int_t line, fpx_size_t size)
@@ -20,13 +21,14 @@ fpx_malloc1(const char *filename, fpx_int_t line, fpx_size_t size)
 
     mem = malloc(size);
     if (!mem) {
-        fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "malloc(%zu) failed", size);
+        fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(), "malloc(%zu) failed",
+            size);
     }
     else {
         fpx_memory_counter_value += size;
-        fpx_log_debug1(FPX_OK, "malloc %p %zu in %s:" FPX_FMT_UINT_T
-            " total %zu", mem, size, filename, line, fpx_memory_counter_value);
+        fpx_log_debug1(FPX_OK,
+            "malloc %p %zu in %s:" FPX_FMT_UINT_T " total %zu", mem, size,
+            filename, line, fpx_memory_counter_value);
     }
 
     return mem;
@@ -64,7 +66,6 @@ fpx_explicit_memzero(void *buf, fpx_size_t n)
     fpx_memset(buf, 0, n);
     memory_barrier();
 }
-
 
 #if (FPX_POSIX)
 

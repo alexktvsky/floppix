@@ -1,6 +1,5 @@
 #include "fpx.system.signal.h"
 
-
 #if (FPX_POSIX)
 fpx_err_t
 fpx_send_wakeup_signal(fpx_thread_t *thread)

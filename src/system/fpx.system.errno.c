@@ -2,34 +2,33 @@
 #include "fpx.system.memory.h"
 #include "fpx.util.string.h"
 
-#define FPX_ERR_UNKNOW  2147483647
+#define FPX_ERR_UNKNOW 2147483647
 
 static const struct {
     fpx_err_t code;
     const char *message;
 } error_list[] = {
-    {FPX_OK,                       "OK"},
-    {FPX_FAILED,                   "Internal server error"},
-    {FPX_BUSY,                     "Resource is busy"},
-    {FPX_DONE,                     "Operation is done"},
-    {FPX_ABORT,                    "Operation aborted"},
-    {FPX_DECLINED,                 "Operation declined"},
-    {FPX_NOT_FOUND,                "Resource not found"},
+    {FPX_OK,                    "OK"                                },
+    {FPX_FAILED,                "Internal server error"             },
+    {FPX_BUSY,                  "Resource is busy"                  },
+    {FPX_DONE,                  "Operation is done"                 },
+    {FPX_ABORT,                 "Operation aborted"                 },
+    {FPX_DECLINED,              "Operation declined"                },
+    {FPX_NOT_FOUND,             "Resource not found"                },
 
-    /* FPX_ERR_CONF domain */
-    {FPX_ERR_CONFIG_SYNTAX,        "Error of configuration file syntax"},
+ /* FPX_ERR_CONF domain */
+    {FPX_ERR_CONFIG_SYNTAX,     "Error of configuration file syntax"},
 
-    /* FPX_ERR_FILESYS domain */
-    {FPX_ERR_FILESYS_ABS_PATH,     "Specified path is not absolute"},
-    {FPX_ERR_FILESYS_LONG_PATH,    "Result path is too long"},
+ /* FPX_ERR_FILESYS domain */
+    {FPX_ERR_FILESYS_ABS_PATH,  "Specified path is not absolute"    },
+    {FPX_ERR_FILESYS_LONG_PATH, "Result path is too long"           },
 
-    /* FPX_ERR_SSL domain */
-    {FPX_ERR_SSL_INIT,             "Failed to initialize SSL library"},
+ /* FPX_ERR_SSL domain */
+    {FPX_ERR_SSL_INIT,          "Failed to initialize SSL library"  },
 
-    /* End of error list */
-    {FPX_ERR_UNKNOW,               "Unknown error code"}
+ /* End of error list */
+    {FPX_ERR_UNKNOW,            "Unknown error code"                }
 };
-
 
 #if (FPX_POSIX)
 
@@ -48,11 +47,10 @@ fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
     }
     else {
         fpx_memmove(buf, str, bufsize);
-        buf[bufsize-1] = '\0';
+        buf[bufsize - 1] = '\0';
     }
     return buf;
 }
-
 
 #elif (FPX_WIN32)
 
@@ -67,8 +65,8 @@ fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
         return NULL;
     }
 
-    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                        NULL, err, lang, buf, bufsize, NULL);
+    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, buf,
+        bufsize, NULL);
 
     if (len == 0 && lang) {
 
@@ -81,8 +79,8 @@ fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
 
         lang = 0;
 
-        len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                            NULL, err, lang, (char *) buf, bufsize, NULL);
+        len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang,
+            (char *) buf, bufsize, NULL);
     }
 
     if (len == 0) {
@@ -90,8 +88,8 @@ fpx_os_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
     }
 
     /* remove ".\r\n\0" */
-    while (buf[len] == '\0' || buf[len] == '\r'
-                            || buf[len] == '\n' || buf[len] == '.')
+    while (buf[len] == '\0' || buf[len] == '\r' || buf[len] == '\n'
+        || buf[len] == '.')
     {
         buf[len] = '\0';
         len -= 1;
@@ -116,10 +114,8 @@ fpx_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
         return str;
     }
 
-    for (i = 0; ; ++i) {
-        if (error_list[i].code == err ||
-            error_list[i].code == FPX_ERR_UNKNOW)
-        {
+    for (i = 0;; ++i) {
+        if (error_list[i].code == err || error_list[i].code == FPX_ERR_UNKNOW) {
             str = error_list[i].message;
             len = fpx_strlen(str);
             if (len < bufsize) {
@@ -128,7 +124,7 @@ fpx_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize)
             }
             else {
                 fpx_memmove(buf, str, bufsize);
-                buf[bufsize-1] = '\0';
+                buf[bufsize - 1] = '\0';
             }
             break;
         }

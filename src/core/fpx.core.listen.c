@@ -6,8 +6,6 @@
 #include "fpx.system.time.h"
 #include "fpx.core.log.h"
 
-
-
 fpx_err_t
 fpx_listener_init_ipv4(fpx_listener_t *listener, const char *addr,
     const char *port)
@@ -63,14 +61,14 @@ fpx_listener_bind(fpx_listener_t *listener)
 
     if (getaddrinfo(addr, port, &hints, &result) != 0) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_EMERG, err,
-            "getaddrinfo() failed to %s:%s", addr, port);
+        fpx_log_error1(FPX_LOG_EMERG, err, "getaddrinfo() failed to %s:%s",
+            addr, port);
         goto failed;
     }
 
     for (rp = result; rp; rp = rp->ai_next) {
-        err = fpx_socket_init(&fd,
-            rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        err = fpx_socket_init(&fd, rp->ai_family, rp->ai_socktype,
+            rp->ai_protocol);
         if (err != FPX_OK) {
             continue;
         }
@@ -112,17 +110,15 @@ fpx_listener_bind(fpx_listener_t *listener)
     }
 
     addrlen = sizeof(struct sockaddr_storage);
-    if (getsockname(fd, (struct sockaddr *) &listener->sockaddr,
-            &addrlen) != 0)
+    if (getsockname(fd, (struct sockaddr *) &listener->sockaddr, &addrlen) != 0)
     {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_EMERG, err,
-                "getsockname() failed to %s:%s", addr, port);
+        fpx_log_error1(FPX_LOG_EMERG, err, "getsockname() failed to %s:%s",
+            addr, port);
         goto failed;
     }
 
     listener->fd = fd;
-
 
     freeaddrinfo(result);
 
@@ -166,7 +162,6 @@ fpx_listener_clear(fpx_listener_t *listener)
     fpx_listener_close(listener);
     fpx_memzero(listener, sizeof(fpx_listener_t));
 }
-
 
 const char *
 fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,

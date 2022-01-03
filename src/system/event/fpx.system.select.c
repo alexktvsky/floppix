@@ -6,7 +6,6 @@
 static fd_set rfds;
 static fd_set wfds;
 
-
 static fpx_socket_t
 fpx_set_events(fpx_conf_t *conf)
 {
@@ -18,8 +17,9 @@ fpx_set_events(fpx_conf_t *conf)
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
 
-    for (listener = fpx_list_first(conf->listeners);
-                            listener; listener = fpx_list_next(listener)) {
+    for (listener = fpx_list_first(conf->listeners); listener;
+         listener = fpx_list_next(listener))
+    {
         /* Add listening sockets to read array */
         fd = listener->fd;
         FD_SET(fd, &rfds);
@@ -27,8 +27,9 @@ fpx_set_events(fpx_conf_t *conf)
             fdmax = fd;
         }
 
-        for (connect = fpx_list_first(listener->connects);
-                                connect; connect = fpx_list_next(connect)) {
+        for (connect = fpx_list_first(listener->connects); connect;
+             connect = fpx_list_next(connect))
+        {
             /* Add clients sockets to read array */
             fd = connect->fd;
             FD_SET(fd, &rfds);
@@ -55,7 +56,7 @@ fpx_select_add_connect(fpx_conf_t *conf, fpx_listener_t *listener)
     fpx_connect_t *connect;
     fpx_err_t err;
     connect = fpx_try_use_already_exist_node(sizeof(fpx_connect_t),
-                            conf->free_connects, listener->connects);
+        conf->free_connects, listener->connects);
     if (!connect) {
         err = fpx_get_errno();
         goto failed;
@@ -79,8 +80,9 @@ fpx_process_events(fpx_conf_t *conf)
     fpx_connect_t *connect;
     fpx_err_t err;
 
-    for (listener = fpx_list_first(conf->listeners);
-                            listener; listener = fpx_list_next(listener)) {
+    for (listener = fpx_list_first(conf->listeners); listener;
+         listener = fpx_list_next(listener))
+    {
         /* Search listeners */
         if (FD_ISSET(listener->fd, &rfds)) {
             err = fpx_select_add_connect(conf, listener);
@@ -93,8 +95,9 @@ fpx_process_events(fpx_conf_t *conf)
             }
         }
         /* Search new input connections */
-        for (connect = fpx_list_first(listener->connects);
-                            connect; connect = fpx_list_next(connect)) {
+        for (connect = fpx_list_first(listener->connects); connect;
+             connect = fpx_list_next(connect))
+        {
             if (FD_ISSET(connect->fd, &rfds)) {
                 err = fpx_event_read(conf, connect);
                 if (err != FPX_OK) {
@@ -146,13 +149,13 @@ fpx_select_process_events(fpx_conf_t *conf)
         flag = select(fdmax + 1, &rfds, &wfds, NULL, timeout);
         if (flag == -1) {
             if (fpx_get_errno() != EINTR) {
-                fpx_log_error(FPX_LOG_EMERG, conf->log,
-                                    fpx_get_errno(), "select() failed");
+                fpx_log_error(FPX_LOG_EMERG, conf->log, fpx_get_errno(),
+                    "select() failed");
                 abort();
             }
             else {
                 fpx_log_error(FPX_LOG_INFO, conf->log, FPX_OK,
-                                            "interrupted by unknown signal");
+                    "interrupted by unknown signal");
             }
         }
         else if (!flag) {
@@ -161,8 +164,8 @@ fpx_select_process_events(fpx_conf_t *conf)
         else {
             err = fpx_process_events(conf);
             if (err != FPX_OK) {
-                fpx_log_error(FPX_LOG_EMERG, conf->log,
-                                        err, "fpx_process_events() failed");
+                fpx_log_error(FPX_LOG_EMERG, conf->log, err,
+                    "fpx_process_events() failed");
                 abort();
             }
         }

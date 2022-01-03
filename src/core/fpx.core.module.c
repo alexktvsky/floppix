@@ -4,11 +4,9 @@
 
 extern fpx_module_t fpx_core_module;
 
-
 fpx_module_t *fpx_preloaded_modules[] = {
-    &fpx_core_module
+    &fpx_core_module,
 };
-
 
 static fpx_err_t
 fpx_add_module(fpx_server_t *server, fpx_module_t *module)
@@ -18,7 +16,7 @@ fpx_add_module(fpx_server_t *server, fpx_module_t *module)
 
     node = server->modules->head;
 
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         current = (fpx_module_t *) node->data;
         if (!fpx_strcmp(current->name, module->name)) {
             fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED,
@@ -59,7 +57,7 @@ fpx_preinit_modules(fpx_server_t *server)
 
     node = server->modules->head;
 
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
 
         module = (fpx_module_t *) node->data;
 
@@ -91,7 +89,7 @@ fpx_init_modules(fpx_server_t *server)
 
     node = server->modules->head;
 
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
 
         module = (fpx_module_t *) node->data;
 
@@ -120,7 +118,7 @@ fpx_modules_fini(fpx_server_t *server)
     fpx_list_node_t *node;
 
     node = server->modules->head;
-    for ( ; node; node = node->next) {
+    for (; node; node = node->next) {
         module = (fpx_module_t *) node->data;
         if (module->fini) {
             module->fini(server, module->cntx);
@@ -129,7 +127,6 @@ fpx_modules_fini(fpx_server_t *server)
 
     return FPX_OK;
 }
-
 
 fpx_module_t *
 fpx_load_module(fpx_server_t *server, const char *fname)
@@ -140,21 +137,19 @@ fpx_load_module(fpx_server_t *server, const char *fname)
 
     fpx_err_t err;
 
-
     handle = NULL;
 
     err = fpx_check_absolute_path(fname);
     if (err != FPX_OK) {
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "Failed to load module \"%s\"", fname);
+        fpx_log_error1(FPX_LOG_ERROR, err, "Failed to load module \"%s\"",
+            fname);
         goto failed;
     }
 
     handle = fpx_dlopen(fname);
     if (!handle) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "fpx_dlopen() failed (%d: \"%s\")",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlopen() failed (%d: \"%s\")",
             err, fpx_dlerror(errsetr, FPX_ERRNO_STR_SIZE));
         err = FPX_FAILED;
         goto failed;
@@ -163,8 +158,7 @@ fpx_load_module(fpx_server_t *server, const char *fname)
     module = fpx_dlsym(handle, "fpx_module");
     if (!module) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err,
-            "fpx_dlsym() failed (%d: \"%s\")",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlsym() failed (%d: \"%s\")",
             err, fpx_dlerror(errsetr, FPX_ERRNO_STR_SIZE));
         err = FPX_FAILED;
         goto failed;
@@ -172,9 +166,9 @@ fpx_load_module(fpx_server_t *server, const char *fname)
 
     module->handle = handle;
 
-/*
-    fpx_pool_cleanup_add(server->pool, handle, fpx_dlclose);
-*/
+    /*
+        fpx_pool_cleanup_add(server->pool, handle, fpx_dlclose);
+    */
     err = fpx_add_module(server, module);
     if (err != FPX_OK) {
         goto failed;

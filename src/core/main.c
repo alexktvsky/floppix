@@ -7,14 +7,12 @@
 #include "fpx.core.cycle.h"
 #include "fpx.core.release.h"
 
-
 #if !(FPX_TEST)
 
 static fpx_bool_t show_version;
 static fpx_bool_t show_help;
 static fpx_bool_t test_config;
 static const char *config_fname = FPX_DEFAULT_CONFIG_PATH;
-
 
 static fpx_err_t
 fpx_parse_argv(fpx_uint_t argc, const char *const *argv)
@@ -118,10 +116,9 @@ missing_argment:
 static void
 fpx_show_version_info(void)
 {
-    fpx_log_stdout(FPX_OK, "FPX %s %s",
-        FPX_VERSION_STR, FPX_BUILD_DATE);
-    fpx_log_stdout(FPX_OK, "Target system: %s %d-bit",
-        FPX_SYSTEM_NAME, FPX_PTR_WIDTH);
+    fpx_log_stdout(FPX_OK, "FPX %s %s", FPX_VERSION_STR, FPX_BUILD_DATE);
+    fpx_log_stdout(FPX_OK, "Target system: %s %d-bit", FPX_SYSTEM_NAME,
+        FPX_PTR_WIDTH);
 #ifdef FPX_COMPILER
     fpx_log_stdout(FPX_OK, "Built by %s", FPX_COMPILER);
 #endif
@@ -158,7 +155,6 @@ main(int argc, const char *const *argv)
 
     fpx_list_t *modules;
     fpx_err_t err;
-
 
     if ((err = fpx_parse_argv(argc, argv)) != FPX_OK) {
         fpx_show_help_info();

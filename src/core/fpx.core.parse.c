@@ -6,7 +6,6 @@
 #include "fpx.system.net.sockaddr.h"
 #include "fpx.system.memory.h"
 
-
 fpx_ssize_t
 fpx_config_parse_size(const char *str)
 {

@@ -146,7 +146,6 @@ fpx_thread_current_tid(void)
 }
 #endif
 
-
 #elif (FPX_WIN32)
 
 fpx_err_t
@@ -170,7 +169,7 @@ fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params,
         err = fpx_get_errno();
         fpx_log_error1(FPX_LOG_ERROR, err, "SetThreadPriority() failed");
         return err;
-    } 
+    }
 
     thread->handle = t;
 
