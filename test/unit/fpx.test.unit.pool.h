@@ -3,10 +3,8 @@
 
 #include "fpx.test.h"
 #include "fpx.test.unit.stubs.h"
-#include "fpx.system.pool.h"
-
+#include "floppix/system/pool.h"
 
 fpx_declare_suite_tests(fpx_pool_tests);
-
 
 #endif /* FPX_TEST_UNIT_POOL_H */

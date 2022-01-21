@@ -1,11 +1,11 @@
-#include "fpx.system.os.portable.h"
-#include "fpx.system.errno.h"
-#include "fpx.system.memory.h"
-#include "fpx.util.string.h"
-#include "fpx.core.command.h"
-#include "fpx.core.module.h"
-#include "fpx.core.cycle.h"
-#include "fpx.core.release.h"
+#include "floppix/system/os/portable.h"
+#include "floppix/system/errno.h"
+#include "floppix/system/memory.h"
+#include "floppix/util/string.h"
+#include "floppix/core/command.h"
+#include "floppix/core/module.h"
+#include "floppix/core/cycle.h"
+#include "floppix/release.h"
 
 #if !(FPX_TEST)
 
@@ -116,7 +116,8 @@ missing_argment:
 static void
 fpx_show_version_info(void)
 {
-    fpx_log_stdout(FPX_OK, "FPX %s %s", FPX_VERSION_STR, FPX_BUILD_DATE);
+    fpx_log_stdout(FPX_OK, "%s %s %s", FPX_PROJECT_NAME, FPX_VERSION_STR,
+        FPX_BUILD_DATE);
     fpx_log_stdout(FPX_OK, "Target system: %s %d-bit", FPX_SYSTEM_NAME,
         FPX_PTR_WIDTH);
 #ifdef FPX_COMPILER
@@ -128,14 +129,15 @@ static void
 fpx_show_help_info(void)
 {
     fpx_log_stdout(FPX_OK,
-        "Usage: fpx [options...] [argments...]\n"
-        "FPX version %s %s\n\n"
+        "Usage: %s [options...] [argments...]\n"
+        "%s %s %s\n\n"
         "Options:\n"
         "  -h, --help                     Displays this message.\n"
         "  -v, --version                  Displays version information.\n"
         "  -t, --test                     Test configuration and exit.\n"
         "  -c, --config-file <file>       Specify configuration file.",
-        FPX_VERSION_STR, FPX_BUILD_DATE);
+        FPX_PROJECT_CMD_NAME, FPX_PROJECT_NAME, FPX_VERSION_STR,
+        FPX_BUILD_DATE);
 }
 
 static void
@@ -152,8 +154,6 @@ main(int argc, const char *const *argv)
     fpx_pool_t *pool;
     fpx_pool_t *ptemp; /* Pool for temporary config stuff */
     fpx_config_t *config;
-
-    fpx_list_t *modules;
     fpx_err_t err;
 
     if ((err = fpx_parse_argv(argc, argv)) != FPX_OK) {
@@ -181,12 +181,14 @@ main(int argc, const char *const *argv)
     fpx_assert(fpx_pool_create(&ptemp, 0, NULL) == FPX_OK);
 
     fpx_assert(server = fpx_pcalloc(pool, sizeof(fpx_server_t)));
+    fpx_list_init(&server->modules);
+    fpx_list_init(&server->listeners);
+    fpx_list_init(&server->connections);
+    fpx_list_init(&server->free_connections);
 
     fpx_save_argv(server, argc, argv);
 
-    fpx_assert(fpx_list_init(&modules, pool) == FPX_OK);
     fpx_assert(config = fpx_palloc(ptemp, sizeof(fpx_config_t)));
-
     if ((err = fpx_config_read(config, ptemp, config_fname)) != FPX_OK) {
         fpx_log_stderr(err, "Failed to read config file");
         goto failed;
@@ -194,7 +196,6 @@ main(int argc, const char *const *argv)
 
     server->pool = pool;
     server->config = config;
-    server->modules = modules;
 
     if ((err = fpx_setup_prelinked_modules(server)) != FPX_OK) {
         fpx_log_stderr(err, "Failed to setup prelinked modules");
@@ -229,7 +230,7 @@ main(int argc, const char *const *argv)
         goto failed;
     }
 
-    /* Fixme: Segfault with flag FPX_POOL_USE_MMAP */
+    /* TODO: Segfault with flag FPX_POOL_USE_MMAP */
     fpx_pool_destroy(ptemp);
 
     fpx_logger_set_global(server->logger);

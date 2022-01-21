@@ -137,6 +137,6 @@ int main(void) {
 }" FPX_HAVE_OPENSSL)
 
 configure_file(
-    "cmake/fpx.system.os.config.h.in"
-    "${PROJECT_BINARY_DIR}/fpx.system.os.config.h"
+    "cmake/fpx_system_config.h.in"
+    "${PROJECT_BINARY_DIR}/fpx_system_config.h"
 )

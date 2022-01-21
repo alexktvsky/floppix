@@ -1,4 +1,0 @@
-#ifndef FPX_SYSTEM_NET_SEND_H
-#define FPX_SYSTEM_NET_SEND_H
-
-#endif /* FPX_SYSTEM_NET_SEND_H */

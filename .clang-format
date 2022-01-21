@@ -70,9 +70,8 @@ EmptyLineBeforeAccessModifier: Leave
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 ForEachMacros:
-  - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
+  - fpx_list_foreach
+  - fpx_list_foreach_reverse
 #IfMacros:
 #  -
 IncludeBlocks:   Regroup

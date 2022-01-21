@@ -1,0 +1,4 @@
+#ifndef FLOPPIX_ALGO_RBTREE_H
+#define FLOPPIX_ALGO_RBTREE_H
+
+#endif /* FLOPPIX_ALGO_RBTREE_H */

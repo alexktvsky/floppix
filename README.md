@@ -2,9 +2,10 @@
 
 
 Run unit tests:
-# cd build
-# cmake -DBUILD_TESTING=1 .. && cmake --build . --parallel
-
+```console
+cd build
+cmake -DBUILD_TESTING=1 .. && cmake --build . --parallel
+```
 
 ## Supported systems
 * GNU/Linux

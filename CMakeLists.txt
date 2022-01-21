@@ -9,46 +9,38 @@ include(cmake/fpx_config.cmake)
 
 target_include_directories(${PROJECT_NAME}
 PRIVATE
-    src
-    src/algo
-    src/core
-    src/system
-    src/system/event
-    src/system/net
-    src/system/os
-    src/system/sync
-    src/util
+    include
     ${PROJECT_BINARY_DIR}
 )
 
 target_sources(${PROJECT_NAME}
 PRIVATE
-    src/algo/fpx.algo.array.c
-    src/algo/fpx.algo.list.c
-    src/core/fpx.core.module.c
-    src/core/fpx.core.parse.c
-    src/core/fpx.core.listen.c
-    src/core/fpx.core.cycle.c
-    src/core/fpx.core.server.c
-    src/core/fpx.core.log.c
-    src/core/fpx.core.connection.c
-    src/core/fpx.core.command.c
-    src/system/fpx.system.process.c
-    src/system/net/fpx.system.net.sockaddr.c
-    src/system/net/fpx.system.net.socket.c
-    src/system/net/fpx.system.net.sockopt.c
-    src/system/fpx.system.pool.c
-    src/system/fpx.system.thread.c
-    src/system/fpx.system.dso.c
-    src/system/fpx.system.time.c
-    src/system/fpx.system.memory.c
-    src/system/fpx.system.errno.c
-    src/system/fpx.system.signal.c
-    src/system/fpx.system.filesys.c
-    src/system/fpx.system.cpuinfo.c
-    src/system/sync/fpx.system.sync.semaphore.c
-    src/system/sync/fpx.system.sync.mutex.c
-    src/util/fpx.util.string.c
+    src/algo/array.c
+    src/algo/list.c
+    src/core/module.c
+    src/core/parse.c
+    src/core/listen.c
+    src/core/cycle.c
+    src/core/server.c
+    src/core/log.c
+    src/core/connection.c
+    src/core/command.c
+    src/system/process.c
+    src/system/net/sockaddr.c
+    src/system/net/socket.c
+    src/system/net/sockopt.c
+    src/system/pool.c
+    src/system/thread.c
+    src/system/dso.c
+    src/system/time.c
+    src/system/memory.c
+    src/system/errno.c
+    src/system/signal.c
+    src/system/filesys.c
+    src/system/cpuinfo.c
+    src/system/sync/semaphore.c
+    src/system/sync/mutex.c
+    src/util/string.c
 )
 
 if (NOT BUILD_TESTING)
@@ -59,7 +51,7 @@ target_compile_options(${PROJECT_NAME}
 PRIVATE
     -Wall
     -Wextra
-    -Wno-uninitialized
+    -pedantic-errors # -pedantic
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
