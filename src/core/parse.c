@@ -6,12 +6,12 @@
 #include "floppix/system/net/sockaddr.h"
 #include "floppix/system/memory.h"
 
-fpx_ssize_t
+ssize_t
 fpx_config_parse_size(const char *str)
 {
     char prefix;
-    fpx_size_t len;
-    fpx_ssize_t size, scale, max;
+    size_t len;
+    ssize_t size, scale, max;
 
     len = fpx_strlen(str);
 
@@ -58,14 +58,14 @@ fpx_config_parse_size(const char *str)
     return size;
 }
 
-fpx_uint_t
+uint
 fpx_config_parse_addr_port(char **addr, char **port, const char *str,
     fpx_pool_t *pool)
 {
     const char *pos, *end, *close_bracket;
-    fpx_int_t int_port;
-    fpx_uint_t rv;
-    fpx_size_t len;
+    int int_port;
+    uint rv;
+    size_t len;
 
     len = fpx_strlen(str);
     end = str + len - 1;
@@ -136,10 +136,10 @@ fpx_config_parse_addr_port(char **addr, char **port, const char *str,
     return rv;
 }
 
-fpx_uint_t
+uint
 fpx_config_parse_log_level(const char *str)
 {
-    fpx_uint_t i;
+    uint i;
 
     for (i = 0; fpx_log_prio[i] != NULL; ++i) {
         if (fpx_strcmp(str, fpx_log_prio[i]) == 0) {

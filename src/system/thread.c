@@ -4,9 +4,8 @@
 #if (FPX_POSIX)
 
 fpx_err_t
-fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params,
-    fpx_size_t stack_size, fpx_int_t prio, fpx_thread_function_t start_routine,
-    void *arg)
+fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params, size_t stack_size,
+    int prio, fpx_thread_function_t start_routine, void *arg)
 {
     pthread_attr_t attr;
     fpx_err_t err;
@@ -149,9 +148,8 @@ fpx_thread_current_tid(void)
 #elif (FPX_WIN32)
 
 fpx_err_t
-fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params,
-    fpx_size_t stack_size, fpx_int_t prio, fpx_thread_function_t start_routine,
-    void *arg)
+fpx_thread_init(fpx_thread_t *thread, fpx_bitmask_t params, size_t stack_size,
+    int prio, fpx_thread_function_t start_routine, void *arg)
 {
     HANDLE *t;
     fpx_err_t err;

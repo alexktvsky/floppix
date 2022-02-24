@@ -17,11 +17,10 @@ static fpx_bitmask_t fpx_takes[] = {
 
 static fpx_err_t
 fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
-    const char *name, fpx_int_t argc, char **argv, const char *filename,
-    fpx_uint_t line)
+    const char *name, int argc, char **argv, const char *filename, uint line)
 {
     fpx_directive_t *directive;
-    fpx_size_t argv_size;
+    size_t argv_size;
 
     directive = fpx_pcalloc(pool, sizeof(fpx_directive_t));
     if (!directive) {
@@ -54,22 +53,22 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool, const char *file_buf)
 
     const char *begin = NULL;
     const char *end = NULL;
-    fpx_size_t len;
+    size_t len;
 
     const char *str;
-    fpx_int_t argc = 0;
+    int argc = 0;
     char *argv[FPX_MAX_TAKES];
     char *alloc_str;
     char c;
 
-    fpx_bool_t found = false;
-    fpx_bool_t comment = false;
-    fpx_bool_t in_directive = false;
-    fpx_bool_t end_line = false;
-    fpx_bool_t end_file = false;
+    bool found = false;
+    bool comment = false;
+    bool in_directive = false;
+    bool end_line = false;
+    bool end_file = false;
 
-    fpx_uint_t i;
-    fpx_uint_t line = 1;
+    uint i;
+    uint line = 1;
 
     // file = config->conf_files->tail->data;
     file = fpx_list_data(&config->conf_files, fpx_file_t, list_node);
@@ -133,7 +132,7 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool, const char *file_buf)
 
         if (found) {
 
-            len = (fpx_size_t) (end - begin);
+            len = (size_t) (end - begin);
 
             alloc_str = fpx_pstrndup(pool, begin, len);
             if (!alloc_str) {
@@ -185,7 +184,7 @@ static fpx_command_t *
 fpx_find_command_in_modules(fpx_server_t *server, const char *cmd_name)
 {
     fpx_module_t *module;
-    fpx_size_t i;
+    size_t i;
 
     fpx_list_foreach (node, &server->modules) {
         module = fpx_list_data(node, fpx_module_t, list_node);
@@ -206,7 +205,7 @@ fpx_find_module_by_command(fpx_server_t *server, const char *cmd_name)
 
     fpx_list_foreach (node, &server->modules) {
         module = fpx_list_data(node, fpx_module_t, list_node);
-        for (fpx_size_t i = 0; module->cmd[i].name != NULL; ++i) {
+        for (size_t i = 0; module->cmd[i].name != NULL; ++i) {
             if (fpx_strcmp(module->cmd[i].name, cmd_name) == 0) {
                 return module;
             }
@@ -218,7 +217,7 @@ fpx_find_module_by_command(fpx_server_t *server, const char *cmd_name)
 static fpx_err_t
 fpx_check_directive_arguments(fpx_directive_t *directive, fpx_command_t *cmd)
 {
-    fpx_uint_t min_takes, max_takes, i, argc;
+    uint min_takes, max_takes, i, argc;
 
     min_takes = 0;
     max_takes = 0;
@@ -249,8 +248,8 @@ fpx_config_read_included_file(fpx_config_t *config, fpx_pool_t *pool,
 {
     fpx_file_t *file;
     char *file_buf;
-    fpx_ssize_t file_size;
-    fpx_ssize_t bytes_read;
+    ssize_t file_size;
+    ssize_t bytes_read;
 
     fpx_err_t err;
 
@@ -306,8 +305,8 @@ fpx_config_read(fpx_config_t *config, fpx_pool_t *pool, const char *filename)
 {
     fpx_file_t *file;
     char *file_buf;
-    fpx_ssize_t file_size;
-    fpx_ssize_t bytes_read;
+    ssize_t file_size;
+    ssize_t bytes_read;
     fpx_err_t err;
 
     fpx_list_init(&config->conf_files);
@@ -654,13 +653,12 @@ fpx_config_read_included(fpx_config_t *config, fpx_pool_t *pool,
 }
 
 fpx_err_t
-fpx_handler_flag(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
-    char **argv)
+fpx_handler_flag(fpx_cmd_params_t *params, void *data, int argc, char **argv)
 {
-    fpx_bool_t *ptr;
+    bool *ptr;
     (void) argc;
 
-    ptr = (fpx_bool_t *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (bool *) (((uint8_t *) data) + params->cmd->offset);
 
     if (fpx_strcasecmp(argv[0], "on") == 0) {
         *ptr = 1;
@@ -679,8 +677,7 @@ fpx_handler_flag(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 fpx_err_t
-fpx_handler_str(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
-    char **argv)
+fpx_handler_str(fpx_cmd_params_t *params, void *data, int argc, char **argv)
 {
     char **ptr;
     (void) argc;
@@ -693,13 +690,12 @@ fpx_handler_str(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 fpx_err_t
-fpx_handler_size(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
-    char **argv)
+fpx_handler_size(fpx_cmd_params_t *params, void *data, int argc, char **argv)
 {
-    fpx_ssize_t *ptr, n;
+    ssize_t *ptr, n;
     (void) argc;
 
-    ptr = (fpx_ssize_t *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (ssize_t *) (((uint8_t *) data) + params->cmd->offset);
 
     n = fpx_config_parse_size(argv[0]);
     if (n == -1) {
@@ -715,13 +711,12 @@ fpx_handler_size(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
 }
 
 fpx_err_t
-fpx_handler_uint(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
-    char **argv)
+fpx_handler_uint(fpx_cmd_params_t *params, void *data, int argc, char **argv)
 {
-    fpx_int_t *ptr, n;
+    int *ptr, n;
     (void) argc;
 
-    ptr = (fpx_int_t *) (((uint8_t *) data) + params->cmd->offset);
+    ptr = (int *) (((uint8_t *) data) + params->cmd->offset);
 
     n = fpx_config_parse_size(argv[0]);
     if (n == -1) {

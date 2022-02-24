@@ -95,7 +95,7 @@ struct fpx_dir_s {
 struct fpx_glob_s {
     glob_t glob;
     const char *pattern;
-    fpx_size_t last;
+    size_t last;
 };
 
 #define fpx_file_change_access(name, access)                                   \
@@ -168,9 +168,9 @@ struct fpx_glob_s {
     HANDLE dir;
     WIN32_FIND_DATA finddata;
     const char *pattern;
-    fpx_bool_t done;
+    bool done;
     const char *last_res;
-    fpx_size_t prefix_len;
+    size_t prefix_len;
 };
 
 #define fpx_file_rename(from, to)                                              \
@@ -194,7 +194,7 @@ fpx_err_t fpx_file_stat_by_path(fpx_file_stat_t *stat, const char *path);
 struct fpx_file_s {
     fpx_fd_t fd;
     char *name;
-    fpx_off_t offset;
+    size_t offset;
     fpx_list_node_t list_node;
 };
 
@@ -204,20 +204,20 @@ struct fpx_file_info_s {
     fpx_file_stat_t stat;
 };
 
-fpx_err_t fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
-    fpx_uint_t create, fpx_uint_t access);
-fpx_ssize_t fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size,
-    fpx_off_t offset);
-fpx_ssize_t fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
-    fpx_off_t offset);
-fpx_ssize_t fpx_file_size(fpx_file_t *file);
+fpx_err_t fpx_file_open(fpx_file_t *file, const char *path, uint mode,
+    uint create, uint access);
+ssize_t fpx_file_read(fpx_file_t *file, uint8_t *buf, size_t size,
+    size_t offset);
+ssize_t fpx_file_write(fpx_file_t *file, const char *buf, size_t size,
+    size_t offset);
+ssize_t fpx_file_size(fpx_file_t *file);
 void fpx_file_close(fpx_file_t *file);
 
-fpx_ssize_t fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t n);
-fpx_ssize_t fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t n);
+ssize_t fpx_read_fd(fpx_fd_t fd, void *buf, size_t n);
+ssize_t fpx_write_fd(fpx_fd_t fd, void *buf, size_t n);
 
-fpx_ssize_t fpx_write_stdout(const char *str);
-fpx_ssize_t fpx_write_stderr(const char *str);
+ssize_t fpx_write_stdout(const char *str);
+ssize_t fpx_write_stderr(const char *str);
 
 fpx_err_t fpx_file_info_by_path(fpx_file_info_t *info, const char *path);
 fpx_err_t fpx_file_info(fpx_file_info_t *info, fpx_file_t *file);
@@ -234,8 +234,8 @@ int fpx_glob_open(fpx_glob_t *gl, const char *pattern);
 int fpx_glob_read(fpx_glob_t *gl, char *res);
 void fpx_glob_close(fpx_glob_t *gl);
 
-fpx_size_t fpx_file_full_path(char *buf, const char *path, const char *file);
-fpx_bool_t fpx_is_path_has_wildcard(const char *path);
+size_t fpx_file_full_path(char *buf, const char *path, const char *file);
+bool fpx_is_path_has_wildcard(const char *path);
 fpx_err_t fpx_check_absolute_path(const char *path);
 
 #endif /* FLOPPIX_SYSTEM_FILESYS_H */

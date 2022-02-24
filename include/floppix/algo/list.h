@@ -49,24 +49,24 @@ typedef struct fpx_list_s fpx_list_t;
 struct fpx_list_s {
     fpx_list_node_t *head;
     fpx_list_node_t *tail;
-    fpx_size_t size;
+    size_t size;
 };
 
 void fpx_list_init(fpx_list_t *list);
 void fpx_list_push_front(fpx_list_t *list, fpx_list_node_t *node);
 void fpx_list_push_back(fpx_list_t *list, fpx_list_node_t *node);
 fpx_list_node_t *fpx_list_find(fpx_list_t *list,
-    fpx_bool_t (*compar)(const fpx_list_node_t *));
+    bool (*compar)(const fpx_list_node_t *));
 void fpx_list_insert_before(fpx_list_t *list, fpx_list_node_t *before_node,
     fpx_list_node_t *node);
 void fpx_list_insert_after(fpx_list_t *list, fpx_list_node_t *after_node,
     fpx_list_node_t *node);
 fpx_err_t fpx_list_remove_first(fpx_list_t *list,
-    fpx_bool_t (*compar)(const fpx_list_node_t *));
+    bool (*compar)(const fpx_list_node_t *));
 fpx_err_t fpx_list_remove_last(fpx_list_t *list,
-    fpx_bool_t (*compar)(const fpx_list_node_t *));
+    bool (*compar)(const fpx_list_node_t *));
 void fpx_list_mergesort(fpx_list_t *list,
-    fpx_int_t (*compar)(const fpx_list_node_t *, const fpx_list_node_t *));
+    int (*compar)(const fpx_list_node_t *, const fpx_list_node_t *));
 void fpx_list_remove(fpx_list_t *list, fpx_list_node_t *node);
 void fpx_list_clear(fpx_list_t *list);
 
@@ -74,7 +74,7 @@ void fpx_list_clear(fpx_list_t *list);
 
 static inline fpx_list_node_t *fpx_list_next(fpx_list_node_t *node);
 static inline fpx_list_node_t *fpx_list_prev(fpx_list_node_t *node);
-static inline fpx_size_t fpx_list_size(fpx_list_t *list);
+static inline size_t fpx_list_size(fpx_list_t *list);
 static inline fpx_list_node_t *fpx_list_head(fpx_list_t *list);
 static inline fpx_list_node_t *fpx_list_tail(fpx_list_t *list);
 

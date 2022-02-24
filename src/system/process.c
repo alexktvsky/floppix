@@ -58,7 +58,7 @@ fpx_err_t
 fpx_process_set_user(const char *user)
 {
     struct passwd *pwd;
-    fpx_int_t uid;
+    int uid;
     fpx_err_t err;
 
     /* Not root, OK */
@@ -88,7 +88,7 @@ fpx_err_t
 fpx_process_set_group(const char *group)
 {
     struct group *grp;
-    fpx_int_t gid;
+    int gid;
     fpx_err_t err;
 
     /* Not root, OK */

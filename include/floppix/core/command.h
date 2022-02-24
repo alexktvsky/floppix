@@ -29,7 +29,7 @@
 #endif
 
 typedef fpx_err_t (*fpx_cmd_handler_t)(fpx_cmd_params_t *params, void *data,
-    fpx_int_t argc, char **argv);
+    int argc, char **argv);
 
 /*
  * The command record structure. Modules can define a table of these
@@ -43,7 +43,7 @@ struct fpx_command_s {
     /* The function to be called when this directive is parsed */
     fpx_cmd_handler_t handler;
     /* The offset of field in context structure */
-    fpx_off_t offset;
+    size_t offset;
 };
 
 /*
@@ -69,13 +69,13 @@ struct fpx_directive_s {
     /* The current directive name */
     const char *name;
     /*  Number of arguments */
-    fpx_int_t argc;
+    int argc;
     /* The arguments for the current directive */
     char **argv;
     /* The name of the file this directive was found in */
     const char *filename;
     /* The line number the directive was on */
-    fpx_uint_t line;
+    uint line;
     /* List node */
     fpx_list_node_t list_node;
 };
@@ -98,13 +98,13 @@ fpx_err_t fpx_config_read_included(fpx_config_t *config, fpx_pool_t *pool,
 fpx_err_t fpx_config_check(fpx_config_t *config, fpx_server_t *server);
 fpx_err_t fpx_config_process(fpx_config_t *config, fpx_server_t *server);
 
-fpx_err_t fpx_handler_flag(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_err_t fpx_handler_flag(fpx_cmd_params_t *params, void *data, int argc,
     char **argv);
-fpx_err_t fpx_handler_str(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_err_t fpx_handler_str(fpx_cmd_params_t *params, void *data, int argc,
     char **argv);
-fpx_err_t fpx_handler_size(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_err_t fpx_handler_size(fpx_cmd_params_t *params, void *data, int argc,
     char **argv);
-fpx_err_t fpx_handler_uint(fpx_cmd_params_t *params, void *data, fpx_int_t argc,
+fpx_err_t fpx_handler_uint(fpx_cmd_params_t *params, void *data, int argc,
     char **argv);
 
 #endif /* FLOPPIX_CORE_COMMAND_H */

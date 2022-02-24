@@ -45,6 +45,6 @@
 
 typedef int fpx_err_t;
 
-const char *fpx_strerror(fpx_err_t err, char *buf, fpx_size_t bufsize);
+const char *fpx_strerror(fpx_err_t err, char *buf, size_t bufsize);
 
 #endif /* FLOPPIX_SYSTEM_ERRNO_H */

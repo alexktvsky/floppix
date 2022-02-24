@@ -106,8 +106,8 @@ fpx_stat_get_access(fpx_file_stat_t *stat)
 }
 
 fpx_err_t
-fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
-    fpx_uint_t create, fpx_uint_t access)
+fpx_file_open(fpx_file_t *file, const char *path, uint mode, uint create,
+    uint access)
 {
     fpx_fd_t fd;
     fpx_err_t err;
@@ -124,15 +124,15 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
 
     file->fd = fd;
     file->name = (char *) path;
-    file->offset = (fpx_size_t) 0;
+    file->offset = (size_t) 0;
 
     return FPX_OK;
 }
 
-fpx_ssize_t
-fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
+ssize_t
+fpx_file_read(fpx_file_t *file, uint8_t *buf, size_t size, size_t offset)
 {
-    fpx_ssize_t n;
+    ssize_t n;
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
@@ -149,12 +149,11 @@ fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
     return n;
 }
 
-fpx_ssize_t
-fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
-    fpx_off_t offset)
+ssize_t
+fpx_file_write(fpx_file_t *file, const char *buf, size_t size, size_t offset)
 {
-    fpx_ssize_t n;
-    fpx_ssize_t written = 0;
+    ssize_t n;
+    ssize_t written = 0;
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
@@ -171,7 +170,7 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
         }
         file->offset += n;
         written += n;
-        if ((fpx_size_t) n == size) {
+        if ((size_t) n == size) {
             return written;
         }
         size -= n;
@@ -179,25 +178,25 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
 }
 
 /* Work even we already read some bytes from file */
-fpx_ssize_t
+ssize_t
 fpx_file_size(fpx_file_t *file)
 {
-    fpx_off_t off;
-    fpx_size_t size;
+    size_t off;
+    size_t size;
 
     off = lseek(file->fd, 0, SEEK_CUR);
-    if (off == (fpx_off_t) -1) {
+    if (off == (size_t) -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
             "lseek(%d, %zd, SEEK_CUR) failed", file->fd, 0);
         return -1;
     }
-    size = (fpx_size_t) lseek(file->fd, 0, SEEK_END);
-    if (size == (fpx_size_t) -1) {
+    size = (size_t) lseek(file->fd, 0, SEEK_END);
+    if (size == (size_t) -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
             "lseek(%d, %zd, SEEK_END) failed", file->fd, 0);
         return -1;
     }
-    if (lseek(file->fd, off, SEEK_SET) == (fpx_off_t) -1) {
+    if (lseek(file->fd, off, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
             "lseek(%d, %zd, SEEK_SET) failed", file->fd, 0);
         return -1;
@@ -205,10 +204,10 @@ fpx_file_size(fpx_file_t *file)
     return size;
 }
 
-fpx_ssize_t
-fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t n)
+ssize_t
+fpx_read_fd(fpx_fd_t fd, void *buf, size_t n)
 {
-    fpx_ssize_t rv;
+    ssize_t rv;
 
     rv = read(fd, buf, n);
     if (rv == -1) {
@@ -219,10 +218,10 @@ fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t n)
     return rv;
 }
 
-fpx_ssize_t
-fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t n)
+ssize_t
+fpx_write_fd(fpx_fd_t fd, void *buf, size_t n)
 {
-    fpx_ssize_t rv;
+    ssize_t rv;
 
     rv = write(fd, buf, n);
     if (rv == -1) {
@@ -277,7 +276,7 @@ fpx_file_close(fpx_file_t *file)
     close(file->fd);
     file->fd = FPX_INVALID_FILE;
     file->name = NULL;
-    file->offset = (fpx_off_t) 0;
+    file->offset = (size_t) 0;
 }
 
 fpx_err_t
@@ -374,7 +373,7 @@ fpx_dir_current_name(fpx_dir_t *dir)
 fpx_err_t
 fpx_glob_open(fpx_glob_t *gl, const char *pattern)
 {
-    fpx_int_t rv;
+    int rv;
     fpx_err_t err;
 
     rv = glob(pattern, 0, NULL, &gl->glob);
@@ -394,12 +393,12 @@ fpx_glob_open(fpx_glob_t *gl, const char *pattern)
 fpx_err_t
 fpx_glob_read(fpx_glob_t *gl, char *res)
 {
-    fpx_size_t n, len;
+    size_t n, len;
 
 #ifdef GLOB_NOMATCH
-    n = (fpx_size_t) gl->glob.gl_pathc;
+    n = (size_t) gl->glob.gl_pathc;
 #else
-    n = (fpx_size_t) gl->glob.gl_matchc;
+    n = (size_t) gl->glob.gl_matchc;
 #endif
 
     if (gl->last >= n) {
@@ -432,9 +431,9 @@ fpx_check_absolute_path(const char *path)
 #elif (FPX_WIN32)
 
 static uint32_t
-fpx_utf8_decode(u_char **p, fpx_size_t n)
+fpx_utf8_decode(u_char **p, size_t n)
 {
-    fpx_size_t len;
+    size_t len;
     uint32_t u, i, valid;
 
     u = **p;
@@ -485,7 +484,7 @@ fpx_utf8_decode(u_char **p, fpx_size_t n)
 }
 
 static uint16_t *
-fpx_path_to_wchar(uint16_t *outstr, fpx_size_t outlen, const uint8_t *instr)
+fpx_path_to_wchar(uint16_t *outstr, size_t outlen, const uint8_t *instr)
 {
     uint8_t *p;
     uint16_t *u, *last;
@@ -549,8 +548,8 @@ fpx_stat_get_file_type(fpx_file_stat_t *stat)
 }
 
 fpx_err_t
-fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
-    fpx_uint_t create, fpx_uint_t access)
+fpx_file_open(fpx_file_t *file, const char *path, uint mode, uint create,
+    uint access)
 {
     uint16_t wpath[FPX_MAX_PATH_LEN];
     fpx_fd_t fd;
@@ -573,13 +572,13 @@ fpx_file_open(fpx_file_t *file, const char *path, fpx_uint_t mode,
 
     file->fd = fd;
     file->name = (char *) path;
-    file->offset = (fpx_size_t) 0;
+    file->offset = (size_t) 0;
 
     return FPX_OK;
 }
 
-fpx_ssize_t
-fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
+ssize_t
+fpx_file_read(fpx_file_t *file, uint8_t *buf, size_t size, size_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -597,12 +596,11 @@ fpx_file_read(fpx_file_t *file, uint8_t *buf, fpx_size_t size, fpx_off_t offset)
         return -1;
     }
     file->offset += n;
-    return (fpx_ssize_t) n;
+    return (ssize_t) n;
 }
 
-fpx_ssize_t
-fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
-    fpx_off_t offset)
+ssize_t
+fpx_file_write(fpx_file_t *file, const char *buf, size_t size, size_t offset)
 {
     DWORD n;
     OVERLAPPED ovlp;
@@ -620,8 +618,8 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
         return -1;
     }
 
-    if (((fpx_size_t) n) != size) {
-        fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED, "((fpx_size_t) n) != size");
+    if (((size_t) n) != size) {
+        fpx_log_error1(FPX_LOG_ERROR, FPX_FAILED, "((size_t) n) != size");
         return -1;
     }
     file->offset += n;
@@ -630,11 +628,11 @@ fpx_file_write(fpx_file_t *file, const char *buf, fpx_size_t size,
 
 #if (FPX_PTR_SIZE == 8)
 
-fpx_ssize_t
+ssize_t
 fpx_file_size(fpx_file_t *file)
 {
     LARGE_INTEGER info;
-    fpx_ssize_t size;
+    ssize_t size;
 
     if (GetFileSizeEx(file->fd, &info) != 1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
@@ -643,27 +641,27 @@ fpx_file_size(fpx_file_t *file)
     }
     size = info.QuadPart;
 
-    return (fpx_ssize_t) size;
+    return (ssize_t) size;
 }
 #else
 
-fpx_ssize_t
+ssize_t
 fpx_file_size(fpx_file_t *file)
 {
-    fpx_ssize_t size;
+    ssize_t size;
 
-    size = (fpx_ssize_t) GetFileSize(file->fd, NULL);
+    size = (ssize_t) GetFileSize(file->fd, NULL);
     if (size == FPX_INVALID_FILE_SIZE) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
             "GetFileSize(%p, %p) failed", file->fd, NULL);
         return -1;
     }
-    return (fpx_ssize_t) size;
+    return (ssize_t) size;
 }
 #endif
 
-fpx_ssize_t
-fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
+ssize_t
+fpx_read_fd(fpx_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
 
@@ -672,11 +670,11 @@ fpx_read_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
             "ReadFile(%p, %p, %zu, %p, %p) failed", fd, buf, size, &n, NULL);
         return -1;
     }
-    return (fpx_ssize_t) n;
+    return (ssize_t) n;
 }
 
-fpx_ssize_t
-fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
+ssize_t
+fpx_write_fd(fpx_fd_t fd, void *buf, size_t size)
 {
     DWORD n;
 
@@ -685,7 +683,7 @@ fpx_write_fd(fpx_fd_t fd, void *buf, fpx_size_t size)
             "WriteFile(%p, %p, %zu, %p, %p) failed", fd, buf, size, &n, NULL);
         return -1;
     }
-    return (fpx_ssize_t) n;
+    return (ssize_t) n;
 }
 
 fpx_err_t
@@ -758,14 +756,14 @@ fpx_file_close(fpx_file_t *file)
     CloseHandle(file->fd);
     file->fd = FPX_INVALID_FILE;
     file->name = NULL;
-    file->offset = (fpx_off_t) 0;
+    file->offset = (size_t) 0;
 }
 
 fpx_err_t
 fpx_dir_open(fpx_dir_t *dir, const char *path)
 {
     char str[FPX_MAX_PATH_LEN + 3];
-    fpx_size_t len;
+    size_t len;
     fpx_err_t err;
 
     fpx_memzero(dir, sizeof(fpx_dir_t));
@@ -840,8 +838,8 @@ fpx_dir_close(fpx_dir_t *dir)
 fpx_err_t
 fpx_glob_open(fpx_glob_t *gl, const char *pattern)
 {
-    fpx_int_t i;
-    fpx_size_t len;
+    int i;
+    size_t len;
     fpx_err_t err;
 
     gl->dir = FindFirstFile((const char *) pattern, &gl->finddata);
@@ -856,7 +854,7 @@ fpx_glob_open(fpx_glob_t *gl, const char *pattern)
 
     for (i = fpx_strlen(pattern); i >= 0; --i) {
         if (pattern[i] == '\\') {
-            len = (fpx_size_t) i;
+            len = (size_t) i;
             break;
         }
     }
@@ -876,7 +874,7 @@ fpx_glob_open(fpx_glob_t *gl, const char *pattern)
 fpx_err_t
 fpx_glob_read(fpx_glob_t *gl, char *res)
 {
-    fpx_size_t len, temp;
+    size_t len, temp;
     fpx_err_t err;
 
     if (gl->done) {
@@ -969,13 +967,13 @@ fpx_path_to_root_dir(char *res, const char *path)
 
 #endif
 
-fpx_ssize_t
+ssize_t
 fpx_write_stdout(const char *str)
 {
     return fpx_write_fd(FPX_STDOUT, (void *) str, strlen(str));
 }
 
-fpx_ssize_t
+ssize_t
 fpx_write_stderr(const char *str)
 {
     return fpx_write_fd(FPX_STDERR, (void *) str, strlen(str));
@@ -993,10 +991,10 @@ fpx_dir_current_is_file(fpx_dir_t *dir)
     return (dir->type == FPX_FILE_TYPE_FILE);
 }
 
-fpx_size_t
+size_t
 fpx_file_full_path(char *buf, const char *path, const char *file)
 {
-    fpx_size_t path_len, file_len, copied;
+    size_t path_len, file_len, copied;
 
     path_len = fpx_strlen(path);
     file_len = fpx_strlen(file);
@@ -1021,7 +1019,7 @@ fpx_file_full_path(char *buf, const char *path, const char *file)
     return copied;
 }
 
-fpx_bool_t
+bool
 fpx_is_path_has_wildcard(const char *path)
 {
     char *ch;

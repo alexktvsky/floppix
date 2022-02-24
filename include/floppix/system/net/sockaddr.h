@@ -15,8 +15,8 @@
 #define fpx_sockaddr_is_ipv6(sockaddr) (sockaddr->ss_family == AF_INET6)
 
 const char *fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr,
-    char *buf, fpx_size_t bufsize);
+    char *buf, size_t bufsize);
 const char *fpx_sockaddr_get_port_text(const struct sockaddr *sockaddr,
-    char *buf, fpx_size_t bufsize);
+    char *buf, size_t bufsize);
 
 #endif /* FLOPPIX_SYSTEM_NET_SOCKADDR_H */

@@ -66,15 +66,14 @@ extern fpx_logger_t *fpx_logger_global;
 extern const char *fpx_log_prio[];
 
 void fpx_log_console(fpx_fd_t fd, fpx_err_t err, const char *fmt, ...);
-void fpx_log_error(fpx_uint_t level, fpx_logger_t *logger, fpx_err_t err,
+void fpx_log_error(uint level, fpx_logger_t *logger, fpx_err_t err,
     const char *fmt, ...);
 
 fpx_err_t fpx_logger_init(fpx_logger_t **logger);
 fpx_err_t fpx_logger_start(fpx_logger_t *logger);
-fpx_err_t fpx_logger_add_log_file(fpx_logger_t *logger, fpx_uint_t level,
-    const char *fname, fpx_size_t size);
-fpx_err_t fpx_logger_add_log_fd(fpx_logger_t *logger, fpx_uint_t level,
-    fpx_fd_t fd);
+fpx_err_t fpx_logger_add_log_file(fpx_logger_t *logger, uint level,
+    const char *fname, size_t size);
+fpx_err_t fpx_logger_add_log_fd(fpx_logger_t *logger, uint level, fpx_fd_t fd);
 
 void fpx_logger_destroy(fpx_logger_t *logger);
 

@@ -5,10 +5,10 @@
 #if (FPX_POSIX)
 
 const char *
-fpx_dlerror(char *buf, fpx_size_t bufsize)
+fpx_dlerror(char *buf, size_t bufsize)
 {
     char *str;
-    fpx_size_t len;
+    size_t len;
 
     str = (char *) dlerror();
     if (str == NULL) {
@@ -31,7 +31,7 @@ fpx_dlerror(char *buf, fpx_size_t bufsize)
 #elif (FPX_WIN32)
 
 const char *
-fpx_dlerror(char *buf, fpx_size_t bufsize)
+fpx_dlerror(char *buf, size_t bufsize)
 {
     return fpx_strerror(fpx_get_errno(), buf, bufsize);
 }

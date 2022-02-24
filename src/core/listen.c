@@ -43,7 +43,7 @@ fpx_listener_bind(fpx_listener_t *listener)
     const char *addr, *port;
     fpx_socket_t fd;
     fpx_socklen_t addrlen;
-    fpx_uint_t tries, done;
+    uint tries, done;
     fpx_err_t err;
 
     done = 0;
@@ -164,16 +164,14 @@ fpx_listener_clear(fpx_listener_t *listener)
 }
 
 const char *
-fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,
-    fpx_size_t bufsize)
+fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf, size_t bufsize)
 {
     return fpx_sockaddr_get_addr_text(
         (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);
 }
 
 const char *
-fpx_listener_get_port_text(fpx_listener_t *listener, char *buf,
-    fpx_size_t bufsize)
+fpx_listener_get_port_text(fpx_listener_t *listener, char *buf, size_t bufsize)
 {
     return fpx_sockaddr_get_port_text(
         (const struct sockaddr *) &(listener->sockaddr), buf, bufsize);

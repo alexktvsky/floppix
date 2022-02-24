@@ -2,10 +2,10 @@
 
 #if (FPX_POSIX)
 
-fpx_uint_t
+uint
 fpx_get_number_cpu(void)
 {
-    fpx_int_t ncpus;
+    int ncpus;
 
 #if (FPX_HAVE_SC_NPROC)
     ncpus = sysconf(_SC_NPROCESSORS_ONLN);
@@ -17,16 +17,16 @@ fpx_get_number_cpu(void)
         ncpus = 1;
     }
 
-    return (fpx_uint_t) ncpus;
+    return (uint) ncpus;
 }
 
 #elif (FPX_WIN32)
 
-fpx_uint_t
+uint
 fpx_get_number_cpu(void)
 {
     SYSTEM_INFO info;
-    fpx_int_t ncpus;
+    int ncpus;
 
     GetSystemInfo(&info);
     ncpus = info.dwNumberOfProcessors;
@@ -35,7 +35,7 @@ fpx_get_number_cpu(void)
         ncpus = 1;
     }
 
-    return (fpx_uint_t) ncpus;
+    return (uint) ncpus;
 }
 
 #endif

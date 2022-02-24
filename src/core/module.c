@@ -30,7 +30,7 @@ fpx_add_module(fpx_server_t *server, fpx_module_t *module)
 fpx_err_t
 fpx_setup_prelinked_modules(fpx_server_t *server)
 {
-    fpx_size_t n, i;
+    size_t n, i;
     fpx_err_t err;
 
     n = sizeof(fpx_preloaded_modules) / sizeof(fpx_module_t *);

@@ -32,8 +32,8 @@ struct fpx_semaphore_s {
 
 typedef struct fpx_semaphore_s fpx_semaphore_t;
 
-fpx_err_t fpx_semaphore_init(fpx_semaphore_t *semaphore, fpx_uint_t value,
-    fpx_uint_t maxval, fpx_bitmask_t params);
+fpx_err_t fpx_semaphore_init(fpx_semaphore_t *semaphore, uint value,
+    uint maxval, fpx_bitmask_t params);
 fpx_err_t fpx_semaphore_wait(fpx_semaphore_t *semaphore);
 fpx_err_t fpx_semaphore_trywait(fpx_semaphore_t *semaphore);
 fpx_err_t fpx_semaphore_post(fpx_semaphore_t *semaphore);

@@ -20,7 +20,7 @@
 typedef struct fpx_listener_s fpx_listener_t;
 
 struct fpx_listener_s {
-    fpx_bool_t type_id;
+    bool type_id;
     fpx_socket_t fd;
     struct sockaddr_storage sockaddr;
     const char *text_addr;
@@ -28,7 +28,7 @@ struct fpx_listener_s {
     fpx_list_node_t list_node;
 
     /* fpx_list_t *connections; */
-    /* fpx_bool_t proto; */
+    /* bool proto; */
     /* The accept function for this socket */
 };
 
@@ -42,8 +42,8 @@ void fpx_listener_close(fpx_listener_t *listener);
 void fpx_listener_clear(fpx_listener_t *listener);
 
 const char *fpx_listener_get_addr_text(fpx_listener_t *listener, char *buf,
-    fpx_size_t bufsize);
+    size_t bufsize);
 const char *fpx_listener_get_port_text(fpx_listener_t *listener, char *buf,
-    fpx_size_t bufsize);
+    size_t bufsize);
 
 #endif /* FLOPPIX_CORE_LISTEN_H */

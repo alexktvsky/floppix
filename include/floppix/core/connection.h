@@ -12,7 +12,7 @@
 typedef struct fpx_connect_s fpx_connect_t;
 
 struct fpx_connect_s {
-    fpx_bool_t type_id;
+    bool type_id;
     fpx_socket_t fd;
     struct sockaddr_storage sockaddr;
     char *addr_text;
@@ -23,7 +23,7 @@ struct fpx_connect_s {
 
     /* fpx_event_t read; */
     /* fpx_event_t write; */
-    /* fpx_uint_t ready_to_write; */
+    /* uint ready_to_write; */
 };
 
 fpx_err_t fpx_connection_init(fpx_connect_t *connect);
@@ -33,8 +33,8 @@ void fpx_connection_clear(fpx_connect_t *connect);
 void fpx_connection_destroy(fpx_connect_t *connect);
 
 const char *fpx_connection_get_addr_text(fpx_connect_t *connect, char *buf,
-    fpx_size_t bufsize);
+    size_t bufsize);
 const char *fpx_connection_get_port_text(fpx_connect_t *connect, char *buf,
-    fpx_size_t bufsize);
+    size_t bufsize);
 
 #endif /* FLOPPIX_CORE_CONNECTION_H */

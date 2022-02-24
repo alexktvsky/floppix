@@ -24,6 +24,6 @@ fpx_err_t fpx_process_set_workdir(const char *workdir);
 fpx_err_t fpx_process_set_user(const char *user);
 fpx_err_t fpx_process_set_group(const char *group);
 
-/* fpx_err_t fpx_process_set_priority(fpx_int_t); */
+/* fpx_err_t fpx_process_set_priority(int); */
 
 #endif /* FLOPPIX_SYSTEM_PROCESS_H */

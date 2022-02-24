@@ -26,15 +26,15 @@ typedef struct fpx_module_s fpx_module_t;
 
 struct fpx_module_s {
     char *name; /* check loading by name and strcmp */
-    fpx_uint32_t version;
+    uint32_t version;
     fpx_command_t *cmd;
     void *(*preinit)(fpx_server_t *server);
     fpx_err_t (*init)(fpx_server_t *server, void *cntx);
     void (*fini)(fpx_server_t *server, void *cntx);
     void *cntx;
     void *handle;
-    fpx_bool_t preinited;
-    fpx_bool_t inited;
+    bool preinited;
+    bool inited;
     fpx_list_node_t list_node;
 };
 

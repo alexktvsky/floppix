@@ -72,7 +72,7 @@ fpx_list_clear(fpx_list_t *list)
 }
 
 fpx_list_node_t *
-fpx_list_find(fpx_list_t *list, fpx_bool_t (*compar)(const fpx_list_node_t *))
+fpx_list_find(fpx_list_t *list, bool (*compar)(const fpx_list_node_t *))
 {
     fpx_list_node_t *temp1;
 
@@ -124,8 +124,7 @@ fpx_list_insert_after(fpx_list_t *list, fpx_list_node_t *after_node,
 }
 
 fpx_err_t
-fpx_list_remove_first(fpx_list_t *list,
-    fpx_bool_t (*compar)(const fpx_list_node_t *))
+fpx_list_remove_first(fpx_list_t *list, bool (*compar)(const fpx_list_node_t *))
 {
     fpx_list_node_t *temp;
     int found;
@@ -151,8 +150,7 @@ fpx_list_remove_first(fpx_list_t *list,
 }
 
 fpx_err_t
-fpx_list_remove_last(fpx_list_t *list,
-    fpx_bool_t (*compar)(const fpx_list_node_t *))
+fpx_list_remove_last(fpx_list_t *list, bool (*compar)(const fpx_list_node_t *))
 {
     fpx_list_node_t *temp;
     int found;
@@ -180,7 +178,7 @@ fpx_list_remove_last(fpx_list_t *list,
 static void
 fpx_list_mergesort_merge(fpx_list_t *list, fpx_list_node_t *left,
     fpx_list_node_t *right,
-    fpx_int_t (*compar)(const fpx_list_node_t *, const fpx_list_node_t *))
+    int (*compar)(const fpx_list_node_t *, const fpx_list_node_t *))
 {
     fpx_list_node_t *temp;
 
@@ -214,7 +212,7 @@ fpx_list_mergesort_merge(fpx_list_t *list, fpx_list_node_t *left,
 
 void
 fpx_list_mergesort(fpx_list_t *list,
-    fpx_int_t (*compar)(const fpx_list_node_t *, const fpx_list_node_t *))
+    int (*compar)(const fpx_list_node_t *, const fpx_list_node_t *))
 {
     fpx_list_node_t *node;
     size_t m, i;

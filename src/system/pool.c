@@ -28,9 +28,9 @@ struct fpx_memnode_s {
     fpx_memnode_t *next;
     uint8_t *begin;
     uint8_t *first_avail;
-    fpx_size_t size;
-    fpx_size_t size_avail; /* To increase search speed */
-    fpx_size_t dealloc_size;
+    size_t size;
+    size_t size_avail; /* To increase search speed */
+    size_t dealloc_size;
 };
 
 struct fpx_cleanup_node_s {
@@ -54,10 +54,10 @@ struct fpx_pool_s {
 #endif
 };
 
-static fpx_size_t
-fpx_align_allocation(fpx_size_t size)
+static size_t
+fpx_align_allocation(size_t size)
 {
-    fpx_size_t align_size;
+    size_t align_size;
 
     align_size = fpx_align_default(size);
     if (align_size < size) {
@@ -69,10 +69,10 @@ fpx_align_allocation(fpx_size_t size)
     return align_size;
 }
 
-static fpx_size_t
-fpx_get_npages(fpx_size_t size)
+static size_t
+fpx_get_npages(size_t size)
 {
-    fpx_size_t total_size;
+    size_t total_size;
 
     total_size = size + FPX_SIZEOF_MEMNODE_T_ALIGN;
     if (total_size < FPX_PAGE_SIZE) {
@@ -84,7 +84,7 @@ fpx_get_npages(fpx_size_t size)
 }
 
 static fpx_memnode_t *
-fpx_memnode_allocate(fpx_size_t size)
+fpx_memnode_allocate(size_t size)
 {
     fpx_memnode_t *node;
     uint8_t *mem;
@@ -168,11 +168,11 @@ fpx_pool_add_child(fpx_pool_t *parent, fpx_pool_t *new_child)
 }
 
 fpx_err_t
-fpx_pool_create(fpx_pool_t **pool, fpx_size_t size, fpx_pool_t *parent)
+fpx_pool_create(fpx_pool_t **pool, size_t size, fpx_pool_t *parent)
 {
     fpx_memnode_t *node;
     fpx_pool_t *new_pool;
-    fpx_size_t npages, index, align_size;
+    size_t npages, index, align_size;
 
 #if (FPX_POOL_THREAD_SAFETY)
     fpx_mutex_t *mutex;
@@ -257,12 +257,11 @@ failed:
 }
 
 void *
-fpx_palloc1(const char *filename, fpx_int_t line, fpx_pool_t *pool,
-    fpx_size_t size)
+fpx_palloc1(const char *filename, int line, fpx_pool_t *pool, size_t size)
 {
     fpx_memnode_t *node, *temp;
-    fpx_uint_t i;
-    fpx_size_t align_size, npages, index;
+    uint i;
+    size_t align_size, npages, index;
     void *mem;
 
     node = NULL;
@@ -345,8 +344,7 @@ failed:
 }
 
 void *
-fpx_pcalloc1(const char *filename, fpx_int_t line, fpx_pool_t *pool,
-    fpx_size_t size)
+fpx_pcalloc1(const char *filename, int line, fpx_pool_t *pool, size_t size)
 {
     void *mem;
 
@@ -467,12 +465,12 @@ fpx_pool_cleanup_remove1(fpx_pool_t *pool, void *data,
 #endif
 }
 
-fpx_size_t
+size_t
 fpx_pool_get_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    fpx_uint_t i;
-    fpx_size_t size;
+    uint i;
+    size_t size;
 
     size = 0;
 
@@ -486,12 +484,12 @@ fpx_pool_get_size(fpx_pool_t *pool)
     return size;
 }
 
-fpx_size_t
+size_t
 fpx_pool_get_free_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    fpx_uint_t i;
-    fpx_size_t size;
+    uint i;
+    size_t size;
 
     size = 0;
 
@@ -505,12 +503,12 @@ fpx_pool_get_free_size(fpx_pool_t *pool)
     return size;
 }
 
-fpx_size_t
+size_t
 fpx_pool_get_total_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    fpx_uint_t i;
-    fpx_size_t size;
+    uint i;
+    size_t size;
 
     size = 0;
 
@@ -529,7 +527,7 @@ fpx_pool_clear(fpx_pool_t *pool)
 {
     fpx_pool_t *temp1, *temp2;
     fpx_memnode_t *node;
-    fpx_uint_t i;
+    uint i;
 
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {
@@ -572,7 +570,7 @@ fpx_pool_destroy(fpx_pool_t *pool)
 {
     fpx_pool_t *temp1, *temp2;
     fpx_memnode_t *node, *temp;
-    fpx_uint_t i;
+    uint i;
 
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {

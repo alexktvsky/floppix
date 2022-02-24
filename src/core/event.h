@@ -10,9 +10,9 @@
 
 struct fpx_event_s {
     void *data;
-    fpx_uint_t read : 1;
-    fpx_uint_t write : 1;
-    fpx_uint_t ready : 1;
+    uint read : 1;
+    uint write : 1;
+    uint ready : 1;
 
     /* ... */
 

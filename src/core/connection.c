@@ -73,16 +73,14 @@ fpx_connection_destroy(fpx_connect_t *connect)
 }
 
 const char *
-fpx_connection_get_addr_text(fpx_connect_t *connect, char *buf,
-    fpx_size_t bufsize)
+fpx_connection_get_addr_text(fpx_connect_t *connect, char *buf, size_t bufsize)
 {
     return fpx_sockaddr_get_addr_text(
         (const struct sockaddr *) &(connect->sockaddr), buf, bufsize);
 }
 
 const char *
-fpx_connection_get_port_text(fpx_connect_t *connect, char *buf,
-    fpx_size_t bufsize)
+fpx_connection_get_port_text(fpx_connect_t *connect, char *buf, size_t bufsize)
 {
     return fpx_sockaddr_get_port_text(
         (const struct sockaddr *) &(connect->sockaddr), buf, bufsize);

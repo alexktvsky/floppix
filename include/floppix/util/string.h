@@ -42,16 +42,16 @@
 
 #define fpx_pstrcat(...)    fpx_pstrcat1(__VA_ARGS__, NULL)
 
-fpx_int_t fpx_atoi(const char *str, fpx_size_t n);
-fpx_ssize_t fpx_atosz(const char *str, fpx_size_t n);
-fpx_size_t fpx_strlen(const char *str);
-fpx_size_t fpx_strnlen(const char *str, fpx_size_t n);
-fpx_int_t fpx_strcasecmp(char *str1, char *str2);
-fpx_int_t fpx_strncasecmp(char *str1, char *str2, fpx_size_t n);
-char *fpx_strchr(const char *str, fpx_int_t c);
-char *fpx_strrchr(const char *str, fpx_int_t c);
+int fpx_atoi(const char *str, size_t n);
+ssize_t fpx_atosz(const char *str, size_t n);
+size_t fpx_strlen(const char *str);
+size_t fpx_strnlen(const char *str, size_t n);
+int fpx_strcasecmp(char *str1, char *str2);
+int fpx_strncasecmp(char *str1, char *str2, size_t n);
+char *fpx_strchr(const char *str, int c);
+char *fpx_strrchr(const char *str, int c);
 char *fpx_pstrdup(fpx_pool_t *pool, const char *str);
-char *fpx_pstrndup(fpx_pool_t *pool, const char *str, fpx_size_t n);
+char *fpx_pstrndup(fpx_pool_t *pool, const char *str, size_t n);
 char *fpx_pstrcat1(fpx_pool_t *pool, ...);
 
 #endif /* FPX_UTIL_STRING_H */

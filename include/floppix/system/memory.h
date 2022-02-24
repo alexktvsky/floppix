@@ -14,12 +14,12 @@
 
 /*
  * #define fpx_offsetof(st, m) \
- *((fpx_size_t) ((fpx_uint8_t *) &((st *) 0)->m - (fpx_uint8_t *) 0))
+ *((size_t) ((uint8_t *) &((st *) 0)->m - (uint8_t *) 0))
  */
 #define fpx_offsetof(st, m)  offsetof(st, m)
 
 #define fpx_container_of(ptr, type, member)                                    \
-    (type *) ((fpx_uint8_t *) ptr - fpx_offsetof(type, member))
+    (type *) ((uint8_t *) ptr - fpx_offsetof(type, member))
 
 #define fpx_memset(ptr, c, n)    memset(ptr, c, n)
 #define fpx_memzero(ptr, n)      fpx_memset(ptr, 0, n)
@@ -29,12 +29,12 @@
 #define fpx_malloc(size)         fpx_malloc1(__FILE__, __LINE__, size)
 #define fpx_calloc(size)         fpx_calloc1(__FILE__, __LINE__, size)
 
-void *fpx_malloc1(const char *filename, fpx_int_t line, fpx_size_t size);
-void *fpx_calloc1(const char *filename, fpx_int_t line, fpx_size_t size);
+void *fpx_malloc1(const char *filename, int line, size_t size);
+void *fpx_calloc1(const char *filename, int line, size_t size);
 void fpx_free(void *mem);
-fpx_size_t fpx_get_memory_counter(void);
+size_t fpx_get_memory_counter(void);
 
-void fpx_explicit_memzero(void *buf, fpx_size_t n);
-fpx_size_t fpx_get_page_size(void);
+void fpx_explicit_memzero(void *buf, size_t n);
+size_t fpx_get_page_size(void);
 
 #endif /* FLOPPIX_SYSTEM_MEMORY_H */

@@ -9,17 +9,17 @@
 
 #if !(FPX_TEST)
 
-static fpx_bool_t show_version;
-static fpx_bool_t show_help;
-static fpx_bool_t test_config;
+static bool show_version;
+static bool show_help;
+static bool test_config;
 static const char *config_fname = FPX_DEFAULT_CONFIG_PATH;
 
 static fpx_err_t
-fpx_parse_argv(fpx_uint_t argc, const char *const *argv)
+fpx_parse_argv(uint argc, const char *const *argv)
 {
-    fpx_uint_t i, saved_index;
+    uint i, saved_index;
     const char *p;
-    fpx_bool_t long_option;
+    bool long_option;
 
     for (i = 1; i < argc; ++i) {
 
@@ -141,7 +141,7 @@ fpx_show_help_info(void)
 }
 
 static void
-fpx_save_argv(fpx_server_t *server, fpx_int_t argc, const char *const *argv)
+fpx_save_argv(fpx_server_t *server, int argc, const char *const *argv)
 {
     server->argc = argc;
     server->argv = argv;

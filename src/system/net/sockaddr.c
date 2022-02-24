@@ -2,7 +2,7 @@
 
 const char *
 fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
-    fpx_size_t bufsize)
+    size_t bufsize)
 {
     fpx_socklen_t addrlen;
 
@@ -18,7 +18,7 @@ fpx_sockaddr_get_addr_text(const struct sockaddr *sockaddr, char *buf,
 
 const char *
 fpx_sockaddr_get_port_text(const struct sockaddr *sockaddr, char *buf,
-    fpx_size_t bufsize)
+    size_t bufsize)
 {
     fpx_socklen_t addrlen;
 
