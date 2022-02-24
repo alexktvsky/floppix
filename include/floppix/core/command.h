@@ -23,9 +23,9 @@
     }
 
 #if (FPX_POSIX)
-#define FPX_DEFAULT_CONFIG_PATH "/etc/fpx/fpx.conf"
+#define FPX_DEFAULT_CONFIG_PATH "/etc/fpx/floppix.conf"
 #elif (FPX_WIN32)
-#define FPX_DEFAULT_CONFIG_PATH "C:\\fpx\\config\\fpx.conf";
+#define FPX_DEFAULT_CONFIG_PATH "C:\\fpx\\config\\floppix.conf";
 #endif
 
 typedef fpx_err_t (*fpx_cmd_handler_t)(fpx_cmd_params_t *params, void *data,
