@@ -17,6 +17,6 @@
 #cmakedefine FPX_HAVE_SELECT 1
 #cmakedefine FPX_HAVE_EPOLL 1
 #cmakedefine FPX_HAVE_KQUEUE 1
-#cmakedefine FPX_HAVE_OPENSSL 
+#cmakedefine FPX_HAVE_OPENSSL 1
 
 #endif /* INCLUDED_FPX_CONFIG_H */

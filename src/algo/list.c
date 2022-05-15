@@ -5,7 +5,7 @@
 void
 fpx_list_init(fpx_list_t *list)
 {
-    fpx_memset(list, 0, sizeof(fpx_list_t));
+    fpx_memzero(list, sizeof(fpx_list_t));
 }
 
 void

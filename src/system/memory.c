@@ -26,8 +26,7 @@ fpx_malloc1(const char *filename, int line, size_t size)
     }
     else {
         fpx_memory_counter_value += size;
-        fpx_log_debug1(FPX_OK,
-            "malloc %p %zu in %s:" FPX_FMT_UINT_T " total %zu", mem, size,
+        fpx_log_debug1(FPX_OK, "malloc %p %zu in %s:%u total %zu", mem, size,
             filename, line, fpx_memory_counter_value);
     }
 
@@ -43,7 +42,7 @@ fpx_calloc1(const char *filename, int line, size_t size)
     if (!mem) {
         return mem;
     }
-    fpx_memset(mem, 0, size);
+    fpx_memzero(mem, size);
     return mem;
 }
 
@@ -63,7 +62,7 @@ fpx_get_memory_counter(void)
 void
 fpx_explicit_memzero(void *buf, size_t n)
 {
-    fpx_memset(buf, 0, n);
+    fpx_memzero(buf, n);
     memory_barrier();
 }
 

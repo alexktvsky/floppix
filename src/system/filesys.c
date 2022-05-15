@@ -136,13 +136,13 @@ fpx_file_read(fpx_file_t *file, uint8_t *buf, size_t size, size_t offset)
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, SEEK_SET) failed", file->fd, offset);
+            "lseek(%i, %zi, SEEK_SET) failed", file->fd, offset);
         return -1;
     }
     n = read(file->fd, buf, size);
     if (n == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "read(%d, %p, %zu) failed", file->fd, buf, size);
+            "read(%i, %p, %zu) failed", file->fd, buf, size);
         return -1;
     }
     file->offset += n;
@@ -157,7 +157,7 @@ fpx_file_write(fpx_file_t *file, const char *buf, size_t size, size_t offset)
 
     if (lseek(file->fd, offset, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, %s) failed", file->fd, offset, fpx_value(SEEK_SET));
+            "lseek(%i, %zi, %s) failed", file->fd, offset, fpx_value(SEEK_SET));
         return -1;
     }
 
@@ -165,7 +165,7 @@ fpx_file_write(fpx_file_t *file, const char *buf, size_t size, size_t offset)
         n = write(file->fd, buf + written, size);
         if (n == -1) {
             fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-                "write(%d, %p, %zu) failed", file->fd, buf + written, size);
+                "write(%i, %p, %zu) failed", file->fd, buf + written, size);
             return -1;
         }
         file->offset += n;
@@ -187,18 +187,18 @@ fpx_file_size(fpx_file_t *file)
     off = lseek(file->fd, 0, SEEK_CUR);
     if (off == (size_t) -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, SEEK_CUR) failed", file->fd, 0);
+            "lseek(%i, %zi, SEEK_CUR) failed", file->fd, 0);
         return -1;
     }
     size = (size_t) lseek(file->fd, 0, SEEK_END);
     if (size == (size_t) -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, SEEK_END) failed", file->fd, 0);
+            "lseek(%i, %zi, SEEK_END) failed", file->fd, 0);
         return -1;
     }
     if (lseek(file->fd, off, SEEK_SET) == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "lseek(%d, %zd, SEEK_SET) failed", file->fd, 0);
+            "lseek(%i, %zi, SEEK_SET) failed", file->fd, 0);
         return -1;
     }
     return size;
@@ -212,7 +212,7 @@ fpx_read_fd(fpx_fd_t fd, void *buf, size_t n)
     rv = read(fd, buf, n);
     if (rv == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "read(%d, %p, %zu) failed", fd, buf, n);
+            "read(%i, %p, %zu) failed", fd, buf, n);
         return -1;
     }
     return rv;
@@ -226,7 +226,7 @@ fpx_write_fd(fpx_fd_t fd, void *buf, size_t n)
     rv = write(fd, buf, n);
     if (rv == -1) {
         fpx_log_error1(FPX_LOG_ERROR, fpx_get_errno(),
-            "write(%d, %p, %zu) failed", fd, buf, n);
+            "write(%i, %p, %zu) failed", fd, buf, n);
         return -1;
     }
     return rv;
@@ -256,7 +256,7 @@ fpx_file_info(fpx_file_info_t *info, fpx_file_t *file)
 
     if (fstat(file->fd, &(info->stat)) == -1) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "fstat(%d, %p) failed", file->fd,
+        fpx_log_error1(FPX_LOG_ERROR, err, "fstat(%i, %p) failed", file->fd,
             info);
         return err;
     }
@@ -565,7 +565,7 @@ fpx_file_open(fpx_file_t *file, const char *path, uint mode, uint create,
     if (fd == FPX_INVALID_FILE) {
         err = fpx_get_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "CreateFileW(\"%s\", %zu, %d, %p, %zu, %d, %p) failed", path, mode,
+            "CreateFileW(\"%s\", %zu, %i, %p, %zu, %i, %p) failed", path, mode,
             0, NULL, create, 0, NULL);
         return err;
     }
@@ -736,7 +736,7 @@ fpx_file_info(fpx_file_info_t *info, fpx_file_t *file)
     if (GetFileInformationByHandle(file->fd, &(info->stat)) == -1) {
         err = fpx_get_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "GetFileInformationByHandle(%d) failed", file->fd);
+            "GetFileInformationByHandle(%i) failed", file->fd);
         return err;
     }
 

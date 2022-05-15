@@ -53,7 +53,7 @@ fpx_socket_listen(fpx_socket_t sockfd, int backlog)
 
     if (listen(sockfd, backlog) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "listen(%d, %d) failed", sockfd,
+        fpx_log_error1(FPX_LOG_ERROR, err, "listen(%i, %i) failed", sockfd,
             backlog);
         return err;
     }
@@ -84,7 +84,7 @@ fpx_socket_accept(fpx_socket_t *new_sockfd, fpx_socket_t sockfd,
     *new_sockfd = sockfd1;
 
     fpx_log_debug1(FPX_OK,
-        "Accept socket " FPX_FMT_SOCKET_T " from %s:%s to %d", sockfd1,
+        "Accept socket " FPX_FMT_SOCKET_T " from %s:%s to %i", sockfd1,
         fpx_sockaddr_get_addr_text(addr, text_addr, FPX_NI_MAXHOST),
         fpx_sockaddr_get_port_text(addr, text_port, FPX_NI_MAXSERV), sockfd);
 
@@ -124,7 +124,7 @@ fpx_socket_shutdown(fpx_socket_t sockfd, int how)
 
     if (shutdown(sockfd, how) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "shutdown(%d, %d) failed", sockfd,
+        fpx_log_error1(FPX_LOG_ERROR, err, "shutdown(%i, %i) failed", sockfd,
             how);
         return err;
     }

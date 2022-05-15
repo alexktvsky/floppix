@@ -131,7 +131,7 @@ fpx_load_module(fpx_server_t *server, const char *fname)
     handle = fpx_dlopen(fname);
     if (!handle) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlopen() failed (%d: \"%s\")",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlopen() failed (%i: \"%s\")",
             err, fpx_dlerror(errsetr, FPX_ERRNO_STR_SIZE));
         err = FPX_FAILED;
         goto failed;
@@ -140,7 +140,7 @@ fpx_load_module(fpx_server_t *server, const char *fname)
     module = fpx_dlsym(handle, "fpx_module");
     if (!module) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlsym() failed (%d: \"%s\")",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fpx_dlsym() failed (%i: \"%s\")",
             err, fpx_dlerror(errsetr, FPX_ERRNO_STR_SIZE));
         err = FPX_FAILED;
         goto failed;

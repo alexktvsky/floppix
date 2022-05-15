@@ -118,7 +118,7 @@ fpx_show_version_info(void)
 {
     fpx_log_stdout(FPX_OK, "%s %s %s", FPX_PROJECT_NAME, FPX_VERSION_STR,
         FPX_BUILD_DATE);
-    fpx_log_stdout(FPX_OK, "Target system: %s %d-bit", FPX_SYSTEM_NAME,
+    fpx_log_stdout(FPX_OK, "Target system: %s %i-bit", FPX_SYSTEM_NAME,
         FPX_PTR_WIDTH);
 #ifdef FPX_COMPILER
     fpx_log_stdout(FPX_OK, "Built by %s", FPX_COMPILER);

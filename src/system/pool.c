@@ -260,8 +260,7 @@ void *
 fpx_palloc1(const char *filename, int line, fpx_pool_t *pool, size_t size)
 {
     fpx_memnode_t *node, *temp;
-    uint i;
-    size_t align_size, npages, index;
+    size_t align_size, npages, index, i;
     void *mem;
 
     node = NULL;
@@ -332,8 +331,7 @@ done:
 #if (FPX_POOL_THREAD_SAFETY)
     fpx_mutex_unlock(pool->mutex);
 #endif
-    fpx_log_debug1(FPX_OK, "palloc %p %zu in %s:" FPX_FMT_UINT_T, mem, size,
-        filename, line);
+    fpx_log_debug1(FPX_OK, "palloc %p %zu in %s:%u", mem, size, filename, line);
     return mem;
 
 failed:

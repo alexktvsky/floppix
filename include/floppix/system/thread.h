@@ -26,7 +26,7 @@
 #define fpx_thread_exit(retval)          pthread_exit((fpx_thread_value_t) retval)
 
 #if (FPX_LINUX)
-#define FPX_FMT_TID_T "%d"
+#define FPX_FMT_TID_T "%i"
 #elif (FPX_FREEBSD)
 #define FPX_FMT_TID_T "%u"
 #elif (FPX_DARWIN)

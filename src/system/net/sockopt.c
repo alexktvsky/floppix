@@ -17,7 +17,7 @@ fpx_socket_nopush(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, SO_REUSEADDR, 1) failed", sockfd);
+            "setsockopt(%i, SO_REUSEADDR, 1) failed", sockfd);
         return err;
     }
     /*
@@ -42,7 +42,7 @@ fpx_socket_push(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, SO_REUSEADDR, 0) failed", sockfd);
+            "setsockopt(%i, SO_REUSEADDR, 0) failed", sockfd);
         return err;
     }
     return FPX_OK;
@@ -58,7 +58,7 @@ fpx_socket_nonblocking(fpx_socket_t sockfd)
 
     if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "fcntl(%d, %d|O_NONBLOCK) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fcntl(%i, %i|O_NONBLOCK) failed",
             sockfd, flags);
         return err;
     }
@@ -75,7 +75,7 @@ fpx_socket_blocking(fpx_socket_t sockfd)
 
     if (fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK)) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "fcntl(%d, %d&(~O_NONBLOCK)) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "fcntl(%i, %i&(~O_NONBLOCK)) failed",
             sockfd, flags);
         return err;
     }
@@ -97,7 +97,7 @@ fpx_socket_nopush(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, TCP_NOPUSH, 1) failed", sockfd);
+            "setsockopt(%i, TCP_NOPUSH, 1) failed", sockfd);
         return err;
     }
     return FPX_OK;
@@ -117,7 +117,7 @@ fpx_socket_push(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, TCP_NOPUSH, 0) failed", sockfd);
+            "setsockopt(%i, TCP_NOPUSH, 0) failed", sockfd);
         return err;
     }
     return FPX_OK;
@@ -133,7 +133,7 @@ fpx_socket_nonblocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 1) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 1) failed",
             sockfd);
         return err;
     }
@@ -150,7 +150,7 @@ fpx_socket_blocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 0) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 0) failed",
             sockfd);
         return err;
     }
@@ -172,7 +172,7 @@ fpx_socket_nopush(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, TCP_NOPUSH, 1) failed", sockfd);
+            "setsockopt(%i, TCP_NOPUSH, 1) failed", sockfd);
         return err;
     }
     return FPX_OK;
@@ -181,10 +181,7 @@ fpx_socket_nopush(fpx_socket_t sockfd)
 fpx_err_t
 fpx_socket_push(fpx_socket_t sockfd)
 {
-    int option;
     fpx_err_t err;
-
-    option = 0;
 
     if (setsockopt(sockfd, IPPROTO_TCP, TCP_NOPUSH,
             (const void *) &fpx_socket_nopush, sizeof(int))
@@ -192,7 +189,7 @@ fpx_socket_push(fpx_socket_t sockfd)
     {
         err = fpx_get_socket_errno();
         fpx_log_error1(FPX_LOG_ERROR, err,
-            "setsockopt(%d, TCP_NOPUSH, 0) failed", sockfd);
+            "setsockopt(%i, TCP_NOPUSH, 0) failed", sockfd);
         return err;
     }
     return FPX_OK;
@@ -208,7 +205,7 @@ fpx_socket_nonblocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 1) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 1) failed",
             sockfd);
         return err;
     }
@@ -225,7 +222,7 @@ fpx_socket_blocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 0) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 0) failed",
             sockfd);
         return err;
     }
@@ -265,7 +262,7 @@ fpx_socket_nonblocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 1) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 1) failed",
             sockfd);
         return err;
     }
@@ -282,7 +279,7 @@ fpx_socket_blocking(fpx_socket_t sockfd)
 
     if (ioctl(sockfd, FIONBIO, &nb) == -1) {
         err = fpx_get_socket_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%d, FIONBIO, 0) failed",
+        fpx_log_error1(FPX_LOG_ERROR, err, "ioctl(%i, FIONBIO, 0) failed",
             sockfd);
         return err;
     }

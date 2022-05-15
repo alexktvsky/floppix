@@ -23,7 +23,7 @@ struct fpx_connect_s {
 
     /* fpx_event_t read; */
     /* fpx_event_t write; */
-    /* uint ready_to_write; */
+    /* bool ready_to_write; */
 };
 
 fpx_err_t fpx_connection_init(fpx_connect_t *connect);

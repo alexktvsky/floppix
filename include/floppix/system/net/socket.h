@@ -9,14 +9,14 @@
 #define FPX_SHUT_WR        SHUT_WR
 #define FPX_SHUT_RDWR      SHUT_RDWR
 #define FPX_INVALID_SOCKET -1
-#define FPX_FMT_SOCKET_T   "%d"
+#define FPX_FMT_SOCKET_T   "%i"
 
 #elif (FPX_FREEBSD)
 #define FPX_SHUT_RD        SHUT_RD
 #define FPX_SHUT_WR        SHUT_WR
 #define FPX_SHUT_RDWR      SHUT_RDWR
 #define FPX_INVALID_SOCKET -1
-#define FPX_FMT_SOCKET_T   "%d"
+#define FPX_FMT_SOCKET_T   "%i"
 
 #elif (FPX_SOLARIS)
 /* Details for Solaris */
@@ -27,7 +27,7 @@
 #define FPX_SHUT_WR        SHUT_WR
 #define FPX_SHUT_RDWR      SHUT_RDWR
 #define FPX_INVALID_SOCKET -1
-#define FPX_FMT_SOCKET_T   "%d"
+#define FPX_FMT_SOCKET_T   "%i"
 
 #elif (FPX_WIN32)
 #define FPX_SHUT_RD        SD_RECEIVE
@@ -36,7 +36,7 @@
 #define FPX_INVALID_SOCKET INVALID_SOCKET
 
 #if (FPX_PTR_SIZE == 4)
-#define FPX_FMT_SOCKET_T "%d"
+#define FPX_FMT_SOCKET_T "%i"
 #else
 #define FPX_FMT_SOCKET_T "%I64d"
 #endif

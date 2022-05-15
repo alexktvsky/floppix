@@ -108,7 +108,7 @@ fpx_logger_worker(void *arg)
      * Fixme: Why process log can not get in time?
      */
 #if (FPX_POSIX && FPX_HAVE_MMAP && FPX_LOGGER_IS_PROC)
-    fpx_log_debug1(FPX_OK, "The log process has been started with pid %d",
+    fpx_log_debug1(FPX_OK, "The log process has been started with pid %i",
         getpid());
 #else
     fpx_log_debug1(FPX_OK,
@@ -442,7 +442,7 @@ fpx_log_error(uint level, fpx_logger_t *logger, fpx_err_t err, const char *fmt,
     if (err != FPX_OK) {
         if (len < FPX_LOG_STR_SIZE) {
             buf = (message->str) + len;
-            fpx_snprintf(buf, FPX_LOG_STR_SIZE - len, " (%d: %s)", err,
+            fpx_snprintf(buf, FPX_LOG_STR_SIZE - len, " (%i: %s)", err,
                 fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
         }
     }
@@ -476,7 +476,7 @@ fpx_log_console(fpx_fd_t fd, fpx_err_t err, const char *fmt, ...)
         pos = logstr + len;
 
         if (err != FPX_OK) {
-            n = fpx_snprintf(pos, FPX_LOG_STR_SIZE - len, " (%d: %s)\n", err,
+            n = fpx_snprintf(pos, FPX_LOG_STR_SIZE - len, " (%i: %s)\n", err,
                 fpx_strerror(err, errstr, FPX_ERRNO_STR_SIZE));
         }
         else {

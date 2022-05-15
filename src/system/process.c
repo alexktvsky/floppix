@@ -77,7 +77,7 @@ fpx_process_set_user(const char *user)
 
     if (setuid(uid) == -1) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "setuid(%d) failed", uid);
+        fpx_log_error1(FPX_LOG_ERROR, err, "setuid(%i) failed", uid);
         return err;
     }
 
@@ -107,7 +107,7 @@ fpx_process_set_group(const char *group)
 
     if (setgid(gid) == -1) {
         err = fpx_get_errno();
-        fpx_log_error1(FPX_LOG_ERROR, err, "setgid(%d) failed", gid);
+        fpx_log_error1(FPX_LOG_ERROR, err, "setgid(%i) failed", gid);
         return err;
     }
 

@@ -34,14 +34,14 @@
 
 #define fpx_assert_true(exp)                                                   \
     if (!(exp)) {                                                              \
-        fprintf(stderr, "%s:%d: Assertion fpx_assert_true(%s) failed\n",       \
+        fprintf(stderr, "%s:%i: Assertion fpx_assert_true(%s) failed\n",       \
             __FILE__, __LINE__, fpx_stringify(x));                             \
         return FPX_FAILED;                                                     \
     }
 
 #define fpx_assert_false(exp)                                                  \
     if (exp) {                                                                 \
-        fprintf(stderr, "%s:%d: Assertion fpx_assert_false(%s) failed\n",      \
+        fprintf(stderr, "%s:%i: Assertion fpx_assert_false(%s) failed\n",      \
             __FILE__, __LINE__, fpx_stringify(x));                             \
         return FPX_FAILED;                                                     \
     }
@@ -49,7 +49,7 @@
 #define fpx_assert_int_equal(x, y)                                             \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_int_equal(%s, %s)' failed\n"         \
+            "%s:%i: Assertion 'fpx_assert_int_equal(%s, %s)' failed\n"         \
             "expected: " FPX_FMT_INT_T                                         \
             "\n"                                                               \
             "  actual: " FPX_FMT_INT_T "\n",                                   \
@@ -60,7 +60,7 @@
 #define fpx_assert_uint_equal(x, y)                                            \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_uint_equal(%s, %s)' failed\n"        \
+            "%s:%i: Assertion 'fpx_assert_uint_equal(%s, %s)' failed\n"        \
             "expected: " FPX_FMT_UINT_T                                        \
             "\n"                                                               \
             "  actual: " FPX_FMT_UINT_T "\n",                                  \
@@ -71,9 +71,9 @@
 #define fpx_assert_int32_equal(x, y)                                           \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_int32_equal(%s, %s)' failed\n"       \
-            "expected: %d\n"                                                   \
-            "  actual: %d\n",                                                  \
+            "%s:%i: Assertion 'fpx_assert_int32_equal(%s, %s)' failed\n"       \
+            "expected: %i\n"                                                   \
+            "  actual: %i\n",                                                  \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
         return FPX_FAILED;                                                     \
     }
@@ -81,7 +81,7 @@
 #define fpx_assert_uint32_equal(x, y)                                          \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_uint32_equal(%s, %s)' failed\n"      \
+            "%s:%i: Assertion 'fpx_assert_uint32_equal(%s, %s)' failed\n"      \
             "expected: %u\n"                                                   \
             "  actual: %u\n",                                                  \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
@@ -91,9 +91,9 @@
 #define fpx_assert_int64_equal(x, y)                                           \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_int64_equal(%s, %s)' failed\n"       \
-            "expected: %zd\n"                                                  \
-            "  actual: %zd\n",                                                 \
+            "%s:%i: Assertion 'fpx_assert_int64_equal(%s, %s)' failed\n"       \
+            "expected: %zi\n"                                                  \
+            "  actual: %zi\n",                                                 \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
         return FPX_FAILED;                                                     \
     }
@@ -101,7 +101,7 @@
 #define fpx_assert_uint64_equal(x, y)                                          \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_uint64_equal(%s, %s)' failed\n"      \
+            "%s:%i: Assertion 'fpx_assert_uint64_equal(%s, %s)' failed\n"      \
             "expected: %zu\n"                                                  \
             "  actual: %zu\n",                                                 \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
@@ -111,7 +111,7 @@
 #define fpx_assert_size_equal(x, y)                                            \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_size_equal(%s, %s)' failed\n"        \
+            "%s:%i: Assertion 'fpx_assert_size_equal(%s, %s)' failed\n"        \
             "expected: %zu\n"                                                  \
             "  actual: %zu\n",                                                 \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
@@ -121,9 +121,9 @@
 #define fpx_assert_ssize_equal(x, y)                                           \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_ssize_equal(%s, %s)' failed\n"       \
-            "expected: %zd\n"                                                  \
-            "  actual: %zd\n",                                                 \
+            "%s:%i: Assertion 'fpx_assert_ssize_equal(%s, %s)' failed\n"       \
+            "expected: %zi\n"                                                  \
+            "  actual: %zi\n",                                                 \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
         return FPX_FAILED;                                                     \
     }
@@ -131,7 +131,7 @@
 #define fpx_assert_ptr_equal(x, y)                                             \
     if (x != y) {                                                              \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_ptr_equal(%s, %s)' failed\n"         \
+            "%s:%i: Assertion 'fpx_assert_ptr_equal(%s, %s)' failed\n"         \
             "expected: %p\n"                                                   \
             "  actual: %p\n",                                                  \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
@@ -141,7 +141,7 @@
 #define fpx_assert_str_equal(x, y)                                             \
     if (strcmp(x, y) != 0) {                                                   \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_string_equal(%s, %s)' failed\n"      \
+            "%s:%i: Assertion 'fpx_assert_string_equal(%s, %s)' failed\n"      \
             "expected: %s\n"                                                   \
             "  actual: %s\n",                                                  \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y), x, y);     \
@@ -151,7 +151,7 @@
 #define fpx_assert_mem_equal(x, y, n)                                          \
     if (memcmp(x, y, n) != 0) {                                                \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_memory_equal(%s, %s, %s)' "          \
+            "%s:%i: Assertion 'fpx_assert_memory_equal(%s, %s, %s)' "          \
             "failed\n",                                                        \
             __FILE__, __LINE__, fpx_stringify(x), fpx_stringify(y),            \
             fpx_stringify(n));                                                 \
@@ -161,7 +161,7 @@
 #define fpx_assert_non_null(expr)                                              \
     if ((expr) == NULL) {                                                      \
         fprintf(stderr,                                                        \
-            "%s:%d: Assertion 'fpx_assert_non_null(%s)' "                      \
+            "%s:%i: Assertion 'fpx_assert_non_null(%s)' "                      \
             "failed\n",                                                        \
             __FILE__, __LINE__, fpx_stringify(expr));                          \
         return FPX_FAILED;                                                     \
@@ -169,7 +169,7 @@
 
 #define fpx_assert_null(expr)                                                  \
     if ((expr) != NULL) {                                                      \
-        fprintf(stderr, "%s:%d: Assertion 'fpx_assert_null(%s)' failed\n",     \
+        fprintf(stderr, "%s:%i: Assertion 'fpx_assert_null(%s)' failed\n",     \
             __FILE__, __LINE__, fpx_stringify(expr));                          \
         return FPX_FAILED;                                                     \
     }

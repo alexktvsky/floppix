@@ -53,6 +53,52 @@ if (FPX_LINUX OR FPX_FREEBSD OR FPX_DARWIN OR FPX_SOLARIS)
 endif()
 
 check_c_source_compiles("
+#include <stdbool.h>
+int main(void) {
+    sizeof(bool);
+    true;
+    false;
+    return 0;
+}" FPX_HAVE_STDBOOL_H)
+
+check_c_source_compiles("
+#include <stdint.h>
+int main(void) {
+    sizeof(int8_t);
+    sizeof(int16_t);
+    sizeof(int32_t);
+    sizeof(int64_t);
+    sizeof(uint8_t);
+    sizeof(uint16_t);
+    sizeof(uint32_t);
+    sizeof(uint64_t);
+    sizeof(intptr_t);
+    sizeof(uintptr_t);
+    return 0;
+}" FPX_HAVE_STDINT_H)
+
+check_c_source_compiles("
+#include <stddef.h>
+int main(void) {
+    sizeof(size_t);
+    return 0;
+}" FPX_HAVE_SIZE_T)
+
+check_c_source_compiles("
+#include <unistd.h>
+int main(void) {
+    sizeof(ssize_t);
+    return 0;
+}" FPX_HAVE_SSIZE_T)
+
+check_c_source_compiles("
+#include <stddef.h>
+int main(void) {
+    sizeof(ptrdiff_t);
+    return 0;
+}" FPX_HAVE_PTRDIFF_T)
+
+check_c_source_compiles("
 #include <stddef.h>
 #include <sys/mman.h>
 int main(void) {
