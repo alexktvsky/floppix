@@ -52,6 +52,7 @@ PRIVATE
     -Wall
     -Wextra
     -pedantic-errors # -pedantic
+    -Werror=vla
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
