@@ -1,5 +1,5 @@
-#ifndef INCLUDED_FPX_CONFIG_H
-#define INCLUDED_FPX_CONFIG_H
+#ifndef FPX_CONFIG_H
+#define FPX_CONFIG_H
 
 #cmakedefine FPX_LINUX 1
 #cmakedefine FPX_FREEBSD 1
@@ -19,4 +19,4 @@
 #cmakedefine FPX_HAVE_KQUEUE 1
 #cmakedefine FPX_HAVE_OPENSSL 1
 
-#endif /* INCLUDED_FPX_CONFIG_H */
+#endif /* FPX_CONFIG_H */

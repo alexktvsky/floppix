@@ -18,7 +18,7 @@ static fpx_bitmask_t fpx_takes[] = {
 static fpx_err_t
 fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
     const char *name, int argc, char **argv, const char *filename,
-    unsigned int line)
+    unsigned long line)
 {
     fpx_directive_t *directive;
     size_t argv_size;
@@ -68,15 +68,15 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool, const char *file_buf)
     bool end_line = false;
     bool end_file = false;
 
-    unsigned int i;
-    unsigned int line = 1;
+    size_t i;
+    unsigned long line = 1;
 
     // file = config->conf_files->tail->data;
     file = fpx_list_data(&config->conf_files, fpx_file_t, list_node);
 
     filename = file->name;
 
-    for (i = 0;; ++i) {
+    for (i = 0; ; ++i) {
 
         c = file_buf[i];
 

@@ -8,7 +8,7 @@ fpx_atoi(const char *str, size_t n)
 {
     int value, temp;
     int cutoff, cutlim;
-    unsigned int i;
+    size_t i;
 
     if (n == 0) {
         return -1;
@@ -41,7 +41,7 @@ fpx_atosz(const char *str, size_t n)
 {
     ssize_t value, temp;
     ssize_t cutoff, cutlim;
-    unsigned int i;
+    size_t i;
 
     if (n == 0) {
         return -1;
@@ -72,7 +72,7 @@ fpx_atosz(const char *str, size_t n)
 size_t
 fpx_strlen(const char *str)
 {
-    unsigned int i;
+    size_t i;
 
     for (i = 0;; ++i) {
 
@@ -85,7 +85,7 @@ fpx_strlen(const char *str)
 size_t
 fpx_strnlen(const char *str, size_t n)
 {
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < n; ++i) {
 
@@ -169,8 +169,7 @@ fpx_strchr(const char *str, int c)
 char *
 fpx_strrchr(const char *str, int c)
 {
-    size_t len;
-    int i;
+    size_t len, i;
 
     len = fpx_strlen(str);
 

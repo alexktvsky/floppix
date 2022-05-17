@@ -43,10 +43,11 @@ fpx_listener_bind(fpx_listener_t *listener)
     const char *addr, *port;
     fpx_socket_t fd;
     fpx_socklen_t addrlen;
-    unsigned int tries, done;
+    unsigned int tries;
+    bool done;
     fpx_err_t err;
 
-    done = 0;
+    done = false;
     result = NULL;
     fd = FPX_INVALID_SOCKET;
     addr = listener->text_addr;
@@ -91,7 +92,7 @@ fpx_listener_bind(fpx_listener_t *listener)
                 fpx_msleep(FPX_BIND_ATTEMPT_PAUSE);
             }
             else {
-                done = 1;
+                done = true;
                 break;
             }
         }

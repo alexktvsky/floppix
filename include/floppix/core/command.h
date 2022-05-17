@@ -75,7 +75,7 @@ struct fpx_directive_s {
     /* The name of the file this directive was found in */
     const char *filename;
     /* The line number the directive was on */
-    unsigned int line;
+    unsigned long line;
     /* List node */
     fpx_list_node_t list_node;
 };

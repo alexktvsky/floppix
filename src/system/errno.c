@@ -102,8 +102,7 @@ const char *
 fpx_strerror(fpx_err_t err, char *buf, size_t bufsize)
 {
     const char *str;
-    size_t len;
-    unsigned int i;
+    size_t len, i;
 
     if (err > 0 && err < FPX_ERROR_DOMAIN_BASE) {
         str = fpx_os_strerror(err, buf, bufsize);

@@ -17,7 +17,7 @@ static const char *config_fname = FPX_DEFAULT_CONFIG_PATH;
 static fpx_err_t
 fpx_parse_argv(unsigned int argc, const char *const *argv)
 {
-    unsigned int i, saved_index;
+    size_t i, saved_index;
     const char *p;
     bool long_option;
 
