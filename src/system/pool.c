@@ -467,7 +467,7 @@ size_t
 fpx_pool_get_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    uint i;
+    unsigned int i;
     size_t size;
 
     size = 0;
@@ -486,7 +486,7 @@ size_t
 fpx_pool_get_free_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    uint i;
+    unsigned int i;
     size_t size;
 
     size = 0;
@@ -505,7 +505,7 @@ size_t
 fpx_pool_get_total_size(fpx_pool_t *pool)
 {
     fpx_memnode_t *node;
-    uint i;
+    unsigned int i;
     size_t size;
 
     size = 0;
@@ -525,7 +525,7 @@ fpx_pool_clear(fpx_pool_t *pool)
 {
     fpx_pool_t *temp1, *temp2;
     fpx_memnode_t *node;
-    uint i;
+    unsigned int i;
 
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {
@@ -568,7 +568,7 @@ fpx_pool_destroy(fpx_pool_t *pool)
 {
     fpx_pool_t *temp1, *temp2;
     fpx_memnode_t *node, *temp;
-    uint i;
+    unsigned int i;
 
 #if (FPX_POOL_THREAD_SAFETY)
     if (!fpx_thread_equal(pool->owner, fpx_thread_current_handle())) {

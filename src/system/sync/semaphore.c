@@ -4,10 +4,10 @@
 #if (FPX_POSIX && FPX_HAVE_POSIX_SEM && !FPX_DARWIN)
 
 fpx_err_t
-fpx_semaphore_init(fpx_semaphore_t *semaphore, uint value, uint maxval,
-    fpx_bitmask_t params)
+fpx_semaphore_init(fpx_semaphore_t *semaphore, unsigned int value,
+    unsigned int maxval, fpx_bitmask_t params)
 {
-    uint shared;
+    unsigned int shared;
     fpx_err_t err;
 
     (void) maxval;
@@ -78,8 +78,8 @@ fpx_semaphore_fini(fpx_semaphore_t *semaphore)
 #elif (FPX_POSIX && FPX_HAVE_GCD_SEM)
 
 fpx_err_t
-fpx_semaphore_init(fpx_semaphore_t *semaphore, uint value, uint maxval,
-    fpx_bitmask_t params)
+fpx_semaphore_init(fpx_semaphore_t *semaphore, unsigned int value,
+    unsigned int maxval, fpx_bitmask_t params)
 {
     fpx_err_t err;
     dispatch_semaphore_t s;
@@ -132,12 +132,12 @@ fpx_semaphore_fini(fpx_semaphore_t *semaphore)
 #elif (FPX_WIN32)
 
 fpx_err_t
-fpx_semaphore_init(fpx_semaphore_t *semaphore, uint value, uint maxval,
-    fpx_bitmask_t params)
+fpx_semaphore_init(fpx_semaphore_t *semaphore, unsigned int value,
+    unsigned int maxval, fpx_bitmask_t params)
 {
     HANDLE s;
     SECURITY_ATTRIBUTES attr;
-    uint shared;
+    unsigned int shared;
     fpx_err_t err;
 
     (void) params;

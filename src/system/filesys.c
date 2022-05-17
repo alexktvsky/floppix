@@ -106,8 +106,8 @@ fpx_stat_get_access(fpx_file_stat_t *stat)
 }
 
 fpx_err_t
-fpx_file_open(fpx_file_t *file, const char *path, uint mode, uint create,
-    uint access)
+fpx_file_open(fpx_file_t *file, const char *path, unsigned int mode,
+    unsigned int create, unsigned int access)
 {
     fpx_fd_t fd;
     fpx_err_t err;
@@ -548,8 +548,8 @@ fpx_stat_get_file_type(fpx_file_stat_t *stat)
 }
 
 fpx_err_t
-fpx_file_open(fpx_file_t *file, const char *path, uint mode, uint create,
-    uint access)
+fpx_file_open(fpx_file_t *file, const char *path, unsigned int mode,
+    unsigned int create, unsigned int access)
 {
     uint16_t wpath[FPX_MAX_PATH_LEN];
     fpx_fd_t fd;

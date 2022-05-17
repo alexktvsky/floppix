@@ -15,17 +15,17 @@
 #define FPX_LOG_INIT_DELAY     500
 #define FPX_LOG_WORKER_DELAY   1000
 
-typedef void (
-    *fpx_log_handler_t)(fpx_log_t *log, uint level, char *buf, size_t len);
+typedef void (*fpx_log_handler_t)(fpx_log_t *log, unsigned int level, char *buf,
+    size_t len);
 
 typedef struct {
-    uint level;
+    unsigned int level;
     char time[FPX_LOG_TIMESTR_SIZE];
     char str[FPX_LOG_STR_SIZE];
 } fpx_log_message_t;
 
 struct fpx_log_s {
-    uint level;
+    unsigned int level;
     fpx_file_t *file;
     size_t size; /* 0 - unlimited */
     fpx_log_handler_t handler;
@@ -45,8 +45,8 @@ struct fpx_logger_s {
 
     bool running;
 
-    uint front;
-    uint rear;
+    unsigned int front;
+    unsigned int rear;
     fpx_semaphore_t *sem_empty;
     fpx_semaphore_t *sem_full;
     fpx_mutex_t *mutex_deposit;
@@ -65,7 +65,7 @@ const char *fpx_log_prio[] = {
 };
 
 static void
-fpx_write_to_log(fpx_log_t *log, uint level, char *buf, size_t len)
+fpx_write_to_log(fpx_log_t *log, unsigned int level, char *buf, size_t len)
 {
     if (level > (log->level)) {
         return;
@@ -264,7 +264,7 @@ failed:
 }
 
 fpx_err_t
-fpx_logger_add_log_fd(fpx_logger_t *logger, uint level, fpx_fd_t fd)
+fpx_logger_add_log_fd(fpx_logger_t *logger, unsigned int level, fpx_fd_t fd)
 {
     fpx_log_t *log;
     fpx_file_t *file;
@@ -306,8 +306,8 @@ failed:
 }
 
 fpx_err_t
-fpx_logger_add_log_file(fpx_logger_t *logger, uint level, const char *fname,
-    size_t size)
+fpx_logger_add_log_file(fpx_logger_t *logger, unsigned int level,
+    const char *fname, size_t size)
 {
     fpx_log_t *log;
     fpx_file_t *file;
@@ -413,8 +413,8 @@ fpx_logger_start(fpx_logger_t *logger)
 }
 
 void
-fpx_log_error(uint level, fpx_logger_t *logger, fpx_err_t err, const char *fmt,
-    ...)
+fpx_log_error(unsigned int level, fpx_logger_t *logger, fpx_err_t err,
+    const char *fmt, ...)
 {
     char errstr[FPX_ERRNO_STR_SIZE];
     char *buf;

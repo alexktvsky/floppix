@@ -43,7 +43,7 @@ fpx_listener_bind(fpx_listener_t *listener)
     const char *addr, *port;
     fpx_socket_t fd;
     fpx_socklen_t addrlen;
-    uint tries, done;
+    unsigned int tries, done;
     fpx_err_t err;
 
     done = 0;

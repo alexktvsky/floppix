@@ -204,8 +204,8 @@ struct fpx_file_info_s {
     fpx_file_stat_t stat;
 };
 
-fpx_err_t fpx_file_open(fpx_file_t *file, const char *path, uint mode,
-    uint create, uint access);
+fpx_err_t fpx_file_open(fpx_file_t *file, const char *path, unsigned int mode,
+    unsigned int create, unsigned int access);
 ssize_t fpx_file_read(fpx_file_t *file, uint8_t *buf, size_t size,
     size_t offset);
 ssize_t fpx_file_write(fpx_file_t *file, const char *buf, size_t size,

@@ -64,7 +64,7 @@ fpx_config_parse_addr_port(char **addr, char **port, const char *str,
 {
     const char *pos, *end, *close_bracket;
     int int_port;
-    uint rv;
+    unsigned int rv;
     size_t len;
 
     len = fpx_strlen(str);
@@ -139,7 +139,7 @@ fpx_config_parse_addr_port(char **addr, char **port, const char *str,
 uint
 fpx_config_parse_log_level(const char *str)
 {
-    uint i;
+    unsigned int i;
 
     for (i = 0; fpx_log_prio[i] != NULL; ++i) {
         if (fpx_strcmp(str, fpx_log_prio[i]) == 0) {

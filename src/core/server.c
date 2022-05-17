@@ -65,7 +65,7 @@ fpx_handler_listen(fpx_cmd_params_t *params, void *data, int argc,
     fpx_listener_t *listener;
     fpx_pool_t *pool;
     char *addr, *port;
-    uint rv;
+    unsigned int rv;
     fpx_err_t err;
 
     (void) data;
@@ -104,7 +104,7 @@ static fpx_err_t
 fpx_handler_log(fpx_cmd_params_t *params, void *data, int argc,
     char **argv)
 {
-    uint level;
+    unsigned int level;
     ssize_t size;
 
     (void) data;

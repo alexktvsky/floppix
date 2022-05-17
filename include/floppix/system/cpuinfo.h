@@ -4,6 +4,6 @@
 #include "floppix/system/os/portable.h"
 #include "floppix/system/types.h"
 
-uint fpx_get_number_cpu(void);
+unsigned int fpx_get_number_cpu(void);
 
 #endif /* FLOPPIX_SYSTEM_CPUINFO_H */

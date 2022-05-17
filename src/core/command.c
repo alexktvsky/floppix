@@ -17,7 +17,8 @@ static fpx_bitmask_t fpx_takes[] = {
 
 static fpx_err_t
 fpx_config_save_directive(fpx_config_t *config, fpx_pool_t *pool,
-    const char *name, int argc, char **argv, const char *filename, uint line)
+    const char *name, int argc, char **argv, const char *filename,
+    unsigned int line)
 {
     fpx_directive_t *directive;
     size_t argv_size;
@@ -67,8 +68,8 @@ fpx_config_parse(fpx_config_t *config, fpx_pool_t *pool, const char *file_buf)
     bool end_line = false;
     bool end_file = false;
 
-    uint i;
-    uint line = 1;
+    unsigned int i;
+    unsigned int line = 1;
 
     // file = config->conf_files->tail->data;
     file = fpx_list_data(&config->conf_files, fpx_file_t, list_node);
@@ -217,7 +218,7 @@ fpx_find_module_by_command(fpx_server_t *server, const char *cmd_name)
 static fpx_err_t
 fpx_check_directive_arguments(fpx_directive_t *directive, fpx_command_t *cmd)
 {
-    uint min_takes, max_takes, i, argc;
+    unsigned int min_takes, max_takes, i, argc;
 
     min_takes = 0;
     max_takes = 0;

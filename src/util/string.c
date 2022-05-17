@@ -8,7 +8,7 @@ fpx_atoi(const char *str, size_t n)
 {
     int value, temp;
     int cutoff, cutlim;
-    uint i;
+    unsigned int i;
 
     if (n == 0) {
         return -1;
@@ -41,7 +41,7 @@ fpx_atosz(const char *str, size_t n)
 {
     ssize_t value, temp;
     ssize_t cutoff, cutlim;
-    uint i;
+    unsigned int i;
 
     if (n == 0) {
         return -1;
@@ -72,7 +72,7 @@ fpx_atosz(const char *str, size_t n)
 size_t
 fpx_strlen(const char *str)
 {
-    uint i;
+    unsigned int i;
 
     for (i = 0;; ++i) {
 
@@ -85,7 +85,7 @@ fpx_strlen(const char *str)
 size_t
 fpx_strnlen(const char *str, size_t n)
 {
-    uint i;
+    unsigned int i;
 
     for (i = 0; i < n; ++i) {
 
@@ -100,7 +100,7 @@ fpx_strnlen(const char *str, size_t n)
 int
 fpx_strcasecmp(char *str1, char *str2)
 {
-    uint c1, c2;
+    unsigned int c1, c2;
 
     for (;;) {
         c1 = (uint) *str1++;
@@ -125,7 +125,7 @@ fpx_strcasecmp(char *str1, char *str2)
 int
 fpx_strncasecmp(char *str1, char *str2, size_t n)
 {
-    uint c1, c2;
+    unsigned int c1, c2;
 
     while (n) {
         c1 = (uint) *str1++;

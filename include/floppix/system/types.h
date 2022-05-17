@@ -20,6 +20,4 @@
 #define FPX_SIZE_T_MAX       SIZE_MAX
 #define FPX_SSIZE_T_MAX      SSIZE_MAX
 
-typedef unsigned int uint;
-
 #endif /* FLOPPIX_SYSTEM_TYPE_H */
