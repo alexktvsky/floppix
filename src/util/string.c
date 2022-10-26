@@ -169,7 +169,8 @@ fpx_strchr(const char *str, int c)
 char *
 fpx_strrchr(const char *str, int c)
 {
-    size_t len, i;
+    size_t len;
+    ssize_t i;
 
     len = fpx_strlen(str);
 

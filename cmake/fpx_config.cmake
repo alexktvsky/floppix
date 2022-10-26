@@ -135,7 +135,6 @@ check_c_source_compiles("
 #include <semaphore.h>
 int main(void) {
     sem_t s;
-    sem_init(&s, 0, 1);
     return 0;
 }" FPX_HAVE_POSIX_SEM)
 
