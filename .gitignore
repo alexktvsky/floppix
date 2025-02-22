@@ -54,4 +54,5 @@ cmake-build-release
 *.log
 
 # CLion files
-.idea/workspace.xml
+.idea
+.vscode
