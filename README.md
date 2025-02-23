@@ -1,11 +1,14 @@
 # Floppix
 
+A lightweight, high-performance web server inspired by Apache and Nginx.
 
-Run unit tests:
-```console
-cd build
-cmake -DBUILD_TESTING=1 .. && cmake --build . --parallel
-```
+Warning: Project is under development and doesn't provide final product quality.
+
+## Features
+- **Plain C89**: Written in standard C89 for maximum portability.
+- **Event-driven model**: Efficiently handles multiple connections using an event-driven, non-blocking architecture.
+- **Configurable**: Use a simple configuration file to control server behavior.
+- **Cross-platform**: Works on Linux, macOS, and Windows.
 
 ## Supported systems
 * GNU/Linux
@@ -16,6 +19,3 @@ cmake -DBUILD_TESTING=1 .. && cmake --build . --parallel
 
 ## Third-party
 * OpenSSL ([OpenSSL License](https://www.openssl.org/source/license.html))
-
-[//]: # (LINKS)
-[license]: LICENSE
